@@ -39,8 +39,7 @@ export default class MFDIPlugin extends Plugin {
     // 意図: Worker 初期化は重くなりうるため、コマンド/ビュー登録をブロックしない。
     // lazy ロード直後に command wrapper から実コマンドへ到達できることを優先する。
     try {
-      const db = WorkerClient.get();
-      await db.initialize({ appId: this.shell.getAppId() });
+      await WorkerClient.initialize({ appId: this.shell.getAppId() });
     } catch (e) {
       console.error("Failed to initialize DB worker:", e);
     }

@@ -93,8 +93,10 @@ export async function indexNoteContent(
   if (!identity) return;
 
   await enqueueForPath(file.path, async () => {
-    const dbService = WorkerClient.get();
-    await dbService.onFileChanged(toWorkerNote(file, identity, content));
+    const note = toWorkerNote(file, identity, content);
+    await WorkerClient.runWithRecovery((dbService) =>
+      dbService.onFileChanged(note),
+    );
   });
 }
 
@@ -131,8 +133,10 @@ export class TagIndexer {
       (n): n is NonNullable<typeof n> => n !== null,
     );
 
-    const dbService = WorkerClient.get();
-    await dbService.scanAllNotes(validNotes);
+    await WorkerClient.runWithRecovery(
+      (dbService) => dbService.scanAllNotes(validNotes),
+      120_000,
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -157,14 +161,17 @@ export class TagIndexer {
     // より古い内容を worker へ送らないことを保証する。
     await enqueueForPath(file.path, async () => {
       const content = await shell.cachedReadFile(file);
-      const dbService = WorkerClient.get();
-      await dbService.onFileChanged(toWorkerNote(file, identity, content));
+      const note = toWorkerNote(file, identity, content);
+      await WorkerClient.runWithRecovery((dbService) =>
+        dbService.onFileChanged(note),
+      );
     });
   }
 
   async onFileDeleted(path: string): Promise<void> {
-    const dbService = WorkerClient.get();
-    await dbService.onFileDeleted(path);
+    await WorkerClient.runWithRecovery((dbService) =>
+      dbService.onFileDeleted(path),
+    );
   }
 
   async onFileRenamed(
@@ -183,10 +190,9 @@ export class TagIndexer {
     // rename も新パスのチェーンに乗せ、他イベントとの順序入れ替わりを防ぐ。
     await enqueueForPath(file.path, async () => {
       const content = await shell.cachedReadFile(file);
-      const dbService = WorkerClient.get();
-      await dbService.onFileRenamed(
-        toWorkerNote(file, identity, content),
-        oldPath,
+      const note = toWorkerNote(file, identity, content);
+      await WorkerClient.runWithRecovery((dbService) =>
+        dbService.onFileRenamed(note, oldPath),
       );
     });
   }

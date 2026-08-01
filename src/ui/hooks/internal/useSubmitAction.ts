@@ -92,6 +92,22 @@ export const useSubmitAction = () => {
     [shell, settings.insertAfter, settingsState.fixedSessionNumber],
   );
 
+  const indexSavedNote = useCallback(
+    async (note: TFile, content: string): Promise<void> => {
+      try {
+        await indexNoteContent(shell, note, settings, content);
+      } catch (error) {
+        // Markdown への保存自体は完了している。入力を残すと再送で重複投稿に
+        // なり得るため、保存済みであることを明示して投稿処理は完了させる。
+        console.error("Failed to update DB index after saving post:", error);
+        new Notice(
+          "投稿はノートに保存されましたが、一覧の更新に失敗しました。再読み込みしてください",
+        );
+      }
+    },
+    [shell, settings],
+  );
+
   // ── Sub-handlers ───────────────────────────────────────────────────────────
 
   /** 編集中の投稿を確定する */
@@ -143,7 +159,7 @@ export const useSubmitAction = () => {
       // 反映が1テンポ遅れるレースを防ぐ。
       const noteFile = shell.getAbstractFileByPath(latestPost.path);
       if (noteFile instanceof TFile) {
-        await indexNoteContent(shell, noteFile, settings, newContent);
+        await indexSavedNote(noteFile, newContent);
       }
       await refreshPosts(latestPost.path);
     },
@@ -155,6 +171,7 @@ export const useSubmitAction = () => {
       findLatestPost,
       notifyNotFoundAndRefresh,
       refreshPosts,
+      indexSavedNote,
     ],
   );
 
@@ -216,7 +233,7 @@ export const useSubmitAction = () => {
         insertMarker,
       );
       // 意図: 書き込んだ内容で即インデックスし、直後の再検証で確実に返信が載るようにする。
-      await indexNoteContent(shell, noteFile, settings, newContent);
+      await indexSavedNote(noteFile, newContent);
       await refreshPosts(rootPost.path);
 
       editorState.clearInput();
@@ -230,6 +247,7 @@ export const useSubmitAction = () => {
       editorState,
       getSerializedTimestamp,
       refreshPosts,
+      indexSavedNote,
     ],
   );
 
@@ -323,7 +341,7 @@ export const useSubmitAction = () => {
       // 意図: vault イベント経由の非同期インデックス完了を待たず、
       // 書き込んだ内容で即インデックスする。これで直後の refreshPosts の
       // 再検証時点で必ず新しい投稿が DB から読め、「反映が遅れる」レースが消える。
-      await indexNoteContent(shell, note, settings, newContent);
+      await indexSavedNote(note, newContent);
 
       if (
         isTimelineView(settingsState.displayMode) &&
@@ -357,6 +375,7 @@ export const useSubmitAction = () => {
       store,
       refreshPosts,
       ensureFixedSessionInsertMarker,
+      indexSavedNote,
     ],
   );
 

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 vi.mock("src/db/worker-client", () => ({
   WorkerClient: {
     get: vi.fn(),
+    runWithRecovery: vi.fn(),
   },
 }));
 
@@ -33,6 +34,9 @@ describe("TagIndexer", () => {
   beforeEach(() => {
     api = createApiMock();
     vi.mocked(WorkerClient.get).mockReturnValue(api);
+    vi.mocked(WorkerClient.runWithRecovery).mockImplementation(
+      async (operation) => operation(api),
+    );
   });
 
   afterEach(() => {
