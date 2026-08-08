@@ -185,7 +185,7 @@ export default class MFDIPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    const currentSettings = await this.loadData();
+    const currentSettings = (await this.loadData()) as Partial<Settings>;
     this.settings = { ...DEFAULT_SETTINGS, ...currentSettings };
   }
 
