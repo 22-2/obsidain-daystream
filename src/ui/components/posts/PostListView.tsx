@@ -120,6 +120,7 @@ export const PostListView: React.FC = memo(() => {
     filteredPosts,
     loadMore,
     hasMore,
+    isLoading,
     timelineView,
     threadView,
     canCollapseDividers,
@@ -413,7 +414,12 @@ export const PostListView: React.FC = memo(() => {
           );
         })}
         {timelineView && !threadView && (
-          <ListFooter key="footer" hasMore={!!hasMore} loadMore={loadMore} />
+          <ListFooter
+            key="footer"
+            hasMore={!!hasMore}
+            isLoading={isLoading}
+            loadMore={loadMore}
+          />
         )}
         <Box key="bottom-spacer" className="h-[24rem]" />
       </Virtualizer>
@@ -440,7 +446,15 @@ export const PostListView: React.FC = memo(() => {
 });
 
 const ListFooter = memo(
-  ({ hasMore, loadMore }: { hasMore: boolean; loadMore: () => void }) => {
+  ({
+    hasMore,
+    isLoading,
+    loadMore,
+  }: {
+    hasMore: boolean;
+    isLoading: boolean;
+    loadMore: () => void;
+  }) => {
     useEffect(() => {
       if (hasMore) {
         loadMore();
@@ -449,7 +463,9 @@ const ListFooter = memo(
 
     return (
       <Box className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-[var(--font-smallest)]">
-        {hasMore ? "読み込み中..." : "これ以上投稿はありません"}
+        {isLoading || hasMore
+          ? "読み込み中..."
+          : "これ以上投稿はありません"}
       </Box>
     );
   },

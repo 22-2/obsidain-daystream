@@ -38,6 +38,11 @@ const mocked = vi.hoisted(() => {
     virtualizerHandle: {
       scrollToIndex: vi.fn(),
     },
+    postList: {
+      hasMore: false,
+      isLoading: false,
+      timelineView: false,
+    },
   };
 });
 
@@ -60,10 +65,10 @@ function createUsePostsValue(posts: Post[]): UsePostsOutput {
     collapseGroups: vi.fn(),
     expandGroups: vi.fn(),
     loadMore: vi.fn(),
-    hasMore: false,
-    isLoading: false,
+    hasMore: mocked.postList.hasMore,
+    isLoading: mocked.postList.isLoading,
     isValidating: false,
-    timelineView: false,
+    timelineView: mocked.postList.timelineView,
     threadView: false,
   };
 }
@@ -236,6 +241,9 @@ describe("PostListView", () => {
     mocked.editor.highlightRequestId = 0;
     mocked.editor.editingPost = post;
     mocked.editor.editingPostOffset = post.startOffset;
+    mocked.postList.hasMore = false;
+    mocked.postList.isLoading = false;
+    mocked.postList.timelineView = false;
     mocked.virtualizerHandle.scrollToIndex.mockReset();
   });
 
@@ -267,5 +275,16 @@ describe("PostListView", () => {
     expect(mocked.virtualizerHandle.scrollToIndex).toHaveBeenCalledWith(0, {
       align: "center",
     });
+  });
+
+  it("タイムラインの初回読み込み中は終端メッセージを表示しない", () => {
+    mocked.posts = [];
+    mocked.postList.isLoading = true;
+    mocked.postList.timelineView = true;
+
+    render(<PostListView />);
+
+    expect(screen.getByText("読み込み中...")).toBeDefined();
+    expect(screen.queryByText("これ以上投稿はありません")).toBeNull();
   });
 });
