@@ -161,7 +161,7 @@ export const SidebarScales: React.FC<{
   return (
     <PanelSection
       title="年月日別"
-      className="mfdi-sidebar-scales mt-2 items-stretch gap-0 pt-2"
+      className="mfdi-sidebar-scales items-stretch gap-0"
       onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
     >
       <VStack className="items-stretch gap-1">
