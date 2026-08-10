@@ -14,6 +14,16 @@ export interface MFDIEditorModalOptions {
 export class MFDIEditorModal extends ModalEditor {
   private readonly modalOptions: MFDIEditorModalOptions;
   private readonly submissionState: { submitted: boolean };
+  private readonly handleSizerMouseDown = (event: MouseEvent): void => {
+    const target = event.target;
+    if (!(target instanceof Element) || !target.closest(".cm-sizer")) return;
+
+    // CodeMirror の空白領域を押した後にも入力可能にする。描画後に focus することで、
+    // CodeMirror 標準のカーソル配置・選択処理を先に完了させる。
+    window.requestAnimationFrame(() => {
+      if (this.modalEl.isConnected) this.editor?.focus();
+    });
+  };
 
   constructor(app: App, options: MFDIEditorModalOptions) {
     const submissionState = { submitted: false };
@@ -41,7 +51,13 @@ export class MFDIEditorModal extends ModalEditor {
 
   async onOpen(): Promise<void> {
     await super.onOpen();
-    this.titleEl.setText("投稿");
+    this.titleEl.empty();
+    this.titleEl.style.display = "none";
+    this.contentEl.addEventListener(
+      "mousedown",
+      this.handleSizerMouseDown,
+      true,
+    );
 
     const actions = this.contentEl.createDiv({
       cls: "mfdi-editor-modal__actions",
@@ -66,6 +82,11 @@ export class MFDIEditorModal extends ModalEditor {
   onClose() {
     // 投稿成功時は submit 側でストアを確定させるため、onClose で内容を
     // 下書きへ戻さない。キャンセル／×閉じる場合だけ最終内容を保持する。
+    this.contentEl.removeEventListener(
+      "mousedown",
+      this.handleSizerMouseDown,
+      true,
+    );
     super.onClose();
   }
 }
