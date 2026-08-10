@@ -396,7 +396,6 @@ const ReactViewContent = () => {
         <SidebarContainer
           isOpen={effectivelyLeftOpen}
           side="left"
-          ariaLabel="ナビゲーター"
         >
           {viewNoteMode === "fixed" ? (
             <FixedSessionSidebar />
@@ -433,7 +432,6 @@ const ReactViewContent = () => {
         <SidebarContainer
           isOpen={effectivelyRightOpen}
           side="right"
-          ariaLabel="インサイト"
         >
           <InsightsSidebar />
         </SidebarContainer>
