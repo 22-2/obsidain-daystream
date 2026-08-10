@@ -35,7 +35,7 @@ export const MiniCalendar: React.FC<{
   }, [viewDate, onViewDateChange]);
 
   return (
-    <div className="mini-calendar flex w-full flex-col gap-4 px-4">
+    <div className="mini-calendar flex w-full flex-col px-4">
       <CalendarHeader
         viewDate={viewDate}
         date={date}
