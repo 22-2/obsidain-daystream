@@ -206,12 +206,12 @@ export class MFDIView extends ItemView {
     const capabilities = getMFDIViewCapabilities(this.state);
 
     if (capabilities.supportsSidebar) {
-      this.addAction("panel-left", "ナビゲーターを切り替え", () => {
-        this.actionDelegates.onToggleLeftPanel?.();
-      }).setAttr("data-mfdi-actions", "true");
-
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
+      }).setAttr("data-mfdi-actions", "true");
+
+      this.addAction("panel-left", "ナビゲーターを切り替え", () => {
+        this.actionDelegates.onToggleLeftPanel?.();
       }).setAttr("data-mfdi-actions", "true");
     }
 
