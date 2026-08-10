@@ -1,0 +1,32 @@
+import type { FC } from "react";
+import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { Input } from "src/ui/components/primitives";
+import { PLACEHOLDER_TEXT } from "src/ui/config/consntants";
+import { usePostComposer } from "src/ui/hooks/usePostComposer";
+
+/** ツールバーから投稿入力ダイアログを開くプレースホルダー。 */
+export const StatusBarPostInput: FC = () => {
+  const { isReadOnly, openComposer } = usePostComposer();
+
+  if (isReadOnly) return null;
+
+  return (
+    <div
+      className="mfdi-statusbar-post-input flex min-h-7 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-2 transition-colors hover:bg-[var(--background-modifier-hover)]"
+      onClick={openComposer}
+    >
+      <ObsidianIcon
+        name="pencil"
+        size="1em"
+        className="pointer-events-none shrink-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-muted)]"
+      />
+      <Input
+        readOnly
+        type="text"
+        placeholder={PLACEHOLDER_TEXT}
+        aria-label="新しい投稿"
+        className="!h-auto min-h-7 min-w-0 flex-1 cursor-pointer border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-small)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
+      />
+    </div>
+  );
+};

@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { Box, HStack, VStack } from "src/ui/components/primitives";
 import { StatusBarDateNavigation } from "src/ui/components/statusbar/parts/StatusBarDateNavigation";
 import { StatusBarHome } from "src/ui/components/statusbar/parts/StatusBarHome";
+import { StatusBarPostInput } from "src/ui/components/statusbar/parts/StatusBarPostInput";
 import { StatusBarSearch } from "src/ui/components/statusbar/parts/StatusBarSearch";
 
 /**
@@ -17,6 +18,9 @@ export const StatusBar: FC = () => {
         </HStack>
         <HStack className="w-full justify-center [&_.mfdi-statusbar-search]:!my-0 [&_.mfdi-statusbar-search]:!min-h-7 [&_.mfdi-statusbar-search]:!w-full [&_.mfdi-statusbar-search]:!max-w-none [&_.mfdi-statusbar-search]:!flex-1">
           <StatusBarSearch />
+        </HStack>
+        <HStack className="w-full justify-center">
+          <StatusBarPostInput />
         </HStack>
       </VStack>
     </Box>
