@@ -454,11 +454,12 @@
    ダッシュボードレイアウト
    ============================================== */
 
-.mfdi-home-menu-item--active :is(.menu-item-icon, .menu-item-title),
-.menu-item:has(.mfdi-home-menu-title--active)
-  :is(.menu-item-icon, .menu-item-title),
-.mfdi-home-menu-title--active {
+[data-type="mfdi-view"] .mfdi-home-action--active {
   color: var(--text-accent);
+}
+
+[data-type="mfdi-view"] .mfdi-home-action--active:hover {
+  color: var(--text-normal);
 }
 
 [data-type="mfdi-view"] .mfdi-dashboard-root {

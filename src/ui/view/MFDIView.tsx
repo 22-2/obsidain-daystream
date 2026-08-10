@@ -30,6 +30,7 @@ export class MFDIView extends ItemView {
   private activeSearchControlEl: HTMLElement | null = null;
   private searchInputEl: HTMLInputElement | null = null;
   private isSearchToggleFromAction = false;
+  private homeActionEl: HTMLElement | null = null;
 
   public navigation = false;
   public readonly actionDelegates: MFDIActionDelegate = {};
@@ -205,6 +206,15 @@ export class MFDIView extends ItemView {
     this.cleanUpActions();
     const capabilities = getMFDIViewCapabilities(this.state);
 
+    if (capabilities.supportsDateNavigation) {
+      this.homeActionEl = this.addAction("home", "ホーム", () => {
+        this.actionDelegates.onClickHome?.();
+      });
+      this.homeActionEl.setAttr("data-mfdi-actions", "true");
+      this.homeActionEl.addClass("mfdi-home-action");
+      this.updateHomeActionState();
+    }
+
     if (capabilities.supportsSidebar) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
@@ -222,6 +232,17 @@ export class MFDIView extends ItemView {
     Array.from(this.actionsEl.children)
       .filter((el) => el.getAttr("data-mfdi-actions") === "true")
       .forEach((el) => el.detach());
+    this.homeActionEl = null;
+  }
+
+  public updateHomeActionState(): void {
+    if (!this.homeActionEl) return;
+
+    const isDefaultView = this.actionDelegates.onGetIsViewDefault?.() ?? true;
+    this.homeActionEl.classList.toggle(
+      "mfdi-home-action--active",
+      !isDefaultView,
+    );
   }
 
   private ensureSearchControl(): void {
@@ -357,32 +378,6 @@ export class MFDIView extends ItemView {
 
   private addViewMenuItems(menu: Menu): void {
     const capabilities = getMFDIViewCapabilities(this.state);
-
-    if (capabilities.supportsDateNavigation) {
-      const isDefaultView = this.actionDelegates.onGetIsViewDefault?.() ?? true;
-
-      menu.addItem((item) => {
-        const title = document.createDocumentFragment();
-        const titleText = document.createElement("span");
-        titleText.textContent = "ホーム";
-        if (!isDefaultView) {
-          titleText.classList.add("mfdi-home-menu-title--active");
-        }
-        title.append(titleText);
-
-        item
-          .setTitle(title)
-          .setIcon("home")
-          .onClick(() => this.actionDelegates.onClickHome?.());
-
-        const menuItem = item as unknown as { dom?: HTMLElement };
-        menuItem.dom?.classList.toggle(
-          "mfdi-home-menu-item--active",
-          !isDefaultView,
-        );
-      });
-      menu.addSeparator();
-    }
 
     menu.addItem((item) =>
       item

@@ -323,6 +323,7 @@ const ReactViewContent = () => {
         searchQuery: settings.searchQuery,
         searchInputOpen: settings.searchInputOpen,
       });
+    component.updateHomeActionState();
 
     return () => {
       component.actionDelegates.onClickHome = undefined;
