@@ -1,5 +1,5 @@
 import type { WorkspaceLeaf } from "obsidian";
-import { ItemView, Menu, Scope, Setting, TFile } from "obsidian";
+import { ItemView, Menu, Scope, TFile } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { ensureExtension } from "src/core/path";
@@ -26,10 +26,6 @@ export class MFDIView extends ItemView {
   private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
   private externalStateRevision = 0;
 
-  // 検索入力用コントロール
-  private activeSearchControlEl: HTMLElement | null = null;
-  private searchInputEl: HTMLInputElement | null = null;
-  private isSearchToggleFromAction = false;
   private homeActionEl: HTMLElement | null = null;
 
   public navigation = false;
@@ -127,21 +123,6 @@ export class MFDIView extends ItemView {
     this.updateView();
   }
 
-  public openSearchInput(): void {
-    this.ensureSearchControl();
-    if (!this.activeSearchControlEl) return;
-
-    this.activeSearchControlEl.style.display = "block";
-    window.setTimeout(() => {
-      this.searchInputEl?.focus();
-    });
-  }
-
-  public closeSearchInput(): void {
-    if (!this.activeSearchControlEl) return;
-    this.activeSearchControlEl.style.display = "none";
-  }
-
   // -----------------------------------------------------------------------
   // Setup & Events
   // -----------------------------------------------------------------------
@@ -167,16 +148,6 @@ export class MFDIView extends ItemView {
 
     this.scope.register([], "F2", () => {
       this.editableTitleBar?.focus();
-      return false;
-    });
-
-    // 検索入力がフォーカスされているときに Escape キーで閉じる
-    this.scope.register([], "Escape", () => {
-      if (document.activeElement === this.searchInputEl) {
-        this.actionDelegates.onSearchInputClose?.();
-        this.closeSearchInput();
-        return true;
-      }
       return false;
     });
   }
@@ -206,15 +177,6 @@ export class MFDIView extends ItemView {
     this.cleanUpActions();
     const capabilities = getMFDIViewCapabilities(this.state);
 
-    if (capabilities.supportsDateNavigation) {
-      this.homeActionEl = this.addAction("home", "ホーム", () => {
-        this.actionDelegates.onClickHome?.();
-      });
-      this.homeActionEl.setAttr("data-mfdi-actions", "true");
-      this.homeActionEl.addClass("mfdi-home-action");
-      this.updateHomeActionState();
-    }
-
     if (capabilities.supportsSidebar) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
@@ -225,7 +187,14 @@ export class MFDIView extends ItemView {
       }).setAttr("data-mfdi-actions", "true");
     }
 
-    this.buildSearchAction();
+    if (capabilities.supportsDateNavigation) {
+      this.homeActionEl = this.addAction("home", "ホーム", () => {
+        this.actionDelegates.onClickHome?.();
+      });
+      this.homeActionEl.setAttr("data-mfdi-actions", "true");
+      this.homeActionEl.addClass("mfdi-home-action");
+      this.updateHomeActionState();
+    }
   }
 
   private cleanUpActions(): void {
@@ -243,85 +212,6 @@ export class MFDIView extends ItemView {
       "mfdi-home-action--active",
       !isDefaultView,
     );
-  }
-
-  private ensureSearchControl(): void {
-    if (this.activeSearchControlEl) return;
-
-    const searchSetting = new Setting(createDiv()).addSearch((search) => {
-      this.searchInputEl = search.inputEl;
-      search.setValue(this.state.searchQuery ?? "");
-      search.onChange((value) => {
-        this.state.searchQuery = value;
-        this.actionDelegates.onSearchQueryChange?.(value);
-      });
-
-      search.inputEl.addEventListener("blur", () => {
-        if (this.isSearchToggleFromAction) return;
-        this.actionDelegates.onSearchInputClose?.();
-        this.closeSearchInput();
-      });
-    });
-
-    this.activeSearchControlEl = searchSetting.controlEl;
-    this.activeSearchControlEl.style.display = "none";
-    this.actionsEl.prepend(this.activeSearchControlEl);
-  }
-
-  private buildSearchAction(): void {
-    const searchActionEl = this.addAction("search", "検索切り替え", () => {
-      const isHidden =
-        this.activeSearchControlEl?.style.display === "none" ||
-        !this.activeSearchControlEl;
-
-      if (isHidden) {
-        this.actionDelegates.onSearchInputOpen?.();
-        this.openSearchInput();
-      } else {
-        this.actionDelegates.onSearchInputClose?.();
-        this.closeSearchInput();
-      }
-      this.isSearchToggleFromAction = false;
-    });
-
-    searchActionEl.addEventListener("mousedown", () => {
-      if (this.activeSearchControlEl?.style.display !== "none") {
-        this.isSearchToggleFromAction = true;
-      }
-    });
-
-    searchActionEl.setAttr("data-mfdi-actions", "true");
-    searchActionEl.addEventListener(
-      "contextmenu",
-      this.onSearchContextMenu.bind(this),
-    );
-  }
-
-  private onSearchContextMenu(e: MouseEvent): void {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const menu = new Menu();
-    const applySearchKindFilter = (threadOnly: boolean) => {
-      this.state.threadOnly = threadOnly;
-      this.actionDelegates.onChangeThreadOnly?.(threadOnly);
-    };
-
-    menu.addItem((item) =>
-      item
-        .setTitle("すべて")
-        .setChecked(!this.state.threadOnly)
-        .onClick(() => applySearchKindFilter(false)),
-    );
-    menu.addSeparator();
-    menu.addItem((item) =>
-      item
-        .setTitle("スレッドのみ")
-        .setChecked(this.state.threadOnly)
-        .onClick(() => applySearchKindFilter(true)),
-    );
-
-    menu.showAtMouseEvent(e);
   }
 
   private updateEditableTitleBar(): void {

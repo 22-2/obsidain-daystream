@@ -14,7 +14,6 @@ import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSideba
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
 import { PeriodicSidebar } from "src/ui/components/layout/PeriodicSidebar";
 import { SidebarContainer } from "src/ui/components/layout/SidebarContainer";
-import { bindSearchDelegates } from "src/ui/components/layout/searchDelegates";
 import { getSidebarAutoToggleState } from "src/ui/components/layout/sidebarAutoToggle";
 import { PostListView } from "src/ui/components/posts/PostListView";
 import { Flex, Spinner } from "src/ui/components/primitives";
@@ -279,15 +278,11 @@ const ReactViewContent = () => {
       threadFocusRootId: s.threadFocusRootId,
       searchQuery: s.searchQuery,
       searchInputOpen: s.searchInputOpen,
-      setSearchQuery: s.setSearchQuery,
-      setSearchInputOpen: s.setSearchInputOpen,
       inputAreaSize: s.inputAreaSize,
       handleClickHome: s.handleClickHome,
     })),
   );
   const { handleClickHome } = settings;
-  const setSearchQuery = settings.setSearchQuery;
-  const setSearchInputOpen = settings.setSearchInputOpen;
 
   const { filteredPosts, filteredPostsWithThreadReplies } = usePosts();
   const { tasks } = usePostsStore(useShallow((s) => ({ tasks: s.tasks })));
@@ -299,15 +294,6 @@ const ReactViewContent = () => {
   );
 
   const { scrollContainerRef, listHeaderRef } = useEditorRefs();
-
-  useEffect(() => {
-    return bindSearchDelegates(component, {
-      setSearchQuery,
-      setSearchInputOpen,
-      openSearchInput: () => component.openSearchInput(),
-      closeSearchInput: () => component.closeSearchInput(),
-    });
-  }, [component, setSearchInputOpen, setSearchQuery]);
 
   useEffect(() => {
     component.actionDelegates.onClickHome = handleClickHome;
