@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { resolvePeriodicNote } from "src/core/note-source";
 import { parseThinoEntries } from "src/core/thino";
 import { NavButton } from "src/ui/components/common/NavButton";
+import { PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import {
   SidebarItemCount,
-  SidebarSectionHeader,
   SidebarTextButton,
 } from "src/ui/components/layout/SidebarPrimitives";
 import { HStack, Spinner, Text, VStack } from "src/ui/components/primitives";
@@ -159,40 +159,28 @@ export const SidebarScales: React.FC<{
   const isViewingCurrentMonth = baseDate.isSame(window.moment(), "month");
 
   return (
-    <VStack className="mfdi-sidebar-scales items-stretch gap-0 pt-2 mt-2">
-      <SidebarSectionHeader
-        className="relative justify-center"
-        rightAddon={
-          loading ? (
-            <Spinner className="absolute right-2 size-3 text-[var(--text-faint)] animate-spin [animation-duration:0.8s]" />
-          ) : null
-        }
-      >
-        {/* 意図: ヘッダ文言を常に中央に保ちつつ、読込状態は右端の補助表示として分離する。 */}
-        <HStack className="gap-1 items-center group">
+    <PanelSection
+      title="年月日別"
+      className="mfdi-sidebar-scales mt-2 items-stretch gap-0 pt-2"
+      rightAddon={
+        <HStack className="items-center gap-1">
           <NavButton
-            className="group-hover:visible invisible"
+            className="invisible group-hover:visible"
             direction="left"
             onClick={() => handleMoveViewMonth(-1)}
           />
-          <Text
-            as="span"
-            className={cn(
-              !isViewingCurrentMonth &&
-                "cursor-pointer text-[var(--text-accent)]",
-            )}
-            onClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
-          >
-            年月日別
-          </Text>
           <NavButton
-            className="group-hover:visible invisible"
+            className="invisible group-hover:visible"
             direction="right"
             onClick={() => handleMoveViewMonth(1)}
           />
+          {loading ? (
+            <Spinner className="size-3 animate-spin text-[var(--text-faint)] [animation-duration:0.8s]" />
+          ) : null}
         </HStack>
-      </SidebarSectionHeader>
-
+      }
+      onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
+    >
       <VStack className="mfdi-scale-list-unified items-stretch gap-0">
         {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
           const key = buildScaleKey(baseDate, scaleGranularity);
@@ -265,6 +253,6 @@ export const SidebarScales: React.FC<{
           );
         })}
       </VStack>
-    </VStack>
+    </PanelSection>
   );
 };

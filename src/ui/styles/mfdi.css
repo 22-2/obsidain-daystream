@@ -473,6 +473,10 @@
   bottom: 2rem;
 }
 
+[data-type="mfdi-view"] .up-button {
+  bottom: 6.5rem;
+}
+
 @media (max-width: 1200px) {
   [data-type="mfdi-view"] .mfdi-dashboard-sidebar--right {
     display: none !important;

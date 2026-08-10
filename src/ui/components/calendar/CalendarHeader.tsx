@@ -29,13 +29,16 @@ export const CalendarHeader: React.FC<{
     ((granularity === "year" || granularity === "quarter") && isSameYear) ||
     (granularity === "month" && isSameMonth);
   const highlightMonth = granularity === "month" && isSameMonth;
+  const periodLabelClass =
+    "mini-calendar__period-label inline-flex min-h-6 items-center rounded-[4px] px-1 text-[length:var(--font-ui-medium)] font-bold leading-6 cursor-pointer hover:bg-[var(--background-modifier-hover)]";
 
   return (
     <div className="mini-calendar__header flex w-full justify-between items-center px-1">
       <div className="mini-calendar__month-label flex items-center gap-1 ml-[var(--size-4-2)]">
         <span
           className={cn(
-            "font-bold text-lg cursor-pointer rounded-[4px] px-1 hover:bg-[var(--background-modifier-hover)]",
+            periodLabelClass,
+            "mini-calendar__year-label",
             highlightYear
               ? "text-[var(--color-accent)]"
               : "text-[var(--text-normal)]",
@@ -46,7 +49,8 @@ export const CalendarHeader: React.FC<{
         </span>
         <span
           className={cn(
-            "font-bold text-lg cursor-pointer rounded-[4px] px-1 hover:bg-[var(--background-modifier-hover)]",
+            periodLabelClass,
+            "mini-calendar__month-value",
             highlightMonth
               ? "text-[var(--color-accent)]"
               : "text-[var(--text-normal)]",

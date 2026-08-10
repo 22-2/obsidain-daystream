@@ -1,5 +1,6 @@
+import { useId, useState } from "react";
+import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { Box, HStack } from "src/ui/components/primitives";
-import { SidebarSectionHeader } from "src/ui/components/layout/SidebarPrimitives";
 import { cn } from "src/ui/components/primitives/utils";
 
 export const SidebarContainer: React.FC<{
@@ -9,6 +10,9 @@ export const SidebarContainer: React.FC<{
   ariaLabel?: string;
   children: React.ReactNode;
 }> = ({ isOpen, side = "right", title, ariaLabel, children }) => {
+  const [titleOpen, setTitleOpen] = useState(true);
+  const titleContentId = useId();
+
   return (
     <Box
       aria-label={ariaLabel}
@@ -23,13 +27,26 @@ export const SidebarContainer: React.FC<{
     >
       {title ? (
         <HStack className="mfdi-panel-title shrink-0 px-3 pb-1 pt-3">
-          <SidebarSectionHeader className="w-full px-0">
-            {title}
-          </SidebarSectionHeader>
+          <button
+            type="button"
+            className="mfdi-panel-title__toggle flex w-full min-w-0 items-center gap-1 rounded-[var(--radius-s)] border-0 bg-transparent px-0 py-1 text-left text-[length:var(--font-ui-small)] font-bold uppercase tracking-wider text-[var(--text-muted)] shadow-none hover:bg-[var(--background-modifier-hover)]"
+            aria-controls={titleContentId}
+            aria-expanded={titleOpen}
+            onClick={() => setTitleOpen((current) => !current)}
+          >
+            <ObsidianIcon
+              name={titleOpen ? "chevron-down" : "chevron-right"}
+              size="0.9em"
+            />
+            <span className="min-w-0 truncate">{title}</span>
+          </button>
         </HStack>
       ) : null}
-      <Box className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {children}
+      <Box
+        id={title ? titleContentId : undefined}
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      >
+        {!title || titleOpen ? children : null}
       </Box>
     </Box>
   );

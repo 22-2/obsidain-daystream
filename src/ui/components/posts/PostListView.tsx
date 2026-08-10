@@ -425,24 +425,22 @@ export const PostListView: React.FC = memo(() => {
         )}
         <Box key="bottom-spacer" className="h-[24rem]" />
       </Virtualizer>
-      {settings.inputAreaSize !== INPUT_AREA_SIZE.MAXIMIZED && (
-        <FloatingButton
-          className={cn(
-            "up-button fixed",
-            settings.rightPanelOpen && capabilities.supportsSidebar
-              ? "right-[calc(8px+300px)]"
-              : "right-8",
-          )}
-          onClick={() => shell.trigger("mfdi:scroll-to-top")}
-          visible={showScrollTop}
-        >
-          <ObsidianIcon
-            className="text-[var(--text-on-accent)] hover:text-[var(--text-on-accent)]"
-            name="chevron-up"
-            boxSize="1.2em"
-          />
-        </FloatingButton>
-      )}
+      <FloatingButton
+        className={cn(
+          "up-button fixed bottom-[6.5rem]",
+          settings.rightPanelOpen && capabilities.supportsSidebar
+            ? "right-[calc(8px+300px)]"
+            : "right-8",
+        )}
+        onClick={() => shell.trigger("mfdi:scroll-to-top")}
+        visible={showScrollTop}
+      >
+        <ObsidianIcon
+          className="text-[var(--text-on-accent)] hover:text-[var(--text-on-accent)]"
+          name="chevron-up"
+          boxSize="1.2em"
+        />
+      </FloatingButton>
     </Box>
   );
 });
