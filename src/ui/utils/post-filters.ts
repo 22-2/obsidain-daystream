@@ -23,6 +23,16 @@ export function filterPostsByRelativeWindow(
       return !post.timestamp.isBefore(start) && !post.timestamp.isAfter(now);
     }
 
+    if (dateFilter === "this_month") {
+      const start = now.clone().startOf("month");
+      return !post.timestamp.isBefore(start) && !post.timestamp.isAfter(now);
+    }
+
+    if (dateFilter === "this_year") {
+      const start = now.clone().startOf("year");
+      return !post.timestamp.isBefore(start) && !post.timestamp.isAfter(now);
+    }
+
     const days = Number.parseInt(dateFilter, 10);
     if (Number.isNaN(days)) {
       return true;

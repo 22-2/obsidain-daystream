@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getPeriodicNoteDate, listPeriodicNotes } from "src/core/note-source";
 import type { Week } from "src/ui/components/calendar/types";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
+import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { getGranularityRange } from "src/ui/config/granularity-config";
 import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
 import { useAppStore } from "src/ui/store/appStore";
@@ -124,23 +125,24 @@ export function useMiniCalendar() {
 
   const handleSelectYear = () => {
     const isSelectedYear =
-      granularity === "year" && date.isSame(viewDate, "year");
+      dateFilter === DATE_FILTER_IDS.THIS_YEAR && date.isSame(viewDate, "year");
 
-    // 同じ年を再クリックした時は、SidebarScalesと同じ操作感でHomeへ戻す。
+    // 同じ年を再クリックした時は、絞り込みを解除してHomeへ戻す。
     if (isSelectedYear) {
       handleClickHome();
       return;
     }
 
+    // 表示スケールは維持し、年の範囲だけを切り替える。
     setDisplayMode(DISPLAY_MODE.FOCUS);
-    setGranularity("year");
-    setDateFilter("today");
+    setDateFilter(DATE_FILTER_IDS.THIS_YEAR);
     setDate(viewDate.clone());
   };
 
   const handleSelectMonth = () => {
     const isSelectedMonth =
-      granularity === "month" && date.isSame(viewDate, "month");
+      dateFilter === DATE_FILTER_IDS.THIS_MONTH &&
+      date.isSame(viewDate, "month");
 
     // 同じ月を再クリックした時は、絞り込みを解除してHomeへ戻す。
     if (isSelectedMonth) {
@@ -148,9 +150,9 @@ export function useMiniCalendar() {
       return;
     }
 
+    // 表示スケールは維持し、月の範囲だけを切り替える。
     setDisplayMode(DISPLAY_MODE.FOCUS);
-    setGranularity("month");
-    setDateFilter("today");
+    setDateFilter(DATE_FILTER_IDS.THIS_MONTH);
     setDate(viewDate.clone());
   };
 

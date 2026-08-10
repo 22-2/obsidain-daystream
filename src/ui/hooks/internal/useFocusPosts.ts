@@ -8,6 +8,7 @@ import {
   getGranularityRange,
   GRANULARITY_CONFIG,
 } from "src/ui/config/granularity-config";
+import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
@@ -60,12 +61,18 @@ export const useFocusPosts = () => {
   );
   const periodicNoteFile = useMemo(() => {
     if (isFixedMode) return null;
+    if (
+      dateFilter === DATE_FILTER_IDS.THIS_MONTH ||
+      dateFilter === DATE_FILTER_IDS.THIS_YEAR
+    ) {
+      return null;
+    }
     if (!GRANULARITY_CONFIG[granularity].readsDirectlyFromPeriodicNote) {
       return null;
     }
     // 意図: granularity ごとの本文直読み判定を config に寄せて、quarter 追加時の分岐漏れを防ぐ。
     return resolvePeriodicNote(shell, date, granularity, activeTopic);
-  }, [isFixedMode, granularity, date, activeTopic, shell]);
+  }, [isFixedMode, granularity, date, dateFilter, activeTopic, shell]);
 
   const { startDate, endDate } = useMemo(() => {
     const { rangeStart, rangeEnd } = getGranularityRange(

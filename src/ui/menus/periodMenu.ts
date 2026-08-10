@@ -30,10 +30,10 @@ export function addPeriodMenuItems(
     !state.asTask &&
     !isTimelineView(state.displayMode);
 
-  // --- 表示期間（日） ---
+  // --- 表示期間 ---
   menu.addSeparator();
   menu.addItem((item) => {
-    item.setTitle("表示期間（日）").setIcon("calendar").setDisabled(true);
+    item.setTitle("表示期間").setIcon("calendar").setDisabled(true);
   });
   for (const f of DATE_FILTER_OPTIONS) {
     menu.addItem((item) => {

@@ -117,7 +117,7 @@ describe("MiniCalendar", () => {
     expect(settingsStore.getState().granularity).toBe("day");
   });
 
-  it("年・月ラベルは再クリックでhandleClickHome相当の状態に戻る", () => {
+  it("年・月ラベルは粒度を変えずに範囲を切り替え、再クリックでHomeへ戻る", () => {
     settingsStore.setState({
       date: moment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
@@ -129,7 +129,8 @@ describe("MiniCalendar", () => {
     const { getByText } = render(<MiniCalendar />);
 
     fireEvent.click(getByText("2026年"));
-    expect(settingsStore.getState().granularity).toBe("year");
+    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().dateFilter).toBe("this_year");
 
     // 同じ年の再クリックは「絞り込み解除」の意図としてHomeへ戻す。
     fireEvent.click(getByText("2026年"));
@@ -137,7 +138,8 @@ describe("MiniCalendar", () => {
     expect(settingsStore.getState().dateFilter).toBe("today");
 
     fireEvent.click(getByText("3月"));
-    expect(settingsStore.getState().granularity).toBe("month");
+    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().dateFilter).toBe("this_month");
 
     fireEvent.click(getByText("3月"));
     expect(settingsStore.getState().granularity).toBe("day");

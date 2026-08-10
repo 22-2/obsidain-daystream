@@ -1,5 +1,6 @@
 import type React from "react";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { cn } from "src/ui/components/primitives/utils";
 
 // ─────────────────────────────────────────────
@@ -9,6 +10,7 @@ export const CalendarHeader: React.FC<{
   viewDate: moment.Moment;
   date: moment.Moment;
   granularity: string;
+  dateFilter: string;
   onPrev: (e: React.MouseEvent) => void;
   onNext: (e: React.MouseEvent) => void;
   onSelectYear: (e: React.MouseEvent) => void;
@@ -17,6 +19,7 @@ export const CalendarHeader: React.FC<{
   viewDate,
   date,
   granularity,
+  dateFilter,
   onPrev,
   onNext,
   onSelectYear,
@@ -26,9 +29,14 @@ export const CalendarHeader: React.FC<{
   const isSameMonth = viewDate.isSame(date, "month");
 
   const highlightYear =
-    ((granularity === "year" || granularity === "quarter") && isSameYear) ||
-    (granularity === "month" && isSameMonth);
-  const highlightMonth = granularity === "month" && isSameMonth;
+    dateFilter === DATE_FILTER_IDS.THIS_YEAR
+      ? isSameYear
+      : ((granularity === "year" || granularity === "quarter") && isSameYear) ||
+        (granularity === "month" && isSameMonth);
+  const highlightMonth =
+    dateFilter === DATE_FILTER_IDS.THIS_MONTH
+      ? isSameMonth
+      : granularity === "month" && isSameMonth;
   const periodLabelClass =
     "mini-calendar__period-label inline-flex min-h-6 items-center rounded-[4px] px-1 text-[length:var(--font-ui-medium)] font-bold leading-6 cursor-pointer hover:bg-[var(--background-modifier-hover)]";
 

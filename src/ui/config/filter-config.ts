@@ -12,6 +12,8 @@ export const DATE_FILTER_OPTIONS = [
   { id: "all", label: "すべて" },
   { id: "today", label: "今日のみ" },
   { id: "this_week", label: "今週" },
+  { id: "this_month", label: "今月" },
+  { id: "this_year", label: "今年" },
   { id: "3d", label: "過去3日間" },
   { id: "5d", label: "過去5日間" },
   { id: "7d", label: "過去7日間" },
@@ -30,6 +32,8 @@ export const TIME_FILTER_IDS = {
 export const DATE_FILTER_IDS = {
   TODAY: "today",
   THIS_WEEK: "this_week",
+  THIS_MONTH: "this_month",
+  THIS_YEAR: "this_year",
   "3D": "3d",
   "5D": "5d",
   "7D": "7d",

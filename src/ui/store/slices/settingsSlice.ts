@@ -463,11 +463,15 @@ export const createSettingsSlice: StateCreator<
   },
 
   handleClickMovePrevious: () => {
-    const { date, granularity, getMoveStep } = get();
+    const { date, granularity, dateFilter, getMoveStep } = get();
     const step = getMoveStep();
-    const nextDate = date
-      .clone()
-      .subtract(step, GRANULARITY_CONFIG[granularity].unit);
+    const unit =
+      dateFilter === DATE_FILTER_IDS.THIS_MONTH
+        ? "month"
+        : dateFilter === DATE_FILTER_IDS.THIS_YEAR
+          ? "year"
+          : GRANULARITY_CONFIG[granularity].unit;
+    const nextDate = date.clone().subtract(step, unit);
     set({
       date: nextDate,
       displayMode: DISPLAY_MODE.FOCUS,
@@ -481,11 +485,15 @@ export const createSettingsSlice: StateCreator<
   },
 
   handleClickMoveNext: () => {
-    const { date, granularity, getMoveStep } = get();
+    const { date, granularity, dateFilter, getMoveStep } = get();
     const step = getMoveStep();
-    const nextDate = date
-      .clone()
-      .add(step, GRANULARITY_CONFIG[granularity].unit);
+    const unit =
+      dateFilter === DATE_FILTER_IDS.THIS_MONTH
+        ? "month"
+        : dateFilter === DATE_FILTER_IDS.THIS_YEAR
+          ? "year"
+          : GRANULARITY_CONFIG[granularity].unit;
+    const nextDate = date.clone().add(step, unit);
     set({
       date: nextDate,
       displayMode: DISPLAY_MODE.FOCUS,

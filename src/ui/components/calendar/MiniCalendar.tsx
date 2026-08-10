@@ -40,6 +40,7 @@ export const MiniCalendar: React.FC<{
         viewDate={viewDate}
         date={date}
         granularity={granularity}
+        dateFilter={dateFilter as string}
         onPrev={handlePrevMonth}
         onNext={handleNextMonth}
         onSelectYear={(e) => {

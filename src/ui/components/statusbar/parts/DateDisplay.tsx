@@ -33,6 +33,14 @@ function getDateLabel({
     return currentTime.format("YYYY-MM-DD HH:mm");
   }
 
+  if (dateFilter === "this_month") {
+    return date.format(GRANULARITY_CONFIG.month.displayFormat);
+  }
+
+  if (dateFilter === "this_year") {
+    return date.format(GRANULARITY_CONFIG.year.displayFormat);
+  }
+
   if (granularity !== "day" || dateFilter === "today") {
     return date.format(GRANULARITY_CONFIG[granularity].displayFormat);
   }

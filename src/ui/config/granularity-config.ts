@@ -146,6 +146,20 @@ export function getGranularityRange(
   granularity: Granularity,
   dateFilter: string,
 ): { rangeStart: Moment; rangeEnd: Moment } {
+  if (dateFilter === DATE_FILTER_IDS.THIS_MONTH) {
+    return {
+      rangeStart: date.clone().startOf("month"),
+      rangeEnd: date.clone().endOf("month"),
+    };
+  }
+
+  if (dateFilter === DATE_FILTER_IDS.THIS_YEAR) {
+    return {
+      rangeStart: date.clone().startOf("year"),
+      rangeEnd: date.clone().endOf("year"),
+    };
+  }
+
   if (granularity === "week") {
     return {
       rangeStart: date.clone().startOf("isoWeek"),
