@@ -165,12 +165,9 @@ export const SidebarScales: React.FC<{
       onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
     >
       <VStack className="items-stretch gap-1">
-        <HStack className="mfdi-scale-navigation justify-end gap-1 px-2">
+        <HStack className="mfdi-scale-navigation justify-end gap-1">
           <NavButton direction="left" onClick={() => handleMoveViewMonth(-1)} />
           <NavButton direction="right" onClick={() => handleMoveViewMonth(1)} />
-          {loading ? (
-            <Spinner className="size-3 animate-spin text-[var(--text-faint)] [animation-duration:0.8s]" />
-          ) : null}
         </HStack>
         <VStack className="mfdi-scale-list-unified items-stretch gap-0">
           {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
