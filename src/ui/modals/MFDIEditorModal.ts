@@ -1,5 +1,5 @@
 import { ModalEditor } from "@22-2/obsidian-magical-editor";
-import type { App } from "obsidian";
+import type { App, EditorPosition } from "obsidian";
 import { Scope } from "obsidian";
 import { PLACEHOLDER_TEXT } from "src/ui/config/consntants";
 
@@ -11,6 +11,12 @@ export interface MFDIEditorModalOptions {
   onSubmit?: (content: string) => boolean | void | Promise<boolean | void>;
 }
 
+type EditorWithMousePosition = {
+  posAtMouse: (event: MouseEvent) => EditorPosition | null;
+  setCursor: (position: EditorPosition) => void;
+  focus: () => void;
+};
+
 export class MFDIEditorModal extends ModalEditor {
   private readonly modalOptions: MFDIEditorModalOptions;
   private readonly submissionState: { submitted: boolean };
@@ -18,10 +24,16 @@ export class MFDIEditorModal extends ModalEditor {
     const target = event.target;
     if (!(target instanceof Element) || !target.closest(".cm-sizer")) return;
 
-    // CodeMirror の空白領域を押した後にも入力可能にする。描画後に focus することで、
-    // CodeMirror 標準のカーソル配置・選択処理を先に完了させる。
+    const editor = this.editor?.editor as EditorWithMousePosition | undefined;
+    const position = editor?.posAtMouse(event);
+    if (!editor || !position) return;
+
+    // CodeMirror の空白領域を押した位置へカーソルを置いてからフォーカスする。
+    // 描画後に反映することで、標準のマウス選択処理とも競合しないようにする。
     window.requestAnimationFrame(() => {
-      if (this.modalEl.isConnected) this.editor?.focus();
+      if (!this.modalEl.isConnected) return;
+      editor.setCursor(position);
+      editor.focus();
     });
   };
 
