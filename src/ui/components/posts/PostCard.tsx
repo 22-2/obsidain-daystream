@@ -149,11 +149,11 @@ export const PostCard = React.memo(
           footerRightAddon={footerRightAddon}
         >
           <ReadMoreContent text={message}>
-            {(displayText, { isOverflowing }) => (
+            {(displayText, { isOverflowing, expanded }) => (
               <VStack
                 className={cn(
                   "content-container flex-1 min-h-0",
-                  isOverflowing && "overflow-y-auto",
+                  isOverflowing && expanded && "overflow-y-auto",
                 )}
                 align="stretch"
                 gap={3}
