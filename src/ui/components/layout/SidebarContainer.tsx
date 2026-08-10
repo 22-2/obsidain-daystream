@@ -3,15 +3,17 @@ import { cn } from "src/ui/components/primitives/utils";
 
 export const SidebarContainer: React.FC<{
   isOpen: boolean;
+  side?: "left" | "right";
   children: React.ReactNode;
-}> = ({ isOpen, children }) => {
+}> = ({ isOpen, side = "right", children }) => {
   return (
     <Box
       className={cn(
-        isOpen
-          ? "flex w-[260px] min-w-[260px] ml-[var(--size-4-2)]"
-          : "hidden w-0 min-w-0",
-        "h-full flex-col py-[var(--size-4-2)] px-0 mr-[var(--size-4-2)] transition-all duration-200 overflow-hidden",
+        isOpen ? "flex w-[260px] min-w-[260px]" : "hidden w-0 min-w-0",
+        side === "left"
+          ? "mfdi-dashboard-sidebar--left mr-[var(--size-4-2)]"
+          : "mfdi-dashboard-sidebar--right ml-[var(--size-4-2)]",
+        "mfdi-dashboard-sidebar h-full flex-col py-[var(--size-4-2)] px-0 transition-all duration-200 overflow-hidden rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] shadow-[var(--shadow-s)]",
       )}
     >
       {children}

@@ -9,8 +9,9 @@ import {
 } from "react";
 import type { Settings } from "src/settings";
 import { EmptyState } from "src/ui/components/EmptyState";
-import { InputArea } from "src/ui/components/inputarea/InputArea";
+import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
+import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
 import { PeriodicSidebar } from "src/ui/components/layout/PeriodicSidebar";
 import { SidebarContainer } from "src/ui/components/layout/SidebarContainer";
 import { bindSearchDelegates } from "src/ui/components/layout/searchDelegates";
@@ -57,7 +58,6 @@ import type {
   TimeFilter,
 } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
-import { VIEW_TYPE_MFDI_EDITOR } from "src/ui/view/MFDIEditorView";
 import type { MFDIView } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
@@ -250,7 +250,7 @@ const MFDIAppRoot: React.FC<{
 };
 
 const ReactViewContent = () => {
-  const { shell, settings: pluginSettings } = useAppContext();
+  const { settings: pluginSettings } = useAppContext();
   const component = useObsidianComponent() as MFDIView;
   const isCSSLoaded = useCSSLoaded();
   const { viewNoteMode } = useAppStore(
@@ -334,28 +334,6 @@ const ReactViewContent = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const lastWidthRef = useRef(containerWidth);
 
-  const [isPopoutEditorOpen, setIsPopoutEditorOpen] = useState(false);
-
-  useEffect(() => {
-    const app = shell.getRawApp();
-    const refreshPopoutState = () => {
-      // 意図: popout エディタ表示中は入力導線を1つに固定し、二重編集を避けるためメイン入力欄を隠す。
-      setIsPopoutEditorOpen(
-        app.workspace.getLeavesOfType(VIEW_TYPE_MFDI_EDITOR).length > 0,
-      );
-    };
-
-    refreshPopoutState();
-
-    const layoutRef = app.workspace.on("layout-change", refreshPopoutState);
-    const leafRef = app.workspace.on("active-leaf-change", refreshPopoutState);
-
-    return () => {
-      app.workspace.offref(layoutRef);
-      app.workspace.offref(leafRef);
-    };
-  }, [shell]);
-
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -400,45 +378,46 @@ const ReactViewContent = () => {
 
   return (
     <Flex
-      className="root h-full w-full overflow-hidden relative"
+      className="root mfdi-dashboard-root h-full w-full overflow-hidden relative px-[var(--size-4-2)] py-[var(--size-4-2)]"
       ref={containerRef}
     >
-      {/* Main Content */}
-      <Flex
-        className={cn(
-          "max-content flex-col h-full relative flex-grow overflow-hidden",
-        )}
-      >
-        <Flex
-          className={cn(
-            "mfdi-scroll-container flex-col flex-grow overflow-x-hidden",
-            // 最大化時はスクロールをロックして入力エリアを全画面占有させる
-            settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED
-              ? "overflow-y-hidden"
-              : "overflow-y-scroll",
-          )}
-          ref={scrollContainerRef}
-        >
-          {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
-          <div ref={listHeaderRef} className="mfdi-list-header">
-            {isPopoutEditorOpen ? null : <InputArea />}
-            {/* 最大化時は入力エリアが画面を専有するため、ステータスバー分の高さを渡さない */}
-            {settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED ? null : (
-              <StatusBar />
-            )}
-          </div>
-          {content}
-        </Flex>
-      </Flex>
-
-      {/* Sidebar: MiniCalendar (Moved to Right) */}
+      {/* Left Sidebar: calendar, tags, and period navigation */}
       {capabilities.supportsSidebar && (
-        <SidebarContainer isOpen={effectivelyOpen}>
+        <SidebarContainer isOpen={effectivelyOpen} side="left">
           {viewNoteMode === "fixed" ? (
             <FixedSessionSidebar />
           ) : (
             <PeriodicSidebar />
           )}
+        </SidebarContainer>
+      )}
+
+      {/* Main Content */}
+      <Flex
+        className={cn(
+          "mfdi-dashboard-main max-content min-w-0 flex-col h-full relative flex-grow overflow-hidden",
+        )}
+      >
+        <Flex
+          className={cn(
+            "mfdi-scroll-container flex-col flex-grow overflow-x-hidden",
+            "overflow-y-scroll",
+          )}
+          ref={scrollContainerRef}
+        >
+          {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
+          <div ref={listHeaderRef} className="mfdi-list-header">
+            <StatusBar />
+          </div>
+          {content}
+        </Flex>
+        <PostComposerButton />
+      </Flex>
+
+      {/* Right Sidebar: activity and archive statistics */}
+      {capabilities.supportsSidebar && (
+        <SidebarContainer isOpen={effectivelyOpen} side="right">
+          <InsightsSidebar />
         </SidebarContainer>
       )}
 
@@ -461,7 +440,7 @@ const ReactViewContent = () => {
 
 function useViewSync(view: MFDIView | null) {
   const { shell, settings } = useAppContext();
-  const { openDraftList, openModalEditor } = useObsidianUi();
+  const { openDraftList } = useObsidianUi();
   const store = useCurrentAppStore();
   const { inputRef } = useEditorRefs();
 
@@ -721,7 +700,6 @@ function useViewSync(view: MFDIView | null) {
     };
   }, [
     view,
-    openModalEditor,
     getInputValue,
     replaceInput,
     isReadOnly,

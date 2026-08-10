@@ -1,0 +1,68 @@
+import type { MemoRecord } from "src/db/mfdi-db";
+import {
+  buildActivitySummary,
+  type ActivitySummary,
+} from "src/ui/components/layout/activitySummary";
+import { describe, expect, it } from "vitest";
+
+function record(overrides: Partial<MemoRecord> = {}): MemoRecord {
+  return {
+    id: "id",
+    path: "daily/2026-08-10.md",
+    noteName: "2026-08-10",
+    topicId: "",
+    noteGranularity: "day",
+    content: "message",
+    tags: [],
+    metadataJson: "{}",
+    startOffset: 0,
+    endOffset: 10,
+    bodyStartOffset: 0,
+    createdAt: "2026-08-10T09:00:00.000Z",
+    updatedAt: "2026-08-10T09:00:00.000Z",
+    noteDate: "2026-08-10",
+    archived: 0,
+    deleted: 0,
+    pinned: 0,
+    ...overrides,
+  };
+}
+
+describe("buildActivitySummary", () => {
+  it("日別件数と統計を作り、非表示投稿を除外する", () => {
+    const result: ActivitySummary = buildActivitySummary(
+      [
+        record({ id: "a", noteDate: "2026-08-09" }),
+        record({ id: "b", noteDate: "2026-08-10" }),
+        record({ id: "c", noteDate: "2026-08-10", archived: 1 }),
+        record({ id: "d", noteDate: "2026-08-11", deleted: 1 }),
+      ],
+      null,
+      3,
+    );
+
+    expect(result.dailyCounts).toEqual({
+      "2026-08-09": 1,
+      "2026-08-10": 1,
+    });
+    expect(result.totalPosts).toBe(2);
+    expect(result.activeDays).toBe(2);
+    expect(result.firstDate).toBe("2026-08-09");
+    expect(result.latestDate).toBe("2026-08-10");
+    expect(result.tagCount).toBe(3);
+  });
+
+  it("選択中のタグだけに絞り込める", () => {
+    const result = buildActivitySummary(
+      [
+        record({ id: "a", noteDate: "2026-08-09", tags: ["work"] }),
+        record({ id: "b", noteDate: "2026-08-10", tags: ["home"] }),
+      ],
+      "work",
+      2,
+    );
+
+    expect(result.totalPosts).toBe(1);
+    expect(result.dailyCounts).toEqual({ "2026-08-09": 1 });
+  });
+});

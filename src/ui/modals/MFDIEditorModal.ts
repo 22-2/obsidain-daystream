@@ -7,16 +7,26 @@ export interface MFDIEditorModalOptions {
   initialContent: string;
   onChange: (content: string) => void;
   onClose: (content: string) => void;
+  /** 投稿が有効なときだけダイアログを閉じる。false を返すと開いたままにする。 */
+  onSubmit?: (content: string) => boolean | void | Promise<boolean | void>;
 }
 
 export class MFDIEditorModal extends ModalEditor {
+  private readonly modalOptions: MFDIEditorModalOptions;
+  private readonly submissionState: { submitted: boolean };
+
   constructor(app: App, options: MFDIEditorModalOptions) {
+    const submissionState = { submitted: false };
     super(app, {
       initialContent: options.initialContent,
       onChange: options.onChange,
-      onClose: options.onClose,
+      onClose: (content) => {
+        if (!submissionState.submitted) options.onClose(content);
+      },
       placeholder: PLACEHOLDER_TEXT,
     });
+    this.modalOptions = options;
+    this.submissionState = submissionState;
     this.modalEl.addClass("mfdi-modal-editor");
 
     this.scope = new Scope(this.app.scope as Scope);
@@ -29,7 +39,33 @@ export class MFDIEditorModal extends ModalEditor {
     this.scope.register([], "Escape", close);
   }
 
+  async onOpen(): Promise<void> {
+    await super.onOpen();
+    this.titleEl.setText("投稿");
+
+    const actions = this.contentEl.createDiv({
+      cls: "mfdi-editor-modal__actions",
+    });
+    const submit = actions.createEl("button", {
+      cls: "mod-cta mfdi-editor-modal__submit",
+      text: "投稿",
+      type: "button",
+    });
+    submit.addEventListener("click", () => {
+      const content = this.getContent();
+      void Promise.resolve(this.modalOptions.onSubmit?.(content)).then(
+        (result) => {
+          if (result === false) return;
+          this.submissionState.submitted = true;
+          this.close();
+        },
+      );
+    });
+  }
+
   onClose() {
+    // 投稿成功時は submit 側でストアを確定させるため、onClose で内容を
+    // 下書きへ戻さない。キャンセル／×閉じる場合だけ最終内容を保持する。
     super.onClose();
   }
 }

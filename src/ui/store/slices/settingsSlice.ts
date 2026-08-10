@@ -115,8 +115,7 @@ function resolveInitialSettingsState(
         STORAGE_KEYS.DATE_FILTER,
         DATE_FILTER_IDS.TODAY,
       ) ?? DATE_FILTER_IDS.TODAY,
-    sidebarOpen:
-      storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, false) ?? false,
+    sidebarOpen: storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true,
     displayMode:
       storage?.get<DisplayMode>(
         STORAGE_KEYS.DISPLAY_MODE,
@@ -154,8 +153,9 @@ export const createSettingsSlice: StateCreator<
   date: window.moment(),
   timeFilter: TIME_FILTER_IDS.ALL,
   dateFilter: DATE_FILTER_IDS.TODAY,
-  // 初回描画でチラつきを防ぐため、初期は閉じておく
-  sidebarOpen: false,
+  // ダッシュボードの初期状態では左右パネルを表示する。
+  // 保存済みユーザー設定がある場合は resolveInitialSettingsState で優先する。
+  sidebarOpen: true,
   displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
   asTask: false,
   threadOnly: false,
@@ -519,6 +519,8 @@ export const createSettingsSlice: StateCreator<
   hydrateSettingsState: () => {
     const { pluginSettings, storage, viewNoteMode, file } = get();
     if (!pluginSettings || !storage) return;
-    set(resolveInitialSettingsState(pluginSettings, storage, viewNoteMode, file));
+    set(
+      resolveInitialSettingsState(pluginSettings, storage, viewNoteMode, file),
+    );
   },
 });

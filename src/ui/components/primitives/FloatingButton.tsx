@@ -7,6 +7,7 @@ import { cn } from "src/ui/components/primitives/utils";
 type FloatingButtonProps = {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   visible?: boolean;
+  ariaLabel?: string;
   className?: string;
   children?: ReactNode;
 };
@@ -14,6 +15,7 @@ type FloatingButtonProps = {
 export const FloatingButton: React.FC<FloatingButtonProps> = ({
   onClick,
   visible = true,
+  ariaLabel = "Scroll to top",
   className,
   children,
 }) => {
@@ -21,7 +23,7 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
 
   return (
     <button
-      aria-label="Scroll to top"
+      aria-label={ariaLabel}
       className={cn(
         "absolute right-8 bottom-8 z-20 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded-full p-3 shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center",
         className ?? "",
