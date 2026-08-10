@@ -30,7 +30,7 @@ export const PanelSection: React.FC<{
       <div className="mfdi-panel-section__header group flex min-w-0 items-center justify-between gap-2 px-2">
         <button
           type="button"
-          className="mfdi-panel-section__toggle flex min-w-0 flex-1 justify-start items-center gap-1 rounded-[var(--radius-s)] border-0 bg-transparent px-0 py-1 text-left text-[length:var(--font-ui-small)] font-bold uppercase tracking-wider text-[var(--text-muted)] shadow-none hover:bg-[var(--background-modifier-hover)]"
+          className="mfdi-panel-section__toggle !h-auto flex min-w-0 min-h-0 flex-1 justify-start items-center gap-1 rounded-[var(--radius-s)] border-0 bg-transparent px-0 py-0.5 leading-5 text-left text-[length:var(--font-ui-small)] font-bold uppercase tracking-wider text-[var(--text-muted)] shadow-none hover:bg-[var(--background-modifier-hover)]"
           aria-controls={contentId}
           aria-expanded={expanded}
           onClick={() => {
