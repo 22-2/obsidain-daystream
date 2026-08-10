@@ -30,8 +30,8 @@ export function isDefaultViewState(state: ResettableViewState): boolean {
     state.activeTag === DEFAULT_VIEW_STATE.activeTag &&
     state.threadFocusRootId === DEFAULT_VIEW_STATE.threadFocusRootId &&
     // 意図: 検索中は default 見た目に戻さず、home で検索解除する導線を明示する。
-    state.searchQuery === "" &&
-    state.searchInputOpen === false
+    // 検索欄を開いてフォーカスしただけでは、まだ検索状態ではない。
+    state.searchQuery === ""
   );
 }
 

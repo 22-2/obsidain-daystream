@@ -38,7 +38,7 @@ describe("view-state utilities", () => {
     ).toBe(false);
   });
 
-  it("検索入力が開いているだけでもデフォルト扱いにしない", () => {
+  it("検索入力が開いているだけならデフォルト扱いにする", () => {
     expect(
       isDefaultViewState({
         displayMode: DISPLAY_MODE.TIMELINE,
@@ -51,7 +51,7 @@ describe("view-state utilities", () => {
         searchQuery: "",
         searchInputOpen: true,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("タグ表示中は center ラベルを優先する", () => {
