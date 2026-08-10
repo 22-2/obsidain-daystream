@@ -67,6 +67,8 @@ export const PostComposerButton: React.FC = () => {
         modalRef.current = null;
         return true;
       },
+      canSubmit: (content) => canSubmit(posts, content),
+      submitLabel: editingAtOpen ? "更新" : "投稿",
     });
     modalRef.current = modal;
   }, [

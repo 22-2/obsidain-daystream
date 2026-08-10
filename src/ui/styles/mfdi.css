@@ -439,18 +439,15 @@
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: var(--size-4-3);
+  gap: 0;
 }
 
-.mfdi-editor-modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--size-4-2);
+.mfdi-editor-modal__footer {
   flex: 0 0 auto;
 }
 
-.mfdi-editor-modal__submit {
-  min-width: 96px;
+.mfdi-editor-modal__footer-content {
+  margin: 0;
 }
 
 /* ==============================================

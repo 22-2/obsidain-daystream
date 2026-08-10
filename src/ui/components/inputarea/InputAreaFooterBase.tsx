@@ -5,6 +5,7 @@ import { cn } from "src/ui/components/primitives/utils";
 interface InputAreaFooterBaseProps {
   canSubmit: boolean;
   submitLabel: ReactNode;
+  submitAriaLabel?: string;
   onSubmit: () => void;
   leadingActions?: ReactNode;
   /** 指定された場合のみキャンセルボタンを表示する */
@@ -23,6 +24,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
   ({
     canSubmit,
     submitLabel,
+    submitAriaLabel,
     onSubmit,
     leadingActions,
     onCancel,
@@ -57,6 +59,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
           )}
 
           <Button
+            aria-label={submitAriaLabel}
             disabled={!canSubmit}
             className={cn("h-[2.4em]", {
               "text-[var(--text-on-accent)]": canSubmit,

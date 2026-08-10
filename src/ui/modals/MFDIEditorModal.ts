@@ -1,6 +1,11 @@
 import { ModalEditor } from "@22-2/obsidian-magical-editor";
 import type { App, EditorPosition } from "obsidian";
 import { Scope } from "obsidian";
+import { createElement } from "react";
+import type { Root } from "react-dom/client";
+import { createRoot } from "react-dom/client";
+import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { InputAreaFooterBase } from "src/ui/components/inputarea/InputAreaFooterBase";
 import { PLACEHOLDER_TEXT } from "src/ui/config/consntants";
 
 export interface MFDIEditorModalOptions {
@@ -9,6 +14,10 @@ export interface MFDIEditorModalOptions {
   onClose: (content: string) => void;
   /** 投稿が有効なときだけダイアログを閉じる。false を返すと開いたままにする。 */
   onSubmit?: (content: string) => boolean | void | Promise<boolean | void>;
+  /** フッターの投稿ボタンを有効にするか判定する。 */
+  canSubmit?: (content: string) => boolean;
+  /** 編集時など、フッターに表示する送信ラベル。 */
+  submitLabel?: string;
 }
 
 type EditorWithMousePosition = {
@@ -20,6 +29,8 @@ type EditorWithMousePosition = {
 export class MFDIEditorModal extends ModalEditor {
   private readonly modalOptions: MFDIEditorModalOptions;
   private readonly submissionState: { submitted: boolean };
+  private footerRoot: Root | null = null;
+  private unsubscribeContent: (() => void) | null = null;
   private readonly handleSizerMouseDown = (event: MouseEvent): void => {
     const target = event.target;
     if (!(target instanceof Element) || !target.closest(".cm-sizer")) return;
@@ -71,24 +82,47 @@ export class MFDIEditorModal extends ModalEditor {
       true,
     );
 
-    const actions = this.contentEl.createDiv({
-      cls: "mfdi-editor-modal__actions",
+    const footer = this.contentEl.createDiv({
+      cls: "mfdi-editor-modal__footer",
     });
-    const submit = actions.createEl("button", {
-      cls: "mod-cta mfdi-editor-modal__submit",
-      text: "投稿",
-      type: "button",
+    this.footerRoot = createRoot(footer);
+    this.unsubscribeContent = this.subscribeContent((content) => {
+      this.renderFooter(content);
     });
-    submit.addEventListener("click", () => {
-      const content = this.getContent();
-      void Promise.resolve(this.modalOptions.onSubmit?.(content)).then(
-        (result) => {
-          if (result === false) return;
-          this.submissionState.submitted = true;
-          this.close();
+    this.renderFooter(this.getContent());
+  }
+
+  private renderFooter(content: string): void {
+    if (!this.footerRoot) return;
+
+    const canSubmit =
+      this.modalOptions.canSubmit?.(content) ?? content.trim().length > 0;
+
+    this.footerRoot.render(
+      createElement(InputAreaFooterBase, {
+        className: "mfdi-input-area-footer mfdi-editor-modal__footer-content",
+        canSubmit,
+        submitAriaLabel: this.modalOptions.submitLabel ?? "投稿",
+        submitLabel: createElement(ObsidianIcon, {
+          name: "send-horizontal",
+          size: "1em",
+          className: canSubmit
+            ? "pointer-events-none cursor-default text-[var(--text-on-accent)]"
+            : "pointer-events-none cursor-default",
+        }),
+        onSubmit: () => {
+          const currentContent = this.getContent();
+          void Promise.resolve(
+            this.modalOptions.onSubmit?.(currentContent),
+          ).then((result) => {
+            if (result === false) return;
+            this.submissionState.submitted = true;
+            this.close();
+          });
         },
-      );
-    });
+        characterCount: content.length,
+      }),
+    );
   }
 
   onClose() {
@@ -99,6 +133,10 @@ export class MFDIEditorModal extends ModalEditor {
       this.handleSizerMouseDown,
       true,
     );
+    this.unsubscribeContent?.();
+    this.unsubscribeContent = null;
+    this.footerRoot?.unmount();
+    this.footerRoot = null;
     super.onClose();
   }
 }
