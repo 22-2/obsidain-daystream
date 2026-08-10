@@ -24,7 +24,6 @@ export interface MFDIActionDelegate {
   onToggleLeftPanel?: () => void;
   onToggleRightPanel?: () => void;
   onClickHome?: () => void;
-  onGetIsViewDefault?: () => boolean;
   onCopyAllPosts?: () => void;
   onOpenDraftList?: () => void;
   onGetInputSnapshot?: () => string;

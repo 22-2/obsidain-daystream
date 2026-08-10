@@ -26,8 +26,6 @@ export class MFDIView extends ItemView {
   private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
   private externalStateRevision = 0;
 
-  private homeActionEl: HTMLElement | null = null;
-
   public navigation = false;
   public readonly actionDelegates: MFDIActionDelegate = {};
 
@@ -186,32 +184,12 @@ export class MFDIView extends ItemView {
         this.actionDelegates.onToggleLeftPanel?.();
       }).setAttr("data-mfdi-actions", "true");
     }
-
-    if (capabilities.supportsDateNavigation) {
-      this.homeActionEl = this.addAction("home", "ホーム", () => {
-        this.actionDelegates.onClickHome?.();
-      });
-      this.homeActionEl.setAttr("data-mfdi-actions", "true");
-      this.homeActionEl.addClass("mfdi-home-action");
-      this.updateHomeActionState();
-    }
   }
 
   private cleanUpActions(): void {
     Array.from(this.actionsEl.children)
       .filter((el) => el.getAttr("data-mfdi-actions") === "true")
       .forEach((el) => el.detach());
-    this.homeActionEl = null;
-  }
-
-  public updateHomeActionState(): void {
-    if (!this.homeActionEl) return;
-
-    const isDefaultView = this.actionDelegates.onGetIsViewDefault?.() ?? true;
-    this.homeActionEl.classList.toggle(
-      "mfdi-home-action--active",
-      !isDefaultView,
-    );
   }
 
   private updateEditableTitleBar(): void {

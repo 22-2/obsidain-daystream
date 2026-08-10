@@ -57,7 +57,6 @@ import type {
   TimeFilter,
 } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
-import { isDefaultViewState } from "src/ui/utils/view-state";
 import type { MFDIView } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
@@ -297,25 +296,11 @@ const ReactViewContent = () => {
 
   useEffect(() => {
     component.actionDelegates.onClickHome = handleClickHome;
-    component.actionDelegates.onGetIsViewDefault = () =>
-      isDefaultViewState({
-        displayMode: settings.displayMode,
-        granularity: settings.granularity,
-        dateFilter: settings.dateFilter,
-        timeFilter: settings.timeFilter,
-        asTask: settings.asTask,
-        activeTag: settings.activeTag,
-        threadFocusRootId: settings.threadFocusRootId,
-        searchQuery: settings.searchQuery,
-        searchInputOpen: settings.searchInputOpen,
-      });
-    component.updateHomeActionState();
 
     return () => {
       component.actionDelegates.onClickHome = undefined;
-      component.actionDelegates.onGetIsViewDefault = undefined;
     };
-  }, [component, handleClickHome, settings]);
+  }, [component, handleClickHome]);
 
   useEffect(() => {
     component.actionDelegates.onCopyAllPosts = () => {
