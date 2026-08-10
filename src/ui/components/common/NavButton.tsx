@@ -16,7 +16,7 @@ export const NavButton: FC<{
       )}
       onClick={onClick}
     >
-      <ObsidianIcon name={`chevron-${direction}`} boxSize="1.5em" />
+      <ObsidianIcon name={`chevron-${direction}`} boxSize="1em" />
     </HStack>
   );
 };
