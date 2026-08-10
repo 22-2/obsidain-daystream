@@ -162,96 +162,90 @@ export const SidebarScales: React.FC<{
     <PanelSection
       title="年月日別"
       className="mfdi-sidebar-scales mt-2 items-stretch gap-0 pt-2"
-      rightAddon={
-        <HStack className="items-center gap-1">
-          <NavButton
-            className="invisible group-hover:visible"
-            direction="left"
-            onClick={() => handleMoveViewMonth(-1)}
-          />
-          <NavButton
-            className="invisible group-hover:visible"
-            direction="right"
-            onClick={() => handleMoveViewMonth(1)}
-          />
+      onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
+    >
+      <VStack className="items-stretch gap-1">
+        <HStack className="mfdi-scale-navigation justify-end gap-1 px-2">
+          <NavButton direction="left" onClick={() => handleMoveViewMonth(-1)} />
+          <NavButton direction="right" onClick={() => handleMoveViewMonth(1)} />
           {loading ? (
             <Spinner className="size-3 animate-spin text-[var(--text-faint)] [animation-duration:0.8s]" />
           ) : null}
         </HStack>
-      }
-      onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
-    >
-      <VStack className="mfdi-scale-list-unified items-stretch gap-0">
-        {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
-          const key = buildScaleKey(baseDate, scaleGranularity);
-          const counts = countsMap[key];
-          const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
-          const isSelected = granularity === scaleGranularity;
+        <VStack className="mfdi-scale-list-unified items-stretch gap-0">
+          {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
+            const key = buildScaleKey(baseDate, scaleGranularity);
+            const counts = countsMap[key];
+            const hasActivity =
+              counts && (counts.posts > 0 || counts.tasks > 0);
+            const isSelected = granularity === scaleGranularity;
 
-          return (
-            <SidebarTextButton
-              key={scaleGranularity}
-              isSelected={isSelected}
-              isMuted={!hasActivity}
-              className={cn(
-                `mfdi-scale-item mfdi-scale-item-${scaleGranularity}`,
-                isSelected && "is-selected",
-              )}
-              onClick={() => {
-                if (isSelected) {
-                  handleClickHome();
-                } else {
-                  setGranularity(scaleGranularity);
-                  setDateFilter("today");
-                  setDate(baseDate.clone());
-                }
-              }}
-            >
-              <HStack className="gap-0 justify-between w-full">
-                <Text as="span">
-                  {formatScaleLabel(baseDate, scaleGranularity)}
-                </Text>
-                {renderCountBadge(counts)}
-              </HStack>
-            </SidebarTextButton>
-          );
-        })}
+            return (
+              <SidebarTextButton
+                key={scaleGranularity}
+                isSelected={isSelected}
+                isMuted={!hasActivity}
+                className={cn(
+                  `mfdi-scale-item mfdi-scale-item-${scaleGranularity}`,
+                  isSelected && "is-selected",
+                )}
+                onClick={() => {
+                  if (isSelected) {
+                    handleClickHome();
+                  } else {
+                    setGranularity(scaleGranularity);
+                    setDateFilter("today");
+                    setDate(baseDate.clone());
+                  }
+                }}
+              >
+                <HStack className="gap-0 justify-between w-full">
+                  <Text as="span">
+                    {formatScaleLabel(baseDate, scaleGranularity)}
+                  </Text>
+                  {renderCountBadge(counts)}
+                </HStack>
+              </SidebarTextButton>
+            );
+          })}
 
-        {weeks.map((w) => {
-          const isSelected =
-            granularity === "week" && date.isSame(w, "isoWeek");
-          const counts = countsMap[buildScaleKey(w, "week")];
-          const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
+          {weeks.map((w) => {
+            const isSelected =
+              granularity === "week" && date.isSame(w, "isoWeek");
+            const counts = countsMap[buildScaleKey(w, "week")];
+            const hasActivity =
+              counts && (counts.posts > 0 || counts.tasks > 0);
 
-          return (
-            <SidebarTextButton
-              key={w.format("YYYY-WW")}
-              isSelected={isSelected}
-              isMuted={!hasActivity}
-              className={cn(
-                "mfdi-scale-item mfdi-scale-item-week",
-                isSelected && "is-selected",
-              )}
-              onClick={() => {
-                if (isSelected) {
-                  handleClickHome();
-                } else {
-                  setGranularity("week");
-                  setDateFilter("today");
-                  const targetDay = w.isBefore(monthStart)
-                    ? monthStart.clone()
-                    : w.clone();
-                  setDate(targetDay);
-                }
-              }}
-            >
-              <HStack className="gap-0 justify-between w-full">
-                <Text as="span">W{w.isoWeek()}</Text>
-                {renderCountBadge(counts)}
-              </HStack>
-            </SidebarTextButton>
-          );
-        })}
+            return (
+              <SidebarTextButton
+                key={w.format("YYYY-WW")}
+                isSelected={isSelected}
+                isMuted={!hasActivity}
+                className={cn(
+                  "mfdi-scale-item mfdi-scale-item-week",
+                  isSelected && "is-selected",
+                )}
+                onClick={() => {
+                  if (isSelected) {
+                    handleClickHome();
+                  } else {
+                    setGranularity("week");
+                    setDateFilter("today");
+                    const targetDay = w.isBefore(monthStart)
+                      ? monthStart.clone()
+                      : w.clone();
+                    setDate(targetDay);
+                  }
+                }}
+              >
+                <HStack className="gap-0 justify-between w-full">
+                  <Text as="span">W{w.isoWeek()}</Text>
+                  {renderCountBadge(counts)}
+                </HStack>
+              </SidebarTextButton>
+            );
+          })}
+        </VStack>
       </VStack>
     </PanelSection>
   );
