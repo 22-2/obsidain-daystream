@@ -72,10 +72,10 @@ export const CalendarHeader: React.FC<{
         {(["chevron-left", "chevron-right"] as const).map((icon, i) => (
           <div
             key={icon}
-            className="mini-calendar__nav-button p-1.5 rounded-[4px] hover:bg-[var(--background-modifier-hover)] cursor-pointer"
+            className="mini-calendar__nav-button p-1 rounded-[4px] hover:bg-[var(--background-modifier-hover)] cursor-pointer"
             onClick={i === 0 ? onPrev : onNext}
           >
-            <ObsidianIcon name={icon} size="1.2em" />
+            <ObsidianIcon name={icon} size="1em" />
           </div>
         ))}
       </div>
