@@ -1,3 +1,4 @@
+import { differenceInCalendarDays, isValid, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import {
   PanelDivider,
@@ -5,6 +6,7 @@ import {
 } from "src/ui/components/layout/PanelPrimitives";
 import {
   buildActivitySummary,
+  formatActivityDate,
   type ActivitySummary,
 } from "src/ui/components/layout/activitySummary";
 import { HStack, Spinner, Text, VStack } from "src/ui/components/primitives";
@@ -15,9 +17,8 @@ import { useShallow } from "zustand/shallow";
 const ACTIVITY_BAR_COUNT = 32;
 const ACTIVITY_FETCH_LIMIT = 10_000;
 
-function formatDate(value: string | null): string {
-  if (!value) return "—";
-  return value.slice(0, 7);
+function formatDate(value: string | null, dateFormat = "yyyy-MM"): string {
+  return formatActivityDate(value, dateFormat) ?? "—";
 }
 
 function buildActivityBars(summary: ActivitySummary | null) {
@@ -25,17 +26,26 @@ function buildActivityBars(summary: ActivitySummary | null) {
     return Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
   }
 
-  const start = Date.parse(`${summary.firstDate}T00:00:00Z`);
-  const end = Date.parse(`${summary.latestDate}T00:00:00Z`);
-  const spanDays = Math.max(1, Math.floor((end - start) / 86_400_000) + 1);
+  const start = parseISO(summary.firstDate);
+  const end = parseISO(summary.latestDate);
+  if (!isValid(start) || !isValid(end)) {
+    return Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
+  }
+
+  const spanDays = Math.max(1, differenceInCalendarDays(end, start) + 1);
   const bucketSize = Math.max(1, Math.ceil(spanDays / ACTIVITY_BAR_COUNT));
   const bars = Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
 
   for (const [date, count] of Object.entries(summary.dailyCounts)) {
-    const timestamp = Date.parse(`${date}T00:00:00Z`);
+    const activityDate = parseISO(date);
+    if (!isValid(activityDate)) continue;
+
     const index = Math.min(
       ACTIVITY_BAR_COUNT - 1,
-      Math.max(0, Math.floor((timestamp - start) / 86_400_000 / bucketSize)),
+      Math.max(
+        0,
+        Math.floor(differenceInCalendarDays(activityDate, start) / bucketSize),
+      ),
     );
     bars[index] += count;
   }
@@ -139,7 +149,7 @@ export const InsightsSidebar: React.FC = () => {
           />
           <StatRow
             label="開始日"
-            value={summary?.firstDate ?? "—"}
+            value={formatDate(summary?.firstDate ?? null, "yyyy-MM-dd")}
             loading={loading}
           />
         </VStack>

@@ -1,6 +1,8 @@
 import type { MemoRecord } from "src/db/mfdi-db";
 import {
   buildActivitySummary,
+  formatActivityDate,
+  normalizeActivityDate,
   type ActivitySummary,
 } from "src/ui/components/layout/activitySummary";
 import { describe, expect, it } from "vitest";
@@ -64,5 +66,36 @@ describe("buildActivitySummary", () => {
 
     expect(result.totalPosts).toBe(1);
     expect(result.dailyCounts).toEqual({ "2026-08-09": 1 });
+  });
+
+  it("ISO日時をローカル日付へ正規化し、無効なnoteDateはcreatedAtへフォールバックする", () => {
+    const result = buildActivitySummary(
+      [
+        record({
+          id: "iso",
+          noteDate: "2026-08-10T12:00:00.000Z",
+        }),
+        record({
+          id: "fallback",
+          noteDate: "invalid-date",
+          createdAt: "2026-08-11T12:00:00.000Z",
+        }),
+      ],
+      null,
+      0,
+    );
+
+    expect(result.dailyCounts).toEqual({
+      "2026-08-10": 1,
+      "2026-08-11": 1,
+    });
+    expect(result.firstDate).toBe("2026-08-10");
+    expect(result.latestDate).toBe("2026-08-11");
+  });
+
+  it("日付キーを表示用フォーマットへ変換できる", () => {
+    expect(normalizeActivityDate("2026-08-10")).toBe("2026-08-10");
+    expect(normalizeActivityDate("invalid-date")).toBeNull();
+    expect(formatActivityDate("2026-08-10", "yyyy/MM/dd")).toBe("2026/08/10");
   });
 });
