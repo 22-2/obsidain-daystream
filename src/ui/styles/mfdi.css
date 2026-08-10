@@ -30,6 +30,11 @@
    エディタ: 共通
    ============================================== */
 
+
+:is([data-type="mfdi-view"], .magical-editor-modal-editor-area) {
+  margin-top: var(--size-4-3);
+}
+
 /* アクティブライン */
 :is([data-type="mfdi-view"], .magical-editor-modal-editor-area)
   .cm-line.cm-active {
@@ -432,8 +437,9 @@
    ============================================== */
 
 .mfdi-modal-editor {
-  width: min(720px, 92vw) !important;
+  width: min(820px, 94vw) !important;
   max-height: 86vh !important;
+  position: relative;
 }
 
 .mfdi-modal-editor .modal-content {
@@ -444,11 +450,16 @@
 }
 
 .mfdi-editor-modal__footer {
-  flex: 0 0 auto;
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  width: max-content;
+  z-index: 1;
 }
 
 .mfdi-editor-modal__footer-content {
   margin: 0;
+  padding: 0 !important;
 }
 
 /* ==============================================

@@ -100,15 +100,17 @@ export class MFDIEditorModal extends ModalEditor {
 
     this.footerRoot.render(
       createElement(InputAreaFooterBase, {
-        className: "mfdi-input-area-footer mfdi-editor-modal__footer-content",
+        className: "mfdi-input-area-footer mfdi-editor-modal__footer-content pl-0 pt-0",
+        actionsPlacement: "start",
+        submitButtonClassName: "h-8 w-12 p-1 shadow-sm",
         canSubmit,
         submitAriaLabel: this.modalOptions.submitLabel ?? "投稿",
         submitLabel: createElement(ObsidianIcon, {
           name: "send-horizontal",
-          size: "1em",
+          size: "1.2em",
           className: canSubmit
-            ? "pointer-events-none cursor-default text-[var(--text-on-accent)]"
-            : "pointer-events-none cursor-default",
+            ? "pointer-events-none cursor-default p-0 text-[var(--text-on-accent)]"
+            : "pointer-events-none cursor-default p-0",
         }),
         onSubmit: () => {
           const currentContent = this.getContent();
