@@ -58,6 +58,7 @@ import type {
   TimeFilter,
 } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
+import { isDefaultViewState } from "src/ui/utils/view-state";
 import type { MFDIView } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
@@ -281,8 +282,10 @@ const ReactViewContent = () => {
       setSearchQuery: s.setSearchQuery,
       setSearchInputOpen: s.setSearchInputOpen,
       inputAreaSize: s.inputAreaSize,
+      handleClickHome: s.handleClickHome,
     })),
   );
+  const { handleClickHome } = settings;
   const setSearchQuery = settings.setSearchQuery;
   const setSearchInputOpen = settings.setSearchInputOpen;
 
@@ -305,6 +308,27 @@ const ReactViewContent = () => {
       closeSearchInput: () => component.closeSearchInput(),
     });
   }, [component, setSearchInputOpen, setSearchQuery]);
+
+  useEffect(() => {
+    component.actionDelegates.onClickHome = handleClickHome;
+    component.actionDelegates.onGetIsViewDefault = () =>
+      isDefaultViewState({
+        displayMode: settings.displayMode,
+        granularity: settings.granularity,
+        dateFilter: settings.dateFilter,
+        timeFilter: settings.timeFilter,
+        asTask: settings.asTask,
+        activeTag: settings.activeTag,
+        threadFocusRootId: settings.threadFocusRootId,
+        searchQuery: settings.searchQuery,
+        searchInputOpen: settings.searchInputOpen,
+      });
+
+    return () => {
+      component.actionDelegates.onClickHome = undefined;
+      component.actionDelegates.onGetIsViewDefault = undefined;
+    };
+  }, [component, handleClickHome, settings]);
 
   useEffect(() => {
     component.actionDelegates.onCopyAllPosts = () => {

@@ -358,6 +358,32 @@ export class MFDIView extends ItemView {
   private addViewMenuItems(menu: Menu): void {
     const capabilities = getMFDIViewCapabilities(this.state);
 
+    if (capabilities.supportsDateNavigation) {
+      const isDefaultView = this.actionDelegates.onGetIsViewDefault?.() ?? true;
+
+      menu.addItem((item) => {
+        const title = document.createDocumentFragment();
+        const titleText = document.createElement("span");
+        titleText.textContent = "ホーム";
+        if (!isDefaultView) {
+          titleText.classList.add("mfdi-home-menu-title--active");
+        }
+        title.append(titleText);
+
+        item
+          .setTitle(title)
+          .setIcon("home")
+          .onClick(() => this.actionDelegates.onClickHome?.());
+
+        const menuItem = item as unknown as { dom?: HTMLElement };
+        menuItem.dom?.classList.toggle(
+          "mfdi-home-menu-item--active",
+          !isDefaultView,
+        );
+      });
+      menu.addSeparator();
+    }
+
     menu.addItem((item) =>
       item
         .setTitle("すべてのメッセージをコピー")
