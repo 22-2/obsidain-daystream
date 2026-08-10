@@ -396,7 +396,6 @@ const ReactViewContent = () => {
         <SidebarContainer
           isOpen={effectivelyLeftOpen}
           side="left"
-          title="ナビゲーター"
           ariaLabel="ナビゲーター"
         >
           {viewNoteMode === "fixed" ? (

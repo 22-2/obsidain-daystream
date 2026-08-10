@@ -13,7 +13,7 @@ export const PeriodicSidebar: React.FC = () => {
 
   return (
     <VStack className="h-full w-full items-stretch gap-0 overflow-y-auto">
-      <PanelSection title="カレンダー" className="mfdi-calendar-section pt-2">
+      <PanelSection title="ナビゲーター" className="mfdi-calendar-section pt-2">
         <MiniCalendar onViewDateChange={setSideBarViewDate} />
       </PanelSection>
       <PanelDivider />
