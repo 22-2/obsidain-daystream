@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { BaseLayout } from "src/ui/components/statusbar/layouts/BaseLayout";
+import { HStack, VStack } from "src/ui/components/primitives";
 import { StatusBarDateNavigation } from "src/ui/components/statusbar/parts/StatusBarDateNavigation";
 import { StatusBarSearch } from "src/ui/components/statusbar/parts/StatusBarSearch";
 
@@ -8,10 +8,13 @@ import { StatusBarSearch } from "src/ui/components/statusbar/parts/StatusBarSear
  */
 export const StatusBar: FC = () => {
   return (
-    <BaseLayout
-      className="mfdi-statusbar-controls"
-      leftItems={<StatusBarSearch />}
-      rightItems={<StatusBarDateNavigation />}
-    />
+    <VStack className="mfdi-statusbar-controls w-full items-center gap-1">
+      <HStack className="w-full justify-center">
+        <StatusBarDateNavigation />
+      </HStack>
+      <HStack className="w-full justify-center">
+        <StatusBarSearch />
+      </HStack>
+    </VStack>
   );
 };
