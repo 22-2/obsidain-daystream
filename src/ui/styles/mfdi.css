@@ -474,7 +474,7 @@
 }
 
 [data-type="mfdi-view"] .up-button {
-  bottom: 6.5rem;
+  bottom: calc(2rem + 34px + 8px);
 }
 
 @media (max-width: 1200px) {

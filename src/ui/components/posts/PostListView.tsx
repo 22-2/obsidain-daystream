@@ -427,7 +427,7 @@ export const PostListView: React.FC = memo(() => {
       </Virtualizer>
       <FloatingButton
         className={cn(
-          "up-button fixed bottom-[6.5rem]",
+          "up-button fixed bottom-[calc(2rem+34px+8px)]",
           settings.rightPanelOpen && capabilities.supportsSidebar
             ? "right-[calc(8px+300px)]"
             : "right-8",
