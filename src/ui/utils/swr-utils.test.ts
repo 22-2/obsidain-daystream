@@ -78,6 +78,37 @@ describe("isPostsKey", () => {
     });
   });
 
+  it("refreshAllPosts でカレンダーの活動日キャッシュも再検証できる", async () => {
+    vi.useRealTimers();
+
+    let records = ["2026-03-15"];
+    const fetcher = async () => records;
+
+    const { result } = renderHook(() =>
+      useSWR(["activeDates"], fetcher, { revalidateOnFocus: false }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(["2026-03-15"]);
+    });
+
+    records = ["2026-03-15", "2026-03-16"];
+
+    await act(async () => {
+      await refreshAllPosts({
+        activeTopic: "topic-refresh",
+        displayMode: "focus",
+        timelineDayKey: "2026-03-15",
+        searchQuery: "",
+        threadOnly: false,
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(["2026-03-15", "2026-03-16"]);
+    });
+  });
+
   it("refreshAllPosts で useSWRInfinite の posts キャッシュを再検証できる", async () => {
     vi.useRealTimers();
 
