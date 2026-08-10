@@ -271,6 +271,8 @@ const ReactViewContent = () => {
       dateFilter: s.dateFilter,
       sidebarOpen: s.sidebarOpen,
       setSidebarOpen: s.setSidebarOpen,
+      leftPanelOpen: s.leftPanelOpen,
+      rightPanelOpen: s.rightPanelOpen,
       timeFilter: s.timeFilter,
       displayMode: s.displayMode,
       threadFocusRootId: s.threadFocusRootId,
@@ -327,8 +329,15 @@ const ReactViewContent = () => {
     settings.displayMode,
   ]);
 
-  const { granularity, asTask, dateFilter, sidebarOpen, setSidebarOpen } =
-    settings;
+  const {
+    granularity,
+    asTask,
+    dateFilter,
+    sidebarOpen,
+    leftPanelOpen,
+    rightPanelOpen,
+    setSidebarOpen,
+  } = settings;
 
   const [containerWidth, setContainerWidth] = useState(1000);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -355,7 +364,8 @@ const ReactViewContent = () => {
     return () => observer.disconnect();
   }, [pluginSettings.autoToggleSidebar, setSidebarOpen]);
 
-  const effectivelyOpen = sidebarOpen && capabilities.supportsSidebar;
+  const effectivelyLeftOpen = leftPanelOpen && capabilities.supportsSidebar;
+  const effectivelyRightOpen = rightPanelOpen && capabilities.supportsSidebar;
 
   const isEmpty =
     !isTimelineView(settings.displayMode) &&
@@ -383,7 +393,12 @@ const ReactViewContent = () => {
     >
       {/* Left Sidebar: calendar, tags, and period navigation */}
       {capabilities.supportsSidebar && (
-        <SidebarContainer isOpen={effectivelyOpen} side="left">
+        <SidebarContainer
+          isOpen={effectivelyLeftOpen}
+          side="left"
+          title="ナビゲーター"
+          ariaLabel="ナビゲーター"
+        >
           {viewNoteMode === "fixed" ? (
             <FixedSessionSidebar />
           ) : (
@@ -416,7 +431,11 @@ const ReactViewContent = () => {
 
       {/* Right Sidebar: activity and archive statistics */}
       {capabilities.supportsSidebar && (
-        <SidebarContainer isOpen={effectivelyOpen} side="right">
+        <SidebarContainer
+          isOpen={effectivelyRightOpen}
+          side="right"
+          ariaLabel="インサイト"
+        >
           <InsightsSidebar />
         </SidebarContainer>
       )}
@@ -454,6 +473,8 @@ function useViewSync(view: MFDIView | null) {
     displayMode,
     isReadOnly,
     sidebarOpen,
+    leftPanelOpen,
+    rightPanelOpen,
     searchQuery,
     fixedSessionNumber,
     inputAreaSize,
@@ -465,6 +486,8 @@ function useViewSync(view: MFDIView | null) {
     setThreadOnly,
     setDisplayMode,
     setSidebarOpen,
+    setLeftPanelOpen,
+    setRightPanelOpen,
     setSearchQuery,
     setInputAreaSize,
   } = useSettingsStore(
@@ -478,6 +501,8 @@ function useViewSync(view: MFDIView | null) {
       displayMode: state.displayMode,
       isReadOnly: state.isReadOnly(),
       sidebarOpen: state.sidebarOpen,
+      leftPanelOpen: state.leftPanelOpen,
+      rightPanelOpen: state.rightPanelOpen,
       searchQuery: state.searchQuery,
       fixedSessionNumber: state.fixedSessionNumber,
       inputAreaSize: state.inputAreaSize,
@@ -489,6 +514,8 @@ function useViewSync(view: MFDIView | null) {
       setThreadOnly: state.setThreadOnly,
       setDisplayMode: state.setDisplayMode,
       setSidebarOpen: state.setSidebarOpen,
+      setLeftPanelOpen: state.setLeftPanelOpen,
+      setRightPanelOpen: state.setRightPanelOpen,
       setSearchQuery: state.setSearchQuery,
       setInputAreaSize: state.setInputAreaSize,
     })),
@@ -512,6 +539,10 @@ function useViewSync(view: MFDIView | null) {
   const inputRefVal = useRef(inputSnapshot);
   const sidebarOpenRef = useRef(sidebarOpen);
   const setSidebarOpenRef = useRef(setSidebarOpen);
+  const leftPanelOpenRef = useRef(leftPanelOpen);
+  const rightPanelOpenRef = useRef(rightPanelOpen);
+  const setLeftPanelOpenRef = useRef(setLeftPanelOpen);
+  const setRightPanelOpenRef = useRef(setRightPanelOpen);
 
   useEffect(() => {
     sidebarOpenRef.current = sidebarOpen;
@@ -520,6 +551,22 @@ function useViewSync(view: MFDIView | null) {
   useEffect(() => {
     setSidebarOpenRef.current = setSidebarOpen;
   }, [setSidebarOpen]);
+
+  useEffect(() => {
+    leftPanelOpenRef.current = leftPanelOpen;
+  }, [leftPanelOpen]);
+
+  useEffect(() => {
+    rightPanelOpenRef.current = rightPanelOpen;
+  }, [rightPanelOpen]);
+
+  useEffect(() => {
+    setLeftPanelOpenRef.current = setLeftPanelOpen;
+  }, [setLeftPanelOpen]);
+
+  useEffect(() => {
+    setRightPanelOpenRef.current = setRightPanelOpen;
+  }, [setRightPanelOpen]);
 
   useEffect(() => {
     inputRefVal.current = inputSnapshot;
@@ -712,8 +759,16 @@ function useViewSync(view: MFDIView | null) {
     view.actionDelegates.onToggleSidebar = () => {
       setSidebarOpenRef.current(!sidebarOpenRef.current);
     };
+    view.actionDelegates.onToggleLeftPanel = () => {
+      setLeftPanelOpenRef.current(!leftPanelOpenRef.current);
+    };
+    view.actionDelegates.onToggleRightPanel = () => {
+      setRightPanelOpenRef.current(!rightPanelOpenRef.current);
+    };
     return () => {
       view.actionDelegates.onToggleSidebar = undefined;
+      view.actionDelegates.onToggleLeftPanel = undefined;
+      view.actionDelegates.onToggleRightPanel = undefined;
     };
   }, [view]);
 

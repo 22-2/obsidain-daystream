@@ -481,6 +481,10 @@
   [data-type="mfdi-view"] .mfdi-compose-button {
     right: 2rem !important;
   }
+
+  [data-type="mfdi-view"] .up-button {
+    right: 2rem !important;
+  }
 }
 
 @media (max-width: 900px) {

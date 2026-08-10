@@ -129,4 +129,26 @@ describe("settingsSlice", () => {
     );
     expect(initial.displayMode).toBe(DISPLAY_MODE.TIMELINE);
   });
+
+  it("左右パネルを個別に開閉し、一括状態も同期する", () => {
+    settingsStore.setState({
+      sidebarOpen: true,
+      leftPanelOpen: true,
+      rightPanelOpen: true,
+    });
+
+    settingsStore.getState().setLeftPanelOpen(false);
+    expect(settingsStore.getState().leftPanelOpen).toBe(false);
+    expect(settingsStore.getState().rightPanelOpen).toBe(true);
+    expect(settingsStore.getState().sidebarOpen).toBe(true);
+
+    settingsStore.getState().setRightPanelOpen(false);
+    expect(settingsStore.getState().leftPanelOpen).toBe(false);
+    expect(settingsStore.getState().rightPanelOpen).toBe(false);
+    expect(settingsStore.getState().sidebarOpen).toBe(false);
+
+    settingsStore.getState().setSidebarOpen(true);
+    expect(settingsStore.getState().leftPanelOpen).toBe(true);
+    expect(settingsStore.getState().rightPanelOpen).toBe(true);
+  });
 });

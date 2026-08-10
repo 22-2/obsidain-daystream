@@ -37,10 +37,10 @@ export const PostComposerButton: React.FC = () => {
     })),
   );
 
-  const { isReadOnly, sidebarOpen } = useSettingsStore(
+  const { isReadOnly, rightPanelOpen } = useSettingsStore(
     useShallow((state) => ({
       isReadOnly: state.isReadOnly(),
-      sidebarOpen: state.sidebarOpen,
+      rightPanelOpen: state.rightPanelOpen ?? state.sidebarOpen,
     })),
   );
 
@@ -96,7 +96,7 @@ export const PostComposerButton: React.FC = () => {
       ariaLabel="新しい投稿"
       className={cn(
         "mfdi-compose-button fixed bottom-8",
-        sidebarOpen ? "right-[calc(276px+2rem)]" : "right-8",
+        rightPanelOpen ? "right-[calc(276px+2rem)]" : "right-8",
       )}
       onClick={openComposer}
       visible={!isReadOnly}

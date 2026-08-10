@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   SidebarItemCount,
-  SidebarSectionHeader,
   SidebarTextButton,
 } from "src/ui/components/layout/SidebarPrimitives";
+import { PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import { HStack, Text, VStack } from "src/ui/components/primitives";
 import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -70,10 +70,7 @@ export const TagList: React.FC = () => {
   if (!displayItems?.length) return null;
 
   return (
-    <VStack className="mfdi-tag-section gap-2 pt-2 items-stretch">
-      <SidebarSectionHeader className="justify-center">
-        タグ
-      </SidebarSectionHeader>
+    <PanelSection title="タグ" className="mfdi-tag-section px-2 pt-2">
       <VStack className="mfdi-tag-list gap-0 items-stretch">
         {displayItems.map((item) => {
           const isActive = activeTag === item.tag;
@@ -92,6 +89,6 @@ export const TagList: React.FC = () => {
           );
         })}
       </VStack>
-    </VStack>
+    </PanelSection>
   );
 };

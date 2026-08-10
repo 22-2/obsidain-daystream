@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { SidebarSectionHeader } from "src/ui/components/layout/SidebarPrimitives";
+import {
+  PanelDivider,
+  PanelSection,
+} from "src/ui/components/layout/PanelPrimitives";
 import {
   buildActivitySummary,
   type ActivitySummary,
@@ -91,10 +94,7 @@ export const InsightsSidebar: React.FC = () => {
 
   return (
     <VStack className="h-full w-full items-stretch gap-0 overflow-y-auto">
-      <VStack className="items-stretch gap-2 p-3">
-        <SidebarSectionHeader className="px-0">
-          アクティビティ
-        </SidebarSectionHeader>
+      <PanelSection title="アクティビティ" className="p-3">
         <div
           className="mfdi-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
           aria-label="投稿アクティビティ"
@@ -116,12 +116,11 @@ export const InsightsSidebar: React.FC = () => {
           </Text>
           <Text>{formatDate(summary?.latestDate ?? null)}</Text>
         </HStack>
-      </VStack>
+      </PanelSection>
 
-      <div className="border-t border-[var(--background-modifier-border)]" />
+      <PanelDivider />
 
-      <VStack className="items-stretch gap-2 p-3">
-        <SidebarSectionHeader className="px-0">統計</SidebarSectionHeader>
+      <PanelSection title="統計" className="p-3">
         <VStack className="items-stretch gap-1 text-[length:var(--font-ui-small)]">
           <StatRow
             label="投稿"
@@ -144,7 +143,7 @@ export const InsightsSidebar: React.FC = () => {
             loading={loading}
           />
         </VStack>
-      </VStack>
+      </PanelSection>
     </VStack>
   );
 };

@@ -1,13 +1,18 @@
-import { Box } from "src/ui/components/primitives";
+import { Box, HStack } from "src/ui/components/primitives";
+import { SidebarSectionHeader } from "src/ui/components/layout/SidebarPrimitives";
 import { cn } from "src/ui/components/primitives/utils";
 
 export const SidebarContainer: React.FC<{
   isOpen: boolean;
   side?: "left" | "right";
+  title?: React.ReactNode;
+  ariaLabel?: string;
   children: React.ReactNode;
-}> = ({ isOpen, side = "right", children }) => {
+}> = ({ isOpen, side = "right", title, ariaLabel, children }) => {
   return (
     <Box
+      aria-label={ariaLabel}
+      role="region"
       className={cn(
         isOpen ? "flex w-[260px] min-w-[260px]" : "hidden w-0 min-w-0",
         side === "left"
@@ -16,7 +21,16 @@ export const SidebarContainer: React.FC<{
         "mfdi-dashboard-sidebar h-full flex-col py-[var(--size-4-2)] px-0 transition-all duration-200 overflow-hidden rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] shadow-[var(--shadow-s)]",
       )}
     >
-      {children}
+      {title ? (
+        <HStack className="mfdi-panel-title shrink-0 px-3 pb-1 pt-3">
+          <SidebarSectionHeader className="w-full px-0">
+            {title}
+          </SidebarSectionHeader>
+        </HStack>
+      ) : null}
+      <Box className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {children}
+      </Box>
     </Box>
   );
 };

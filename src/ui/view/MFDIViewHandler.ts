@@ -21,6 +21,8 @@ export interface MFDIActionDelegate {
   onOpenTopicManager?: () => void;
   onFocusRequested?: () => void;
   onToggleSidebar?: () => void;
+  onToggleLeftPanel?: () => void;
+  onToggleRightPanel?: () => void;
   onCopyAllPosts?: () => void;
   onOpenDraftList?: () => void;
   onGetInputSnapshot?: () => string;

@@ -50,6 +50,8 @@ export interface SettingsSlice {
   timeFilter: TimeFilter;
   dateFilter: DateFilter;
   sidebarOpen: boolean;
+  leftPanelOpen: boolean;
+  rightPanelOpen: boolean;
   displayMode: DisplayMode;
   asTask: boolean;
   threadOnly: boolean;
@@ -68,6 +70,8 @@ export interface SettingsSlice {
   setSearchQuery: (q: string) => void;
   setSearchInputOpen: (open: boolean) => void;
   setSidebarOpen: (o: boolean) => void;
+  setLeftPanelOpen: (open: boolean) => void;
+  setRightPanelOpen: (open: boolean) => void;
   setDisplayMode: (m: DisplayMode) => void;
   setAsTask: (asTask: boolean) => void;
   setThreadOnly: (threadOnly: boolean) => void;

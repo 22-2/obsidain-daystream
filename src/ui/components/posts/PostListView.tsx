@@ -41,7 +41,7 @@ export const PostListView: React.FC = memo(() => {
       granularity: s.granularity,
       displayMode: s.displayMode,
       dateFilter: s.dateFilter,
-      sidebarOpen: s.sidebarOpen,
+      rightPanelOpen: s.rightPanelOpen ?? s.sidebarOpen,
       setDate: s.setDate,
       setDisplayMode: s.setDisplayMode,
       setThreadFocusRootId: s.setThreadFocusRootId,
@@ -319,12 +319,15 @@ export const PostListView: React.FC = memo(() => {
 
   const countMap = useMemo(() => {
     const map = new Map<string, number>();
-    Map.groupBy(filteredPosts, (post) => post.timestamp.format("YYYY-MM-DD")).forEach(
-      (group, date) => {
-        map.set(date, group.length);
-      },
+    Map.groupBy(filteredPosts, (post) =>
+      post.timestamp.format("YYYY-MM-DD"),
+    ).forEach((group, date) => {
+      map.set(date, group.length);
+    });
+    map.set(
+      "pinned",
+      filteredPosts.filter((post) => post.metadata.pinned).length,
     );
-    map.set("pinned", filteredPosts.filter((post) => post.metadata.pinned).length);
     return map;
   }, [timelineItems]);
 
@@ -337,7 +340,6 @@ export const PostListView: React.FC = memo(() => {
         onScroll={(offset) => setShowScrollTop(offset > 200)}
       >
         {timelineItems.map((item) => {
-
           if (item.type === "divider") {
             return (
               <Box key={item.key} style={{ paddingBottom: "1px" }}>
@@ -427,7 +429,7 @@ export const PostListView: React.FC = memo(() => {
         <FloatingButton
           className={cn(
             "up-button fixed",
-            settings.sidebarOpen && capabilities.supportsSidebar
+            settings.rightPanelOpen && capabilities.supportsSidebar
               ? "right-[calc(8px+300px)]"
               : "right-8",
           )}
@@ -463,9 +465,7 @@ const ListFooter = memo(
 
     return (
       <Box className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-[var(--font-smallest)]">
-        {isLoading || hasMore
-          ? "読み込み中..."
-          : "これ以上投稿はありません"}
+        {isLoading || hasMore ? "読み込み中..." : "これ以上投稿はありません"}
       </Box>
     );
   },

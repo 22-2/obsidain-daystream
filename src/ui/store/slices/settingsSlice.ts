@@ -99,6 +99,14 @@ function resolveInitialSettingsState(
 
   const date = savedDate ? window.moment(savedDate) : window.moment();
   const validDate = date.isValid() ? date : window.moment();
+  const sidebarOpen =
+    storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true;
+  const leftPanelOpen =
+    storage?.get<boolean>(STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen) ??
+    sidebarOpen;
+  const rightPanelOpen =
+    storage?.get<boolean>(STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen) ??
+    sidebarOpen;
 
   return {
     activeTopic: settings.activeTopic ?? "",
@@ -115,7 +123,9 @@ function resolveInitialSettingsState(
         STORAGE_KEYS.DATE_FILTER,
         DATE_FILTER_IDS.TODAY,
       ) ?? DATE_FILTER_IDS.TODAY,
-    sidebarOpen: storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true,
+    sidebarOpen,
+    leftPanelOpen,
+    rightPanelOpen,
     displayMode:
       storage?.get<DisplayMode>(
         STORAGE_KEYS.DISPLAY_MODE,
@@ -156,6 +166,8 @@ export const createSettingsSlice: StateCreator<
   // ダッシュボードの初期状態では左右パネルを表示する。
   // 保存済みユーザー設定がある場合は resolveInitialSettingsState で優先する。
   sidebarOpen: true,
+  leftPanelOpen: true,
+  rightPanelOpen: true,
   displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
   asTask: false,
   threadOnly: false,
@@ -325,8 +337,31 @@ export const createSettingsSlice: StateCreator<
   },
 
   setSidebarOpen: (sidebarOpen) => {
-    set({ sidebarOpen });
-    persistValue(get(), STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
+    set({
+      sidebarOpen,
+      leftPanelOpen: sidebarOpen,
+      rightPanelOpen: sidebarOpen,
+    });
+    const state = get();
+    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
+    persistValue(state, STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen);
+    persistValue(state, STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen);
+  },
+
+  setLeftPanelOpen: (leftPanelOpen) => {
+    const sidebarOpen = leftPanelOpen || get().rightPanelOpen;
+    set({ leftPanelOpen, sidebarOpen });
+    const state = get();
+    persistValue(state, STORAGE_KEYS.PANEL_LEFT_OPEN, leftPanelOpen);
+    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
+  },
+
+  setRightPanelOpen: (rightPanelOpen) => {
+    const sidebarOpen = get().leftPanelOpen || rightPanelOpen;
+    set({ rightPanelOpen, sidebarOpen });
+    const state = get();
+    persistValue(state, STORAGE_KEYS.PANEL_RIGHT_OPEN, rightPanelOpen);
+    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
   },
 
   setDisplayMode: (displayMode) => {

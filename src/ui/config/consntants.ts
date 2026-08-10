@@ -12,6 +12,8 @@ export const STORAGE_KEYS = {
   TIME_FILTER: "timeFilter",
   DATE_FILTER: "dateFilter",
   SIDEBAR_OPEN: "sidebarOpen",
+  PANEL_LEFT_OPEN: "panelLeftOpen",
+  PANEL_RIGHT_OPEN: "panelRightOpen",
   GRANULARITY: "granularity",
   DATE: "date",
   DISPLAY_MODE: "displayMode",
