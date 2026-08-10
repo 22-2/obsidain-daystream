@@ -93,13 +93,11 @@ export function useMiniCalendar() {
     prevDateRef.current = date;
   }, [date]);
 
-  const handlePrevMonth = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handlePrevMonth = () => {
     setViewDate((prev) => prev.clone().subtract(1, "month"));
   };
 
-  const handleNextMonth = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleNextMonth = () => {
     setViewDate((prev) => prev.clone().add(1, "month"));
   };
 

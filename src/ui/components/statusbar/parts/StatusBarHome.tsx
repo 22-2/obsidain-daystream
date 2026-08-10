@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { InputAreaIcon } from "src/ui/components/inputarea/InputAreaIcon";
+import { IconButton } from "src/ui/components/common/IconButton";
 import { cn } from "src/ui/components/primitives/utils";
 import { isDefaultViewState } from "src/ui/utils/view-state";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -46,7 +46,7 @@ export const StatusBarHome: FC = () => {
   });
 
   return (
-    <InputAreaIcon
+    <IconButton
       name="home"
       ariaLabel="ホーム"
       size="md"

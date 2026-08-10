@@ -1,6 +1,5 @@
-import type { FC } from "react";
-import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
-import { HStack } from "src/ui/components/primitives";
+import React, { type FC } from "react";
+import { IconButton } from "src/ui/components/common/IconButton";
 import { cn } from "src/ui/components/primitives/utils";
 
 export const NavButton: FC<{
@@ -9,14 +8,14 @@ export const NavButton: FC<{
   className?: string;
 }> = ({ direction, onClick, className }) => {
   return (
-    <HStack
+    <IconButton
+      name={`chevron-${direction}`}
+      ariaLabel={direction === "left" ? "前へ" : "次へ"}
+      onActivate={onClick}
       className={cn(
-        `mfdi-nav-button mfdi-nav-button-${direction} cursor-pointer ${direction === "left" ? "flex-row" : "flex-row-reverse"} gap-0`,
+        `mfdi-nav-button mfdi-nav-button-${direction} size-6 p-1`,
         className,
       )}
-      onClick={onClick}
-    >
-      <ObsidianIcon name={`chevron-${direction}`} boxSize="1em" />
-    </HStack>
+    />
   );
 };

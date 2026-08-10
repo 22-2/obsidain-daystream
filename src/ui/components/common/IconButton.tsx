@@ -1,9 +1,9 @@
 import type { KeyboardEvent, MouseEventHandler } from "react";
-import { memo, useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { cn } from "src/ui/components/primitives/utils";
 
-type InputAreaIconProps = {
+type IconButtonProps = {
   name: string;
   ariaLabel: string;
   title?: string;
@@ -14,7 +14,7 @@ type InputAreaIconProps = {
   className?: string;
 };
 
-export const InputAreaIcon = memo(
+export const IconButton = memo(
   ({
     name,
     ariaLabel,
@@ -24,7 +24,7 @@ export const InputAreaIcon = memo(
     isDisabled = false,
     className,
     size = "sm",
-  }: InputAreaIconProps) => {
+  }: IconButtonProps) => {
     const handleKeyDown = useCallback(
       (event: KeyboardEvent<HTMLDivElement>) => {
         if (isDisabled || !onActivate) return;
@@ -56,4 +56,4 @@ export const InputAreaIcon = memo(
   },
 );
 
-InputAreaIcon.displayName = "InputAreaIcon";
+IconButton.displayName = "IconButton";

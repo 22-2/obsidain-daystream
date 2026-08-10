@@ -2,7 +2,7 @@ import { Menu } from "obsidian";
 import { memo, useCallback, useMemo, type ChangeEvent, type FC } from "react";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
-import { InputAreaIcon } from "src/ui/components/inputarea/InputAreaIcon";
+import { IconButton } from "src/ui/components/common/IconButton";
 import { Box, Flex, HStack, Input } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { DISPLAY_MODE, INPUT_AREA_SIZE } from "src/ui/config/consntants";
@@ -124,7 +124,7 @@ export const InputAreaControl: FC<{
         className={`mfdi-input-area-control items-center px-[1em] my-[var(--size-4-4)] h-[28px] group`}
       >
         {capabilities.supportsDateNavigation && (
-          <InputAreaIcon
+          <IconButton
             name="home"
             ariaLabel="ホーム"
             size="md"
@@ -170,7 +170,7 @@ export const InputAreaControl: FC<{
           )}
         </HStack>
         <Box className="flex-1 flex justify-end gap-[0.5em]">
-          <InputAreaIcon
+          <IconButton
             name="maximize"
             size="md"
             ariaLabel="入力欄を最大化"

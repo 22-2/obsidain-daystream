@@ -166,8 +166,16 @@ export const SidebarScales: React.FC<{
     >
       <VStack className="items-stretch gap-1">
         <HStack className="mfdi-scale-navigation justify-end gap-1">
-          <NavButton direction="left" onClick={() => handleMoveViewMonth(-1)} />
-          <NavButton direction="right" onClick={() => handleMoveViewMonth(1)} />
+          <NavButton
+            direction="left"
+            onClick={() => handleMoveViewMonth(-1)}
+            className="p-1"
+          />
+          <NavButton
+            direction="right"
+            onClick={() => handleMoveViewMonth(1)}
+            className="p-1"
+          />
         </HStack>
         <VStack className="mfdi-scale-list-unified items-stretch gap-0">
           {(["year", "quarter", "month"] as const).map((scaleGranularity) => {

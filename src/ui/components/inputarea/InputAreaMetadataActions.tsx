@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo, type FC } from "react";
 import { TAG_METADATA_KEY, serializeMfdiTags } from "src/core/tags";
-import { InputAreaIcon } from "src/ui/components/inputarea/InputAreaIcon";
+import { IconButton } from "src/ui/components/common/IconButton";
 import { HStack } from "src/ui/components/primitives";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { useEditorStore } from "src/ui/store/editorStore";
@@ -69,7 +69,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
 
     return (
       <HStack className="gap-[0.25em] items-center invisible group-hover:visible">
-        <InputAreaIcon
+        <IconButton
           name="pin"
           ariaLabel={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
           title={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
@@ -77,7 +77,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
           isDisabled={isReadOnly}
         />
         {capabilities.supportsTags && (
-          <InputAreaIcon
+          <IconButton
             name="tag"
             ariaLabel="タグ編集"
             onActivate={handleEditTags}

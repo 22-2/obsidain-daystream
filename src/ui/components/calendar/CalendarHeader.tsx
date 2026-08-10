@@ -1,5 +1,5 @@
 import type React from "react";
-import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { NavButton } from "src/ui/components/common/NavButton";
 import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { cn } from "src/ui/components/primitives/utils";
 
@@ -11,8 +11,8 @@ export const CalendarHeader: React.FC<{
   date: moment.Moment;
   granularity: string;
   dateFilter: string;
-  onPrev: (e: React.MouseEvent) => void;
-  onNext: (e: React.MouseEvent) => void;
+  onPrev: () => void;
+  onNext: () => void;
   onSelectYear: (e: React.MouseEvent) => void;
   onSelectMonth: (e: React.MouseEvent) => void;
 }> = ({
@@ -69,14 +69,13 @@ export const CalendarHeader: React.FC<{
         </span>
       </div>
       <div className="mini-calendar__nav flex items-center gap-1">
-        {(["chevron-left", "chevron-right"] as const).map((icon, i) => (
-          <div
-            key={icon}
-            className="mini-calendar__nav-button p-1 rounded-[4px] hover:bg-[var(--background-modifier-hover)] cursor-pointer"
-            onClick={i === 0 ? onPrev : onNext}
-          >
-            <ObsidianIcon name={icon} size="1em" />
-          </div>
+        {(["left", "right"] as const).map((direction) => (
+          <NavButton
+            key={direction}
+            direction={direction}
+            onClick={direction === "left" ? onPrev : onNext}
+            className="mini-calendar__nav-button"
+          />
         ))}
       </div>
     </div>
