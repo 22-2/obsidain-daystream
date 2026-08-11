@@ -76,16 +76,14 @@
     "worker-timers": "^8.0.34",
     "zustand": "^5.0.14"
   },
-  "pnpm": {
-    "overrides": {
-      "electron": "41.0.3",
-      "vite": "^8.0.4"
-    },
-    "onlyBuiltDependencies": [
-      "electron",
-      "obsidian-e2e-toolkit"
-    ]
+  "overrides": {
+    "electron": "41.0.3",
+    "vite": "^8.0.4"
   },
+  "onlyBuiltDependencies": [
+    "electron",
+    "obsidian-e2e-toolkit"
+  ],
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
