@@ -10,8 +10,10 @@ import {
 import type { Settings } from "src/settings";
 import { EmptyState } from "src/ui/components/EmptyState";
 import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
+import { ContentViewSwitcher } from "src/ui/components/layout/ContentViewSwitcher";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
+import { InsightView } from "src/ui/components/insights/InsightView";
 import { PeriodicSidebar } from "src/ui/components/layout/PeriodicSidebar";
 import { SidebarContainer } from "src/ui/components/layout/SidebarContainer";
 import { getSidebarAutoToggleState } from "src/ui/components/layout/sidebarAutoToggle";
@@ -21,7 +23,7 @@ import { cn } from "src/ui/components/primitives/utils";
 import { StatusBar } from "src/ui/components/statusbar/StatusBar";
 import { PastTodayNotice } from "src/ui/components/statusbar/parts/PastTodayNotice";
 import { TaskListView } from "src/ui/components/tasks/TaskListView";
-import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import { CONTENT_VIEW, INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
 import {
   ComponentContextProvider,
@@ -279,6 +281,8 @@ const ReactViewContent = () => {
       searchQuery: s.searchQuery,
       searchInputOpen: s.searchInputOpen,
       inputAreaSize: s.inputAreaSize,
+      contentView: s.contentView,
+      setContentView: s.setContentView,
       handleClickHome: s.handleClickHome,
     })),
   );
@@ -334,11 +338,36 @@ const ReactViewContent = () => {
     leftPanelOpen,
     rightPanelOpen,
     setSidebarOpen,
+    contentView,
+    setContentView,
   } = settings;
 
   const [containerWidth, setContainerWidth] = useState(1000);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastWidthRef = useRef(containerWidth);
+  const contentScrollPositionsRef = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const savePosition = () => {
+      contentScrollPositionsRef.current[contentView] =
+        scrollContainer.scrollTop;
+    };
+
+    scrollContainer.addEventListener("scroll", savePosition, {
+      passive: true,
+    });
+    scrollContainer.scrollTo({
+      top: contentScrollPositionsRef.current[contentView] ?? 0,
+    });
+
+    return () => {
+      savePosition();
+      scrollContainer.removeEventListener("scroll", savePosition);
+    };
+  }, [contentView, scrollContainerRef]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -374,6 +403,10 @@ const ReactViewContent = () => {
       return;
     }
 
+    if (contentView === CONTENT_VIEW.INSIGHTS) {
+      return <InsightView />;
+    }
+
     return isEmpty ? (
       <EmptyState granularity={granularity} />
     ) : asTask ? (
@@ -381,7 +414,7 @@ const ReactViewContent = () => {
     ) : (
       <PostListView />
     );
-  }, [isEmpty, asTask, granularity, isCSSLoaded]);
+  }, [asTask, contentView, granularity, isCSSLoaded, isEmpty]);
 
   return (
     <Flex
@@ -408,6 +441,9 @@ const ReactViewContent = () => {
           "mfdi-dashboard-main max-content min-w-0 flex-col h-full relative flex-grow overflow-hidden",
         )}
       >
+        {capabilities.supportsDisplayModeSwitch && (
+          <ContentViewSwitcher value={contentView} onChange={setContentView} />
+        )}
         <Flex
           className={cn(
             "mfdi-scroll-container flex-col flex-grow overflow-x-hidden",
@@ -416,13 +452,15 @@ const ReactViewContent = () => {
           ref={scrollContainerRef}
         >
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
-          <div ref={listHeaderRef} className="mfdi-list-header">
-            <StatusBar />
-            <PastTodayNotice />
-          </div>
+          {contentView === CONTENT_VIEW.INSIGHTS ? null : (
+            <div ref={listHeaderRef} className="mfdi-list-header">
+              <StatusBar />
+              <PastTodayNotice />
+            </div>
+          )}
           {content}
         </Flex>
-        <PostComposerButton />
+        {contentView === CONTENT_VIEW.INSIGHTS ? null : <PostComposerButton />}
       </Flex>
 
       {/* Right Sidebar: activity and archive statistics */}

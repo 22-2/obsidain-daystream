@@ -5,6 +5,7 @@ import type { Settings } from "src/settings";
 import type { ObsidianAppShell } from "src/shell/obsidian-shell";
 import type {
   DateFilter,
+  ContentView,
   DisplayMode,
   Draft,
   Granularity,
@@ -53,6 +54,7 @@ export interface SettingsSlice {
   leftPanelOpen: boolean;
   rightPanelOpen: boolean;
   displayMode: DisplayMode;
+  contentView: ContentView;
   asTask: boolean;
   threadOnly: boolean;
   searchQuery: string;
@@ -73,6 +75,7 @@ export interface SettingsSlice {
   setLeftPanelOpen: (open: boolean) => void;
   setRightPanelOpen: (open: boolean) => void;
   setDisplayMode: (m: DisplayMode) => void;
+  setContentView: (view: ContentView) => void;
   setAsTask: (asTask: boolean) => void;
   setThreadOnly: (threadOnly: boolean) => void;
   setThreadFocusRootId: (rootId: string | null, focusDate?: MomentLike) => void;

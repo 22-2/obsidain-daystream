@@ -5,6 +5,11 @@ export const DISPLAY_MODE = {
   TIMELINE: "timeline",
 } as const;
 
+export const CONTENT_VIEW = {
+  TIMELINE: "timeline",
+  INSIGHTS: "insights",
+} as const;
+
 export const STORAGE_KEYS = {
   TOPICS: "topics",
   ACTIVE_TOPIC: "activeTopic",
@@ -17,6 +22,7 @@ export const STORAGE_KEYS = {
   GRANULARITY: "granularity",
   DATE: "date",
   DISPLAY_MODE: "displayMode",
+  CONTENT_VIEW: "contentView",
   AS_TASK: "asTask",
   INPUT: "input",
   INPUT_PERIODIC: "inputPeriodic",

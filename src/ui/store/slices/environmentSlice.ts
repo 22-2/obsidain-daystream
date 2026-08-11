@@ -125,6 +125,7 @@ export const createEnvironmentSlice: StateCreator<
         file: nextFile,
         fixedSessionNumber: nextFixedSessionNumber,
         displayMode: fixedDefaults.displayMode,
+        contentView: "timeline",
         granularity: fixedDefaults.granularity,
         dateFilter: fixedDefaults.dateFilter,
         timeFilter: fixedDefaults.timeFilter,

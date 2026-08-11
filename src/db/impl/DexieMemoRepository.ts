@@ -22,6 +22,10 @@ export class DexieMemoRepository implements IMemoRepository {
     );
   }
 
+  async getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]> {
+    return await this.db.getAllVisibleMemos(topicId);
+  }
+
   async getPinnedVisibleMemos(params: {
     topicId?: string;
     query?: string;

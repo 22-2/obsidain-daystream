@@ -141,6 +141,12 @@ try {
         return res;
       }),
 
+    getAllVisibleMemos: (topicId) =>
+      withLogging("getAllVisibleMemos", { topicId }, async () => {
+        const res = await db().getAllVisibleMemos(topicId);
+        return res;
+      }),
+
     getPinnedMemos: (params) =>
       withLogging("getPinnedMemos", { params }, async () => {
         const res = await db().getPinnedMemos(params);

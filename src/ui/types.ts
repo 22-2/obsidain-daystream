@@ -1,5 +1,9 @@
 import type { Moment } from "moment";
-import type { DISPLAY_MODE, INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import type {
+  CONTENT_VIEW,
+  DISPLAY_MODE,
+  INPUT_AREA_SIZE,
+} from "src/ui/config/consntants";
 import type {
   DATE_FILTER_OPTIONS,
   TIME_FILTER_OPTIONS,
@@ -16,6 +20,8 @@ export type TimeFilter = (typeof TIME_FILTER_OPTIONS)[number]["id"];
 export type DateFilter = (typeof DATE_FILTER_OPTIONS)[number]["id"];
 
 export type DisplayMode = (typeof DISPLAY_MODE)[keyof typeof DISPLAY_MODE];
+
+export type ContentView = (typeof CONTENT_VIEW)[keyof typeof CONTENT_VIEW];
 
 export type InputAreaSize =
   (typeof INPUT_AREA_SIZE)[keyof typeof INPUT_AREA_SIZE];

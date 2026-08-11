@@ -1,6 +1,7 @@
 import { Notice } from "obsidian";
 import type { Settings } from "src/settings";
 import {
+  CONTENT_VIEW,
   DISPLAY_MODE,
   INPUT_AREA_SIZE,
   MOVE_STEP,
@@ -16,6 +17,7 @@ import {
 import type { MFDIStore, SettingsSlice } from "src/ui/store/slices/types";
 import type {
   DateFilter,
+  ContentView,
   DisplayMode,
   Granularity,
   InputAreaSize,
@@ -28,6 +30,7 @@ import type { StateCreator } from "zustand/vanilla";
 
 export const DEFAULT_VIEW_STATE = {
   displayMode: DISPLAY_MODE.TIMELINE,
+  contentView: CONTENT_VIEW.TIMELINE,
   granularity: GRANULARITY_CONFIG.day.unit,
   dateFilter: DATE_FILTER_IDS.TODAY,
   timeFilter: TIME_FILTER_IDS.ALL,
@@ -131,6 +134,11 @@ function resolveInitialSettingsState(
         STORAGE_KEYS.DISPLAY_MODE,
         DISPLAY_MODE.TIMELINE,
       ) ?? (DISPLAY_MODE.TIMELINE as DisplayMode),
+    contentView:
+      storage?.get<ContentView>(
+        STORAGE_KEYS.CONTENT_VIEW,
+        CONTENT_VIEW.TIMELINE,
+      ) ?? CONTENT_VIEW.TIMELINE,
     asTask: storage?.get<boolean>(STORAGE_KEYS.AS_TASK, false) ?? false,
     threadOnly: false,
     searchQuery: "",
@@ -169,6 +177,7 @@ export const createSettingsSlice: StateCreator<
   leftPanelOpen: true,
   rightPanelOpen: true,
   displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
+  contentView: CONTENT_VIEW.TIMELINE as ContentView,
   asTask: false,
   threadOnly: false,
   searchQuery: "",
@@ -371,6 +380,11 @@ export const createSettingsSlice: StateCreator<
     persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
   },
 
+  setContentView: (contentView) => {
+    set({ contentView });
+    persistValue(get(), STORAGE_KEYS.CONTENT_VIEW, contentView);
+  },
+
   setAsTask: (asTask) => {
     set({ asTask });
     persistValue(get(), STORAGE_KEYS.AS_TASK, asTask);
@@ -413,6 +427,11 @@ export const createSettingsSlice: StateCreator<
       state,
       STORAGE_KEYS.DISPLAY_MODE,
       DEFAULT_VIEW_STATE.displayMode,
+    );
+    persistValue(
+      state,
+      STORAGE_KEYS.CONTENT_VIEW,
+      DEFAULT_VIEW_STATE.contentView,
     );
     persistValue(
       state,

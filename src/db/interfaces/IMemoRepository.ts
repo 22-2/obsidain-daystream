@@ -17,6 +17,11 @@ export interface IMemoRepository {
   ): Promise<MemoRecord[]>;
 
   /**
+   * インサイト集計用に、未アーカイブ・未削除のメモをすべて取得する
+   */
+  getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]>;
+
+  /**
    * pinned のメモだけを取得する
    */
   getPinnedVisibleMemos(params: {

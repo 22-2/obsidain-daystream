@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { clearInsightCache } from "src/ui/components/insights/insightSummary";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { refreshAllPosts } from "src/ui/utils/swr-utils";
 import { useShallow } from "zustand/shallow";
@@ -24,6 +25,7 @@ export function useDbSync() {
 
     channel.onmessage = (event) => {
       if (event.data.type === "mfdi-db-updated") {
+        clearInsightCache();
         void refreshAllPosts({
           activeTopic,
           displayMode,

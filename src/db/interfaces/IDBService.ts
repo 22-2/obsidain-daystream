@@ -49,6 +49,11 @@ export interface IDBService {
   }): Promise<MemoRecord[]>;
 
   /**
+   * インサイト集計用に、条件に一致する可視メモをすべて取得する
+   */
+  getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]>;
+
+  /**
    * pinned のメモだけを取得する
    */
   getPinnedMemos(params: {

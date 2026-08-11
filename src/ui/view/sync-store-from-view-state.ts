@@ -50,6 +50,9 @@ export function syncStoreFromMFDIViewState(
   if (latestState.asTask !== fixedDefaults.asTask) {
     nextPatch.asTask = fixedDefaults.asTask;
   }
+  if (latestState.contentView !== "timeline") {
+    nextPatch.contentView = "timeline";
+  }
   if (latestState.threadOnly !== fixedDefaults.threadOnly) {
     nextPatch.threadOnly = fixedDefaults.threadOnly;
   }

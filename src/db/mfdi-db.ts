@@ -479,6 +479,24 @@ export class MFDIDatabase {
     });
   }
 
+  async getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]> {
+    return this.withStoreCallback("memos", "readonly", async (store) => {
+      const results: MemoRecord[] = [];
+
+      for (const pinned of [1, 0] as const) {
+        const { index, range } = buildVisibleMemoPinnedRange(store, {
+          topicId,
+          pinned,
+        });
+        results.push(
+          ...(await cursorAll<MemoRecord>(index, range, "prev")),
+        );
+      }
+
+      return results;
+    });
+  }
+
   async countVisibleMemos(topicId?: string): Promise<number> {
     return this.withStoreCallback("memos", "readonly", async (s) => {
       if (topicId) {
