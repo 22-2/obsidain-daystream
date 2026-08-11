@@ -31,7 +31,7 @@
    ============================================== */
 
 
-:is([data-type="mfdi-view"], .magical-editor-modal-editor-area) {
+:is([data-type="mfdi-view"]) .magical-editor-modal-editor-area {
   margin-top: var(--size-4-3);
 }
 
