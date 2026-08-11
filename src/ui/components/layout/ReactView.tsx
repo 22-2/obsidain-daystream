@@ -441,9 +441,6 @@ const ReactViewContent = () => {
           "mfdi-dashboard-main max-content min-w-0 flex-col h-full relative flex-grow overflow-hidden",
         )}
       >
-        {capabilities.supportsDisplayModeSwitch && (
-          <ContentViewSwitcher value={contentView} onChange={setContentView} />
-        )}
         <Flex
           className={cn(
             "mfdi-scroll-container flex-col flex-grow overflow-x-hidden",
@@ -452,12 +449,18 @@ const ReactViewContent = () => {
           ref={scrollContainerRef}
         >
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
-          {contentView === CONTENT_VIEW.INSIGHTS ? null : (
-            <div ref={listHeaderRef} className="mfdi-list-header">
-              <StatusBar />
-              <PastTodayNotice />
+          <div ref={listHeaderRef} className="mfdi-list-header">
+            <div className="mfdi-main-toolbar">
+              {capabilities.supportsDisplayModeSwitch && (
+                <ContentViewSwitcher
+                  value={contentView}
+                  onChange={setContentView}
+                />
+              )}
+              {contentView === CONTENT_VIEW.TIMELINE ? <StatusBar /> : null}
             </div>
-          )}
+            {contentView === CONTENT_VIEW.INSIGHTS ? null : <PastTodayNotice />}
+          </div>
           {content}
         </Flex>
         {contentView === CONTENT_VIEW.INSIGHTS ? null : <PostComposerButton />}

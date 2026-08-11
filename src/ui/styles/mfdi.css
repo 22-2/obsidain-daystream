@@ -604,6 +604,18 @@
   min-width: 0;
 }
 
+[data-type="mfdi-view"] .mfdi-main-toolbar {
+  width: 90%;
+  max-width: calc(100% - 1rem);
+  margin: 0 auto;
+}
+
+[data-type="mfdi-view"] .mfdi-main-toolbar .mfdi-statusbar-controls {
+  width: 100%;
+  max-width: none;
+  margin: 4px 0;
+}
+
 [data-type="mfdi-view"] .mfdi-content-view-switcher {
   display: flex;
   flex: 0 0 auto;
@@ -638,6 +650,12 @@
   color: var(--text-accent);
   background: color-mix(in srgb, var(--interactive-accent) 14%, transparent);
   font-weight: var(--font-semibold);
+}
+
+[data-type="mfdi-view"] .mfdi-main-toolbar > .mfdi-content-view-switcher {
+  margin: 0;
+  padding-inline: 8px;
+  border-bottom: 0;
 }
 
 [data-type="mfdi-view"] .mfdi-insight-view {
