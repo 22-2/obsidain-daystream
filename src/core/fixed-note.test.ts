@@ -5,6 +5,8 @@ import {
   ensureFixedNote,
   isMFDIFixedNotePath,
   normalizeFixedNotePath,
+  renameFixedNote,
+  trashFixedNote,
 } from "src/core/fixed-note";
 import { resolveNoteSource } from "src/core/note-source";
 import { describe, expect, it, vi } from "vitest";
@@ -85,5 +87,22 @@ describe("fixed note utilities", () => {
 
     expect(shell.createFile).toHaveBeenCalledWith("MFDI/Untitled.mfdi.md", "");
     expect(result).toBe(file);
+  });
+
+  it("固定ノートのリネームと削除を共通操作へ委譲する", async () => {
+    const file = mockFile("MFDI/Inbox.mfdi.md");
+    const renameFile = vi.fn(async () => undefined);
+    const trashFile = vi.fn(async () => undefined);
+    const shell = {
+      getAbstractFileByPath: vi.fn(() => file),
+      getFileManager: vi.fn(() => ({ renameFile, trashFile })),
+    } as any;
+
+    const path = await renameFixedNote(shell, file.path, " Renamed ");
+    await trashFixedNote(shell, file.path);
+
+    expect(renameFile).toHaveBeenCalledWith(file, "Renamed.mfdi.md");
+    expect(trashFile).toHaveBeenCalledWith(file);
+    expect(path).toBe(file.path);
   });
 });

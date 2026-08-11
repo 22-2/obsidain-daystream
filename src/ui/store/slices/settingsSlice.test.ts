@@ -150,4 +150,25 @@ describe("settingsSlice", () => {
     expect(settingsStore.getState().leftPanelOpen).toBe(true);
     expect(settingsStore.getState().rightPanelOpen).toBe(true);
   });
+
+  it("パネルのtoggle actionが個別状態と一括状態を維持する", () => {
+    settingsStore.setState({
+      sidebarOpen: false,
+      leftPanelOpen: false,
+      rightPanelOpen: false,
+    });
+
+    settingsStore.getState().toggleLeftPanel();
+    expect(settingsStore.getState().leftPanelOpen).toBe(true);
+    expect(settingsStore.getState().sidebarOpen).toBe(true);
+
+    settingsStore.getState().toggleRightPanel();
+    expect(settingsStore.getState().rightPanelOpen).toBe(true);
+    expect(settingsStore.getState().sidebarOpen).toBe(true);
+
+    settingsStore.getState().toggleSidebar();
+    expect(settingsStore.getState().sidebarOpen).toBe(false);
+    expect(settingsStore.getState().leftPanelOpen).toBe(false);
+    expect(settingsStore.getState().rightPanelOpen).toBe(false);
+  });
 });

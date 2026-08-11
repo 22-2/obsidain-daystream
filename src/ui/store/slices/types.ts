@@ -74,6 +74,9 @@ export interface SettingsSlice {
   setSidebarOpen: (o: boolean) => void;
   setLeftPanelOpen: (open: boolean) => void;
   setRightPanelOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  toggleLeftPanel: () => void;
+  toggleRightPanel: () => void;
   setDisplayMode: (m: DisplayMode) => void;
   setContentView: (view: ContentView) => void;
   setAsTask: (asTask: boolean) => void;

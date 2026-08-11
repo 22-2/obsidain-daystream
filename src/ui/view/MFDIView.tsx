@@ -1,14 +1,15 @@
 import type { WorkspaceLeaf } from "obsidian";
-import { ItemView, Menu, Scope, TFile } from "obsidian";
+import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
-import { ensureExtension } from "src/core/path";
+import { renameFixedNote as renameFixedNoteFile, trashFixedNote } from "src/core/fixed-note";
 import type { Settings } from "src/settings";
+import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { ReactView } from "src/ui/components/layout/ReactView";
 import { addMFDIPaneMenuItems } from "src/ui/menus/mfdiPaneMenu";
 import "src/ui/styles/global.css";
 import "src/ui/styles/mfdi.css";
-import type { MFDIActionDelegate } from "src/ui/view/MFDIViewHandler";
+import type { MFDIViewDelegates } from "src/ui/view/MFDIViewHandler";
 import { MFDIFixedNoteTitle } from "src/ui/view/MFDIFixedNoteTitle";
 import type { MFDIViewState } from "src/ui/view/state";
 import {
@@ -25,9 +26,12 @@ export class MFDIView extends ItemView {
   private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
   private externalStateRevision = 0;
   private readonly fixedNoteTitle: MFDIFixedNoteTitle;
+  private reactReadyPromise: Promise<void>;
+  private resolveReactReady: (() => void) | null = null;
+  private hasOpened = false;
 
   public navigation = false;
-  public readonly actionDelegates: MFDIActionDelegate = {};
+  public readonly actionDelegates: MFDIViewDelegates = {};
 
   constructor(leaf: WorkspaceLeaf, settings: Settings) {
     super(leaf);
@@ -37,6 +41,7 @@ export class MFDIView extends ItemView {
       () => this.state,
       (newTitle) => this.renameFixedNote(newTitle),
     );
+    this.resetReactReady();
   }
 
   // -----------------------------------------------------------------------
@@ -59,6 +64,10 @@ export class MFDIView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
+    if (this.hasOpened) {
+      this.resetReactReady();
+    }
+    this.hasOpened = true;
     this.setupShortcuts();
     this.setupWorkspaceEvents();
 
@@ -70,6 +79,17 @@ export class MFDIView extends ItemView {
   async onClose(): Promise<void> {
     this.root?.unmount();
     this.root = null;
+    this.notifyReactReady();
+  }
+
+  waitForReactReady(): Promise<void> {
+    return this.reactReadyPromise;
+  }
+
+  notifyReactReady(): void {
+    const resolve = this.resolveReactReady;
+    this.resolveReactReady = null;
+    resolve?.();
   }
 
   onPaneMenu(menu: Menu, prev: string): void {
@@ -140,11 +160,6 @@ export class MFDIView extends ItemView {
     // scope は render より先に初期化する必要がある（MagicalEditor で親スコープとして参照されるため）
     this.scope = new Scope(this.app.scope);
 
-    // this.scope.register(["Ctrl"], "Enter", () => {
-    //   this.actionDelegates.onSubmit?.();
-    //   return false;
-    // });
-
     this.scope.register(["Ctrl"], "f", () => {
       this.actionDelegates.onSearchInputOpen?.();
       return false;
@@ -212,23 +227,24 @@ export class MFDIView extends ItemView {
   }
 
   private async renameFixedNote(newTitle: string): Promise<void> {
-    if (!this.state.file || !newTitle.trim()) return;
+    const path = await renameFixedNoteFile(
+      new ObsidianAppShell(this.app),
+      this.state.file,
+      newTitle,
+    );
+    if (!path) return;
 
-    const file = this.app.vault.getAbstractFileByPath(this.state.file);
-    if (!(file instanceof TFile)) return;
-
-    await this.app.fileManager.renameFile(file, ensureExtension(newTitle, ".mfdi.md"));
-
-    this.state.file = file.path;
+    this.state.file = path;
     this.updateView();
   }
 
   private async deleteFixedNote(): Promise<void> {
-    if (!this.state.file) return;
+    await trashFixedNote(new ObsidianAppShell(this.app), this.state.file);
+  }
 
-    const file = this.app.metadataCache.getFirstLinkpathDest(this.state.file, "");
-    if (file instanceof TFile) {
-      await this.app.fileManager.trashFile(file);
-    }
+  private resetReactReady(): void {
+    this.reactReadyPromise = new Promise<void>((resolve) => {
+      this.resolveReactReady = resolve;
+    });
   }
 }

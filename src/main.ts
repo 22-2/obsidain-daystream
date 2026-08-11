@@ -225,9 +225,7 @@ export default class MFDIPlugin extends Plugin {
 
     this.app.workspace.revealLeaf(leaf);
 
-    // 最小化解除直後は renderer の描画再開より先に React 側の delegate が
-    // 登録されていないことがある。少し待ってからコンポーザを開く。
-    await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
+    await (leaf.view as MFDIView).waitForReactReady();
     restoreAndFocusElectronWindow();
     (leaf.view as MFDIView).actionDelegates.onOpenComposer?.();
   }

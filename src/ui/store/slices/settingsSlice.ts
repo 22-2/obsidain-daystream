@@ -321,6 +321,21 @@ export const createSettingsSlice: StateCreator<MFDIStore, [], [], SettingsSlice>
     persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
   },
 
+  toggleSidebar: () => {
+    const state = get();
+    state.setSidebarOpen(!state.sidebarOpen);
+  },
+
+  toggleLeftPanel: () => {
+    const state = get();
+    state.setLeftPanelOpen(!state.leftPanelOpen);
+  },
+
+  toggleRightPanel: () => {
+    const state = get();
+    state.setRightPanelOpen(!state.rightPanelOpen);
+  },
+
   setDisplayMode: (displayMode) => {
     set({ displayMode, threadFocusRootId: null });
     const state = get();

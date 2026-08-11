@@ -22,6 +22,11 @@ export interface MFDIActionDelegate {
   onClickHome?: () => void;
   onCopyAllPosts?: () => void;
   onOpenDraftList?: () => void;
+  onSearchInputOpen?: () => void;
+  onSearchInputClose?: () => void;
+}
+
+export interface MFDIDebugDelegates {
   onGetInputSnapshot?: () => string;
   onSetLiveEditorContentForTesting?: (content: string) => void;
   onGetLiveEditorContentForTesting?: () => string;
@@ -34,6 +39,6 @@ export interface MFDIActionDelegate {
     persistedInput: string;
     editorSnapshot: string | null;
   };
-  onSearchInputOpen?: () => void;
-  onSearchInputClose?: () => void;
 }
+
+export type MFDIViewDelegates = MFDIActionDelegate & MFDIDebugDelegates;

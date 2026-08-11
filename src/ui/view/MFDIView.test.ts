@@ -33,3 +33,20 @@ describe("MFDIView external state revision", () => {
     expect(view.getExternalStateRevision()).toBe(1);
   });
 });
+
+describe("MFDIView React readiness", () => {
+  it("waits until React reports that the view is ready", async () => {
+    const view = new MFDIView(new WorkspaceLeaf(), {} as Settings);
+    let resolved = false;
+    const ready = view.waitForReactReady().then(() => {
+      resolved = true;
+    });
+
+    await Promise.resolve();
+    expect(resolved).toBe(false);
+
+    view.notifyReactReady();
+    await ready;
+    expect(resolved).toBe(true);
+  });
+});

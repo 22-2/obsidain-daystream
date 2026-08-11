@@ -29,6 +29,28 @@ export function resolveFixedNote(shell: ObsidianAppShell, raw: string | null): T
   return null;
 }
 
+export async function renameFixedNote(
+  shell: ObsidianAppShell,
+  raw: string | null,
+  newTitle: string,
+): Promise<string | null> {
+  const title = newTitle.trim();
+  if (!title) return null;
+
+  const file = resolveFixedNote(shell, raw);
+  if (!file) return null;
+
+  await shell.getFileManager().renameFile(file, ensureExtension(title, FILENAME_SUFFIX));
+  return file.path;
+}
+
+export async function trashFixedNote(shell: ObsidianAppShell, raw: string | null): Promise<void> {
+  const file = resolveFixedNote(shell, raw);
+  if (!file) return;
+
+  await shell.getFileManager().trashFile(file);
+}
+
 async function ensureFolder(shell: ObsidianAppShell, path: string) {
   let current = "";
   for (const seg of path.split("/").filter(Boolean)) {
