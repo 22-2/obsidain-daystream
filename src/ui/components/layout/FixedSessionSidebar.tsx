@@ -146,7 +146,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
           >
             <ObsidianIcon
               name="pin"
-              boxSize="0.95em"
+              size="0.95em"
               className={cn(
                 session.pinned
                   ? "text-[var(--color-accent)]"

@@ -127,7 +127,7 @@ export const InputAreaControl: FC<{
           <IconButton
             name="home"
             ariaLabel="ホーム"
-            size="md"
+            size="1.7em"
             onActivate={handleClickHome}
             className={cn(
               isViewDefault
@@ -172,7 +172,7 @@ export const InputAreaControl: FC<{
         <Box className="flex-1 flex justify-end gap-[0.5em]">
           <IconButton
             name="maximize"
-            size="md"
+            size="1.7em"
             ariaLabel="入力欄を最大化"
             onActivate={() => {
               if (isReadOnly) return;

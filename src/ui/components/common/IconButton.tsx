@@ -1,16 +1,18 @@
 import type { KeyboardEvent, MouseEventHandler } from "react";
 import React, { memo, useCallback } from "react";
+import type { IconSize } from "src/ui/components/common/icon-size";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { cn } from "src/ui/components/primitives/utils";
 
-type IconButtonProps = {
+export type IconButtonProps = {
   name: string;
   ariaLabel: string;
   title?: string;
   onActivate?: () => void;
   onContextMenu?: MouseEventHandler<HTMLDivElement>;
   isDisabled?: boolean;
-  size?: "sm" | "md";
+  /** 数値は px、文字列は CSS の長さとしてアイコンに渡す。 */
+  size?: IconSize;
   className?: string;
 };
 
@@ -23,7 +25,7 @@ export const IconButton = memo(
     onContextMenu,
     isDisabled = false,
     className,
-    size = "sm",
+    size = "1.25em",
   }: IconButtonProps) => {
     const handleKeyDown = useCallback(
       (event: KeyboardEvent<HTMLDivElement>) => {
@@ -39,13 +41,13 @@ export const IconButton = memo(
     return (
       <ObsidianIcon
         name={name}
-        size={size === "sm" ? "1.25em" : "1.7em"}
+        size={size}
         role="button"
         tabIndex={isDisabled ? -1 : 0}
         aria-label={ariaLabel}
         title={title ?? ariaLabel}
         className={cn(
-          "h-[1.7em] w-[1.7em] rounded-[var(--corner-shape)] hover:bg-[var(--interactive-hover)]",
+          "h-[1.7em] w-[1.7em] rounded-[var(--corner-shape)] p-0 hover:bg-[var(--interactive-hover)]",
           className,
         )}
         onClick={isDisabled ? undefined : onActivate}

@@ -43,7 +43,7 @@ export const PostComposerButton: React.FC = () => {
       <ObsidianIcon
         name="pencil"
         className="text-[var(--text-on-accent)] hover:text-[var(--text-on-accent)]"
-        boxSize="1.35em"
+        size="1.35em"
       />
     </FloatingButton>
   );

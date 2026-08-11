@@ -1,22 +1,21 @@
 import { setIcon } from "obsidian";
 import React, { useEffect, useRef } from "react";
+import {
+  toIconCssSize,
+  type IconSize,
+} from "src/ui/components/common/icon-size";
 import { Box } from "src/ui/components/primitives";
 import type { BoxProps } from "src/ui/components/primitives/Box";
 import { cn } from "src/ui/components/primitives/utils";
 
-interface ObsidianIconProps extends BoxProps {
+export interface ObsidianIconProps extends BoxProps {
   name: string;
-  size?: number | string;
-  boxSize?: number | string;
-  width?: number | string;
-  height?: number | string;
+  /** 数値は px、文字列は CSS の長さとして SVG に適用する。 */
+  size?: IconSize;
 }
 
 export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
-  (
-    { name, size, boxSize, width, height, className, ...restProps },
-    forwardedRef,
-  ) => {
+  ({ name, size, className, ...restProps }, forwardedRef) => {
     const innerRef = useRef<HTMLDivElement | null>(null);
 
     // keep forwarded ref in sync
@@ -51,17 +50,16 @@ export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
       const svg = refEl.querySelector("svg");
       if (!svg) return;
 
-      const s = size ?? boxSize ?? width ?? height;
       const setter = svg as unknown as {
         setCssStyles?: (styles: Record<string, string>) => void;
       };
-      if (s) {
-        const ss = typeof s === "number" ? `${s}px` : String(s);
-        setter.setCssStyles?.({ width: ss, height: ss });
-      } else {
-        setter.setCssStyles?.({ width: "100%", height: "100%" });
-      }
-    }, [name, size, boxSize, width, height]);
+      const cssSize = size == null ? "100%" : toIconCssSize(size);
+      setter.setCssStyles?.({
+        width: cssSize,
+        height: cssSize,
+      });
+      svg.style.flexShrink = "0";
+    }, [name, size]);
 
     const base =
       "obsidian-icon inline-flex items-center justify-center text-[var(--icon-color)] transition-all duration-150 px-[var(--size-2-3)] py-[var(--size-2-2)] rounded-[var(--corner-shape)] hover:text-[var(--icon-color-hover)] cursor-pointer";

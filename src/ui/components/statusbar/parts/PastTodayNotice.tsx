@@ -18,7 +18,7 @@ export const PastTodayNotice: FC = () => {
       <Box as="span">過去の今日の投稿が{count}件あります</Box>
       <ObsidianIcon
         name="arrow-right"
-        boxSize="1em"
+        size="1em"
         aria-hidden="true"
         className="shrink-0 cursor-default p-0 hover:text-inherit"
       />

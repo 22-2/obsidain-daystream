@@ -49,10 +49,10 @@ export const StatusBarHome: FC = () => {
     <IconButton
       name="home"
       ariaLabel="ホーム"
-      size="md"
+      size="16px"
       onActivate={handleClickHome}
       className={cn(
-        "absolute left-1 top-1 z-10",
+        "absolute left-2 top-1 z-10 h-6 w-6 p-0",
         !isViewDefault &&
           "text-[var(--text-accent)] hover:text-[var(--text-normal)]",
       )}

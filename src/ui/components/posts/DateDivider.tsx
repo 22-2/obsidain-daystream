@@ -34,7 +34,10 @@ export const DateDivider: FC<DateDividerProps> = ({
 
   return (
     <Flex
-      className={cn("mfdi-date-divider items-center py-[var(--size-4-2)] px-[var(--size-4-4)] gap-[var(--size-4-4)]", { "cursor-pointer": clickable })}
+      className={cn(
+        "mfdi-date-divider items-center py-[var(--size-4-2)] px-[var(--size-4-4)] gap-[var(--size-4-4)]",
+        { "cursor-pointer": clickable },
+      )}
       role={clickable ? "button" : undefined}
       tabIndex={clickable ? 0 : undefined}
       onClick={onClick}
@@ -61,14 +64,11 @@ export const DateDivider: FC<DateDividerProps> = ({
         {clickable && showCollapseIcon && (
           <ObsidianIcon
             name={collapsed ? "chevron-right" : "chevron-down"}
-            boxSize="0.95em"
+            size="0.95em"
           />
         )}
         {leadingIconName && (
-          <ObsidianIcon
-            name={leadingIconName}
-            boxSize="0.95em"
-          />
+          <ObsidianIcon name={leadingIconName} size="0.95em" />
         )}
         {title}
         {count !== undefined && ` (${count})`}
