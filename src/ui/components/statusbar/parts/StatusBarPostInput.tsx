@@ -12,13 +12,13 @@ export const StatusBarPostInput: FC = () => {
 
   return (
     <div
-      className="mfdi-statusbar-post-input flex min-h-12 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-2 transition-colors hover:bg-[var(--background-modifier-hover)]"
+      className="mfdi-statusbar-post-input flex min-h-10 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-1 transition-colors hover:bg-[var(--background-modifier-hover)]"
       onClick={openComposer}
     >
       <ObsidianIcon
         name="pencil"
-        size="var(--font-ui-small)"
-        className="pointer-events-none shrink-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-muted)]"
+        size="14px"
+        className="pointer-events-none h-4 w-4 shrink-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-muted)]"
       />
       <Input
         readOnly

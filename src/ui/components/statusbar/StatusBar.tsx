@@ -13,10 +13,10 @@ export const StatusBar: FC = () => {
     <Box className="mfdi-statusbar-controls relative my-1 w-full rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] !px-2 !py-1.5">
       <StatusBarHome />
       <VStack className="w-full !items-stretch !gap-1">
-        <HStack className="min-h-7 w-full justify-center [&_.mfdi-statusbar-date-bar]:!border-0 [&_.mfdi-statusbar-date-bar]:!bg-transparent [&_.mfdi-statusbar-date-bar]:!p-0">
+        <HStack className="min-h-6 w-full justify-center [&_.mfdi-statusbar-date-bar]:!border-0 [&_.mfdi-statusbar-date-bar]:!bg-transparent [&_.mfdi-statusbar-date-bar]:!p-0">
           <StatusBarDateNavigation />
         </HStack>
-        <HStack className="w-full justify-center [&_.mfdi-statusbar-search]:!my-0 [&_.mfdi-statusbar-search]:!min-h-7 [&_.mfdi-statusbar-search]:!w-full [&_.mfdi-statusbar-search]:!max-w-none [&_.mfdi-statusbar-search]:!flex-1">
+        <HStack className="w-full justify-center [&_.mfdi-statusbar-search]:!my-0 [&_.mfdi-statusbar-search]:!min-h-6 [&_.mfdi-statusbar-search]:!w-full [&_.mfdi-statusbar-search]:!max-w-none [&_.mfdi-statusbar-search]:!flex-1">
           <StatusBarSearch />
         </HStack>
         <HStack className="w-full justify-center">
