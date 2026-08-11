@@ -269,8 +269,8 @@ importers:
         specifier: 6.43.8
         version: 6.43.8
       '@obsidian-typings/obsidian-public-latest':
-        specifier: ^6.29.0
-        version: 6.29.0(@types/node@26.1.2)
+        specifier: ^6.31.0
+        version: 6.31.0(@types/node@26.2.0)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -281,17 +281,17 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3(vite@8.2.1)
       '@testing-library/jest-dom':
-        specifier: ^7.0.0
-        version: 7.0.0(@testing-library/dom@10.4.1)
+        specifier: ^7.0.1
+        version: 7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1))
       '@testing-library/react':
         specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/jsdom':
-        specifier: ^28.0.3
-        version: 28.0.3
+        specifier: ^30.0.0
+        version: 30.0.0
       '@types/node':
-        specifier: ^26.1.2
-        version: 26.1.2
+        specifier: ^26.2.0
+        version: 26.2.0
       '@types/react':
         specifier: ~19.2.18
         version: 19.2.18
@@ -348,7 +348,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite:
         specifier: ^8.2.1
-        version: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+        version: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
       vite-bundle-analyzer:
         specifier: ^1.3.9
         version: 1.3.9
@@ -357,7 +357,7 @@ importers:
         version: 12.0.2(cac@7.0.0)(srvx@0.12.5)(vite@8.2.1)
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@26.1.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2))(vite@8.2.1)
+        version: 4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1)
 
 packages:
 
@@ -904,13 +904,13 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@obsidian-typings/obsidian-public-1.13.4@1.2.0':
-    resolution: {integrity: sha512-lcvB0xhFW0ifTkG4sUzYknL+vQZdg8qrqVL2Tc0K3K0NOrgc6WDu5m0+BzTbbFptuCSc5DdXtl3ANNl39Jeo0A==}
+  '@obsidian-typings/obsidian-public-1.13.6@1.1.0':
+    resolution: {integrity: sha512-PrdWgtdY4AxBLXP7fVB6Pz6gGsyqguAGnCeMGCmJlHOsOhzCdAnofBZ24kT5MNFEGKgZjotgZMoNF2gSFbKsKA==}
     peerDependencies:
       '@types/node': '>=16.0.0'
 
-  '@obsidian-typings/obsidian-public-latest@6.29.0':
-    resolution: {integrity: sha512-B+QSxLbF/w+w4MD8hgmW2//lAW9SUo62VOh/UA+oI9M6WlbRyC/OG1+KqO3MsYbjKi8kuVJagzNl4M+9xp5+EA==}
+  '@obsidian-typings/obsidian-public-latest@6.31.0':
+    resolution: {integrity: sha512-MaX84RaQkrIGtmCBQES2aUkcjjcuTmZ9em+JynbV1EmfUJd7ljxGSDfq4YdCCmLhEDEzteSlpZP+mYEsoiv8qQ==}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -1147,11 +1147,15 @@ packages:
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
     engines: {node: '>=18'}
 
-  '@testing-library/jest-dom@7.0.0':
-    resolution: {integrity: sha512-HKAH9C6mBo5yBG6yRO5i43L2iisencAo5z+o5P/saHUoY+miC5ivXRxHBJcFyB5ypPNxHJdK3BoF/3O4DIptMg==}
+  '@testing-library/jest-dom@7.0.1':
+    resolution: {integrity: sha512-oMDTC3oA+6CXSO2JZnvOI7CA6oVub6kij5ggk9ohwye5slmkwxYDXcPOVxgMw/RQlticjtO0C1RZkR97HgrWMw==}
     engines: {node: '>=22', npm: '>=6', yarn: '>=1'}
     peerDependencies:
       '@testing-library/dom': '>=10 <11'
+      vitest: '>= 0.32'
+    peerDependenciesMeta:
+      vitest:
+        optional: true
 
   '@testing-library/react@16.3.2':
     resolution: {integrity: sha512-XU5/SytQM+ykqMnAnvB2umaJNIOsLF3PVv//1Ew4CTcpz0/BRyy/af40qqrt7SjKpDdT1saBMc42CUok5gaw+g==}
@@ -1186,14 +1190,17 @@ packages:
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
-  '@types/jsdom@28.0.3':
-    resolution: {integrity: sha512-/HQ2uFoetFTXuye8vzIcHw2z6Fwi7Hi/qcgC+RoS9NCyewiqxhVGqlG+ViGB6lkax481R6dmhf1I7lIGlzJStQ==}
+  '@types/jsdom@30.0.0':
+    resolution: {integrity: sha512-uAHGxujGE0cDaKGdK28zgDotFtNA7MKq5DXl8LrfdxdCI8VHcg15oJz+amHTChPNI5JpgEPQWc2xFdrw3em/nQ==}
 
   '@types/node@24.13.3':
     resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
 
   '@types/node@26.1.2':
     resolution: {integrity: sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==}
+
+  '@types/node@26.2.0':
+    resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
 
   '@types/react-dom@19.2.4':
     resolution: {integrity: sha512-Bsc+QHgp+P/F02XDzNCY9jnZNCUuLki36KT7VKrTXXLdHf+vHMNZnW1rVu5DNW/rCK+fya3DATySbLM4yhtKUw==}
@@ -3149,8 +3156,8 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
-  undici-types@7.29.0:
-    resolution: {integrity: sha512-vamA8dGlzMwhpyYpQp9d8vka3o4D/yn5I7ez7Or+msDA4bZ8Uh+Zy91WvWf3I73gDAkFha9JcYRqm2li0Npfgg==}
+  undici-types@8.10.0:
+    resolution: {integrity: sha512-ibvdovq3nCFs8Msrd95BW+zUOq+aOVbT+wpHUoPWhztbHEoPc6oof51iFDB6Es8lTKvNvVW9jNSAB8dwrKTMGg==}
 
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
@@ -3483,7 +3490,7 @@ snapshots:
   '@22-2/obsidian-copy-bundler-plugin@1.0.2(esbuild@0.28.1)(vite@8.2.1)':
     dependencies:
       esbuild: 0.28.1
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@22-2/obsidian-magical-editor@1.0.17(obsidian@1.12.3(@codemirror/state@6.7.1)(@codemirror/view@6.43.8))':
     dependencies:
@@ -3762,7 +3769,7 @@ snapshots:
       devframe: 0.8.2(cac@7.0.0)(srvx@0.12.5)
       nostics: 1.2.0
     optionalDependencies:
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
     transitivePeerDependencies:
       - valibot
 
@@ -3773,7 +3780,7 @@ snapshots:
       devframe: 0.8.2(cac@7.0.0)(srvx@0.12.5)
       nostics: 1.2.0
     optionalDependencies:
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@devframes/plugin-terminals@0.8.2(devframe@0.8.2(cac@7.0.0)(srvx@0.12.5))(vite@8.2.1)':
     dependencies:
@@ -3782,7 +3789,7 @@ snapshots:
       nostics: 1.2.0
       zigpty: 0.2.1
     optionalDependencies:
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@dotenvx/dotenvx@1.75.1':
     dependencies:
@@ -3914,33 +3921,33 @@ snapshots:
   '@inquirer/ansi@2.0.7':
     optional: true
 
-  '@inquirer/confirm@6.1.1(@types/node@26.1.2)':
+  '@inquirer/confirm@6.1.1(@types/node@26.2.0)':
     dependencies:
-      '@inquirer/core': 11.2.1(@types/node@26.1.2)
-      '@inquirer/type': 4.0.7(@types/node@26.1.2)
+      '@inquirer/core': 11.2.1(@types/node@26.2.0)
+      '@inquirer/type': 4.0.7(@types/node@26.2.0)
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
     optional: true
 
-  '@inquirer/core@11.2.1(@types/node@26.1.2)':
+  '@inquirer/core@11.2.1(@types/node@26.2.0)':
     dependencies:
       '@inquirer/ansi': 2.0.7
       '@inquirer/figures': 2.0.7
-      '@inquirer/type': 4.0.7(@types/node@26.1.2)
+      '@inquirer/type': 4.0.7(@types/node@26.2.0)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.2
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
     optional: true
 
   '@inquirer/figures@2.0.7':
     optional: true
 
-  '@inquirer/type@4.0.7(@types/node@26.1.2)':
+  '@inquirer/type@4.0.7(@types/node@26.2.0)':
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
     optional: true
 
   '@internationalized/date@3.12.3':
@@ -4031,13 +4038,13 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@obsidian-typings/obsidian-public-1.13.4@1.2.0(@types/node@26.1.2)':
+  '@obsidian-typings/obsidian-public-1.13.6@1.1.0(@types/node@26.2.0)':
     dependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
 
-  '@obsidian-typings/obsidian-public-latest@6.29.0(@types/node@26.1.2)':
+  '@obsidian-typings/obsidian-public-latest@6.31.0(@types/node@26.2.0)':
     dependencies:
-      '@obsidian-typings/obsidian-public-1.13.4': 1.2.0(@types/node@26.1.2)
+      '@obsidian-typings/obsidian-public-1.13.6': 1.1.0(@types/node@26.2.0)
     transitivePeerDependencies:
       - '@types/node'
 
@@ -4196,7 +4203,7 @@ snapshots:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -4209,7 +4216,7 @@ snapshots:
       picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@7.0.0(@testing-library/dom@10.4.1)':
+  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1))':
     dependencies:
       '@adobe/css-tools': 4.5.0
       '@testing-library/dom': 10.4.1
@@ -4218,6 +4225,8 @@ snapshots:
       dom-accessibility-api: 0.6.3
       picocolors: 1.1.1
       redent: 3.0.0
+    optionalDependencies:
+      vitest: 4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1)
 
   '@testing-library/react@16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
@@ -4250,18 +4259,23 @@ snapshots:
 
   '@types/estree@1.0.9': {}
 
-  '@types/jsdom@28.0.3':
+  '@types/jsdom@30.0.0':
     dependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
       '@types/tough-cookie': 4.0.5
       parse5: 8.0.1
-      undici-types: 7.29.0
+      undici-types: 8.10.0
 
   '@types/node@24.13.3':
     dependencies:
       undici-types: 7.18.2
 
   '@types/node@26.1.2':
+    dependencies:
+      undici-types: 8.3.0
+    optional: true
+
+  '@types/node@26.2.0':
     dependencies:
       undici-types: 8.3.0
 
@@ -4291,7 +4305,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
     optional: true
 
   '@typescript/typescript6@6.0.2':
@@ -4311,7 +4325,7 @@ snapshots:
       mlly: 1.8.2
       nostics: 1.2.0
       nypm: 0.6.9
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@modelcontextprotocol/client'
       - '@modelcontextprotocol/server'
@@ -4334,7 +4348,7 @@ snapshots:
       nostics: 1.2.0
       obug: 2.1.4
       pathe: 2.0.3
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
       vue: 3.5.41(@typescript/typescript6@6.0.2)
     transitivePeerDependencies:
       - '@modelcontextprotocol/client'
@@ -4347,7 +4361,7 @@ snapshots:
   '@vitejs/plugin-react@6.0.5(vite@8.2.1)':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@vitest/expect@4.1.10':
     dependencies:
@@ -4358,14 +4372,14 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.10(msw@2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2))(vite@8.2.1)':
+  '@vitest/mocker@4.1.10(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1)':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      msw: 2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2)
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      msw: 2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
@@ -5487,9 +5501,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2):
+  msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2):
     dependencies:
-      '@inquirer/confirm': 6.1.1(@types/node@26.1.2)
+      '@inquirer/confirm': 6.1.1(@types/node@26.2.0)
       '@mswjs/interceptors': 0.41.9
       '@open-draft/deferred-promise': 3.0.0
       '@types/statuses': 2.0.6
@@ -6186,7 +6200,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici-types@7.29.0: {}
+  undici-types@8.10.0: {}
 
   undici-types@8.3.0: {}
 
@@ -6247,14 +6261,14 @@ snapshots:
       perfect-debounce: 2.1.0
       sirv: 3.0.2
       unplugin-utils: 0.3.2
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@modelcontextprotocol/client'
       - '@modelcontextprotocol/server'
       - cac
       - srvx
 
-  vite@8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0):
+  vite@8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -6262,16 +6276,16 @@ snapshots:
       rolldown: 1.2.3
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
       '@vitejs/devtools': 0.4.12(@typescript/typescript6@6.0.2)(crossws@0.4.10(srvx@0.12.5))(srvx@0.12.5)(valibot@1.4.2(@typescript/typescript6@6.0.2))(vite@8.2.1)
       esbuild: 0.28.1
       fsevents: 2.3.3
       jiti: 2.7.0
 
-  vitest@4.1.10(@types/node@26.1.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2))(vite@8.2.1):
+  vitest@4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(msw@2.14.5(@types/node@26.1.2)(@typescript/typescript6@6.0.2))(vite@8.2.1)
+      '@vitest/mocker': 4.1.10(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1)
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
@@ -6288,10 +6302,10 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 8.2.1(@types/node@26.1.2)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
+      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 26.2.0
       jsdom: 30.0.1(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
