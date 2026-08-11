@@ -186,9 +186,7 @@ describe("useFakeEditor", () => {
     expect(instance).toBeDefined();
     expect(instance.setContentCalls).toEqual([]);
 
-    view.rerender(
-      <HookHarness initialValue="restored draft" onChange={onChange} />,
-    );
+    view.rerender(<HookHarness initialValue="restored draft" onChange={onChange} />);
 
     await act(async () => {
       fakeEditorState.deferred?.resolve();

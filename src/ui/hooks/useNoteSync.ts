@@ -13,17 +13,16 @@ export function useNoteSync() {
   const shell = useAppStore((s) => s.shell);
   const store = useCurrentAppStore();
 
-  const { date, granularity, activeTopic, dateFilter, displayMode, setDate } =
-    useSettingsStore(
-      useShallow((s) => ({
-        date: s.date,
-        granularity: s.granularity,
-        activeTopic: s.activeTopic,
-        dateFilter: s.dateFilter,
-        displayMode: s.displayMode,
-        setDate: s.setDate,
-      })),
-    );
+  const { date, granularity, activeTopic, dateFilter, displayMode, setDate } = useSettingsStore(
+    useShallow((s) => ({
+      date: s.date,
+      granularity: s.granularity,
+      activeTopic: s.activeTopic,
+      dateFilter: s.dateFilter,
+      displayMode: s.displayMode,
+      setDate: s.setDate,
+    })),
+  );
 
   const { viewNoteMode, file } = useSettingsStore(
     useShallow((s) => ({

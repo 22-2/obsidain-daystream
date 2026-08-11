@@ -71,10 +71,7 @@ export function listPeriodicNotes(
   return getAllTopicNotes(shell, granularity, activeTopic);
 }
 
-function getPeriodicNoteKey(
-  date: MomentLike,
-  granularity: Granularity,
-): string {
+function getPeriodicNoteKey(date: MomentLike, granularity: Granularity): string {
   return getDateUID(date, granularity);
 }
 
@@ -121,9 +118,7 @@ export function searchPeriodicDayWindow(params: {
 
   const oldestPossibleDate = window.moment(uids[0].substring("day-".length));
   const start = baseDate.clone().startOf("day");
-  const dates = Array.from({ length: days }, (_, index) =>
-    start.clone().subtract(index, "days"),
-  );
+  const dates = Array.from({ length: days }, (_, index) => start.clone().subtract(index, "days"));
   const lastInWindow = dates[dates.length - 1];
   const entries = dates
     .map((dayDate) => ({
@@ -180,8 +175,7 @@ function createFixedNoteSource(context: NoteSourceContext): NoteSource {
       return ensureFixedNote(context.shell, context.file);
     },
     matchesPath: (filePath, currentNote) => {
-      const targetPath =
-        currentNote?.path ?? normalizeFixedNotePath(context.file ?? "");
+      const targetPath = currentNote?.path ?? normalizeFixedNotePath(context.file ?? "");
       return !!targetPath && filePath === targetPath;
     },
   };
@@ -191,27 +185,12 @@ function createPeriodicNoteSource(context: NoteSourceContext): NoteSource {
   return {
     mode: "periodic",
     resolveCurrentNote: () =>
-      resolvePeriodicNote(
-        context.shell,
-        context.date,
-        context.granularity,
-        context.activeTopic,
-      ),
+      resolvePeriodicNote(context.shell, context.date, context.granularity, context.activeTopic),
     ensureCurrentNote: async () =>
-      ensurePeriodicNote(
-        context.shell,
-        context.date,
-        context.granularity,
-        context.activeTopic,
-      ),
+      ensurePeriodicNote(context.shell, context.date, context.granularity, context.activeTopic),
     matchesPath: (filePath) =>
       filePath ===
-      resolveTopicNotePath(
-        context.date,
-        context.granularity,
-        context.activeTopic,
-        context.shell,
-      ),
+      resolveTopicNotePath(context.date, context.granularity, context.activeTopic, context.shell),
   };
 }
 

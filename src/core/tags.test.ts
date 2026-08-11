@@ -9,10 +9,7 @@ import { describe, expect, test } from "vitest";
 
 describe("tags helpers", () => {
   test("parseMfdiTags parses comma-separated tags", () => {
-    expect(parseMfdiTags({ [TAG_METADATA_KEY]: "IT, Later" })).toEqual([
-      "IT",
-      "Later",
-    ]);
+    expect(parseMfdiTags({ [TAG_METADATA_KEY]: "IT, Later" })).toEqual(["IT", "Later"]);
   });
 
   test("parseMfdiTags returns empty for missing metadata", () => {
@@ -20,9 +17,10 @@ describe("tags helpers", () => {
   });
 
   test("normalizeTags trims, deduplicates, and drops invalid tags", () => {
-    expect(
-      normalizeTags([" IT ", "Later", "IT", "", "bad,tag", "two\nlines"]),
-    ).toEqual(["IT", "Later"]);
+    expect(normalizeTags([" IT ", "Later", "IT", "", "bad,tag", "two\nlines"])).toEqual([
+      "IT",
+      "Later",
+    ]);
   });
 
   test("serializeMfdiTags writes normalized comma-separated tags", () => {

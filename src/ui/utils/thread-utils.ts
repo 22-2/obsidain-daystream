@@ -23,14 +23,8 @@ export function resolvePostId(
   return metadata?.[THREAD_METADATA_KEYS.ID] ?? `${path}:${startOffset}`;
 }
 
-export function resolveThreadRootId(
-  metadata: Record<string, string> | undefined,
-): string | null {
-  return (
-    metadata?.[THREAD_METADATA_KEYS.PARENT_ID] ??
-    metadata?.[THREAD_METADATA_KEYS.ID] ??
-    null
-  );
+export function resolveThreadRootId(metadata: Record<string, string> | undefined): string | null {
+  return metadata?.[THREAD_METADATA_KEYS.PARENT_ID] ?? metadata?.[THREAD_METADATA_KEYS.ID] ?? null;
 }
 
 export function isThreadReply(post: Post): boolean {

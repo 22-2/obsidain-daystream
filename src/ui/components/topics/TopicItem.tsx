@@ -90,9 +90,7 @@ export const TopicItem = ({
       <Box
         className={cn(
           "w-[3px] h-[2.5em] rounded-[2px] mr-[var(--size-4-3)] shrink-0 transition-[background] duration-150",
-          isActive
-            ? "bg-[var(--color-accent)]"
-            : "bg-[var(--background-secondary)]",
+          isActive ? "bg-[var(--color-accent)]" : "bg-[var(--background-secondary)]",
         )}
       />
 
@@ -156,9 +154,7 @@ export const TopicItem = ({
 
       <Box
         aria-label="メニュー"
-        className={cn(
-          "h-6 w-6 flex items-center justify-center shrink-0 cursor-pointer",
-        )}
+        className={cn("h-6 w-6 flex items-center justify-center shrink-0 cursor-pointer")}
         onClick={handleOpenMenu}
       >
         <ObsidianIcon name="more-horizontal" size="1.1em" />

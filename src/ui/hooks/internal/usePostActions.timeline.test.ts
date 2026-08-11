@@ -61,9 +61,7 @@ vi.mock("src/ui/context/AppContext", () => ({
 }));
 
 vi.mock("src/lib/daily-notes", async () => {
-  const actual = await vi.importActual<typeof import("src/lib/daily-notes")>(
-    "src/lib/daily-notes",
-  );
+  const actual = await vi.importActual<typeof import("src/lib/daily-notes")>("src/lib/daily-notes");
   return {
     ...actual,
     getTopicNote: vi.fn(),
@@ -108,10 +106,7 @@ describe("timeline note resolution", () => {
         getLeaf: vi.fn(() => ({
           openFile: mockOpenFile,
           setViewState: async (viewState: any) => {
-            const filePath =
-              typeof viewState?.state?.file === "string"
-                ? viewState.state.file
-                : "";
+            const filePath = typeof viewState?.state?.file === "string" ? viewState.state.file : "";
             const file = mockApp.vault.getAbstractFileByPath(filePath);
             if (file) await mockOpenFile(file);
           },
@@ -119,29 +114,18 @@ describe("timeline note resolution", () => {
       },
       vault: {
         getAbstractFileByPath: vi.fn((path: string) =>
-          path === todayNote.path
-            ? todayNote
-            : path === yesterdayNote.path
-              ? yesterdayNote
-              : null,
+          path === todayNote.path ? todayNote : path === yesterdayNote.path ? yesterdayNote : null,
         ),
       },
       getVault: vi.fn(() => ({ adapter: { write: vi.fn() } })),
       writeFile: vi.fn(async () => {}),
       getAbstractFileByPath: vi.fn((path: string) =>
-        path === todayNote.path
-          ? todayNote
-          : path === yesterdayNote.path
-            ? yesterdayNote
-            : null,
+        path === todayNote.path ? todayNote : path === yesterdayNote.path ? yesterdayNote : null,
       ),
       getLeaf: vi.fn(() => ({
         openFile: mockOpenFile,
         setViewState: async (viewState: any) => {
-          const filePath =
-            typeof viewState?.state?.file === "string"
-              ? viewState.state.file
-              : "";
+          const filePath = typeof viewState?.state?.file === "string" ? viewState.state.file : "";
           const file = mockApp.getAbstractFileByPath(filePath);
           if (file) await mockOpenFile(file);
         },
@@ -233,9 +217,7 @@ describe("timeline note resolution", () => {
     });
 
     expect(mockCreateNoteWithInsertAfter).toHaveBeenCalledTimes(1);
-    expect(
-      mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day"),
-    ).toBe(true);
+    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day")).toBe(true);
     expect(mockInsertTextAfterEnsuringMarker).toHaveBeenCalledWith(
       todayNote,
       expect.stringContaining("timeline post"),
@@ -264,13 +246,9 @@ describe("timeline note resolution", () => {
 
     expect(mockInsertTextAfterEnsuringMarker).toHaveBeenCalledWith(
       todayNote,
-      [
-        `- ${today.format("HH:mm:ss")}`,
-        "    ```",
-        "    console.log('hello')",
-        "    ```",
-        "",
-      ].join("\n"),
+      [`- ${today.format("HH:mm:ss")}`, "    ```", "    console.log('hello')", "    ```", ""].join(
+        "\n",
+      ),
       "## Thino",
     );
   });
@@ -330,9 +308,7 @@ describe("timeline note resolution", () => {
     } as any);
 
     expect(mockCreateNoteWithInsertAfter).toHaveBeenCalledTimes(1);
-    expect(
-      mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day"),
-    ).toBe(true);
+    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day")).toBe(true);
     expect(mockOpenFile).toHaveBeenCalledWith(todayNote);
   });
 
@@ -374,9 +350,7 @@ describe("timeline note resolution", () => {
       expect.stringContaining("    [parentId::root-1]"),
       "## Thino",
     );
-    expect(mockInsertTextAfter.mock.calls[0][1]).toContain(
-      "- 23:59:59 timeline post",
-    );
+    expect(mockInsertTextAfter.mock.calls[0][1]).toContain("- 23:59:59 timeline post");
     expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain("[mfdiId::");
     expect(mockInsertTextAfter.mock.calls[0][1]).toContain("[posted::");
     expect(mockRefreshPosts).toHaveBeenCalledWith(yesterdayNote.path);
@@ -466,9 +440,7 @@ describe("timeline note resolution", () => {
     expect(mockInsertTextAfter.mock.calls[0][1]).toContain(
       `- ${today.format("HH:mm:ss")} timeline post`,
     );
-    expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain(
-      "- 23:59:59 timeline post",
-    );
+    expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain("- 23:59:59 timeline post");
   });
 
   it("handleHighlightPost は同じ MFDI タブを focused/day/all へ切り替えて対象投稿をハイライトする", async () => {
@@ -514,9 +486,7 @@ describe("timeline note resolution", () => {
         trigger: vi.fn(),
         insertTextAfter: mockInsertTextAfter,
         replaceRange: vi.fn(),
-        loadFile: vi.fn(async () =>
-          ["## Thino", "- 14:39:00 jump target", ""].join("\n"),
-        ),
+        loadFile: vi.fn(async () => ["## Thino", "- 14:39:00 jump target", ""].join("\n")),
       },
       settings: {
         insertAfter: "## Thino",
@@ -591,13 +561,9 @@ describe("timeline note resolution", () => {
     expect(typeof fid).toBe("string");
     expect(fid).toMatch(/^[a-f0-9]{8}$/);
     expect(mockReplaceRange.mock.calls[0][3]).toContain("- 12:00:00 parent");
-    expect(mockReplaceRange.mock.calls[0][3]).not.toContain(
-      "- 23:59:59 parent",
-    );
+    expect(mockReplaceRange.mock.calls[0][3]).not.toContain("- 23:59:59 parent");
     // 置換されたテキストに実際の mfdiId が含まれていることを確認
-    expect(mockReplaceRange.mock.calls[0][3]).toContain(
-      `[${THREAD_METADATA_KEYS.ID}::${fid}]`,
-    );
+    expect(mockReplaceRange.mock.calls[0][3]).toContain(`[${THREAD_METADATA_KEYS.ID}::${fid}]`);
   });
 
   it("スレッド作成は mfdiId がなくても最新オフセットを再発見して置換する", async () => {
@@ -644,12 +610,8 @@ note header
     });
 
     expect(mockReplaceRange).toHaveBeenCalledOnce();
-    expect(mockReplaceRange.mock.calls[0][1]).toBe(
-      shiftedContent.indexOf("- 12:00:00 parent"),
-    );
-    expect(mockReplaceRange.mock.calls[0][2]).toBeGreaterThan(
-      mockReplaceRange.mock.calls[0][1],
-    );
+    expect(mockReplaceRange.mock.calls[0][1]).toBe(shiftedContent.indexOf("- 12:00:00 parent"));
+    expect(mockReplaceRange.mock.calls[0][2]).toBeGreaterThan(mockReplaceRange.mock.calls[0][1]);
   });
 
   it("タイムラインからスレッド作成した時はフォーカス切替後に再読込する", async () => {
@@ -900,12 +862,8 @@ prefix
     });
 
     expect(mockReplaceRange).toHaveBeenCalledTimes(2);
-    expect(mockReplaceRange.mock.calls[0][1]).toBeGreaterThan(
-      rootPost.startOffset,
-    );
-    expect(mockReplaceRange.mock.calls[1][1]).toBeGreaterThan(
-      rootPost.startOffset,
-    );
+    expect(mockReplaceRange.mock.calls[0][1]).toBeGreaterThan(rootPost.startOffset);
+    expect(mockReplaceRange.mock.calls[1][1]).toBeGreaterThan(rootPost.startOffset);
     expect(settingsStore.getState().threadFocusRootId).toBeNull();
   });
 
@@ -933,16 +891,9 @@ prefix
 
     const mockLoadFile = vi.fn(async () => storedContent);
     const mockReplaceRange = vi.fn(
-      async (
-        _path: string,
-        startOffset: number,
-        endOffset: number,
-        replacement: string,
-      ) => {
+      async (_path: string, startOffset: number, endOffset: number, replacement: string) => {
         storedContent =
-          storedContent.slice(0, startOffset) +
-          replacement +
-          storedContent.slice(endOffset);
+          storedContent.slice(0, startOffset) + replacement + storedContent.slice(endOffset);
       },
     );
     const mockWrite = vi.fn(async (_path: string, content: string) => {
@@ -1015,16 +966,9 @@ prefix
 
     const mockLoadFile = vi.fn(async () => storedContent);
     const mockReplaceRange = vi.fn(
-      async (
-        _path: string,
-        startOffset: number,
-        endOffset: number,
-        replacement: string,
-      ) => {
+      async (_path: string, startOffset: number, endOffset: number, replacement: string) => {
         storedContent =
-          storedContent.slice(0, startOffset) +
-          replacement +
-          storedContent.slice(endOffset);
+          storedContent.slice(0, startOffset) + replacement + storedContent.slice(endOffset);
       },
     );
     const mockWrite = vi.fn(async (_path: string, content: string) => {

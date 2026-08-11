@@ -1,7 +1,7 @@
 import type React from "react";
 import { NavButton } from "src/ui/components/common/NavButton";
-import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { cn } from "src/ui/components/primitives/utils";
+import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 
 // ─────────────────────────────────────────────
 // サブコンポーネント (Tailwind化)
@@ -15,16 +15,7 @@ export const CalendarHeader: React.FC<{
   onNext: () => void;
   onSelectYear: (e: React.MouseEvent) => void;
   onSelectMonth: (e: React.MouseEvent) => void;
-}> = ({
-  viewDate,
-  date,
-  granularity,
-  dateFilter,
-  onPrev,
-  onNext,
-  onSelectYear,
-  onSelectMonth,
-}) => {
+}> = ({ viewDate, date, granularity, dateFilter, onPrev, onNext, onSelectYear, onSelectMonth }) => {
   const isSameYear = viewDate.isSame(date, "year");
   const isSameMonth = viewDate.isSame(date, "month");
 
@@ -47,9 +38,7 @@ export const CalendarHeader: React.FC<{
           className={cn(
             periodLabelClass,
             "mini-calendar__year-label",
-            highlightYear
-              ? "text-[var(--color-accent)]"
-              : "text-[var(--text-normal)]",
+            highlightYear ? "text-[var(--color-accent)]" : "text-[var(--text-normal)]",
           )}
           onClick={onSelectYear}
         >
@@ -59,9 +48,7 @@ export const CalendarHeader: React.FC<{
           className={cn(
             periodLabelClass,
             "mini-calendar__month-value",
-            highlightMonth
-              ? "text-[var(--color-accent)]"
-              : "text-[var(--text-normal)]",
+            highlightMonth ? "text-[var(--color-accent)]" : "text-[var(--text-normal)]",
           )}
           onClick={onSelectMonth}
         >

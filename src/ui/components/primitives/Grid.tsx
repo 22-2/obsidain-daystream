@@ -7,15 +7,8 @@ type GridProps = React.HTMLAttributes<HTMLDivElement> & {
   className?: string;
 };
 
-const Grid = ({
-  cols = 2,
-  gap = "0.5rem",
-  className,
-  children,
-  ...rest
-}: GridProps) => {
-  const gapClass =
-    typeof gap === "number" ? `gap-[${gap}px]` : `gap-[${String(gap)}]`;
+const Grid = ({ cols = 2, gap = "0.5rem", className, children, ...rest }: GridProps) => {
+  const gapClass = typeof gap === "number" ? `gap-[${gap}px]` : `gap-[${String(gap)}]`;
   const colsClass = `grid-cols-${cols}`;
   return (
     <div className={cn("grid", colsClass, gapClass, className)} {...rest}>

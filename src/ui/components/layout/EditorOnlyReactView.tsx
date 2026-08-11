@@ -71,12 +71,7 @@ const EditorOnlyAppRoot: React.FC<{
   // deps に store だけを指定することで再レンダリング時の二重適用を防ぐ。
   useLayoutEffect(() => {
     if (!initialState) return;
-    const {
-      postInfo,
-      message = "",
-      draftMetadata = {},
-      draftMetadataBase = {},
-    } = initialState;
+    const { postInfo, message = "", draftMetadata = {}, draftMetadataBase = {} } = initialState;
     if (postInfo) {
       const post = reconstructEditingPost(postInfo, message);
       store.getState().startEdit(post);

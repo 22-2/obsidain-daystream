@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { MiniCalendar } from "src/ui/components/calendar/MiniCalendar";
-import {
-  PanelDivider,
-  PanelSection,
-} from "src/ui/components/layout/PanelPrimitives";
+import { PanelDivider, PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import { SidebarScales } from "src/ui/components/layout/SidebarScales";
 import { TagList } from "src/ui/components/layout/TagList";
 import { VStack } from "src/ui/components/primitives";
@@ -23,10 +20,7 @@ export const PeriodicSidebar: React.FC = () => {
       <PanelDivider />
       <TagList />
       <PanelDivider />
-      <SidebarScales
-        viewedDate={sideBarViewDate}
-        onViewDateChange={setSideBarViewDate}
-      />
+      <SidebarScales viewedDate={sideBarViewDate} onViewDateChange={setSideBarViewDate} />
     </VStack>
   );
 };

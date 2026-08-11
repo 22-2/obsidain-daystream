@@ -2,10 +2,7 @@ import type { DraftSlice, MFDIStore } from "src/ui/store/slices/types";
 import type { Draft } from "src/ui/types";
 import type { StateCreator } from "zustand";
 
-export const createDraftSlice: StateCreator<MFDIStore, [], [], DraftSlice> = (
-  set,
-  get,
-) => ({
+export const createDraftSlice: StateCreator<MFDIStore, [], [], DraftSlice> = (set, get) => ({
   drafts: [],
   addDraft: (content: string) => {
     if (!content.trim()) return;

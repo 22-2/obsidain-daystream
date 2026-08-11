@@ -24,7 +24,7 @@ export const ResultCount: FC = () => {
     timeFilter,
     displayMode,
     viewNoteMode,
-    file: file,
+    file,
     activeTopic,
   } = settings;
 

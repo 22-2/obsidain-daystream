@@ -9,16 +9,15 @@ import { useShallow } from "zustand/shallow";
  * SWR のキャッシュを無効化するフック。
  */
 export function useDbSync() {
-  const { activeTopic, displayMode, timelineDayKey, searchQuery, threadOnly } =
-    useSettingsStore(
-      useShallow((s) => ({
-        activeTopic: s.activeTopic,
-        displayMode: s.displayMode,
-        timelineDayKey: s.date.format("YYYY-MM-DD"),
-        searchQuery: s.searchQuery,
-        threadOnly: s.threadOnly,
-      })),
-    );
+  const { activeTopic, displayMode, timelineDayKey, searchQuery, threadOnly } = useSettingsStore(
+    useShallow((s) => ({
+      activeTopic: s.activeTopic,
+      displayMode: s.displayMode,
+      timelineDayKey: s.date.format("YYYY-MM-DD"),
+      searchQuery: s.searchQuery,
+      threadOnly: s.threadOnly,
+    })),
+  );
 
   useEffect(() => {
     const channel = new BroadcastChannel("mfdi-db-updates");

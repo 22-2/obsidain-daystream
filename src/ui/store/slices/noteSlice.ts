@@ -3,10 +3,7 @@ import { resolveNoteSource } from "src/core/note-source";
 import type { MFDIStore, NoteSlice } from "src/ui/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
-  set,
-  get,
-) => ({
+export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set, get) => ({
   currentDailyNote: null,
   weekNotePaths: new Set(),
 
@@ -21,7 +18,7 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
       getEffectiveDate,
       currentDailyNote,
       viewNoteMode,
-      file: file,
+      file,
     } = get();
     const noteSource = resolveNoteSource({
       shell,
@@ -54,13 +51,7 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
   },
 
   createNoteWithInsertAfter: async (shell, settings, targetDate, options) => {
-    const {
-      granularity,
-      activeTopic,
-      getEffectiveDate,
-      viewNoteMode,
-      file: file,
-    } = get();
+    const { granularity, activeTopic, getEffectiveDate, viewNoteMode, file } = get();
     const date = targetDate ?? getEffectiveDate();
     const noteSource = resolveNoteSource({
       shell,
@@ -70,8 +61,7 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
       noteMode: viewNoteMode,
       file: file,
     });
-    const note =
-      noteSource.resolveCurrentNote() ?? (await noteSource.ensureCurrentNote());
+    const note = noteSource.resolveCurrentNote() ?? (await noteSource.ensureCurrentNote());
     if (!note) return null;
 
     // 意図: 投稿(submit)経路では直後の insertTextAfterEnsuringMarker が
@@ -86,9 +76,7 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
       if (!content.includes(settings.insertAfter)) {
         await shell.modifyVaultFile(
           note,
-          content
-            ? `${content}\n${settings.insertAfter}`
-            : settings.insertAfter,
+          content ? `${content}\n${settings.insertAfter}` : settings.insertAfter,
         );
       }
     }
@@ -103,7 +91,7 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (
   },
 
   openDailyNoteForDate: async (shell, settings, targetDate) => {
-    const { granularity, activeTopic, viewNoteMode, file: file } = get();
+    const { granularity, activeTopic, viewNoteMode, file } = get();
     const noteSource = resolveNoteSource({
       shell,
       date: targetDate,

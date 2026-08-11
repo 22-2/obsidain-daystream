@@ -22,8 +22,7 @@ export function buildBacklinkPreviewText(message: string): string {
 
   const previewLines = lines.slice(0, 2);
   if (lines.length > 2) {
-    previewLines[previewLines.length - 1] =
-      `${previewLines[previewLines.length - 1]} …`;
+    previewLines[previewLines.length - 1] = `${previewLines[previewLines.length - 1]} …`;
   }
 
   return previewLines.join("\n");

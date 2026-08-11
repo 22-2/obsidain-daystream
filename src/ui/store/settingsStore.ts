@@ -18,9 +18,7 @@ export function initializeSettingsStore(
   state.hydrateSettingsState();
 }
 
-export function useSettingsStore<T>(
-  selector: (state: SettingsSlice & MFDIStore) => T,
-): T {
+export function useSettingsStore<T>(selector: (state: SettingsSlice & MFDIStore) => T): T {
   const store = useCurrentAppStore();
   return useStore(store, selector as (state: MFDIStore) => T);
 }

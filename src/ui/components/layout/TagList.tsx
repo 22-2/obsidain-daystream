@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  SidebarItemCount,
-  SidebarTextButton,
-} from "src/ui/components/layout/SidebarPrimitives";
 import { PanelSection } from "src/ui/components/layout/PanelPrimitives";
+import { SidebarItemCount, SidebarTextButton } from "src/ui/components/layout/SidebarPrimitives";
 import { HStack, Text, VStack } from "src/ui/components/primitives";
 import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -38,9 +35,7 @@ export const TagList: React.FC = () => {
         const tagStats = await db.getTagStats();
         const sorted = tagStats
           .map(({ tag, count }) => ({ tag, count }))
-          .sort(
-            (a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ja"),
-          );
+          .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ja"));
 
         if (mounted) setItems(sorted);
       } catch (e) {
@@ -70,11 +65,7 @@ export const TagList: React.FC = () => {
   if (!displayItems?.length) return null;
 
   return (
-    <PanelSection
-      title="タグ"
-      storageKey="periodic-tags"
-      className="mfdi-tag-section"
-    >
+    <PanelSection title="タグ" storageKey="periodic-tags" className="mfdi-tag-section">
       <VStack className="mfdi-tag-list items-stretch gap-0">
         {displayItems.map((item) => {
           const isActive = activeTag === item.tag;

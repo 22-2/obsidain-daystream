@@ -31,13 +31,9 @@ export const HTMLCard = ({ meta }: { meta: HTMLMeta }) => {
             onError={handleFaviconImageError}
             className="mfdi-html-card-site-icon object-contain h-[1em] mr-[var(--size-2-3)]"
           />
-          <Text className="mfdi-html-card-site-name h-[1em] leading-[1em]">
-            {meta.siteName}
-          </Text>
+          <Text className="mfdi-html-card-site-name h-[1em] leading-[1em]">{meta.siteName}</Text>
         </Box>
-        <Box className="mfdi-html-card-body mb-[var(--size-4-2)] font-semibold">
-          {meta.title}
-        </Box>
+        <Box className="mfdi-html-card-body mb-[var(--size-4-2)] font-semibold">{meta.title}</Box>
       </Box>
       <Link
         href={meta.originUrl}

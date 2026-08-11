@@ -13,10 +13,7 @@ function estimateNotesBytes(notes?: ScannableNote[]): number {
   if (!notes?.length) return 0;
   try {
     const enc = new TextEncoder();
-    return notes.reduce(
-      (sum, n) => sum + (n.content ? enc.encode(n.content).length : 0),
-      0,
-    );
+    return notes.reduce((sum, n) => sum + (n.content ? enc.encode(n.content).length : 0), 0);
   } catch {
     return notes.reduce((sum, n) => sum + (n.content?.length ?? 0), 0);
   }
@@ -61,11 +58,7 @@ self.addEventListener("error", (ev: ErrorEvent) => {
       ev.error,
     );
   } catch {
-    console.error(
-      TAG,
-      "Uncaught error in worker (failed to stringify event)",
-      ev,
-    );
+    console.error(TAG, "Uncaught error in worker (failed to stringify event)", ev);
   }
 });
 
@@ -73,11 +66,7 @@ self.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
   try {
     console.error(TAG, "Unhandled promise rejection in worker:", ev.reason);
   } catch {
-    console.error(
-      TAG,
-      "Unhandled promise rejection in worker (failed to stringify reason)",
-      ev,
-    );
+    console.error(TAG, "Unhandled promise rejection in worker (failed to stringify reason)", ev);
   }
 });
 
@@ -92,9 +81,7 @@ try {
 
   const api: IDBService = {
     initialize: (options) =>
-      withLogging("initialize", { appId: options?.appId }, () =>
-        db().initialize(options),
-      ),
+      withLogging("initialize", { appId: options?.appId }, () => db().initialize(options)),
 
     scanAllNotes: (notes) =>
       withLogging(
@@ -104,14 +91,11 @@ try {
       ),
 
     onFileChanged: (note) =>
-      withLogging(
-        "onFileChanged",
-        { path: note?.path, len: note?.content?.length ?? 0 },
-        () => db().onFileChanged(note),
+      withLogging("onFileChanged", { path: note?.path, len: note?.content?.length ?? 0 }, () =>
+        db().onFileChanged(note),
       ),
 
-    onFileDeleted: (path) =>
-      withLogging("onFileDeleted", { path }, () => db().onFileDeleted(path)),
+    onFileDeleted: (path) => withLogging("onFileDeleted", { path }, () => db().onFileDeleted(path)),
 
     onFileRenamed: (note, oldPath) =>
       withLogging("onFileRenamed", { oldPath, newPath: note?.path }, () =>

@@ -21,8 +21,7 @@ export const VStack = forwardRef<HTMLElement, VStackProps>((props, ref) => {
     children,
     ...rest
   } = props as any;
-  const gapClass =
-    typeof gap === "number" ? `gap-[${gap}px]` : `gap-[${String(gap)}]`;
+  const gapClass = typeof gap === "number" ? `gap-[${gap}px]` : `gap-[${String(gap)}]`;
   const alignMap: Record<string, string> = {
     center: "items-center",
     start: "items-start",
@@ -43,11 +42,7 @@ export const VStack = forwardRef<HTMLElement, VStackProps>((props, ref) => {
     className,
   );
 
-  return React.createElement(
-    Comp,
-    { ref, className: classes, ...rest },
-    children,
-  );
+  return React.createElement(Comp, { ref, className: classes, ...rest }, children);
 });
 
 VStack.displayName = "VStack";

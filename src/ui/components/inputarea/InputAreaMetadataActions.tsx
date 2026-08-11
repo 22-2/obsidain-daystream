@@ -4,11 +4,7 @@ import { IconButton } from "src/ui/components/common/IconButton";
 import { HStack } from "src/ui/components/primitives";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { useEditorStore } from "src/ui/store/editorStore";
-import {
-  PINNED_METADATA_KEY,
-  getRawTagMetadata,
-  isPinned,
-} from "src/ui/utils/post-metadata";
+import { PINNED_METADATA_KEY, getRawTagMetadata, isPinned } from "src/ui/utils/post-metadata";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
 import { useShallow } from "zustand/shallow";
 

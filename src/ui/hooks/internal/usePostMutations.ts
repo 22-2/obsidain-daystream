@@ -11,11 +11,7 @@ import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
 import { PINNED_METADATA_KEY } from "src/ui/utils/post-metadata";
-import {
-  createThreadId,
-  isThreadRoot,
-  THREAD_METADATA_KEYS,
-} from "src/ui/utils/thread-utils";
+import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/ui/utils/thread-utils";
 import { useShallow } from "zustand/shallow";
 
 /** 投稿の CRUD・タグ・ピン等、一覧上の操作を担う hook。PostListView が利用する。 */
@@ -72,10 +68,7 @@ export const usePostMutations = () => {
       if (isThreadRoot(post)) {
         const latestThreadPosts = await findLatestThreadPosts(post);
         if (latestThreadPosts.length === 0) {
-          await notifyNotFoundAndRefresh(
-            post.path,
-            "スレッドの投稿を再特定できませんでした",
-          );
+          await notifyNotFoundAndRefresh(post.path, "スレッドの投稿を再特定できませんでした");
           return;
         }
 
@@ -115,17 +108,12 @@ export const usePostMutations = () => {
       if (isThreadRoot(latestPost)) {
         const latestThreadPosts = await findLatestThreadPosts(latestPost);
         if (latestThreadPosts.length === 0) {
-          await notifyNotFoundAndRefresh(
-            post.path,
-            "スレッドの投稿を再特定できませんでした",
-          );
+          await notifyNotFoundAndRefresh(post.path, "スレッドの投稿を再特定できませんでした");
           return;
         }
 
         // オフセットズレ対策のため後ろから削除
-        const sorted = latestThreadPosts
-          .slice()
-          .sort((a, b) => b.startOffset - a.startOffset);
+        const sorted = latestThreadPosts.slice().sort((a, b) => b.startOffset - a.startOffset);
 
         for (const p of sorted) {
           await shell.replaceRange(p.path, p.startOffset, p.endOffset, "");
@@ -144,12 +132,7 @@ export const usePostMutations = () => {
       }
 
       // 単一投稿の削除
-      await shell.replaceRange(
-        latestPost.path,
-        latestPost.startOffset,
-        latestPost.endOffset,
-        "",
-      );
+      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, "");
       await normalizeFileContent(latestPost.path);
       await refreshPosts(latestPost.path);
     },
@@ -230,9 +213,7 @@ export const usePostMutations = () => {
       }
 
       const nextDay = latestPost.timestamp.clone().add(1, "day");
-      const nextNote = await store
-        .getState()
-        .createNoteWithInsertAfter(shell, settings, nextDay);
+      const nextNote = await store.getState().createNoteWithInsertAfter(shell, settings, nextDay);
       if (!nextNote) {
         new Notice("明日のノートが見つかりませんでした");
         return;
@@ -243,28 +224,14 @@ export const usePostMutations = () => {
       if (!nextDay.isSame(now, "day")) metadata.posted = now.toISOString();
 
       const messageWithFrom = `${latestPost.message} (from ${latestPost.timestamp.format("YYYY-MM-DD")})`;
-      const text = toText(
-        messageWithFrom,
-        false,
-        settingsState.granularity,
-        nextDay,
-        metadata,
-      );
+      const text = toText(messageWithFrom, false, settingsState.granularity, nextDay, metadata);
 
       await shell.insertTextAfter(nextNote, text, settings.insertAfter);
       await deletePost(latestPost);
 
       new Notice("明日に送りました");
     },
-    [
-      shell,
-      settings,
-      settingsState,
-      findLatestPost,
-      notifyNotFoundAndRefresh,
-      deletePost,
-      store,
-    ],
+    [shell, settings, settingsState, findLatestPost, notifyNotFoundAndRefresh, deletePost, store],
   );
 
   /** ブロックIDリンクをクリップボードにコピーする */
@@ -282,9 +249,7 @@ export const usePostMutations = () => {
         return;
       }
 
-      const link = shell
-        .getRawApp()
-        .fileManager.generateMarkdownLink(file, "", `#^${blockId}`);
+      const link = shell.getRawApp().fileManager.generateMarkdownLink(file, "", `#^${blockId}`);
       await navigator.clipboard.writeText(link);
       new Notice("ブロックIDリンクをコピーしました");
     },
@@ -323,12 +288,7 @@ export const usePostMutations = () => {
         },
       );
 
-      await shell.replaceRange(
-        latestPost.path,
-        latestPost.startOffset,
-        latestPost.endOffset,
-        text,
-      );
+      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);
 
       cancelEditIfActive(latestPost);
       settingsState.setThreadFocusRootId(rootId, latestPost.noteDate);

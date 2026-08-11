@@ -10,16 +10,10 @@ export function isTimelineView(displayMode: DisplayMode): boolean {
   return displayMode === DISPLAY_MODE.TIMELINE;
 }
 
-export function isThreadView({
-  displayMode,
-  threadFocusRootId,
-}: ViewState): boolean {
+export function isThreadView({ displayMode, threadFocusRootId }: ViewState): boolean {
   return !isTimelineView(displayMode) && threadFocusRootId !== null;
 }
 
 export function isPlainFocusView(viewState: ViewState): boolean {
-  return (
-    !isTimelineView(viewState.displayMode) &&
-    viewState.threadFocusRootId === null
-  );
+  return !isTimelineView(viewState.displayMode) && viewState.threadFocusRootId === null;
 }

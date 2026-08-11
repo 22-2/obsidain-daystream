@@ -1,19 +1,17 @@
 import type { ChangeEvent, FC } from "react";
 import { useCallback, useMemo } from "react";
-import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
 import { NavButton } from "src/ui/components/common/NavButton";
+import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
 import { HStack, Input } from "src/ui/components/primitives";
-import { useAppStore } from "src/ui/store/appStore";
-import { useSettingsStore } from "src/ui/store/settingsStore";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
+import { useAppStore } from "src/ui/store/appStore";
+import { useSettingsStore } from "src/ui/store/settingsStore";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
 import { useShallow } from "zustand/shallow";
 
 export const StatusBarDateNavigation: FC = () => {
-  const { viewNoteMode } = useAppStore(
-    useShallow((s) => ({ viewNoteMode: s.viewNoteMode })),
-  );
+  const { viewNoteMode } = useAppStore(useShallow((s) => ({ viewNoteMode: s.viewNoteMode })));
   const capabilities = useMemo(
     () => getMFDIViewCapabilities({ noteMode: viewNoteMode }),
     [viewNoteMode],
@@ -46,9 +44,7 @@ export const StatusBarDateNavigation: FC = () => {
     })),
   );
   const isStatusIndicatorVisible =
-    activeTag != null ||
-    threadFocusRootId != null ||
-    displayMode !== DISPLAY_MODE.FOCUS;
+    activeTag != null || threadFocusRootId != null || displayMode !== DISPLAY_MODE.FOCUS;
 
   const handleIndicatorClick = useCallback(() => {
     if (activeTag != null) {
@@ -62,13 +58,7 @@ export const StatusBarDateNavigation: FC = () => {
     }
 
     setDisplayMode(DISPLAY_MODE.FOCUS);
-  }, [
-    activeTag,
-    setActiveTag,
-    setDisplayMode,
-    setThreadFocusRootId,
-    threadFocusRootId,
-  ]);
+  }, [activeTag, setActiveTag, setDisplayMode, setThreadFocusRootId, threadFocusRootId]);
 
   const handleChangeDate = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -91,11 +81,7 @@ export const StatusBarDateNavigation: FC = () => {
         />
       ) : (
         <>
-          <NavButton
-            direction="left"
-            onClick={handleClickMovePrevious}
-            className="p-1"
-          />
+          <NavButton direction="left" onClick={handleClickMovePrevious} className="p-1" />
           <Input
             className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
             type={GRANULARITY_CONFIG[granularity].inputType}
@@ -104,11 +90,7 @@ export const StatusBarDateNavigation: FC = () => {
             onClick={(event) => event.stopPropagation()}
             aria-label="表示日"
           />
-          <NavButton
-            direction="right"
-            onClick={handleClickMoveNext}
-            className="p-1"
-          />
+          <NavButton direction="right" onClick={handleClickMoveNext} className="p-1" />
         </>
       )}
     </HStack>

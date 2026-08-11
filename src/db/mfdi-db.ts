@@ -88,9 +88,7 @@ function isThreadRootMemo(memo: MemoRecord): boolean {
     const threadId = parsed.mfdiId;
     const parentId = parsed.parentId;
     return (
-      typeof threadId === "string" &&
-      threadId.length > 0 &&
-      (parentId == null || parentId === "")
+      typeof threadId === "string" && threadId.length > 0 && (parentId == null || parentId === "")
     );
   } catch {
     return false;
@@ -112,10 +110,7 @@ function buildMemoFilter(params: {
   }
 
   return (memo) => {
-    if (
-      normalizedQuery &&
-      !memo.content.toLowerCase().includes(normalizedQuery)
-    ) {
+    if (normalizedQuery && !memo.content.toLowerCase().includes(normalizedQuery)) {
       return false;
     }
     if (threadOnly && !isThreadRootMemo(memo)) {
@@ -147,20 +142,14 @@ function buildVisibleMemoPinnedRange(
         }
       : {
           index: store.index("[archived+deleted+pinned+createdAt]"),
-          range: IDBKeyRange.bound(
-            [0, 0, pinned, startDate],
-            [0, 0, pinned, endDate],
-          ),
+          range: IDBKeyRange.bound([0, 0, pinned, startDate], [0, 0, pinned, endDate]),
         };
   }
 
   return topicId
     ? {
         index: store.index("[topicId+archived+deleted+pinned+createdAt]"),
-        range: IDBKeyRange.bound(
-          [topicId, 0, 0, pinned, ""],
-          [topicId, 0, 0, pinned, "\uffff"],
-        ),
+        range: IDBKeyRange.bound([topicId, 0, 0, pinned, ""], [topicId, 0, 0, pinned, "\uffff"]),
       }
     : {
         index: store.index("[archived+deleted+pinned+createdAt]"),
@@ -230,9 +219,7 @@ class MemoStore {
         },
         delete: (): Promise<void> => {
           return this.perform("readwrite", (s) => {
-            const request = s
-              .index(indexName)
-              .openKeyCursor(IDBKeyRange.only(value));
+            const request = s.index(indexName).openKeyCursor(IDBKeyRange.only(value));
             return new Promise<void>((resolve, reject) => {
               request.onsuccess = () => {
                 const cursor = request.result;
@@ -404,8 +391,7 @@ export class MFDIDatabase {
   ): Promise<T> {
     const db = await this._db;
     const storeNames = stores.map((s) => s._name);
-    const idbMode: IDBTransactionMode =
-      mode === "rw" ? "readwrite" : "readonly";
+    const idbMode: IDBTransactionMode = mode === "rw" ? "readwrite" : "readonly";
     const tx = db.transaction(storeNames, idbMode);
 
     this._txStack.push(tx);
@@ -446,21 +432,11 @@ export class MFDIDatabase {
   // ---------------------------------------------------------------------------
 
   async getAllActiveDates(): Promise<string[]> {
-    const memos = await this.withStoreCallback(
-      "memos",
-      "readonly",
-      async (s) => {
-        const index = s.index("[archived+deleted]");
-        const range = IDBKeyRange.only([0, 0]);
-        return cursorAll<MemoRecord>(
-          index,
-          range,
-          "next",
-          undefined,
-          undefined,
-        );
-      },
-    );
+    const memos = await this.withStoreCallback("memos", "readonly", async (s) => {
+      const index = s.index("[archived+deleted]");
+      const range = IDBKeyRange.only([0, 0]);
+      return cursorAll<MemoRecord>(index, range, "next", undefined, undefined);
+    });
     const dateSet = new Set(memos.map((m) => m.noteDate));
     return Array.from(dateSet).sort();
   }
@@ -488,9 +464,7 @@ export class MFDIDatabase {
           topicId,
           pinned,
         });
-        results.push(
-          ...(await cursorAll<MemoRecord>(index, range, "prev")),
-        );
+        results.push(...(await cursorAll<MemoRecord>(index, range, "prev")));
       }
 
       return results;
@@ -500,11 +474,7 @@ export class MFDIDatabase {
   async countVisibleMemos(topicId?: string): Promise<number> {
     return this.withStoreCallback("memos", "readonly", async (s) => {
       if (topicId) {
-        return req(
-          s
-            .index("[topicId+archived+deleted]")
-            .count(IDBKeyRange.only([topicId, 0, 0])),
-        );
+        return req(s.index("[topicId+archived+deleted]").count(IDBKeyRange.only([topicId, 0, 0])));
       }
       return req(s.index("[archived+deleted]").count(IDBKeyRange.only([0, 0])));
     });
@@ -518,14 +488,7 @@ export class MFDIDatabase {
     query?: string;
     threadOnly?: boolean;
   }): Promise<MemoRecord[]> {
-    const {
-      topicId,
-      startDate,
-      endDate,
-      limit,
-      query: searchQuery,
-      threadOnly = false,
-    } = params;
+    const { topicId, startDate, endDate, limit, query: searchQuery, threadOnly = false } = params;
 
     return this.getPinnedFirstVisibleMemos({
       topicId,
@@ -555,13 +518,7 @@ export class MFDIDatabase {
 
       // 意図: pinned はタイムラインのスクロール位置に依存せず先頭へ出したい。
       // DB の複合 index から pinned レコードだけを直接抜き出して返す。
-      return await cursorAll<MemoRecord>(
-        index,
-        range,
-        "prev",
-        filter,
-        effectiveLimit,
-      );
+      return await cursorAll<MemoRecord>(index, range, "prev", filter, effectiveLimit);
     });
   }
 
@@ -573,14 +530,7 @@ export class MFDIDatabase {
     query?: string;
     threadOnly?: boolean;
   }): Promise<MemoRecord[]> {
-    const {
-      topicId,
-      startDate,
-      endDate,
-      limit,
-      query,
-      threadOnly = false,
-    } = params;
+    const { topicId, startDate, endDate, limit, query, threadOnly = false } = params;
     const filter = buildMemoFilter({ query, threadOnly });
     const effectiveLimit = limit || 300;
 
@@ -663,11 +613,7 @@ export class MFDIDatabase {
       ? tx.objectStore("memos")
       : db.createObjectStore("memos", { keyPath: "id" });
 
-    const addIndex = (
-      name: string,
-      keyPath: string | string[],
-      opts?: IDBIndexParameters,
-    ) => {
+    const addIndex = (name: string, keyPath: string | string[], opts?: IDBIndexParameters) => {
       if (!memoStore.indexNames.contains(name)) {
         memoStore.createIndex(name, keyPath, opts);
       }
@@ -687,17 +633,8 @@ export class MFDIDatabase {
     addIndex("[topicId+noteGranularity]", ["topicId", "noteGranularity"]);
     addIndex("[archived+deleted]", ["archived", "deleted"]);
     addIndex("[topicId+archived+deleted]", ["topicId", "archived", "deleted"]);
-    addIndex("[archived+deleted+createdAt]", [
-      "archived",
-      "deleted",
-      "createdAt",
-    ]);
-    addIndex("[archived+deleted+pinned+createdAt]", [
-      "archived",
-      "deleted",
-      "pinned",
-      "createdAt",
-    ]);
+    addIndex("[archived+deleted+createdAt]", ["archived", "deleted", "createdAt"]);
+    addIndex("[archived+deleted+pinned+createdAt]", ["archived", "deleted", "pinned", "createdAt"]);
     addIndex("[topicId+archived+deleted+createdAt]", [
       "topicId",
       "archived",

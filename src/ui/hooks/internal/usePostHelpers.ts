@@ -57,9 +57,7 @@ export const usePostHelpers = () => {
   /** タイムスタンプを保存用に解決する（別日ならノート末尾に丸める） */
   const getSerializedTimestamp = useCallback(
     (timestamp: Post["timestamp"], noteDate: Post["noteDate"]) =>
-      timestamp.isSame(noteDate, "day")
-        ? timestamp
-        : noteDate.clone().endOf("day"),
+      timestamp.isSame(noteDate, "day") ? timestamp : noteDate.clone().endOf("day"),
     [],
   );
 
@@ -75,10 +73,7 @@ export const usePostHelpers = () => {
   /** 投稿が現在編集中であれば編集をキャンセルする */
   const cancelEditIfActive = useCallback(
     (post: Post) => {
-      if (
-        editorState.editingPost?.id === post.id &&
-        editorState.editingPost?.path === post.path
-      ) {
+      if (editorState.editingPost?.id === post.id && editorState.editingPost?.path === post.path) {
         editorState.cancelEdit();
       }
     },
@@ -134,13 +129,8 @@ export const usePostHelpers = () => {
 
   const findLatestThreadPosts = useCallback(
     async (rootPost: Post): Promise<Post[]> => {
-      const latestPosts = await getLatestPostsForPath(
-        rootPost.path,
-        rootPost.noteDate,
-      );
-      return latestPosts.filter(
-        (p) => p.threadRootId === rootPost.threadRootId,
-      );
+      const latestPosts = await getLatestPostsForPath(rootPost.path, rootPost.noteDate);
+      return latestPosts.filter((p) => p.threadRootId === rootPost.threadRootId);
     },
     [getLatestPostsForPath],
   );
@@ -152,9 +142,7 @@ export const usePostHelpers = () => {
   const replacePostAndRefresh = useCallback(
     async (
       post: Post,
-      transformMetadata: (
-        prev: Record<string, string>,
-      ) => Record<string, string>,
+      transformMetadata: (prev: Record<string, string>) => Record<string, string>,
     ) => {
       const latestPost = await findLatestPost(post);
       if (!latestPost) {
@@ -170,12 +158,7 @@ export const usePostHelpers = () => {
         transformMetadata({ ...latestPost.metadata }),
       );
 
-      await shell.replaceRange(
-        latestPost.path,
-        latestPost.startOffset,
-        latestPost.endOffset,
-        text,
-      );
+      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);
 
       cancelEditIfActive(latestPost);
       await refreshPosts(latestPost.path);
@@ -192,41 +175,27 @@ export const usePostHelpers = () => {
 
   /** 複数投稿を後ろから上書き保存し、画面を更新する（オフセットズレ対策） */
   const updateManyPosts = useCallback(
-    async (
-      posts: Post[],
-      buildMetadata: (post: Post) => Record<string, string>,
-    ) => {
-      const latestPosts = (
-        await Promise.all(posts.map((post) => findLatestPost(post)))
-      ).filter((post): post is Post => post !== null);
+    async (posts: Post[], buildMetadata: (post: Post) => Record<string, string>) => {
+      const latestPosts = (await Promise.all(posts.map((post) => findLatestPost(post)))).filter(
+        (post): post is Post => post !== null,
+      );
 
       if (latestPosts.length === 0) return;
 
-      const sortedPosts = [...latestPosts].sort(
-        (a, b) => b.startOffset - a.startOffset,
-      );
+      const sortedPosts = [...latestPosts].sort((a, b) => b.startOffset - a.startOffset);
 
       for (const post of sortedPosts) {
-        const text = toText(
-          post.message,
-          false,
-          settingsState.granularity,
-          post.noteDate,
-          { ...post.metadata, ...buildMetadata(post) },
-        );
-        await shell.replaceRange(
-          post.path,
-          post.startOffset,
-          post.endOffset,
-          text,
-        );
+        const text = toText(post.message, false, settingsState.granularity, post.noteDate, {
+          ...post.metadata,
+          ...buildMetadata(post),
+        });
+        await shell.replaceRange(post.path, post.startOffset, post.endOffset, text);
       }
 
       if (
         sortedPosts.some(
           (post) =>
-            editorState.editingPost?.id === post.id &&
-            editorState.editingPost?.path === post.path,
+            editorState.editingPost?.id === post.id && editorState.editingPost?.path === post.path,
         )
       ) {
         editorState.cancelEdit();
@@ -235,13 +204,7 @@ export const usePostHelpers = () => {
       const firstPath = sortedPosts[0]?.path;
       if (firstPath) await refreshPosts(firstPath);
     },
-    [
-      shell,
-      editorState,
-      findLatestPost,
-      refreshPosts,
-      settingsState.granularity,
-    ],
+    [shell, editorState, findLatestPost, refreshPosts, settingsState.granularity],
   );
 
   return {

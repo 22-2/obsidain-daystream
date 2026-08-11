@@ -37,9 +37,7 @@ export const TaskListView: React.FC = memo(() => {
       menu.addItem((item) =>
         item.setTitle("タスクにジャンプ").onClick(() => openTaskInEditor(task)),
       );
-      menu.addItem((item) =>
-        item.setTitle("編集").onClick(() => openTaskInEditor(task)),
-      );
+      menu.addItem((item) => item.setTitle("編集").onClick(() => openTaskInEditor(task)));
       menu.addItem((item) =>
         item
           .setTitle("削除")
@@ -53,14 +51,8 @@ export const TaskListView: React.FC = memo(() => {
     [confirmDeleteAction, deleteTask, isReadOnly, openTaskInEditor],
   );
 
-  const incompleteTasks = useMemo(
-    () => tasks.filter((x) => x.mark === " "),
-    [tasks],
-  );
-  const completedTasks = useMemo(
-    () => tasks.filter((x) => x.mark !== " "),
-    [tasks],
-  );
+  const incompleteTasks = useMemo(() => tasks.filter((x) => x.mark === " "), [tasks]);
+  const completedTasks = useMemo(() => tasks.filter((x) => x.mark !== " "), [tasks]);
 
   // タスクレンダラー（未完了・完了で共通）
   const renderTaskList = (taskList: typeof tasks) => (

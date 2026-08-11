@@ -7,10 +7,7 @@ import type { Granularity, MomentLike } from "src/ui/types";
  * dateUID is a way of weekly identifying daily/weekly/monthly notes.
  * They are prefixed with the granularity to avoid ambiguity.
  */
-export function getDateUID(
-  date: MomentLike,
-  granularity: Granularity = "day",
-): string {
+export function getDateUID(date: MomentLike, granularity: Granularity = "day"): string {
   const ts = date.clone().startOf(granularity).format();
   return `${granularity}-${ts}`;
 }

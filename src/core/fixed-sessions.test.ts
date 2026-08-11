@@ -1,7 +1,4 @@
-import {
-  ensureFixedSessionHeading,
-  parseFixedSessionSections,
-} from "src/core/fixed-sessions";
+import { ensureFixedSessionHeading, parseFixedSessionSections } from "src/core/fixed-sessions";
 import { describe, expect, it } from "vitest";
 
 describe("fixed sessions", () => {

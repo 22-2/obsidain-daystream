@@ -1,14 +1,6 @@
 import type { Menu } from "obsidian";
-import {
-  DATE_FILTER_OPTIONS,
-  TIME_FILTER_OPTIONS,
-} from "src/ui/config/filter-config";
-import type {
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  TimeFilter,
-} from "src/ui/types";
+import { DATE_FILTER_OPTIONS, TIME_FILTER_OPTIONS } from "src/ui/config/filter-config";
+import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
 
 export function addPeriodMenuItems(
@@ -26,9 +18,7 @@ export function addPeriodMenuItems(
   },
 ) {
   const showFilter =
-    state.granularity === "day" &&
-    !state.asTask &&
-    !isTimelineView(state.displayMode);
+    state.granularity === "day" && !state.asTask && !isTimelineView(state.displayMode);
 
   // --- 表示期間 ---
   menu.addSeparator();
@@ -37,9 +27,7 @@ export function addPeriodMenuItems(
   });
   for (const f of DATE_FILTER_OPTIONS) {
     menu.addItem((item) => {
-      const isChecked = showFilter
-        ? state.dateFilter === f.id
-        : f.id === "today";
+      const isChecked = showFilter ? state.dateFilter === f.id : f.id === "today";
       item
         .setTitle(f.label)
         .setChecked(isChecked)

@@ -24,17 +24,13 @@ import { TopicManagerModal } from "src/ui/modals/TopicManagerModal";
 import { MFDIEditorView } from "src/ui/view/MFDIEditorView";
 import { MFDIView, VIEW_TYPE_MFDI } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
-import {
-  createFixedNoteViewState,
-  DEFAULT_MFDI_VIEW_STATE,
-} from "src/ui/view/state";
+import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/ui/view/state";
 
 export default class MFDIPlugin extends Plugin {
   shell: ObsidianAppShell;
   settings: Settings;
   view?: MFDIView;
-  private activityPromptScheduler: ActivityPromptNotificationScheduler | null =
-    null;
+  private activityPromptScheduler: ActivityPromptNotificationScheduler | null = null;
   private activityPromptNotificationsReady = false;
   private activityPromptComposerPromise: Promise<void> | null = null;
 
@@ -102,9 +98,7 @@ export default class MFDIPlugin extends Plugin {
     this.settings.files = [...this.settings.files, { path: fixedNote.path }];
     await this.saveSettings();
 
-    const leaf = await this.attachMFDIView(
-      createFixedNoteViewState(fixedNote.path),
-    );
+    const leaf = await this.attachMFDIView(createFixedNoteViewState(fixedNote.path));
     if (leaf) this.app.workspace.revealLeaf(leaf);
   }
 
@@ -123,12 +117,10 @@ export default class MFDIPlugin extends Plugin {
       register: (cb) => this.register(cb),
       registerEvent: (eventRef) => this.registerEvent(eventRef),
       registerView: (type, viewCreator) => this.registerView(type, viewCreator),
-      addRibbonIcon: (icon, title, callback) =>
-        this.addRibbonIcon(icon, title, callback),
+      addRibbonIcon: (icon, title, callback) => this.addRibbonIcon(icon, title, callback),
       addCommand: (command) => this.addCommand(command),
       getMFDISubmitCallback: () => this.view?.actionDelegates.onSubmit,
-      getMFDIInputSnapshot: () =>
-        this.view?.actionDelegates.onGetInputSnapshot?.() ?? "",
+      getMFDIInputSnapshot: () => this.view?.actionDelegates.onGetInputSnapshot?.() ?? "",
       createMFDIView: (leaf) => {
         this.view = new MFDIView(leaf, this.settings);
         this.setupViewCallbacks(this.view);
@@ -136,8 +128,7 @@ export default class MFDIPlugin extends Plugin {
       },
       createMFDIEditorView: (leaf) => new MFDIEditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
-      attachMFDIView: (state, preferredLeaf) =>
-        this.attachMFDIView(state, preferredLeaf),
+      attachMFDIView: (state, preferredLeaf) => this.attachMFDIView(state, preferredLeaf),
     };
 
     activateBuiltins(context, this.shell.getAppId());
@@ -153,8 +144,7 @@ export default class MFDIPlugin extends Plugin {
       this.app.workspace.getLeavesOfType(VIEW_TYPE_MFDI),
       state,
     );
-    const targetLeaf =
-      preferredLeaf ?? existing ?? this.app.workspace.getLeaf(false);
+    const targetLeaf = preferredLeaf ?? existing ?? this.app.workspace.getLeaf(false);
 
     await targetLeaf.setViewState({
       type: VIEW_TYPE_MFDI,
@@ -202,9 +192,7 @@ export default class MFDIPlugin extends Plugin {
   private restartActivityPromptNotifications(): void {
     this.stopActivityPromptNotifications();
 
-    const intervalMs = resolveActivityPromptIntervalMs(
-      this.settings.activityPromptIntervalMinutes,
-    );
+    const intervalMs = resolveActivityPromptIntervalMs(this.settings.activityPromptIntervalMinutes);
     if (intervalMs === null) return;
 
     this.activityPromptScheduler = createActivityPromptNotificationScheduler({

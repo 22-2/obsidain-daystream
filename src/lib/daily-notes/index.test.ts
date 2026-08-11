@@ -257,20 +257,10 @@ describe("daily-notes-interface utility", () => {
         (_folder: any, callback: (f: any) => void) => callback(f),
       );
 
-      const found = getTopicNote(
-        getShell(),
-        window.moment("2026-03-01"),
-        "day",
-        "",
-      );
+      const found = getTopicNote(getShell(), window.moment("2026-03-01"), "day", "");
       expect(found?.basename).toBe("2026-03-01");
 
-      const notFound = getTopicNote(
-        getShell(),
-        window.moment("2099-12-31"),
-        "day",
-        "",
-      );
+      const notFound = getTopicNote(getShell(), window.moment("2099-12-31"), "day", "");
       expect(notFound).toBeNull();
     });
   });

@@ -73,8 +73,7 @@ describe("fixed note view extension", () => {
   it("finds an existing fixed leaf by fixed path", () => {
     const leaf = {
       view: {
-        getState: () =>
-          ({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }) as any,
+        getState: () => ({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }) as any,
       },
     } as WorkspaceLeaf;
 

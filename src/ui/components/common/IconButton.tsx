@@ -1,5 +1,5 @@
 import type { KeyboardEvent, MouseEventHandler } from "react";
-import React, { memo, useCallback } from "react";
+import { memo, useCallback } from "react";
 import type { IconSize } from "src/ui/components/common/icon-size";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { cn } from "src/ui/components/primitives/utils";

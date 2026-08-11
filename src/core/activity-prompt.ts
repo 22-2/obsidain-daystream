@@ -60,11 +60,7 @@ export async function saveActivityPromptResponse({
   }
 
   const note = await resolveOrCreateDailyNote(shell, settings, now);
-  const newContent = await shell.insertTextAfterEnsuringMarker(
-    note,
-    text,
-    settings.insertAfter,
-  );
+  const newContent = await shell.insertTextAfterEnsuringMarker(note, text, settings.insertAfter);
 
   let indexError: unknown | null = null;
   try {

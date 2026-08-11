@@ -17,9 +17,7 @@ export function EditorRefsProvider({ children }: { children: ReactNode }) {
   const listHeaderRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <EditorRefsContext.Provider
-      value={{ inputRef, scrollContainerRef, listHeaderRef }}
-    >
+    <EditorRefsContext.Provider value={{ inputRef, scrollContainerRef, listHeaderRef }}>
       {children}
     </EditorRefsContext.Provider>
   );
@@ -27,7 +25,6 @@ export function EditorRefsProvider({ children }: { children: ReactNode }) {
 
 export function useEditorRefs(): EditorRefsContextValue {
   const ctx = useContext(EditorRefsContext);
-  if (!ctx)
-    throw new Error("useEditorRefs must be used within EditorRefsProvider");
+  if (!ctx) throw new Error("useEditorRefs must be used within EditorRefsProvider");
   return ctx;
 }

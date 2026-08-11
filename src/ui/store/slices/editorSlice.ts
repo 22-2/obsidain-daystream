@@ -1,8 +1,5 @@
 import { INPUT_AREA_SIZE, STORAGE_KEYS } from "src/ui/config/consntants";
-import {
-  getDraftMetadataStorageKey,
-  getInputStorageKey,
-} from "src/ui/store/slices/inputStorage";
+import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { EditorSlice, MFDIStore } from "src/ui/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
@@ -33,10 +30,7 @@ export type PersistedEditingPost = {
 
 // 意図: popout エディタビューが別 JS コンテキストで startEdit に渡す Post を
 // 再構築できるよう、シリアライズ済みデータから Post を復元する関数を公開する。
-export const reconstructEditingPost = (
-  persisted: PersistedEditingPost,
-  message: string,
-) => ({
+export const reconstructEditingPost = (persisted: PersistedEditingPost, message: string) => ({
   id: persisted.id,
   path: persisted.path,
   timestamp: window.moment(persisted.timestampStr),
@@ -70,19 +64,12 @@ export function mergeDraftMetadataForSubmit(params: {
   return { ...merged, ...draftMetadata };
 }
 
-export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
-  set,
-  get,
-) => {
+export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (set, get) => {
   let inputPersistTimer: ReturnType<typeof setTimeout> | null = null;
 
   const persistInput = (input: string, mode: PersistMode) => {
-    const { viewNoteMode, file: file, fixedSessionNumber } = get();
-    const inputStorageKey = getInputStorageKey(
-      viewNoteMode,
-      file,
-      fixedSessionNumber,
-    );
+    const { viewNoteMode, file, fixedSessionNumber } = get();
+    const inputStorageKey = getInputStorageKey(viewNoteMode, file, fixedSessionNumber);
 
     if (inputPersistTimer !== null) {
       clearTimeout(inputPersistTimer);
@@ -102,23 +89,15 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
   const persistDraftMetadata = (state: PersistedDraftMetadataState) => {
     const { storage, viewNoteMode, file, fixedSessionNumber } = get();
-    storage?.set(
-      getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber),
-      state,
-    );
+    storage?.set(getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber), state);
   };
 
-  const updateSessionInput = (
-    input: string,
-    options: UpdateSessionInputOptions = {},
-  ) => {
+  const updateSessionInput = (input: string, options: UpdateSessionInputOptions = {}) => {
     const { updateEditor, persistMode = "debounced" } = options;
 
     set((state) => ({
       inputSnapshot: input,
-      ...(updateEditor
-        ? { inputSnapshotVersion: state.inputSnapshotVersion + 1 }
-        : {}),
+      ...(updateEditor ? { inputSnapshotVersion: state.inputSnapshotVersion + 1 } : {}),
     }));
     persistInput(input, persistMode);
   };
@@ -191,10 +170,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
     setHighlightedPost: (post) => {
       set((state) => ({
         highlightedPost: post,
-        highlightRequestId:
-          post !== null
-            ? state.highlightRequestId + 1
-            : state.highlightRequestId,
+        highlightRequestId: post !== null ? state.highlightRequestId + 1 : state.highlightRequestId,
       }));
     },
 
@@ -248,19 +224,12 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
       const { editingPost, editingPostOffset } = get();
       if (editingPost) return editingPost;
       if (editingPostOffset === null) return null;
-      return (
-        posts.find((post) => post.startOffset === editingPostOffset) ?? null
-      );
+      return posts.find((post) => post.startOffset === editingPostOffset) ?? null;
     },
 
     canSubmit: (posts, currentValue) => {
-      const {
-        getInputValue,
-        granularity,
-        getEffectiveDate,
-        getEditingPost,
-        isDateReadOnly,
-      } = get();
+      const { getInputValue, granularity, getEffectiveDate, getEditingPost, isDateReadOnly } =
+        get();
       const input = currentValue ?? getInputValue();
       const effectiveDate = getEffectiveDate();
 
@@ -272,14 +241,11 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
       return input !== editingPost.message;
     },
 
-  hydrateEditorState: () => {
-      const { storage, viewNoteMode, file: file, fixedSessionNumber } = get();
-    if (!storage) return;
+    hydrateEditorState: () => {
+      const { storage, viewNoteMode, file, fixedSessionNumber } = get();
+      if (!storage) return;
 
-    const composerOpen = storage.get<boolean>(
-      STORAGE_KEYS.COMPOSER_OPEN,
-      false,
-    );
+      const composerOpen = storage.get<boolean>(STORAGE_KEYS.COMPOSER_OPEN, false);
 
       const persistedInput = storage.get<string>(
         getInputStorageKey(viewNoteMode, file, fixedSessionNumber),
@@ -293,19 +259,14 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         },
       );
 
-      const persisted = storage.get<PersistedEditingPost | null>(
-        STORAGE_KEYS.EDITING_POST,
-        null,
-      );
+      const persisted = storage.get<PersistedEditingPost | null>(STORAGE_KEYS.EDITING_POST, null);
 
       const reconstructedPost =
-        persisted !== null
-          ? reconstructEditingPost(persisted, persistedInput)
-          : null;
+        persisted !== null ? reconstructEditingPost(persisted, persistedInput) : null;
 
-    set((state) => ({
-      composerOpen,
-      inputSnapshot: state.inputSnapshot || persistedInput,
+      set((state) => ({
+        composerOpen,
+        inputSnapshot: state.inputSnapshot || persistedInput,
         inputSnapshotVersion: state.inputSnapshotVersion + 1,
         editingPostOffset: state.editingPostOffset ?? persisted?.offset ?? null,
         editingPost: state.editingPost ?? reconstructedPost,

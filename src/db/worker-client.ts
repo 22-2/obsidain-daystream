@@ -1,8 +1,5 @@
 import { wrap, type Remote } from "comlink";
-import type {
-  DBServiceOptions,
-  IDBService,
-} from "src/db/interfaces/IDBService";
+import type { DBServiceOptions, IDBService } from "src/db/interfaces/IDBService";
 import ScanWorkerFactory from "src/db/scan.worker?worker&inline";
 
 const DEFAULT_WORKER_REQUEST_TIMEOUT_MS = 5_000;
@@ -86,10 +83,7 @@ export class WorkerClient {
     }
   }
 
-  private static async recover(
-    failedGeneration: number,
-    timeoutMs: number,
-  ): Promise<void> {
+  private static async recover(failedGeneration: number, timeoutMs: number): Promise<void> {
     // 別の要求が既に新しい Worker へ切り替えていれば、その復旧結果を再利用する。
     if (this.generation !== failedGeneration) return;
 

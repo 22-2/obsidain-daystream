@@ -5,7 +5,7 @@ import { PostCardView } from "src/ui/components/posts/PostCardView";
 import { Box } from "src/ui/components/primitives/Box";
 import { FloatingButton } from "src/ui/components/primitives/FloatingButton";
 import { cn } from "src/ui/components/primitives/utils";
-import { DISPLAY_MODE, INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useDividerContextMenu } from "src/ui/hooks/internal/useDividerContextMenu";
@@ -33,8 +33,7 @@ function isSamePostReference(left: Post, right: Post): boolean {
 
 export const PostListView: React.FC = memo(() => {
   const { shell, settings: pluginSettings } = useAppContext();
-  const { showTextInput, confirmDeleteAction, openBacklinkPreview } =
-    useObsidianUi();
+  const { showTextInput, confirmDeleteAction, openBacklinkPreview } = useObsidianUi();
   const settings = useSettingsStore(
     useShallow((s) => ({
       activeTag: s.activeTag,
@@ -132,8 +131,7 @@ export const PostListView: React.FC = memo(() => {
     visibleDividerGroupKeys,
   } = usePosts();
 
-  const { countMap: backlinkCounts, postsMap: backlinkPosts } =
-    usePostBacklinks(filteredPosts);
+  const { countMap: backlinkCounts, postsMap: backlinkPosts } = usePostBacklinks(filteredPosts);
 
   const capabilities = useMemo(
     () => getMFDIViewCapabilities({ noteMode: settings.viewNoteMode }),
@@ -142,11 +140,9 @@ export const PostListView: React.FC = memo(() => {
 
   const hasVisibleDividers = visibleDividerGroupKeys.length > 0;
   const areAllVisibleDividersCollapsed =
-    hasVisibleDividers &&
-    visibleDividerGroupKeys.every((k) => collapsedGroupSet.has(k));
+    hasVisibleDividers && visibleDividerGroupKeys.every((k) => collapsedGroupSet.has(k));
   const areAllVisibleDividersExpanded =
-    hasVisibleDividers &&
-    visibleDividerGroupKeys.every((k) => !collapsedGroupSet.has(k));
+    hasVisibleDividers && visibleDividerGroupKeys.every((k) => !collapsedGroupSet.has(k));
 
   const collapseAll = useCallback(
     () => collapseGroups(visibleDividerGroupKeys),
@@ -214,8 +210,7 @@ export const PostListView: React.FC = memo(() => {
   const handleStartEdit = useCallback(
     (post: Post) => {
       const mode = pluginSettings?.openInNewWindowMode ?? "disabled";
-      const shouldPopout =
-        mode === "always";
+      const shouldPopout = mode === "always";
 
       if (shouldPopout) {
         openEditorInNewWindow(post);
@@ -291,8 +286,7 @@ export const PostListView: React.FC = memo(() => {
     if (!highlightedPost) return;
 
     const targetIndex = timelineItems.findIndex(
-      (item) =>
-        item.type === "post" && isSamePostReference(item.post, highlightedPost),
+      (item) => item.type === "post" && isSamePostReference(item.post, highlightedPost),
     );
     if (targetIndex === -1) return;
 
@@ -317,15 +311,12 @@ export const PostListView: React.FC = memo(() => {
 
   const countMap = useMemo(() => {
     const map = new Map<string, number>();
-    Map.groupBy(filteredPosts, (post) =>
-      post.timestamp.format("YYYY-MM-DD"),
-    ).forEach((group, date) => {
-      map.set(date, group.length);
-    });
-    map.set(
-      "pinned",
-      filteredPosts.filter((post) => post.metadata.pinned).length,
+    Map.groupBy(filteredPosts, (post) => post.timestamp.format("YYYY-MM-DD")).forEach(
+      (group, date) => {
+        map.set(date, group.length);
+      },
     );
+    map.set("pinned", filteredPosts.filter((post) => post.metadata.pinned).length);
     return map;
   }, [timelineItems]);
 
@@ -369,9 +360,7 @@ export const PostListView: React.FC = memo(() => {
                   collapsed={item.collapsed}
                   showCollapseIcon={canCollapseDividers}
                   onClick={
-                    canCollapseDividers
-                      ? () => toggleCollapsedGroup(item.groupKey)
-                      : undefined
+                    canCollapseDividers ? () => toggleCollapsedGroup(item.groupKey) : undefined
                   }
                   onContextMenu={(event) => showDividerContextMenu(event)}
                 />
@@ -383,11 +372,9 @@ export const PostListView: React.FC = memo(() => {
           const isEditing =
             editingPost != null
               ? isSamePostReference(item.post, editingPost)
-              : editingPostOffset !== null &&
-                item.post.startOffset === editingPostOffset;
+              : editingPostOffset !== null && item.post.startOffset === editingPostOffset;
           const isJumpHighlighted =
-            highlightedPost != null &&
-            isSamePostReference(item.post, highlightedPost);
+            highlightedPost != null && isSamePostReference(item.post, highlightedPost);
 
           return (
             <Box key={item.key} style={{ paddingBottom: "1px" }}>
@@ -414,12 +401,7 @@ export const PostListView: React.FC = memo(() => {
           );
         })}
         {timelineView && !threadView && (
-          <ListFooter
-            key="footer"
-            hasMore={!!hasMore}
-            isLoading={isLoading}
-            loadMore={loadMore}
-          />
+          <ListFooter key="footer" hasMore={!!hasMore} isLoading={isLoading} loadMore={loadMore} />
         )}
         <Box key="bottom-spacer" className="h-[24rem]" />
       </Virtualizer>

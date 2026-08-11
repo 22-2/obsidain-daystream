@@ -1,20 +1,13 @@
 import type { App } from "obsidian";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Settings } from "src/settings";
 import { EmptyState } from "src/ui/components/EmptyState";
-import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
 import { InViewComposer } from "src/ui/components/inputarea/InViewComposer";
+import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
+import { InsightView } from "src/ui/components/insights/InsightView";
 import { ContentViewSwitcher } from "src/ui/components/layout/ContentViewSwitcher";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
-import { InsightView } from "src/ui/components/insights/InsightView";
 import { PeriodicSidebar } from "src/ui/components/layout/PeriodicSidebar";
 import { SidebarContainer } from "src/ui/components/layout/SidebarContainer";
 import { getSidebarAutoToggleState } from "src/ui/components/layout/sidebarAutoToggle";
@@ -26,14 +19,8 @@ import { PastTodayNotice } from "src/ui/components/statusbar/parts/PastTodayNoti
 import { TaskListView } from "src/ui/components/tasks/TaskListView";
 import { CONTENT_VIEW, INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
-import {
-  ComponentContextProvider,
-  useObsidianComponent,
-} from "src/ui/context/ComponentContext";
-import {
-  EditorRefsProvider,
-  useEditorRefs,
-} from "src/ui/context/EditorRefsContext";
+import { ComponentContextProvider, useObsidianComponent } from "src/ui/context/ComponentContext";
+import { EditorRefsProvider, useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { useCSSLoaded } from "src/ui/hooks/useCSSLoaded";
 import { useDbSync } from "src/ui/hooks/useDbSync";
@@ -53,13 +40,7 @@ import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
 import { settingsStore, useSettingsStore } from "src/ui/store/settingsStore";
 import { getInputStorageKey } from "src/ui/store/slices/inputStorage";
-import type {
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  Post,
-  TimeFilter,
-} from "src/ui/types";
+import type { DateFilter, DisplayMode, Granularity, Post, TimeFilter } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
 import type { MFDIView } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
@@ -136,26 +117,23 @@ const MFDIAppRoot: React.FC<{
           noteMode: initialViewState.noteMode,
           file: initialViewState.file,
           fixedSessionNumber:
-            initialViewState.noteMode === "fixed"
-              ? (initialViewState.fixedSessionNumber ?? 1)
-              : 1,
+            initialViewState.noteMode === "fixed" ? (initialViewState.fixedSessionNumber ?? 1) : 1,
         },
       },
       store,
     );
   }, [settings, storage, shell, store]);
 
-  const { date, granularity, activeTopic, dateFilter, asTask, isReadOnly } =
-    useSettingsStore(
-      useShallow((state) => ({
-        date: state.date,
-        granularity: state.granularity,
-        activeTopic: state.activeTopic,
-        dateFilter: state.dateFilter,
-        asTask: state.asTask,
-        isReadOnly: state.isReadOnly(),
-      })),
-    );
+  const { date, granularity, activeTopic, dateFilter, asTask, isReadOnly } = useSettingsStore(
+    useShallow((state) => ({
+      date: state.date,
+      granularity: state.granularity,
+      activeTopic: state.activeTopic,
+      dateFilter: state.dateFilter,
+      asTask: state.asTask,
+      isReadOnly: state.isReadOnly(),
+    })),
+  );
 
   const { currentDailyNote, replacePaths } = useNoteStore(
     useShallow((state) => ({
@@ -200,15 +178,7 @@ const MFDIAppRoot: React.FC<{
     if (!isReadOnly && inputRef.current) {
       setTimeout(() => inputRef.current?.focus());
     }
-  }, [
-    date,
-    granularity,
-    activeTopic,
-    dateFilter,
-    asTask,
-    isReadOnly,
-    inputRef,
-  ]);
+  }, [date, granularity, activeTopic, dateFilter, asTask, isReadOnly, inputRef]);
 
   useEffect(() => {
     if (!currentDailyNote) return;
@@ -354,8 +324,7 @@ const ReactViewContent = () => {
     if (!scrollContainer) return;
 
     const savePosition = () => {
-      contentScrollPositionsRef.current[contentView] =
-        scrollContainer.scrollTop;
+      contentScrollPositionsRef.current[contentView] = scrollContainer.scrollTop;
     };
 
     scrollContainer.addEventListener("scroll", savePosition, {
@@ -429,15 +398,8 @@ const ReactViewContent = () => {
     >
       {/* Left Sidebar: calendar, tags, and period navigation */}
       {capabilities.supportsSidebar && (
-        <SidebarContainer
-          isOpen={effectivelyLeftOpen}
-          side="left"
-        >
-          {viewNoteMode === "fixed" ? (
-            <FixedSessionSidebar />
-          ) : (
-            <PeriodicSidebar />
-          )}
+        <SidebarContainer isOpen={effectivelyLeftOpen} side="left">
+          {viewNoteMode === "fixed" ? <FixedSessionSidebar /> : <PeriodicSidebar />}
         </SidebarContainer>
       )}
 
@@ -458,10 +420,7 @@ const ReactViewContent = () => {
           <div ref={listHeaderRef} className="mfdi-list-header">
             <div className="mfdi-main-toolbar">
               {capabilities.supportsDisplayModeSwitch && (
-                <ContentViewSwitcher
-                  value={contentView}
-                  onChange={setContentView}
-                />
+                <ContentViewSwitcher value={contentView} onChange={setContentView} />
               )}
               {contentView === CONTENT_VIEW.TIMELINE ? <StatusBar /> : null}
             </div>
@@ -474,10 +433,7 @@ const ReactViewContent = () => {
 
       {/* Right Sidebar: activity and archive statistics */}
       {capabilities.supportsSidebar && (
-        <SidebarContainer
-          isOpen={effectivelyRightOpen}
-          side="right"
-        >
+        <SidebarContainer isOpen={effectivelyRightOpen} side="right">
           <InsightsSidebar />
         </SidebarContainer>
       )}
@@ -688,9 +644,7 @@ function useViewSync(view: MFDIView | null) {
 
   useEffect(() => {
     if (!view) return;
-    view.actionDelegates.onChangeGranularity = (
-      nextGranularity: Granularity,
-    ) => {
+    view.actionDelegates.onChangeGranularity = (nextGranularity: Granularity) => {
       setGranularity(nextGranularity);
       if (nextGranularity !== "day") {
         setTimeFilter("all");
@@ -702,14 +656,7 @@ function useViewSync(view: MFDIView | null) {
     return () => {
       view.actionDelegates.onChangeGranularity = undefined;
     };
-  }, [
-    view,
-    setGranularity,
-    setTimeFilter,
-    setDateFilter,
-    setCurrentDailyNote,
-    setTasks,
-  ]);
+  }, [view, setGranularity, setTimeFilter, setDateFilter, setCurrentDailyNote, setTasks]);
 
   useEffect(() => {
     if (!view) return;
@@ -761,9 +708,7 @@ function useViewSync(view: MFDIView | null) {
 
   useEffect(() => {
     if (!view) return;
-    view.actionDelegates.onChangeDisplayMode = (
-      nextDisplayMode: DisplayMode,
-    ) => {
+    view.actionDelegates.onChangeDisplayMode = (nextDisplayMode: DisplayMode) => {
       setDisplayMode(nextDisplayMode);
     };
     return () => {
@@ -798,14 +743,7 @@ function useViewSync(view: MFDIView | null) {
     return () => {
       view.actionDelegates.onEditorExpand = undefined;
     };
-  }, [
-    view,
-    getInputValue,
-    replaceInput,
-    isReadOnly,
-    inputAreaSize,
-    setInputAreaSize,
-  ]);
+  }, [view, getInputValue, replaceInput, isReadOnly, inputAreaSize, setInputAreaSize]);
 
   useEffect(() => {
     if (!view) return;
@@ -839,9 +777,7 @@ function useViewSync(view: MFDIView | null) {
     if (!view) return;
     // テスト用: 外部から内容を設定するため replaceInput を使う
     // （syncInputSession はエディタ→ストア片方向専用）
-    view.actionDelegates.onSetLiveEditorContentForTesting = (
-      content: string,
-    ) => {
+    view.actionDelegates.onSetLiveEditorContentForTesting = (content: string) => {
       replaceInput(content);
     };
     view.actionDelegates.onGetLiveEditorContentForTesting = () => {
@@ -878,11 +814,7 @@ function useViewSync(view: MFDIView | null) {
         editingPostMessage: appState.editingPost?.message ?? null,
         persistedInput:
           appState.storage?.get<string>(
-            getInputStorageKey(
-              appState.viewNoteMode,
-              appState.file,
-              appState.fixedSessionNumber,
-            ),
+            getInputStorageKey(appState.viewNoteMode, appState.file, appState.fixedSessionNumber),
             "",
           ) ?? "",
         editorSnapshot: inputRef.current?.getContentSnapshot() ?? null,

@@ -14,9 +14,7 @@ function createShell(initialContent: string) {
 
   const app = {
     vault: {
-      getAbstractFileByPath: vi.fn((path: string) =>
-        path === file.path ? file : null,
-      ),
+      getAbstractFileByPath: vi.fn((path: string) => (path === file.path ? file : null)),
       modify,
       adapter: {
         read: vi.fn(async () => content),
@@ -37,9 +35,7 @@ function createShell(initialContent: string) {
 
 describe("ObsidianAppShell.insertTextAfter", () => {
   test("insertAfter marker直後でも投稿間に余計な空行を入れない", async () => {
-    const { helper, file, getContent } = createShell(
-      "## Thino\n- 10:00:00 old\n",
-    );
+    const { helper, file, getContent } = createShell("## Thino\n- 10:00:00 old\n");
 
     await helper.insertTextAfter(file, "\n- 11:00:00 new\n", "## Thino");
 

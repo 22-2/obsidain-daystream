@@ -1,4 +1,4 @@
-import React, { type FC } from "react";
+import { type FC } from "react";
 import { IconButton } from "src/ui/components/common/IconButton";
 import { cn } from "src/ui/components/primitives/utils";
 
@@ -12,10 +12,7 @@ export const NavButton: FC<{
       name={`chevron-${direction}`}
       ariaLabel={direction === "left" ? "前へ" : "次へ"}
       onActivate={onClick}
-      className={cn(
-        `mfdi-nav-button mfdi-nav-button-${direction} size-6 p-1`,
-        className,
-      )}
+      className={cn(`mfdi-nav-button mfdi-nav-button-${direction} size-6 p-1`, className)}
     />
   );
 };

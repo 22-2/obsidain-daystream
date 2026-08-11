@@ -53,17 +53,11 @@ function getSessionHeadingMatch(
   };
 }
 
-export function buildFixedSessionHeading(
-  insertAfter: string,
-  sessionNumber: number,
-): string {
+export function buildFixedSessionHeading(insertAfter: string, sessionNumber: number): string {
   return `${normalizeSessionHeading(insertAfter)} session ${sessionNumber}`;
 }
 
-export function appendFixedSessionHeading(
-  content: string,
-  headingLine: string,
-): string {
+export function appendFixedSessionHeading(content: string, headingLine: string): string {
   const trimmedContent = content.trimEnd();
   if (!trimmedContent) {
     return `${headingLine}\n`;
@@ -77,9 +71,7 @@ export function parseFixedSessionSections(
   insertAfter: string,
 ): FixedSessionSection[] {
   const lines = content.split("\n");
-  const discoveredSections: Array<
-    Omit<FixedSessionSection, "entries" | "sectionEndOffset">
-  > = [];
+  const discoveredSections: Array<Omit<FixedSessionSection, "entries" | "sectionEndOffset">> = [];
 
   let offset = 0;
   for (const rawLine of lines) {
@@ -102,10 +94,7 @@ export function parseFixedSessionSections(
   return discoveredSections.map((section, index) => {
     const nextSection = discoveredSections[index + 1];
     const sectionEndOffset = nextSection?.headingStartOffset ?? content.length;
-    const sectionContent = content.slice(
-      section.headingStartOffset,
-      sectionEndOffset,
-    );
+    const sectionContent = content.slice(section.headingStartOffset, sectionEndOffset);
     const entries = parseThinoEntries(sectionContent, {
       headingMatcher: (line) => {
         return (
@@ -148,9 +137,7 @@ export function ensureFixedSessionHeading(params: {
   const explicitSessionOneHeading = buildFixedSessionHeading(insertAfter, 1);
   const requestedHeading = buildFixedSessionHeading(insertAfter, sessionNumber);
   const sections = parseFixedSessionSections(content, insertAfter);
-  const requestedSection = sections.find(
-    (section) => section.sessionNumber === sessionNumber,
-  );
+  const requestedSection = sections.find((section) => section.sessionNumber === sessionNumber);
 
   if (requestedSection) {
     if (requestedSection.isLegacyHeading && sessionNumber === 1) {
@@ -181,16 +168,11 @@ export function ensureFixedSessionHeading(params: {
   const normalizedSections = legacySessionOne
     ? parseFixedSessionSections(normalizedContent, insertAfter)
     : sections;
-  const hasSessionOne = normalizedSections.some(
-    (section) => section.sessionNumber === 1,
-  );
+  const hasSessionOne = normalizedSections.some((section) => section.sessionNumber === 1);
 
   let nextContent = normalizedContent;
   if (!hasSessionOne) {
-    nextContent = appendFixedSessionHeading(
-      nextContent,
-      explicitSessionOneHeading,
-    );
+    nextContent = appendFixedSessionHeading(nextContent, explicitSessionOneHeading);
   }
 
   if (sessionNumber === 1) {
@@ -216,9 +198,7 @@ export function removeFixedSessionSection(params: {
 } {
   const { content, insertAfter, sessionNumber } = params;
   const sections = parseFixedSessionSections(content, insertAfter);
-  const targetSection = sections.find(
-    (section) => section.sessionNumber === sessionNumber,
-  );
+  const targetSection = sections.find((section) => section.sessionNumber === sessionNumber);
 
   if (!targetSection) {
     return {

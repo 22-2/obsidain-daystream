@@ -31,10 +31,7 @@ export class TagStatsManager {
   }
 
   /** Apply a diff: subtract `removed` counts, add `added` counts. */
-  async applyDeltas(
-    removed: Map<string, number>,
-    added: Map<string, number>,
-  ): Promise<void> {
+  async applyDeltas(removed: Map<string, number>, added: Map<string, number>): Promise<void> {
     const tags = [...new Set([...removed.keys(), ...added.keys()])];
     if (tags.length === 0) return;
 
@@ -47,8 +44,7 @@ export class TagStatsManager {
     for (let i = 0; i < tags.length; i++) {
       const tag = tags[i];
       const existingCount = existingRows[i]?.count ?? 0;
-      const newCount =
-        existingCount - (removed.get(tag) ?? 0) + (added.get(tag) ?? 0);
+      const newCount = existingCount - (removed.get(tag) ?? 0) + (added.get(tag) ?? 0);
 
       if (newCount > 0) {
         toPut.push({ tag, count: newCount, updatedAt });

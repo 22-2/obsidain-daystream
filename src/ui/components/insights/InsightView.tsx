@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Spinner } from "src/ui/components/primitives";
-import { useInsights } from "src/ui/hooks/useInsights";
 import {
   getTopCounts,
   getWordTrend,
   type InsightMonthStat,
   type InsightSummary,
 } from "src/ui/components/insights/insightSummary";
+import { Button, Spinner } from "src/ui/components/primitives";
+import { useInsights } from "src/ui/hooks/useInsights";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -22,10 +22,7 @@ function formatDate(value: string | null): string {
   return value ?? "—";
 }
 
-function getYearCounts(
-  summary: InsightSummary,
-  year: string,
-): Record<string, number> {
+function getYearCounts(summary: InsightSummary, year: string): Record<string, number> {
   if (year !== "all") return summary.wordCounts[year] ?? {};
   const counts: Record<string, number> = {};
   for (const yearCounts of Object.values(summary.wordCounts)) {
@@ -36,10 +33,7 @@ function getYearCounts(
   return counts;
 }
 
-function getDomainCounts(
-  summary: InsightSummary,
-  year: string,
-): Record<string, number> {
+function getDomainCounts(summary: InsightSummary, year: string): Record<string, number> {
   if (year !== "all") return summary.linkDomains[year] ?? {};
   const counts: Record<string, number> = {};
   for (const yearCounts of Object.values(summary.linkDomains)) {
@@ -50,22 +44,14 @@ function getDomainCounts(
   return counts;
 }
 
-function getDailyCounts(
-  summary: InsightSummary,
-  year: string,
-): Record<string, number> {
+function getDailyCounts(summary: InsightSummary, year: string): Record<string, number> {
   if (year === "all") return summary.dailyCounts;
   return Object.fromEntries(
-    Object.entries(summary.dailyCounts).filter(([date]) =>
-      date.startsWith(year),
-    ),
+    Object.entries(summary.dailyCounts).filter(([date]) => date.startsWith(year)),
   );
 }
 
-function getWeekdayHourCounts(
-  summary: InsightSummary,
-  year: string,
-): number[][] {
+function getWeekdayHourCounts(summary: InsightSummary, year: string): number[][] {
   return year === "all"
     ? summary.weekdayHourCounts
     : (summary.weekdayHourCountsByYear[year] ??
@@ -155,11 +141,7 @@ function AnnualActivity({
   const displayYear = year === "all" ? summary.years[0] : year;
   const counts = getDailyCounts(summary, displayYear ?? "all");
   const yearNumber = Number(displayYear);
-  const cellCount = displayYear
-    ? new Date(yearNumber, 1, 29).getDate() === 29
-      ? 366
-      : 365
-    : 0;
+  const cellCount = displayYear ? (new Date(yearNumber, 1, 29).getDate() === 29 ? 366 : 365) : 0;
   const cells = Array.from({ length: cellCount }, (_, index) => {
     const date = new Date(Number(displayYear), 0, index + 1);
     const key = `${displayYear}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -168,18 +150,12 @@ function AnnualActivity({
   const max = Math.max(1, ...cells.map((cell) => cell.count));
 
   return (
-    <InsightCard
-      title="年間アクティビティ"
-      className="mfdi-insight-card--activity"
-    >
+    <InsightCard title="年間アクティビティ" className="mfdi-insight-card--activity">
       <div className="mfdi-insight-card__meta">
         <strong>{displayYear ?? "—"}</strong>
         <YearTabs summary={summary} value={year} onChange={onYearChange} />
       </div>
-      <div
-        className="mfdi-activity-grid"
-        aria-label={`${displayYear ?? ""}年の活動量`}
-      >
+      <div className="mfdi-activity-grid" aria-label={`${displayYear ?? ""}年の活動量`}>
         {cells.map((cell) => (
           <span
             key={cell.key}
@@ -190,20 +166,12 @@ function AnnualActivity({
           />
         ))}
       </div>
-      <small className="mfdi-insight-muted">
-        {displayYear ? `${displayYear}-01-01` : "—"}
-      </small>
+      <small className="mfdi-insight-muted">{displayYear ? `${displayYear}-01-01` : "—"}</small>
     </InsightCard>
   );
 }
 
-function WeekdayHourHeatmap({
-  summary,
-  year,
-}: {
-  summary: InsightSummary;
-  year: string;
-}) {
+function WeekdayHourHeatmap({ summary, year }: { summary: InsightSummary; year: string }) {
   const counts = getWeekdayHourCounts(summary, year);
   const max = Math.max(1, ...counts.flat());
 
@@ -217,27 +185,14 @@ function WeekdayHourHeatmap({
           </span>
         ))}
         {WEEKDAYS.map((weekday, dayIndex) => (
-          <FragmentRow
-            key={weekday}
-            label={weekday}
-            values={counts[dayIndex]}
-            max={max}
-          />
+          <FragmentRow key={weekday} label={weekday} values={counts[dayIndex]} max={max} />
         ))}
       </div>
     </InsightCard>
   );
 }
 
-function FragmentRow({
-  label,
-  values,
-  max,
-}: {
-  label: string;
-  values: number[];
-  max: number;
-}) {
+function FragmentRow({ label, values, max }: { label: string; values: number[]; max: number }) {
   return (
     <>
       <span className="mfdi-time-heatmap__day">{label}</span>
@@ -260,10 +215,7 @@ function MiniBars({ values }: { values: number[] }) {
   return (
     <div className="mfdi-mini-bars" aria-hidden="true">
       {values.map((value, index) => (
-        <span
-          key={index}
-          style={{ height: `${value ? Math.max(8, (value / max) * 100) : 2}%` }}
-        />
+        <span key={index} style={{ height: `${value ? Math.max(8, (value / max) * 100) : 2}%` }} />
       ))}
     </div>
   );
@@ -275,10 +227,7 @@ function MonthlyTrends({ stats }: { stats: InsightMonthStat[] }) {
   const imageRates = stats.map((item) => item.imageRate);
   const referenceRates = stats.map((item) => item.referenceRate);
   return (
-    <InsightCard
-      title="スタイルの推移（月次）"
-      className="mfdi-insight-card--trends"
-    >
+    <InsightCard title="スタイルの推移（月次）" className="mfdi-insight-card--trends">
       <div className="mfdi-insight-trend-grid">
         <Trend title="投稿数" values={posts} suffix="件" />
         <Trend title="平均文字数" values={averageCharacters} suffix="字" />
@@ -289,15 +238,7 @@ function MonthlyTrends({ stats }: { stats: InsightMonthStat[] }) {
   );
 }
 
-function Trend({
-  title,
-  values,
-  suffix,
-}: {
-  title: string;
-  values: number[];
-  suffix: string;
-}) {
+function Trend({ title, values, suffix }: { title: string; values: number[]; suffix: string }) {
   const latest = values.at(-1) ?? 0;
   return (
     <div className="mfdi-insight-trend">
@@ -322,31 +263,20 @@ function Overview({
   year: string;
   onYearChange: (year: string) => void;
 }) {
-  const selectedStats =
-    summary.monthlyStats[year === "all" ? summary.years[0] : year] ?? [];
+  const selectedStats = summary.monthlyStats[year === "all" ? summary.years[0] : year] ?? [];
   return (
     <div className="mfdi-insight-sections">
       <InsightCard title="記録">
         <div className="mfdi-insight-stats">
-          <Stat
-            label="最長連続投稿日数"
-            value={`${summary.longestStreak} 日`}
-          />
-          <Stat
-            label="現在の連続投稿日数"
-            value={`${summary.currentStreak} 日`}
-          />
+          <Stat label="最長連続投稿日数" value={`${summary.longestStreak} 日`} />
+          <Stat label="現在の連続投稿日数" value={`${summary.currentStreak} 日`} />
           <Stat label="最初の投稿日" value={formatDate(summary.firstDate)} />
           <Stat label="最新の投稿日" value={formatDate(summary.latestDate)} />
           <Stat label="累計投稿" value={summary.totalPosts} />
           <Stat label="投稿した日数" value={`${summary.activeDays} 日`} />
         </div>
       </InsightCard>
-      <AnnualActivity
-        summary={summary}
-        year={year}
-        onYearChange={onYearChange}
-      />
+      <AnnualActivity summary={summary} year={year} onYearChange={onYearChange} />
       <WeekdayHourHeatmap summary={summary} year={year} />
       <MonthlyTrends stats={selectedStats} />
     </div>
@@ -395,9 +325,7 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
             ))}
           </div>
         ) : (
-          <p className="mfdi-insight-muted">
-            語を入力して「表示」を押してください。
-          </p>
+          <p className="mfdi-insight-muted">語を入力して「表示」を押してください。</p>
         )}
       </InsightCard>
 
@@ -423,10 +351,7 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
         </div>
       </InsightCard>
 
-      <InsightCard
-        title="リンクドメイン"
-        className="mfdi-insight-card--compact"
-      >
+      <InsightCard title="リンクドメイン" className="mfdi-insight-card--compact">
         <div className="mfdi-insight-ranking">
           {domains.map((item) => (
             <div key={item.word}>
@@ -447,8 +372,7 @@ export const InsightView: React.FC = () => {
   const [year, setYear] = useState("all");
 
   useEffect(() => {
-    if (summary && year !== "all" && !summary.years.includes(year))
-      setYear("all");
+    if (summary && year !== "all" && !summary.years.includes(year)) setYear("all");
   }, [summary, year]);
 
   const selectedLabel = useMemo(
@@ -463,11 +387,7 @@ export const InsightView: React.FC = () => {
           <h1>インサイト</h1>
           <small>{selectedLabel}</small>
         </div>
-        <div
-          className="mfdi-insight-tabs"
-          role="tablist"
-          aria-label="インサイトの種類"
-        >
+        <div className="mfdi-insight-tabs" role="tablist" aria-label="インサイトの種類">
           <button
             type="button"
             role="tab"
@@ -495,9 +415,7 @@ export const InsightView: React.FC = () => {
           集計中…
         </div>
       ) : error ? (
-        <div className="mfdi-insight-empty">
-          インサイトを読み込めませんでした。
-        </div>
+        <div className="mfdi-insight-empty">インサイトを読み込めませんでした。</div>
       ) : summary && summary.totalPosts > 0 ? (
         <>
           <div className="mfdi-insight-filter-row">
@@ -510,9 +428,7 @@ export const InsightView: React.FC = () => {
           )}
         </>
       ) : (
-        <div className="mfdi-insight-empty">
-          まだ集計できる投稿がありません。
-        </div>
+        <div className="mfdi-insight-empty">まだ集計できる投稿がありません。</div>
       )}
     </div>
   );

@@ -29,9 +29,7 @@ function createPost(overrides: Partial<Post>): Post {
 describe("post-backlinks", () => {
   test("extractBlockLinkTargets は alias 付き block link を抽出する", () => {
     expect(
-      extractBlockLinkTargets(
-        "see [[2026-04-09#^a054d5|202604091640415]] and [[#^same-note]]",
-      ),
+      extractBlockLinkTargets("see [[2026-04-09#^a054d5|202604091640415]] and [[#^same-note]]"),
     ).toEqual([
       { noteTarget: "2026-04-09", blockId: "a054d5" },
       { noteTarget: null, blockId: "same-note" },
@@ -48,8 +46,7 @@ describe("post-backlinks", () => {
       id: "source-a",
       path: "daily/2026-04-10.md",
       startOffset: 20,
-      message:
-        "[[2026-04-09#^a054d5|202604091640415]]\n[[2026-04-09#^a054d5|duplicate]]",
+      message: "[[2026-04-09#^a054d5|202604091640415]]\n[[2026-04-09#^a054d5|duplicate]]",
     });
     const sourceB = createPost({
       id: "source-b",
@@ -84,15 +81,9 @@ describe("post-backlinks", () => {
       message: "[[2026-04-09#^a054d5|new]]\n[[2026-04-09#^a054d5|dup]]",
     });
 
-    const result = buildTargetPostBacklinkPostsMap(
-      [target],
-      [olderSource, newerSource],
-    );
+    const result = buildTargetPostBacklinkPostsMap([target], [olderSource, newerSource]);
 
-    expect(result.get(target.id)?.map((post) => post.id)).toEqual([
-      "newer-source",
-      "older-source",
-    ]);
+    expect(result.get(target.id)?.map((post) => post.id)).toEqual(["newer-source", "older-source"]);
   });
 
   test("同一ノート内の [[#^blockId]] も解決する", () => {

@@ -1,17 +1,12 @@
-import {
-  getDraftMetadataStorageKey,
-  getInputStorageKey,
-} from "src/ui/store/slices/inputStorage";
+import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { EnvironmentSlice, MFDIStore } from "src/ui/store/slices/types";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createEnvironmentSlice: StateCreator<
-  MFDIStore,
-  [],
-  [],
-  EnvironmentSlice
-> = (set, get) => ({
+export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], EnvironmentSlice> = (
+  set,
+  get,
+) => ({
   shell: null,
   storage: null,
   pluginSettings: null,
@@ -30,7 +25,7 @@ export const createEnvironmentSlice: StateCreator<
     set({ pluginSettings });
   },
 
-  setViewContext: ({ noteMode, file: file, fixedSessionNumber }) => {
+  setViewContext: ({ noteMode, file, fixedSessionNumber }) => {
     const {
       storage,
       viewNoteMode,
@@ -41,9 +36,7 @@ export const createEnvironmentSlice: StateCreator<
     } = get();
 
     const nextFixedSessionNumber =
-      noteMode === "fixed"
-        ? (fixedSessionNumber ?? currentFixedSessionNumber)
-        : 1;
+      noteMode === "fixed" ? (fixedSessionNumber ?? currentFixedSessionNumber) : 1;
 
     const hasInputContextChanged =
       viewNoteMode !== noteMode ||
@@ -53,11 +46,7 @@ export const createEnvironmentSlice: StateCreator<
     if (storage && hasInputContextChanged) {
       // 意図: periodic/fixed で編集中テキストを汚染しないよう、切替直前に現在ビューの入力を退避する。
       storage.set(
-        getInputStorageKey(
-          viewNoteMode,
-          currentFixedNotePath,
-          currentFixedSessionNumber,
-        ),
+        getInputStorageKey(viewNoteMode, currentFixedNotePath, currentFixedSessionNumber),
         getInputValue(),
       );
     }

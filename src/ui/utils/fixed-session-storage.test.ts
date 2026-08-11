@@ -14,9 +14,7 @@ type MockStorageHandle = {
   remove: ReturnType<typeof vi.fn>;
 };
 
-function createMockStorage(
-  initialValues: Record<string, unknown> = {},
-): MockStorageHandle {
+function createMockStorage(initialValues: Record<string, unknown> = {}): MockStorageHandle {
   const values = new Map<string, unknown>(Object.entries(initialValues));
 
   const get = vi.fn(<T>(key: string, defaultValue: T): T => {
@@ -84,9 +82,7 @@ describe("fixed-session-storage", () => {
         pinned: true,
       },
     });
-    expect(loadFile).toHaveBeenCalledWith(
-      "MFDI/Inbox.mfdi.fixed-session-meta.json",
-    );
+    expect(loadFile).toHaveBeenCalledWith("MFDI/Inbox.mfdi.fixed-session-meta.json");
     expect(get).not.toHaveBeenCalled();
   });
 

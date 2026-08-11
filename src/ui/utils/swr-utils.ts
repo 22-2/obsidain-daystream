@@ -21,8 +21,7 @@ export function isPostsKey(key: string | string[]): boolean {
 }
 
 function getRefreshPostsContext(): RefreshPostsContext {
-  const { activeTopic, displayMode, date, searchQuery, threadOnly } =
-    settingsStore.getState();
+  const { activeTopic, displayMode, date, searchQuery, threadOnly } = settingsStore.getState();
   return {
     activeTopic,
     displayMode,

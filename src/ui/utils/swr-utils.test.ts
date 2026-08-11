@@ -3,9 +3,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { isPostsKey, refreshAllPosts } from "src/ui/utils/swr-utils";
 import useSWR, { unstable_serialize as serializeKey } from "swr";
-import useSWRInfinite, {
-  unstable_serialize as serializeInfiniteKey,
-} from "swr/infinite";
+import useSWRInfinite, { unstable_serialize as serializeInfiniteKey } from "swr/infinite";
 import { describe, expect, it, vi } from "vitest";
 
 describe("isPostsKey", () => {
@@ -28,17 +26,15 @@ describe("isPostsKey", () => {
   });
 
   it("useSWRInfinite の親キーを posts 系として判定する", () => {
-    const serializedKey = serializeInfiniteKey(
-      (pageIndex, previousPageData) => [
-        "posts",
-        "topic-a",
-        "timeline",
-        "2026-03-15",
-        "",
-        false,
-        pageIndex === 0 ? null : previousPageData,
-      ],
-    );
+    const serializedKey = serializeInfiniteKey((pageIndex, previousPageData) => [
+      "posts",
+      "topic-a",
+      "timeline",
+      "2026-03-15",
+      "",
+      false,
+      pageIndex === 0 ? null : previousPageData,
+    ]);
 
     expect(isPostsKey(serializedKey)).toBe(true);
   });
@@ -50,11 +46,9 @@ describe("isPostsKey", () => {
     const fetcher = async () => records;
 
     const { result } = renderHook(() =>
-      useSWR(
-        ["posts", "focus", "topic-refresh", "2026-03-15", "2026-03-15", ""],
-        fetcher,
-        { revalidateOnFocus: false },
-      ),
+      useSWR(["posts", "focus", "topic-refresh", "2026-03-15", "2026-03-15", ""], fetcher, {
+        revalidateOnFocus: false,
+      }),
     );
 
     await waitFor(() => {
@@ -119,15 +113,7 @@ describe("isPostsKey", () => {
       useSWRInfinite(
         (pageIndex) =>
           pageIndex === 0
-            ? [
-                "posts",
-                "topic-infinite",
-                "timeline",
-                "2026-03-15",
-                "",
-                false,
-                null,
-              ]
+            ? ["posts", "topic-infinite", "timeline", "2026-03-15", "", false, null]
             : null,
         fetcher,
         { revalidateOnFocus: false },

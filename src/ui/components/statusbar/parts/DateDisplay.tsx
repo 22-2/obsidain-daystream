@@ -65,8 +65,7 @@ function getDateLabel({
 // ─── component ───────────────────────────────────────────────────────────────
 
 export const DateDisplay: FC = () => {
-  const { date, granularity, dateFilter, displayMode, viewNoteMode } =
-    useSettings();
+  const { date, granularity, dateFilter, displayMode, viewNoteMode } = useSettings();
 
   const onClick = useFilterMenu();
   const onContextMenu = useGranularityMenu();
@@ -76,8 +75,7 @@ export const DateDisplay: FC = () => {
   const capabilities = useCapabilities(viewNoteMode);
 
   const dateLabel = useMemo(
-    () =>
-      getDateLabel({ isFixedNote, currentTime, date, granularity, dateFilter }),
+    () => getDateLabel({ isFixedNote, currentTime, date, granularity, dateFilter }),
     [isFixedNote, currentTime, date, granularity, dateFilter],
   );
 
@@ -91,9 +89,7 @@ export const DateDisplay: FC = () => {
     <Box>
       <UnderlinedClickable
         onClick={onClick}
-        onContextMenu={
-          capabilities.supportsDateNavigation ? onContextMenu : undefined
-        }
+        onContextMenu={capabilities.supportsDateNavigation ? onContextMenu : undefined}
       >
         {dateLabel}
       </UnderlinedClickable>

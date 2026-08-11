@@ -4,13 +4,7 @@
 import type { Moment } from "moment";
 import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 
-export const GRANULARITIES = [
-  "day",
-  "week",
-  "month",
-  "quarter",
-  "year",
-] as const;
+export const GRANULARITIES = ["day", "week", "month", "quarter", "year"] as const;
 
 export type Granularity = (typeof GRANULARITIES)[number];
 

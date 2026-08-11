@@ -1,7 +1,4 @@
-import {
-  restoreAndFocusElectronWindow,
-  type ElectronWindowLike,
-} from "src/shell/electron-window";
+import { restoreAndFocusElectronWindow, type ElectronWindowLike } from "src/shell/electron-window";
 import { describe, expect, it, vi } from "vitest";
 
 describe("restoreAndFocusElectronWindow", () => {

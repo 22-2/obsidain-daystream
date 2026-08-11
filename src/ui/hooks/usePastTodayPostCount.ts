@@ -41,10 +41,7 @@ export async function fetchPastTodayPostCount(
         const pastDate = targetDate.clone().year(year);
 
         // 2月29日はうるう年にだけ存在するため、存在しない年は数えない。
-        if (
-          pastDate.month() !== targetDate.month() ||
-          pastDate.date() !== targetDate.date()
-        ) {
+        if (pastDate.month() !== targetDate.month() || pastDate.date() !== targetDate.date()) {
           return [];
         }
 
@@ -67,23 +64,19 @@ export function usePastTodayPostCount(): {
   isLoading: boolean;
 } {
   const db = useMFDIDB();
-  const { activeTopic, asTask, date, dateFilter, granularity, viewNoteMode } =
-    useSettingsStore(
-      useShallow((state) => ({
-        activeTopic: state.activeTopic,
-        asTask: state.asTask,
-        date: state.date,
-        dateFilter: state.dateFilter,
-        granularity: state.granularity,
-        viewNoteMode: state.viewNoteMode,
-      })),
-    );
+  const { activeTopic, asTask, date, dateFilter, granularity, viewNoteMode } = useSettingsStore(
+    useShallow((state) => ({
+      activeTopic: state.activeTopic,
+      asTask: state.asTask,
+      date: state.date,
+      dateFilter: state.dateFilter,
+      granularity: state.granularity,
+      viewNoteMode: state.viewNoteMode,
+    })),
+  );
 
   const enabled =
-    viewNoteMode === "periodic" &&
-    granularity === "day" &&
-    dateFilter === "today" &&
-    !asTask;
+    viewNoteMode === "periodic" && granularity === "day" && dateFilter === "today" && !asTask;
   const dateKey = date.format("YYYY-MM-DD");
 
   const { data, error, mutate } = useSWR<number>(

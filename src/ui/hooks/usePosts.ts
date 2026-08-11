@@ -2,10 +2,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useCollapsedGroups } from "src/ui/hooks/internal/useCollapsedGroups";
-import {
-  useTimelineItems,
-  type TimelineItem,
-} from "src/ui/hooks/internal/useTimelineItems";
+import { useTimelineItems, type TimelineItem } from "src/ui/hooks/internal/useTimelineItems";
 import { useFilteredPosts } from "src/ui/hooks/useFilteredPosts";
 import { useUnifiedPosts } from "src/ui/hooks/useUnifiedPosts";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -65,8 +62,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     includeThreadReplies: true,
   });
 
-  const timelineView =
-    settings.viewNoteMode !== "fixed" && isTimelineView(settings.displayMode);
+  const timelineView = settings.viewNoteMode !== "fixed" && isTimelineView(settings.displayMode);
   const threadView = isThreadView({
     displayMode: settings.displayMode,
     threadFocusRootId: settings.threadFocusRootId,
@@ -74,23 +70,18 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   const canCollapseDividers =
     timelineView && !threadView && settings.searchQuery.trim().length === 0;
 
-  const {
-    collapsedGroupSet,
-    toggleCollapsedGroup,
-    collapseGroups,
-    expandGroups,
-  } = useCollapsedGroups({ storage, canCollapseDividers });
+  const { collapsedGroupSet, toggleCollapsedGroup, collapseGroups, expandGroups } =
+    useCollapsedGroups({ storage, canCollapseDividers });
 
-  const { displayedPostsWithDividers, visibleDividerGroupKeys } =
-    useTimelineItems({
-      filteredPosts,
-      collapsedGroupSet,
-      canCollapseDividers,
-      displayMode: settings.displayMode,
-      granularity: settings.granularity,
-      dateFilter: settings.dateFilter,
-      viewNoteMode: settings.viewNoteMode,
-    });
+  const { displayedPostsWithDividers, visibleDividerGroupKeys } = useTimelineItems({
+    filteredPosts,
+    collapsedGroupSet,
+    canCollapseDividers,
+    displayMode: settings.displayMode,
+    granularity: settings.granularity,
+    dateFilter: settings.dateFilter,
+    viewNoteMode: settings.viewNoteMode,
+  });
 
   const value = React.useMemo(
     () => ({

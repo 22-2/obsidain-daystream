@@ -66,12 +66,7 @@ describe("saveActivityPromptResponse", () => {
       "- 11:30:00 実装中\n",
       "## Thino",
     );
-    expect(mocks.indexNoteContent).toHaveBeenCalledWith(
-      shell,
-      note,
-      settings,
-      "updated content",
-    );
+    expect(mocks.indexNoteContent).toHaveBeenCalledWith(shell, note, settings, "updated content");
     expect(trigger).toHaveBeenCalledWith("mfdi:scroll-to-top");
     expect(result).toEqual({ notePath: note.path, indexError: null });
   });
@@ -109,9 +104,9 @@ describe("saveActivityPromptResponse", () => {
   });
 
   it("空入力はノートへ書き込まない", async () => {
-    await expect(
-      saveActivityPromptResponse({ shell, settings, input: "  ", now }),
-    ).rejects.toThrow("空の活動記録は保存できません");
+    await expect(saveActivityPromptResponse({ shell, settings, input: "  ", now })).rejects.toThrow(
+      "空の活動記録は保存できません",
+    );
 
     expect(insertTextAfterEnsuringMarker).not.toHaveBeenCalled();
   });

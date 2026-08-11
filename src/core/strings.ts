@@ -1,9 +1,7 @@
 import type { RegExpMatchedArray } from "src/core/types";
 
 export function excludeWikiLink(text: string): string {
-  return text
-    .replace(/\[\[[^\]]+\|(.*?)]]/g, "$1")
-    .replace(/\[\[([^\]]+)]]/g, "$1");
+  return text.replace(/\[\[[^\]]+\|(.*?)]]/g, "$1").replace(/\[\[([^\]]+)]]/g, "$1");
 }
 
 export function pickTaskName(text: string): string {
@@ -14,9 +12,9 @@ export function parseMarkdownList(text: string): {
   prefix: string;
   content: string;
 } {
-  const match = Array.from(
-    text.matchAll(/^(?<prefix>[ \t]*([-*] (\[.] |)|))(?<content>.*)$/gs),
-  ).at(0);
+  const match = Array.from(text.matchAll(/^(?<prefix>[ \t]*([-*] (\[.] |)|))(?<content>.*)$/gs)).at(
+    0,
+  );
 
   if (!match) {
     return { prefix: "", content: text };

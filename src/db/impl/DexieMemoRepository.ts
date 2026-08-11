@@ -14,12 +14,7 @@ export class DexieMemoRepository implements IMemoRepository {
     query?: string,
     threadOnly?: boolean,
   ): Promise<MemoRecord[]> {
-    return await this.db.getLatestVisibleMemos(
-      topicId,
-      limit,
-      query,
-      threadOnly,
-    );
+    return await this.db.getLatestVisibleMemos(topicId, limit, query, threadOnly);
   }
 
   async getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]> {

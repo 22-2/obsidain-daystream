@@ -26,9 +26,7 @@ describe("parseThinoEntries", () => {
 
     expect(entries[0].time).toBe("12:53:49");
     expect(entries[0].message).toBe(
-      ["ワムウよりジョジョのほうが不快っすな・・・🥺", "どう思うっすか？"].join(
-        "\n",
-      ),
+      ["ワムウよりジョジョのほうが不快っすな・・・🥺", "どう思うっすか？"].join("\n"),
     );
     expect(entries[0].offset).toBe(content.indexOf("- 12:53:49"));
     expect(entries[0].startOffset).toBe(content.indexOf("- 12:53:49"));

@@ -11,10 +11,7 @@ export interface ITagStatsRepository {
    * @param removed 削除されたタグのカウント
    * @param added 追加されたタグのカウント
    */
-  applyDeltas(
-    removed: Map<string, number>,
-    added: Map<string, number>,
-  ): Promise<void>;
+  applyDeltas(removed: Map<string, number>, added: Map<string, number>): Promise<void>;
 
   /**
    * 指定したパスの現在のタグカウントを収集する

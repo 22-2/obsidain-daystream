@@ -135,10 +135,7 @@ export class MFDISettingTab extends PluginSettingTab {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  private async updateSetting<K extends keyof Settings>(
-    key: K,
-    value: Settings[K],
-  ): Promise<void> {
+  private async updateSetting<K extends keyof Settings>(key: K, value: Settings[K]): Promise<void> {
     this.plugin.settings = { ...this.plugin.settings, [key]: value };
     await this.plugin.saveSettings();
     logger.debug("Setting updated", { key, value });
@@ -181,10 +178,7 @@ export class MFDISettingTab extends PluginSettingTab {
           .addOption("24", "24時間（デフォルト）")
           .setValue(String(this.plugin.settings.fullScanIntervalHours ?? 24))
           .onChange(async (value) => {
-            await this.updateSetting(
-              "fullScanIntervalHours",
-              parseInt(value, 10),
-            );
+            await this.updateSetting("fullScanIntervalHours", parseInt(value, 10));
             this.debouncedRerender();
           }),
       );
@@ -249,14 +243,9 @@ export class MFDISettingTab extends PluginSettingTab {
           .addOption("60", "1時間（デフォルト）")
           .addOption("120", "2時間")
           .addOption("240", "4時間")
-          .setValue(
-            String(this.plugin.settings.activityPromptIntervalMinutes ?? 60),
-          )
+          .setValue(String(this.plugin.settings.activityPromptIntervalMinutes ?? 60))
           .onChange(async (value) => {
-            await this.updateSetting(
-              "activityPromptIntervalMinutes",
-              parseInt(value, 10),
-            );
+            await this.updateSetting("activityPromptIntervalMinutes", parseInt(value, 10));
             this.debouncedRerender();
           }),
       );
@@ -320,10 +309,7 @@ export class MFDISettingTab extends PluginSettingTab {
           .addOption("same_day", "その日の間だけ更新する")
           .setValue(this.plugin.settings.updateDateStrategy)
           .onChange(async (value) => {
-            await this.updateSetting(
-              "updateDateStrategy",
-              value as Settings["updateDateStrategy"],
-            );
+            await this.updateSetting("updateDateStrategy", value as Settings["updateDateStrategy"]);
             this.debouncedRerender();
           }),
       );

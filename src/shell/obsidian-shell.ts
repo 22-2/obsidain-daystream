@@ -1,10 +1,7 @@
+import type { Commands } from "@obsidian-typings/obsidian-public-latest";
 import type { App, Editor, TAbstractFile, WorkspaceLeaf } from "obsidian";
 import { MarkdownView, TFile } from "obsidian";
-import type { Commands } from "@obsidian-typings/obsidian-public-latest";
-import {
-  joinWithSingleBoundaryNewline,
-  skipImmediateLineBreak,
-} from "src/core/post-utils";
+import { joinWithSingleBoundaryNewline, skipImmediateLineBreak } from "src/core/post-utils";
 import { parseMarkdownList } from "src/core/strings";
 import { parseTaskTimestamp } from "src/core/task-parser";
 import type { Task } from "src/core/task-text";
@@ -48,19 +45,13 @@ export class ObsidianAppShell {
     this.getWorkspace().trigger(eventName, ...args);
   }
 
-  on(
-    eventName: string,
-    callback: (this: WorkspaceLeaf, ...args: unknown[]) => void,
-  ) {
+  on(eventName: string, callback: (this: WorkspaceLeaf, ...args: unknown[]) => void) {
     const w = this.getWorkspace();
     // @ts-expect-error
     w.on(eventName, callback.bind(w));
   }
 
-  off(
-    eventName: string,
-    callback: (this: WorkspaceLeaf, ...args: unknown[]) => void,
-  ) {
+  off(eventName: string, callback: (this: WorkspaceLeaf, ...args: unknown[]) => void) {
     const w = this.getWorkspace();
     // @ts-expect-error
     w.off(eventName, callback.bind(w));
@@ -122,19 +113,14 @@ export class ObsidianAppShell {
     replacement: string,
   ): Promise<string> {
     const origin = await this.loadFile(path);
-    const newContent =
-      origin.slice(0, startOffset) + replacement + origin.slice(endOffset);
+    const newContent = origin.slice(0, startOffset) + replacement + origin.slice(endOffset);
     await this.writeFile(path, newContent);
     // 意図: 書き込み後の全文を返すことで、呼び出し側が再読込なしで
     // DB インデックスの即時反映（write-through）に使えるようにする。
     return newContent;
   }
 
-  async setCheckMark(
-    path: string,
-    mark: "x" | " " | string,
-    offset: number,
-  ): Promise<void> {
+  async setCheckMark(path: string, mark: "x" | " " | string, offset: number): Promise<void> {
     const origin = await this.loadFile(path);
     const markOffset = offset + origin.slice(offset).indexOf("[") + 1;
     await this.writeFile(
@@ -143,11 +129,7 @@ export class ObsidianAppShell {
     );
   }
 
-  private buildContentWithInsertedText(
-    content: string,
-    text: string,
-    after: string,
-  ): string {
+  private buildContentWithInsertedText(content: string, text: string, after: string): string {
     if (!after) {
       return joinWithSingleBoundaryNewline(content, text);
     }
@@ -164,11 +146,7 @@ export class ObsidianAppShell {
     );
   }
 
-  async insertTextAfter(
-    file: TFile,
-    text: string,
-    after: string,
-  ): Promise<string> {
+  async insertTextAfter(file: TFile, text: string, after: string): Promise<string> {
     const content = await this.loadFile(file.path);
     const newContent = this.buildContentWithInsertedText(content, text, after);
 
@@ -179,19 +157,13 @@ export class ObsidianAppShell {
     return newContent;
   }
 
-  async insertTextAfterEnsuringMarker(
-    file: TFile,
-    text: string,
-    after: string,
-  ): Promise<string> {
+  async insertTextAfterEnsuringMarker(file: TFile, text: string, after: string): Promise<string> {
     // 意図: 「マーカー追記」と「本文挿入」を別々に書き込むと vault の
     // modify イベントが多重発火し、インデックス・SWR 再検証が連鎖して
     // タイムラインがガクつく。1 read + 1 write に畳んで発火を最小化する。
     const content = await this.loadFile(file.path);
     const base =
-      after && !content.includes(after)
-        ? joinWithSingleBoundaryNewline(content, after)
-        : content;
+      after && !content.includes(after) ? joinWithSingleBoundaryNewline(content, after) : content;
     const newContent = this.buildContentWithInsertedText(base, text, after);
     await this.modifyVaultFile(file, newContent);
     return newContent;
@@ -256,11 +228,7 @@ export class ObsidianAppShell {
           let lastLine = endLine;
           for (let i = endLine + 1; i < lines.length; i++) {
             const line = lines[i];
-            if (
-              line.trim().length > 0 &&
-              !line.startsWith(" ") &&
-              !line.startsWith("\t")
-            ) {
+            if (line.trim().length > 0 && !line.startsWith(" ") && !line.startsWith("\t")) {
               break;
             }
             lastLine = i;
@@ -269,10 +237,7 @@ export class ObsidianAppShell {
           const taskContent = lines.slice(startLine, lastLine + 1).join("\n");
           const { content: rawName } = parseMarkdownList(taskContent);
 
-          const { displayName, timestamp } = parseTaskTimestamp(
-            rawName,
-            file.basename,
-          );
+          const { displayName, timestamp } = parseTaskTimestamp(rawName, file.basename);
 
           return {
             mark: x.task!,

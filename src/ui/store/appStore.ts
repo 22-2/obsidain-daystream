@@ -33,11 +33,7 @@ export function AppStoreProvider({
   store: AppStoreApi;
   children: React.ReactNode;
 }) {
-  return React.createElement(
-    AppStoreContext.Provider,
-    { value: store },
-    children,
-  );
+  return React.createElement(AppStoreContext.Provider, { value: store }, children);
 }
 
 export function useCurrentAppStore(): AppStoreApi {

@@ -30,10 +30,7 @@ interface ObsidianLiveEditorProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export const ObsidianLiveEditor = forwardRef<
-  ObsidianLiveEditorRef,
-  ObsidianLiveEditorProps
->(
+export const ObsidianLiveEditor = forwardRef<ObsidianLiveEditorRef, ObsidianLiveEditorProps>(
   (
     {
       leaf,
@@ -75,8 +72,7 @@ export const ObsidianLiveEditor = forwardRef<
       focus: () => editorRef.current?.focus(),
       getValue: () => editorRef.current?.getContent() ?? "",
       getContentSnapshot: () => editorRef.current?.getContentSnapshot() ?? "",
-      subscribeContent: (listener) =>
-        editorRef.current?.subscribeContent(listener) ?? (() => {}),
+      subscribeContent: (listener) => editorRef.current?.subscribeContent(listener) ?? (() => {}),
       setContent: (text) => {
         // プログラム的 setContent 中は onChange エコーを抑止する
         isSyncingRef.current = true;
@@ -98,10 +94,7 @@ export const ObsidianLiveEditor = forwardRef<
     // プログラムによる外部からのコンテンツ上書き (replaceInput 等) 限定で同期させる
     // ユーザー由来の通常入力では外部バージョンは変わらないため、途中でカーソルが飛ぶ事故を防ぐ
     useEffect(() => {
-      if (
-        externalVersion !== undefined &&
-        externalVersion !== lastExternalVersionRef.current
-      ) {
+      if (externalVersion !== undefined && externalVersion !== lastExternalVersionRef.current) {
         lastExternalVersionRef.current = externalVersion;
         if (editorRef.current) {
           isSyncingRef.current = true;

@@ -56,9 +56,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
 
         <HStack className="items-center gap-[0.5em]">
           {actionsPlacement === "end" && characterCount > 0 && (
-            <Box className="text-xs text-[var(--text-muted)]">
-              {characterCount} chars
-            </Box>
+            <Box className="text-xs text-[var(--text-muted)]">{characterCount} chars</Box>
           )}
 
           {onCancel && (
@@ -85,9 +83,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
           </Button>
 
           {actionsPlacement === "start" && characterCount > 0 && (
-            <Box className="text-xs text-[var(--text-muted)]">
-              {characterCount} chars
-            </Box>
+            <Box className="text-xs text-[var(--text-muted)]">{characterCount} chars</Box>
           )}
         </HStack>
       </HStack>

@@ -2,10 +2,7 @@ import type { MFDIStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/settings";
 import { STORAGE_KEYS } from "src/ui/config/consntants";
 import { createAppStore } from "src/ui/store/appStore";
-import {
-  getDraftMetadataStorageKey,
-  getInputStorageKey,
-} from "src/ui/store/slices/inputStorage";
+import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { Post } from "src/ui/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,9 +14,7 @@ type MockStorageHandle = {
   remove: ReturnType<typeof vi.fn>;
 };
 
-function createMockStorage(
-  initialValues: Record<string, unknown> = {},
-): MockStorageHandle {
+function createMockStorage(initialValues: Record<string, unknown> = {}): MockStorageHandle {
   const values = new Map<string, unknown>(Object.entries(initialValues));
 
   const set = vi.fn(<T>(key: string, value: T) => {
@@ -105,9 +100,7 @@ describe("editorSlice", () => {
 
     expect(store.getState().inputSnapshot).toBe(persistedInput);
     expect(store.getState().getInputValue()).toBe(persistedInput);
-    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(
-      versionBefore,
-    );
+    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(versionBefore);
   });
 
   it("hydrateEditorState は編集中投稿の復元情報も再構築する", () => {
@@ -136,12 +129,8 @@ describe("editorSlice", () => {
     expect(restoredPost?.path).toBe(post.path);
     expect(restoredPost?.message).toBe(post.message);
     expect(restoredPost?.metadata).toEqual(post.metadata);
-    expect(restoredPost?.timestamp.toISOString()).toBe(
-      post.timestamp.toISOString(),
-    );
-    expect(restoredPost?.noteDate.toISOString()).toBe(
-      post.noteDate.toISOString(),
-    );
+    expect(restoredPost?.timestamp.toISOString()).toBe(post.timestamp.toISOString());
+    expect(restoredPost?.noteDate.toISOString()).toBe(post.noteDate.toISOString());
     expect(store.getState().editingPostOffset).toBe(post.startOffset);
   });
 
@@ -165,17 +154,12 @@ describe("editorSlice", () => {
 
     expect(store.getState().viewNoteMode).toBe("fixed");
     expect(store.getState().inputSnapshot).toBe("fixed draft");
-    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(
-      versionBefore,
-    );
+    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(versionBefore);
     expect(setStorage).toHaveBeenCalledWith(
       getInputStorageKey("periodic", null),
       "periodic in-memory",
     );
-    expect(setStorage).toHaveBeenCalledWith(
-      getInputStorageKey("fixed", fixedPathA),
-      "fixed draft",
-    );
+    expect(setStorage).toHaveBeenCalledWith(getInputStorageKey("fixed", fixedPathA), "fixed draft");
   });
 
   it("fixedノート間の切替で入力復元をファイル単位に分離する", () => {
@@ -201,9 +185,7 @@ describe("editorSlice", () => {
     expect(store.getState().viewNoteMode).toBe("fixed");
     expect(store.getState().file).toBe(fixedPathB);
     expect(store.getState().inputSnapshot).toBe("draft-b");
-    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(
-      versionBefore,
-    );
+    expect(store.getState().inputSnapshotVersion).toBeGreaterThan(versionBefore);
     expect(setStorage).toHaveBeenCalledWith(
       getInputStorageKey("fixed", fixedPathA),
       "draft-a-modified",
@@ -241,13 +223,10 @@ describe("editorSlice", () => {
       getInputStorageKey("fixed", fixedPath, 1),
       "draft-session-1",
     );
-    expect(setStorage).toHaveBeenCalledWith(
-      getDraftMetadataStorageKey("fixed", fixedPath, 1),
-      {
-        draftMetadata: { tags: "alpha" },
-        draftMetadataBase: { tags: "alpha" },
-      },
-    );
+    expect(setStorage).toHaveBeenCalledWith(getDraftMetadataStorageKey("fixed", fixedPath, 1), {
+      draftMetadata: { tags: "alpha" },
+      draftMetadataBase: { tags: "alpha" },
+    });
   });
 
   it("setViewContext は fixed ノート restore 時に session もまとめて復元する", () => {

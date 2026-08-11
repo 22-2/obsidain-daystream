@@ -4,22 +4,13 @@ import { resolvePeriodicNote } from "src/core/note-source";
 import { resolveTimestamp } from "src/core/post-utils";
 import { parseThinoEntries } from "src/core/thino";
 import { WorkerClient } from "src/db/worker-client";
-import {
-  getGranularityRange,
-  GRANULARITY_CONFIG,
-} from "src/ui/config/granularity-config";
 import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
+import { getGranularityRange, GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
-import {
-  buildFixedSessionPosts,
-  isThreadRootMetadata,
-} from "src/ui/utils/fixed-session-utils";
-import {
-  buildPostFromEntry,
-  memoRecordToPost,
-} from "src/ui/utils/thread-utils";
+import { buildFixedSessionPosts, isThreadRootMetadata } from "src/ui/utils/fixed-session-utils";
+import { buildPostFromEntry, memoRecordToPost } from "src/ui/utils/thread-utils";
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";
 
@@ -55,16 +46,10 @@ export const useFocusPosts = () => {
     })),
   );
   const isFixedMode = viewNoteMode === "fixed";
-  const normalizedFixedPath = useMemo(
-    () => normalizeFixedNotePath(file ?? ""),
-    [file],
-  );
+  const normalizedFixedPath = useMemo(() => normalizeFixedNotePath(file ?? ""), [file]);
   const periodicNoteFile = useMemo(() => {
     if (isFixedMode) return null;
-    if (
-      dateFilter === DATE_FILTER_IDS.THIS_MONTH ||
-      dateFilter === DATE_FILTER_IDS.THIS_YEAR
-    ) {
+    if (dateFilter === DATE_FILTER_IDS.THIS_MONTH || dateFilter === DATE_FILTER_IDS.THIS_YEAR) {
       return null;
     }
     if (!GRANULARITY_CONFIG[granularity].readsDirectlyFromPeriodicNote) {
@@ -75,11 +60,7 @@ export const useFocusPosts = () => {
   }, [isFixedMode, granularity, date, dateFilter, activeTopic, shell]);
 
   const { startDate, endDate } = useMemo(() => {
-    const { rangeStart, rangeEnd } = getGranularityRange(
-      date,
-      granularity,
-      dateFilter,
-    );
+    const { rangeStart, rangeEnd } = getGranularityRange(date, granularity, dateFilter);
 
     return {
       startDate: rangeStart.toISOString(),
@@ -158,11 +139,7 @@ export const useFocusPosts = () => {
               return true;
             })
             .map((entry) => {
-              const timestamp = resolveTimestamp(
-                entry.time,
-                date,
-                entry.metadata,
-              );
+              const timestamp = resolveTimestamp(entry.time, date, entry.metadata);
 
               return buildPostFromEntry({
                 ...entry,
@@ -172,10 +149,7 @@ export const useFocusPosts = () => {
               });
             });
         } catch {
-          console.error(
-            "Failed to load periodic note file:",
-            periodicNoteFile.path,
-          );
+          console.error("Failed to load periodic note file:", periodicNoteFile.path);
           return [];
         }
       }

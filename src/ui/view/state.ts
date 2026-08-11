@@ -1,10 +1,5 @@
 import { DISPLAY_MODE } from "src/ui/config/consntants";
-import type {
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  TimeFilter,
-} from "src/ui/types";
+import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/ui/types";
 
 export type MFDINoteMode = "periodic" | "fixed";
 
@@ -50,7 +45,7 @@ export function createDefaultMFDIViewState(params?: {
   noteMode?: MFDINoteMode;
   file?: string | null;
 }): MFDIViewState {
-  const { noteMode = "periodic", file: file = null } = params ?? {};
+  const { noteMode = "periodic", file = null } = params ?? {};
 
   if (noteMode === "fixed") {
     // fixedノートの既定値をここに集約し、React側の再同期でperiodic既定値へ戻るのを防ぐ。
@@ -107,7 +102,5 @@ export function createFixedNoteViewState(filePath: string): MFDIViewState {
 export function getFixedNoteTitle(path: string | null): string {
   if (!path) return "Fixed Note";
   const segments = path.replace(/\\/g, "/").split("/");
-  return (
-    segments[segments.length - 1].replace(/\.mfdi\.md$/, "") || "Fixed Note"
-  );
+  return segments[segments.length - 1].replace(/\.mfdi\.md$/, "") || "Fixed Note";
 }

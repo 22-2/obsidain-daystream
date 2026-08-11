@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { toIconCssSize } from "src/ui/components/common/icon-size";
+import { describe, expect, it } from "vitest";
 
 describe("toIconCssSize", () => {
   it("数値を px の CSS 長さへ変換する", () => {

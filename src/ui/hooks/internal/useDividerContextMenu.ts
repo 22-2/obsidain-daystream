@@ -71,11 +71,7 @@ export function useDividerContextMenu({
           const targetGroupKey = params.groupKey;
           menu.addItem((item) =>
             item
-              .setTitle(
-                params.collapsed
-                  ? "このdividerを展開する"
-                  : "このdividerを折りたたむ",
-              )
+              .setTitle(params.collapsed ? "このdividerを展開する" : "このdividerを折りたたむ")
               .setIcon(params.collapsed ? "rows" : "chevron-down")
               .setDisabled(!canCollapseDividers)
               .onClick(() => {
@@ -92,9 +88,7 @@ export function useDividerContextMenu({
           .setTitle("表示中のdividerをすべて折りたたむ")
           .setIcon("chevrons-up-down")
           .setDisabled(
-            !canCollapseDividers ||
-              !hasVisibleDividers ||
-              areAllVisibleDividersCollapsed,
+            !canCollapseDividers || !hasVisibleDividers || areAllVisibleDividersCollapsed,
           )
           .onClick(collapseAll),
       );
@@ -103,11 +97,7 @@ export function useDividerContextMenu({
         item
           .setTitle("表示中のdividerをすべて展開する")
           .setIcon("rows")
-          .setDisabled(
-            !canCollapseDividers ||
-              !hasVisibleDividers ||
-              areAllVisibleDividersExpanded,
-          )
+          .setDisabled(!canCollapseDividers || !hasVisibleDividers || areAllVisibleDividersExpanded)
           .onClick(expandAll),
       );
 

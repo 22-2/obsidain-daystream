@@ -26,28 +26,23 @@ export const PopoutInputArea: FC = memo(() => {
   const { shell, storage } = useAppContext();
   const { inputRef } = useEditorRefs();
 
-  const { inputSnapshot, inputSnapshotVersion, syncInputSession, editingPost } =
-    useEditorStore(
-      useShallow((s) => ({
-        inputSnapshot: s.inputSnapshot,
-        inputSnapshotVersion: s.inputSnapshotVersion,
-        syncInputSession: s.syncInputSession,
-        editingPost: s.editingPost,
-      })),
-    );
-
-  const { clearInput } = useEditorStore(
-    useShallow((s) => ({ clearInput: s.clearInput })),
+  const { inputSnapshot, inputSnapshotVersion, syncInputSession, editingPost } = useEditorStore(
+    useShallow((s) => ({
+      inputSnapshot: s.inputSnapshot,
+      inputSnapshotVersion: s.inputSnapshotVersion,
+      syncInputSession: s.syncInputSession,
+      editingPost: s.editingPost,
+    })),
   );
+
+  const { clearInput } = useEditorStore(useShallow((s) => ({ clearInput: s.clearInput })));
 
   const { posts } = usePosts();
   const canSubmit = useEditorStore((s) => s.canSubmit(posts));
 
   const { handleSubmit } = usePostActions();
 
-  const ctrlEnterSends = useSettingsStore(
-    (s) => s.pluginSettings?.ctrlEnterSends ?? false,
-  );
+  const ctrlEnterSends = useSettingsStore((s) => s.pluginSettings?.ctrlEnterSends ?? false);
 
   const closeView = useCallback(() => {
     view.leaf.detach();
@@ -65,10 +60,7 @@ export const PopoutInputArea: FC = memo(() => {
     }
 
     // 意図: 「二度と表示しない」が保存済みの場合は確認をスキップして破棄する。
-    const skipConfirm = storage.get<boolean>(
-      STORAGE_KEYS.SKIP_POPOUT_DISCARD_CONFIRM,
-      false,
-    );
+    const skipConfirm = storage.get<boolean>(STORAGE_KEYS.SKIP_POPOUT_DISCARD_CONFIRM, false);
     if (skipConfirm) {
       clearInput();
       closeView();

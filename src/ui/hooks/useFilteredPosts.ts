@@ -1,18 +1,8 @@
 import { useMemo } from "react";
-import type {
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  Post,
-  TimeFilter,
-} from "src/ui/types";
+import type { DateFilter, DisplayMode, Granularity, Post, TimeFilter } from "src/ui/types";
 import { filterPostsByRelativeWindow } from "src/ui/utils/post-filters";
 import { getPostTags, isPinned, isVisible } from "src/ui/utils/post-metadata";
-import {
-  getThreadPosts,
-  isVisibleRootPost,
-  sortThreadPosts,
-} from "src/ui/utils/thread-utils";
+import { getThreadPosts, isVisibleRootPost, sortThreadPosts } from "src/ui/utils/thread-utils";
 import { isThreadView, isTimelineView } from "src/ui/utils/view-mode";
 import type { MFDINoteMode } from "src/ui/view/state";
 
@@ -41,8 +31,7 @@ function sortPostsByTimestampDesc(posts: Post[]): Post[] {
 
 function sortPostsPinnedFirst(posts: Post[]): Post[] {
   return [...posts].sort((left, right) => {
-    const byPinned =
-      Number(isPinned(right.metadata)) - Number(isPinned(left.metadata));
+    const byPinned = Number(isPinned(right.metadata)) - Number(isPinned(left.metadata));
     if (byPinned !== 0) {
       return byPinned;
     }
@@ -74,19 +63,11 @@ function filterPostsForView({
   // ここで activeTag を残したまま適用すると、タグ未設定の root/reply が全件除外され
   // 「スレッドに入ったのに投稿が0件」に見える退行が起こるため、
   // スレッドビューではタグ条件を無視して rootId のみで抽出する。
-  if (
-    activeThreadRootId &&
-    isThreadView({ displayMode, threadFocusRootId: activeThreadRootId })
-  ) {
+  if (activeThreadRootId && isThreadView({ displayMode, threadFocusRootId: activeThreadRootId })) {
     const threadPosts = sortPostsPinnedFirst(
-      sortThreadPosts(
-        getThreadPosts(postsWithoutHidden, activeThreadRootId),
-        activeThreadRootId,
-      ),
+      sortThreadPosts(getThreadPosts(postsWithoutHidden, activeThreadRootId), activeThreadRootId),
     );
-    return includeThreadReplies
-      ? threadPosts
-      : threadPosts.filter(isVisibleRootPost);
+    return includeThreadReplies ? threadPosts : threadPosts.filter(isVisibleRootPost);
   }
 
   const effectiveActiveTag = viewNoteMode === "fixed" ? null : activeTag;
@@ -124,9 +105,7 @@ function filterPostsForView({
   }
 
   if (timeFilter === "latest") {
-    return sortPostsPinnedFirst(
-      visibleRoots.length > 0 ? [visibleRoots[0]] : [],
-    );
+    return sortPostsPinnedFirst(visibleRoots.length > 0 ? [visibleRoots[0]] : []);
   }
 
   const hours = Number.parseInt(timeFilter, 10);

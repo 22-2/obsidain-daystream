@@ -2,14 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import type { Topic } from "src/core/topic";
 import { DEFAULT_TOPIC } from "src/core/topic";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
-import {
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  VStack,
-} from "src/ui/components/primitives";
+import { Box, Button, Divider, Flex, Heading, VStack } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { TopicAddForm } from "src/ui/components/topics/TopicAddForm";
 import { TopicItem } from "src/ui/components/topics/TopicItem";
@@ -49,21 +42,13 @@ export const TopicManagerView = ({
     handleAddSubmit,
     handleCancelAdd,
     onSave,
-  } = useTopicManagerViewState(
-    initialTopics,
-    initialActiveTopic,
-    externalOnSave,
-  );
+  } = useTopicManagerViewState(initialTopics, initialActiveTopic, externalOnSave);
 
   const activeTopics = topics.filter((t) => !t.archived);
   const archivedTopics = topics.filter((t) => t.archived);
 
   return (
-    <VStack
-      className={cn(
-        "flex flex-col items-stretch space-y-0 pb-[var(--size-4-4)]",
-      )}
-    >
+    <VStack className={cn("flex flex-col items-stretch space-y-0 pb-[var(--size-4-4)]")}>
       {/* 通常トピック一覧 */}
       <VStack className={cn("flex flex-col items-stretch space-y-2")}>
         {activeTopics.map((topic) => (
@@ -114,11 +99,7 @@ export const TopicManagerView = ({
 
       {/* アーカイブ済み一覧 */}
       {archivedTopics.length > 0 && (
-        <VStack
-          className={cn(
-            "flex flex-col items-stretch space-y-2 mt-[var(--size-4-6)]",
-          )}
-        >
+        <VStack className={cn("flex flex-col items-stretch space-y-2 mt-[var(--size-4-6)]")}>
           <Flex className={cn("flex items-center px-[var(--size-4-3)]")}>
             <Heading
               className={cn(
@@ -129,9 +110,7 @@ export const TopicManagerView = ({
             </Heading>
             <Box className={cn("flex-1 ml-[var(--size-4-2)]")}>
               <Divider
-                className={cn(
-                  "border-t border-[var(--background-modifier-border)] opacity-50",
-                )}
+                className={cn("border-t border-[var(--background-modifier-border)] opacity-50")}
               />
             </Box>
           </Flex>
@@ -216,9 +195,7 @@ const useTopicManagerViewState = (
 
   const handleToggleArchive = useCallback((topicId: string) => {
     setTopics((prev) =>
-      prev.map((topic) =>
-        topic.id === topicId ? { ...topic, archived: !topic.archived } : topic,
-      ),
+      prev.map((topic) => (topic.id === topicId ? { ...topic, archived: !topic.archived } : topic)),
     );
   }, []);
 
@@ -230,9 +207,7 @@ const useTopicManagerViewState = (
       return;
     }
     setTopics((prev) =>
-      prev.map((topic) =>
-        topic.id === editingId ? { ...topic, title: trimmed } : topic,
-      ),
+      prev.map((topic) => (topic.id === editingId ? { ...topic, title: trimmed } : topic)),
     );
     setEditingId(null);
   }, [editingId, editingTitle]);

@@ -18,11 +18,7 @@ const shell = {
 
 describe("note file identity inference", () => {
   test("infers the default topic daily note", () => {
-    const identity = inferNoteIdentityFromFilename(
-      "2026-03-23",
-      ["", "writing"],
-      shell as any,
-    );
+    const identity = inferNoteIdentityFromFilename("2026-03-23", ["", "writing"], shell as any);
 
     expect(identity).not.toBeNull();
     expect(identity?.topicId).toBe("");
@@ -43,13 +39,7 @@ describe("note file identity inference", () => {
   });
 
   test("returns null when nothing matches", () => {
-    expect(
-      inferNoteIdentityFromFilename(
-        "not-a-note",
-        ["", "writing"],
-        shell as any,
-      ),
-    ).toBeNull();
+    expect(inferNoteIdentityFromFilename("not-a-note", ["", "writing"], shell as any)).toBeNull();
   });
 
   test("accepts a TFile-like object", () => {
@@ -65,11 +55,7 @@ describe("note file identity inference", () => {
   });
 
   test("infers a quarterly note", () => {
-    const identity = inferNoteIdentityFromFilename(
-      "2026-Q2",
-      ["", "writing"],
-      shell as any,
-    );
+    const identity = inferNoteIdentityFromFilename("2026-Q2", ["", "writing"], shell as any);
 
     expect(identity).not.toBeNull();
     expect(identity?.topicId).toBe("");

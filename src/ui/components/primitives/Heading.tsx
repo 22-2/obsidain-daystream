@@ -6,16 +6,7 @@ type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
   className?: string;
 };
 
-export const Heading = ({
-  as: Comp = "h3",
-  className,
-  children,
-  ...rest
-}: HeadingProps) =>
-  React.createElement(
-    Comp as any,
-    { className: cn(className), ...rest },
-    children,
-  );
+export const Heading = ({ as: Comp = "h3", className, children, ...rest }: HeadingProps) =>
+  React.createElement(Comp as any, { className: cn(className), ...rest }, children);
 
 Heading.displayName = "Heading";

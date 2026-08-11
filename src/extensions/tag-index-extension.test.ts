@@ -23,12 +23,7 @@ describe("tag index extension adapter", () => {
 
     expect(indexer.scanAllNotes).toHaveBeenCalledWith(shell, settings);
     expect(indexer.onFileChanged).toHaveBeenCalledWith(shell, file, settings);
-    expect(indexer.onFileRenamed).toHaveBeenCalledWith(
-      shell,
-      file,
-      "old.md",
-      settings,
-    );
+    expect(indexer.onFileRenamed).toHaveBeenCalledWith(shell, file, "old.md", settings);
     expect(indexer.onFileDeleted).toHaveBeenCalledWith(file.path);
     expect(indexer.dispose).toHaveBeenCalledTimes(1);
   });

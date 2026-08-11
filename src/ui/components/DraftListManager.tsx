@@ -11,9 +11,7 @@ interface DraftListManagerProps {
   onClose: () => void;
 }
 
-export const DraftListManager: React.FC<DraftListManagerProps> = ({
-  onClose,
-}) => {
+export const DraftListManager: React.FC<DraftListManagerProps> = ({ onClose }) => {
   const { confirmDeleteAction } = useObsidianUi();
   const { drafts, removeDraft, replaceInput } = useAppStore(
     useShallow((s) => ({
@@ -57,39 +55,23 @@ export const DraftListManager: React.FC<DraftListManagerProps> = ({
           )}
         >
           <ObsidianIcon name="chevron-left" size="1.2em" />
-          <Text className={cn("text-[var(--text-accent)] font-bold")}>
-            戻る
-          </Text>
+          <Text className={cn("text-[var(--text-accent)] font-bold")}>戻る</Text>
         </Box>
-        <Box
-          className={cn(
-            "absolute left-1/2 -translate-x-1/2 pointer-events-none",
-          )}
-        >
+        <Box className={cn("absolute left-1/2 -translate-x-1/2 pointer-events-none")}>
           <Text className={cn("font-bold text-lg")}>下書き</Text>
         </Box>
       </Box>
 
       {/* Main Content */}
-      <Box
-        className={cn(
-          "p-[1.2em] overflow-y-auto flex-1 flex flex-col mfdi-draft-list",
-        )}
-      >
+      <Box className={cn("p-[1.2em] overflow-y-auto flex-1 flex flex-col mfdi-draft-list")}>
         {drafts.length === 0 ? (
           <Box
             className={cn(
               "flex flex-col items-center justify-center flex-1 text-[var(--text-faint)] gap-[1.5em]",
             )}
           >
-            <ObsidianIcon
-              name="file-x"
-              size="4em"
-              className={cn("opacity-30")}
-            />
-            <Text className={cn("text-base opacity-60 font-bold")}>
-              下書きはありません
-            </Text>
+            <ObsidianIcon name="file-x" size="4em" className={cn("opacity-30")} />
+            <Text className={cn("text-base opacity-60 font-bold")}>下書きはありません</Text>
           </Box>
         ) : (
           <Box className={cn("flex flex-col gap-4 items-stretch")}>
@@ -101,14 +83,8 @@ export const DraftListManager: React.FC<DraftListManagerProps> = ({
                   "hover:bg-[var(--background-modifier-hover)] hover:border-[var(--background-modifier-border)]",
                 )}
               >
-                <HStack
-                  className={cn("justify-between mb-[0.4em] items-center")}
-                >
-                  <Text
-                    className={cn(
-                      "text-[10px] text-[var(--text-muted)] font-bold",
-                    )}
-                  >
+                <HStack className={cn("justify-between mb-[0.4em] items-center")}>
+                  <Text className={cn("text-[10px] text-[var(--text-muted)] font-bold")}>
                     {formatTime(draft.createdAt)}
                   </Text>
                   <Box

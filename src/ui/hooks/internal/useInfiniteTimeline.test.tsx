@@ -26,10 +26,7 @@ describe("useInfiniteTimeline", () => {
   });
 
   it("タイムライン初回取得はフォーカス中の日付ではなく今日を基準にする", () => {
-    const result = resolveTimelineBaseDate(
-      null,
-      settingsStore.getState().getEffectiveDate,
-    );
+    const result = resolveTimelineBaseDate(null, settingsStore.getState().getEffectiveDate);
 
     expect(result.isSame(today, "day")).toBe(true);
     expect(result.isSame(yesterday, "day")).toBe(false);
@@ -37,10 +34,7 @@ describe("useInfiniteTimeline", () => {
 
   it("次ページ取得時は pageParam を優先する", () => {
     const pageParam = yesterday.clone().format();
-    const result = resolveTimelineBaseDate(
-      pageParam,
-      settingsStore.getState().getEffectiveDate,
-    );
+    const result = resolveTimelineBaseDate(pageParam, settingsStore.getState().getEffectiveDate);
 
     expect(result.isSame(yesterday, "day")).toBe(true);
   });
@@ -53,10 +47,7 @@ describe("useInfiniteTimeline", () => {
     expect(initialBaseDate.isSame(yesterday, "day")).toBe(true);
 
     now = today.clone();
-    const afterPostingBaseDate = resolveTimelineBaseDate(
-      null,
-      getEffectiveDate,
-    );
+    const afterPostingBaseDate = resolveTimelineBaseDate(null, getEffectiveDate);
     expect(afterPostingBaseDate.isSame(today, "day")).toBe(true);
   });
 

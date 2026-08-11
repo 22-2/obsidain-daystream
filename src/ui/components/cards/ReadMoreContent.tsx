@@ -27,8 +27,7 @@ export const ReadMoreContent: React.FC<ReadMoreContentProps> = ({
   const isOverflowing = lines.length > threshold;
 
   // 未展開時は先頭 threshold 行のみに切り詰める。展開後はフルテキスト。
-  const displayText =
-    expanded || !isOverflowing ? text : lines.slice(0, threshold).join("\n");
+  const displayText = expanded || !isOverflowing ? text : lines.slice(0, threshold).join("\n");
 
   return (
     <>

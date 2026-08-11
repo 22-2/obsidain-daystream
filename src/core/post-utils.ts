@@ -1,14 +1,6 @@
-import {
-  parseTimeWithDate,
-  toLocalDateOnly,
-  toLocalDateString,
-} from "src/core/date-utils";
+import { parseTimeWithDate, toLocalDateOnly, toLocalDateString } from "src/core/date-utils";
 import { formatTaskText } from "src/core/task-text";
-import {
-  DATE_FORMAT,
-  DATE_TIME_FORMAT,
-  TIME_FORMAT,
-} from "src/ui/config/date-formats";
+import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from "src/ui/config/date-formats";
 import type { Granularity, MomentLike } from "src/ui/types";
 
 function isFencedCodeBlockStart(line: string): boolean {
@@ -27,10 +19,7 @@ export function toText(
   }
 
   const now = timestamp ?? window.moment();
-  const timeStr =
-    granularity === "day"
-      ? now.format(TIME_FORMAT)
-      : now.format(DATE_TIME_FORMAT);
+  const timeStr = granularity === "day" ? now.format(TIME_FORMAT) : now.format(DATE_TIME_FORMAT);
 
   if (asTask) {
     return formatTaskText(input, timeStr) + "\n";
@@ -42,15 +31,10 @@ export function toText(
   const shouldMoveFirstLineToBody = isFencedCodeBlockStart(firstLine);
   const inlineFirstLine = shouldMoveFirstLineToBody ? "" : firstLine;
   const restLines = shouldMoveFirstLineToBody ? lines : lines.slice(1);
-  const metadataEntries = Object.entries(metadata).filter(
-    ([k]) => k !== "blockId",
-  );
+  const metadataEntries = Object.entries(metadata).filter(([k]) => k !== "blockId");
   const blockId = metadata.blockId;
 
-  const head =
-    inlineFirstLine.length > 0
-      ? `- ${timeStr} ${inlineFirstLine}`
-      : `- ${timeStr}`;
+  const head = inlineFirstLine.length > 0 ? `- ${timeStr} ${inlineFirstLine}` : `- ${timeStr}`;
 
   const bodyLines = restLines
     .map((x) => (x.length === 0 ? "" : `    ${x}`))
@@ -111,10 +95,7 @@ export function resolveMemoTimestamp(
 function trimLeadingLineBreaks(text: string): string {
   return text.replace(/^(?:\r\n|\r|\n)+/, "");
 }
-export function joinWithSingleBoundaryNewline(
-  content: string,
-  text: string,
-): string {
+export function joinWithSingleBoundaryNewline(content: string, text: string): string {
   const normalizedText = trimLeadingLineBreaks(text);
 
   if (normalizedText.length === 0) {

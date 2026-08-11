@@ -15,10 +15,7 @@ type ResettableViewState = Pick<
   | "searchInputOpen"
 >;
 
-type CenterIndicatorState = Pick<
-  SettingsSlice,
-  "displayMode" | "threadFocusRootId" | "activeTag"
->;
+type CenterIndicatorState = Pick<SettingsSlice, "displayMode" | "threadFocusRootId" | "activeTag">;
 
 export function isDefaultViewState(state: ResettableViewState): boolean {
   return (
@@ -44,7 +41,5 @@ export function getCenterIndicatorLabel(state: CenterIndicatorState): string {
     return "スレッド表示中";
   }
 
-  return state.displayMode === DISPLAY_MODE.TIMELINE
-    ? "タイムライン表示中"
-    : "フォーカス表示中";
+  return state.displayMode === DISPLAY_MODE.TIMELINE ? "タイムライン表示中" : "フォーカス表示中";
 }

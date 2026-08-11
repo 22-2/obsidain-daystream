@@ -3,8 +3,7 @@ import type { EditorView } from "@codemirror/view";
 import { ViewPlugin, type ViewUpdate } from "@codemirror/view";
 import { createLogger } from "src/core/logger";
 
-const TARGET_VIEW_SELECTOR =
-  '[data-type="mfdi-view"], [data-type="mfdi-editor-view"]';
+const TARGET_VIEW_SELECTOR = '[data-type="mfdi-view"], [data-type="mfdi-editor-view"]';
 const CONTENT_PADDING_PROPERTY = "padding-bottom";
 
 const logger = createLogger("mfdi:cm-bottom-padding");
@@ -29,11 +28,7 @@ export const extension: Extension = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate): void {
-      if (
-        update.docChanged ||
-        update.viewportChanged ||
-        update.geometryChanged
-      ) {
+      if (update.docChanged || update.viewportChanged || update.geometryChanged) {
         logger.debug("schedule from update", {
           docChanged: update.docChanged,
           viewportChanged: update.viewportChanged,
@@ -102,10 +97,7 @@ export const extension: Extension = ViewPlugin.fromClass(
       // 意図: flex レイアウト由来で scroller の高さは小数になり得るため、
       // ceil だと padding が実際の余白を最大1px上回り、
       // sizer > scroller となって不要なスクロールバーが出る。floor で切り捨てる。
-      const measuredPadding = Math.max(
-        0,
-        Math.floor(scrollerBottom - lineBottom),
-      );
+      const measuredPadding = Math.max(0, Math.floor(scrollerBottom - lineBottom));
 
       logger.debug("measure", {
         lineBottom,
@@ -118,17 +110,12 @@ export const extension: Extension = ViewPlugin.fromClass(
 
     private writePadding(measuredPadding: number): void {
       const nextPadding = `${measuredPadding}px`;
-      const currentPadding = this.view.contentDOM.style.getPropertyValue(
-        CONTENT_PADDING_PROPERTY,
-      );
+      const currentPadding = this.view.contentDOM.style.getPropertyValue(CONTENT_PADDING_PROPERTY);
 
       // 意図: 既存の padding を上書きするが、同値なら無駄な再描画を避ける。
       if (currentPadding === nextPadding) return;
 
-      this.view.contentDOM.style.setProperty(
-        CONTENT_PADDING_PROPERTY,
-        nextPadding,
-      );
+      this.view.contentDOM.style.setProperty(CONTENT_PADDING_PROPERTY, nextPadding);
 
       logger.debug("apply padding", { paddingBottom: nextPadding });
     }

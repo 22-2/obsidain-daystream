@@ -59,14 +59,9 @@ export const PostCard = React.memo(
     className,
     style,
   }: PostCardProps) => {
-    const { htmlMetas, imageMetas, twitterMetas } = usePostMetadata(
-      message,
-      enabledCardView,
-    );
+    const { htmlMetas, imageMetas, twitterMetas } = usePostMetadata(message, enabledCardView);
 
-    const threadToggleLabel = isThreadFocused
-      ? "スレッド表示を閉じる"
-      : "スレッドを表示";
+    const threadToggleLabel = isThreadFocused ? "スレッド表示を閉じる" : "スレッドを表示";
     const backlinkLabel = `被リンク ${backlinkCount}件`;
     const backlinkButtonLabel = `${backlinkLabel}をプレビュー`;
 
@@ -160,10 +155,7 @@ export const PostCard = React.memo(
               >
                 {/* Message Body */}
                 <Box className="mfdi-message-body px-1 break-words">
-                  <ObsidianMarkdown
-                    content={displayText}
-                    sourcePath={sourcePath}
-                  />
+                  <ObsidianMarkdown content={displayText} sourcePath={sourcePath} />
                 </Box>
 
                 {enabledCardView && (
@@ -207,25 +199,13 @@ const usePostMetadata = (message: string, enabled: boolean) => {
     (async function () {
       setIsLoading(true);
       const urls = pickUrls(message);
-      const results = (await Promise.all(urls.map(createMeta))).filter(
-        isPresent,
-      );
+      const results = (await Promise.all(urls.map(createMeta))).filter(isPresent);
 
       if (!isMounted) return;
 
-      setHtmlMetas(
-        results.filter((result): result is HTMLMeta => result.type === "html"),
-      );
-      setImageMetas(
-        results.filter(
-          (result): result is ImageMeta => result.type === "image",
-        ),
-      );
-      setTwitterMetas(
-        results.filter(
-          (result): result is TwitterMeta => result.type === "twitter",
-        ),
-      );
+      setHtmlMetas(results.filter((result): result is HTMLMeta => result.type === "html"));
+      setImageMetas(results.filter((result): result is ImageMeta => result.type === "image"));
+      setTwitterMetas(results.filter((result): result is TwitterMeta => result.type === "twitter"));
       setIsLoading(false);
     })();
 

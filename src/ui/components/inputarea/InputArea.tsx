@@ -48,15 +48,14 @@ export const InputArea: FC = memo(() => {
   // startEdit 後にエディタへフォーカスを移す
   const editingPostId = editingPost?.id ?? null;
 
-  const { isReadOnly, inputAreaSize, setInputAreaSize, ctrlEnterSends } =
-    useSettingsStore(
-      useShallow((s) => ({
-        isReadOnly: s.isReadOnly(),
-        inputAreaSize: s.inputAreaSize,
-        setInputAreaSize: s.setInputAreaSize,
-        ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? false,
-      })),
-    );
+  const { isReadOnly, inputAreaSize, setInputAreaSize, ctrlEnterSends } = useSettingsStore(
+    useShallow((s) => ({
+      isReadOnly: s.isReadOnly(),
+      inputAreaSize: s.inputAreaSize,
+      setInputAreaSize: s.setInputAreaSize,
+      ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? false,
+    })),
+  );
   const { handleSubmit } = usePostActions();
   const { openInputInNewWindow } = useObsidianUi();
   const isMinimized = inputAreaSize === INPUT_AREA_SIZE.MINIMIZED;
@@ -72,19 +71,8 @@ export const InputArea: FC = memo(() => {
 
   const handleMinimize = useCallback(() => {
     // 意図: minimize ボタンは既存の popout 配線へ寄せ、編集・新規どちらも別ウィンドウで継続できるようにする。
-    openInputInNewWindow(
-      inputSnapshot,
-      editingPost,
-      draftMetadata,
-      draftMetadataBase,
-    );
-  }, [
-    openInputInNewWindow,
-    inputSnapshot,
-    editingPost,
-    draftMetadata,
-    draftMetadataBase,
-  ]);
+    openInputInNewWindow(inputSnapshot, editingPost, draftMetadata, draftMetadataBase);
+  }, [openInputInNewWindow, inputSnapshot, editingPost, draftMetadata, draftMetadataBase]);
 
   useEffect(() => {
     if (editingPostId !== null) {

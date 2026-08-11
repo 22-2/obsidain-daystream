@@ -1,8 +1,6 @@
 import type { MemoRecord } from "src/db/mfdi-db";
 
-const MONTH_KEYS = Array.from({ length: 12 }, (_, index) =>
-  String(index + 1).padStart(2, "0"),
-);
+const MONTH_KEYS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
 const WEEKDAY_COUNT = 7;
 const HOUR_COUNT = 24;
 const WORD_LIMIT = 120;
@@ -150,9 +148,7 @@ function getDateParts(record: MemoRecord): {
   if (!date) return null;
 
   const dateObject = new Date(`${date}T00:00:00`);
-  const weekday = Number.isNaN(created.valueOf())
-    ? dateObject.getDay()
-    : created.getDay();
+  const weekday = Number.isNaN(created.valueOf()) ? dateObject.getDay() : created.getDay();
   const hour = Number.isNaN(created.valueOf()) ? 0 : created.getHours();
 
   return {
@@ -195,9 +191,7 @@ function incrementWord(map: CountMap, word: string): void {
 }
 
 function createWeekdayHourCounts(): number[][] {
-  return Array.from({ length: WEEKDAY_COUNT }, () =>
-    Array.from({ length: HOUR_COUNT }, () => 0),
-  );
+  return Array.from({ length: WEEKDAY_COUNT }, () => Array.from({ length: HOUR_COUNT }, () => 0));
 }
 
 function calculateStreaks(dailyCounts: CountMap): {
@@ -212,9 +206,7 @@ function calculateStreaks(dailyCounts: CountMap): {
   for (let index = 1; index < dates.length; index += 1) {
     const previous = new Date(`${dates[index - 1]}T00:00:00`);
     const current = new Date(`${dates[index]}T00:00:00`);
-    const days = Math.round(
-      (current.valueOf() - previous.valueOf()) / 86_400_000,
-    );
+    const days = Math.round((current.valueOf() - previous.valueOf()) / 86_400_000);
     running = days === 1 ? running + 1 : 1;
     longestStreak = Math.max(longestStreak, running);
   }
@@ -223,9 +215,7 @@ function calculateStreaks(dailyCounts: CountMap): {
   for (let index = dates.length - 1; index > 0; index -= 1) {
     const current = new Date(`${dates[index]}T00:00:00`);
     const previous = new Date(`${dates[index - 1]}T00:00:00`);
-    const days = Math.round(
-      (current.valueOf() - previous.valueOf()) / 86_400_000,
-    );
+    const days = Math.round((current.valueOf() - previous.valueOf()) / 86_400_000);
     if (days !== 1) break;
     running += 1;
   }
@@ -233,14 +223,9 @@ function calculateStreaks(dailyCounts: CountMap): {
   return { longestStreak, currentStreak: running };
 }
 
-function buildCacheKey(
-  records: MemoRecord[],
-  activeTag: string | null,
-): string {
+function buildCacheKey(records: MemoRecord[], activeTag: string | null): string {
   const recordKeys = records
-    .map(
-      (record) => `${record.id}:${record.updatedAt}:${record.content.length}`,
-    )
+    .map((record) => `${record.id}:${record.updatedAt}:${record.content.length}`)
     .sort();
   let hash = 5381;
   for (const recordKey of recordKeys) {
@@ -263,9 +248,7 @@ export function buildInsightSummary(
   inputRecords: MemoRecord[],
   activeTag: string | null = null,
 ): InsightSummary {
-  const records = inputRecords.filter(
-    (record) => !record.archived && !record.deleted,
-  );
+  const records = inputRecords.filter((record) => !record.archived && !record.deleted);
   const cacheKey = buildCacheKey(records, activeTag);
   const cached = summaryCache.get(cacheKey);
   if (cached) return cached;
@@ -275,10 +258,7 @@ export function buildInsightSummary(
   const monthlyCounts: Record<string, CountMap> = {};
   const monthlyStatsByYear = new Map<
     string,
-    Map<
-      string,
-      { posts: number; characters: number; images: number; references: number }
-    >
+    Map<string, { posts: number; characters: number; images: number; references: number }>
   >();
   const weekdayHourCounts = createWeekdayHourCounts();
   const weekdayHourCountsByYear: Record<string, number[][]> = {};
@@ -349,13 +329,9 @@ export function buildInsightSummary(
       return {
         month: key,
         posts,
-        averageCharacters: posts
-          ? Math.round((value?.characters ?? 0) / posts)
-          : 0,
+        averageCharacters: posts ? Math.round((value?.characters ?? 0) / posts) : 0,
         imageRate: posts ? Math.round(((value?.images ?? 0) / posts) * 100) : 0,
-        referenceRate: posts
-          ? Math.round(((value?.references ?? 0) / posts) * 100)
-          : 0,
+        referenceRate: posts ? Math.round(((value?.references ?? 0) / posts) * 100) : 0,
       };
     });
   }
@@ -388,17 +364,11 @@ export function buildInsightSummary(
   return summary;
 }
 
-export function getTopCounts(
-  counts: CountMap | undefined,
-  limit = WORD_LIMIT,
-): InsightWordCount[] {
+export function getTopCounts(counts: CountMap | undefined, limit = WORD_LIMIT): InsightWordCount[] {
   if (!counts) return [];
   return Object.entries(counts)
     .map(([word, count]) => ({ word, count }))
-    .sort(
-      (left, right) =>
-        right.count - left.count || left.word.localeCompare(right.word),
-    )
+    .sort((left, right) => right.count - left.count || left.word.localeCompare(right.word))
     .slice(0, limit);
 }
 

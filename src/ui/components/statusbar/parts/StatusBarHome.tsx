@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import { IconButton } from "src/ui/components/common/IconButton";
 import { cn } from "src/ui/components/primitives/utils";
-import { isDefaultViewState } from "src/ui/utils/view-state";
 import { useSettingsStore } from "src/ui/store/settingsStore";
+import { isDefaultViewState } from "src/ui/utils/view-state";
 import { useShallow } from "zustand/shallow";
 
 /** 表示状態を初期状態へ戻すホームボタン。 */
@@ -53,8 +53,7 @@ export const StatusBarHome: FC = () => {
       onActivate={handleClickHome}
       className={cn(
         "absolute left-2 top-1 z-10 h-6 w-6 p-0",
-        !isViewDefault &&
-          "text-[var(--text-accent)] hover:text-[var(--text-normal)]",
+        !isViewDefault && "text-[var(--text-accent)] hover:text-[var(--text-normal)]",
       )}
     />
   );

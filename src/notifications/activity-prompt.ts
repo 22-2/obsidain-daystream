@@ -15,10 +15,7 @@ export interface ActivityPromptNotification {
 }
 
 export interface ActivityPromptNotificationConstructor {
-  new (
-    title: string,
-    options?: NotificationOptions,
-  ): ActivityPromptNotification;
+  new (title: string, options?: NotificationOptions): ActivityPromptNotification;
   permission?: NotificationPermissionState;
   requestPermission?: () => Promise<NotificationPermissionState>;
 }
@@ -43,8 +40,7 @@ export interface ActivityPromptNotificationScheduler {
   stop: () => void;
 }
 
-function getGlobalNotification():
-  ActivityPromptNotificationConstructor | undefined {
+function getGlobalNotification(): ActivityPromptNotificationConstructor | undefined {
   return (
     globalThis as typeof globalThis & {
       Notification?: ActivityPromptNotificationConstructor;
@@ -103,10 +99,7 @@ export function createActivityPromptNotificationScheduler(
     if (!isRunning || !notification) return;
     if (notification.permission === "denied") return;
 
-    if (
-      notification.permission === "default" &&
-      notification.requestPermission
-    ) {
+    if (notification.permission === "default" && notification.requestPermission) {
       if (permissionRequest) return;
 
       permissionRequest = Promise.resolve(notification.requestPermission())

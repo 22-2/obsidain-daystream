@@ -56,17 +56,13 @@ async function getTwitterMeta(
   return res.json as TwitterOEmbedResponse;
 }
 
-function htmlString2Document(
-  htmlString: string,
-  htmlBuffer: ArrayBuffer,
-): Document {
+function htmlString2Document(htmlString: string, htmlBuffer: ArrayBuffer): Document {
   let html = new DOMParser().parseFromString(htmlString, "text/html");
 
   const metaContentType = getCharsetFromMeta(html);
   const httpEquivContentType = getMetaByHttpEquiv(html, "content-type");
 
-  const normalize = (s: string | undefined) =>
-    s?.toLowerCase()?.replaceAll(/[-_]/g, "");
+  const normalize = (s: string | undefined) => s?.toLowerCase()?.replaceAll(/[-_]/g, "");
   const infer = (encoding: "shiftjis" | "eucjp" | "utf8"): boolean =>
     normalize(metaContentType)?.includes(encoding) ??
     normalize(httpEquivContentType?.content)?.includes(encoding) ??
@@ -74,30 +70,18 @@ function htmlString2Document(
 
   if (infer("shiftjis")) {
     // HTMLのmetaデータにshift_jisと明記されている場合はbodyを作り直す
-    html = new DOMParser().parseFromString(
-      sjis2String(htmlBuffer),
-      "text/html",
-    );
+    html = new DOMParser().parseFromString(sjis2String(htmlBuffer), "text/html");
   } else if (infer("eucjp")) {
     // HTMLのmetaデータにeuc_jpと明記されている場合はbodyを作り直す
-    html = new DOMParser().parseFromString(
-      eucJp2String(htmlBuffer),
-      "text/html",
-    );
+    html = new DOMParser().parseFromString(eucJp2String(htmlBuffer), "text/html");
   }
 
   return html;
 }
 
 export async function createMeta(url: string): Promise<Meta | null> {
-  if (
-    url.startsWith("https://twitter.com") ||
-    url.startsWith("https://x.com")
-  ) {
-    const res = await getTwitterMeta(
-      url,
-      url.startsWith("https://x.com") ? "X" : "Twitter",
-    );
+  if (url.startsWith("https://twitter.com") || url.startsWith("https://x.com")) {
+    const res = await getTwitterMeta(url, url.startsWith("https://x.com") ? "X" : "Twitter");
     if (!res) {
       return null;
     }

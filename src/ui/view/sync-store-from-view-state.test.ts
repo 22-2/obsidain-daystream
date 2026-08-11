@@ -3,9 +3,7 @@ import type { MFDIViewState } from "src/ui/view/state";
 import { syncStoreFromMFDIViewState } from "src/ui/view/sync-store-from-view-state";
 import { describe, expect, it, vi } from "vitest";
 
-function createMockStore(
-  initialState?: Partial<ReturnType<AppStoreApi["getState"]>>,
-) {
+function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState"]>>) {
   const state = {
     fixedSessionNumber: 1,
     viewNoteMode: "periodic",

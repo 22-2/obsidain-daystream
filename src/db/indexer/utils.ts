@@ -29,10 +29,7 @@ function isSameTarget(a: ScanTarget, b: ScanTarget): boolean {
   );
 }
 
-export function collectScanTargets(
-  shell: ObsidianAppShell,
-  settings: Settings,
-): ScanTarget[] {
+export function collectScanTargets(shell: ObsidianAppShell, settings: Settings): ScanTarget[] {
   const uniqueTargets = new Map<string, ScanTarget>();
   const ambiguousPaths = new Set<string>();
 
@@ -43,9 +40,7 @@ export function collectScanTargets(
       for (const file of Object.values(notes)) {
         if (ambiguousPaths.has(file.path)) continue;
 
-        const noteDate =
-          getDateFromFile(file, granularity, shell, topic.id)?.toISOString() ??
-          "";
+        const noteDate = getDateFromFile(file, granularity, shell, topic.id)?.toISOString() ?? "";
         if (!noteDate) continue;
 
         const candidate: ScanTarget = {

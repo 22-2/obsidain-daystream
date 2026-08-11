@@ -65,20 +65,12 @@ describe("builtin registry", () => {
   it("activates built-ins and wires view, command, tag-index, and fixed-note lifecycles", async () => {
     vi.clearAllMocks();
     mocks.createTagIndexExtension.mockReturnValue(mocks.tagIndexExtension);
-    mocks.createFixedNoteViewExtension.mockReturnValue(
-      mocks.fixedNoteViewExtension,
-    );
+    mocks.createFixedNoteViewExtension.mockReturnValue(mocks.fixedNoteViewExtension);
     mocks.storageGet.mockReturnValue(null);
 
     const layoutReadyCallbacks: Array<() => void | Promise<void>> = [];
-    const vaultHandlers = new Map<
-      string,
-      Array<(...args: unknown[]) => void>
-    >();
-    const metadataCacheHandlers = new Map<
-      string,
-      Array<(...args: unknown[]) => void>
-    >();
+    const vaultHandlers = new Map<string, Array<(...args: unknown[]) => void>>();
+    const metadataCacheHandlers = new Map<string, Array<(...args: unknown[]) => void>>();
 
     const revealLeaf = vi.fn();
     const getLeavesOfType = vi.fn(() => []);
@@ -110,19 +102,13 @@ describe("builtin registry", () => {
       },
       metadataCache: {
         on: (event: string, callback: (...args: unknown[]) => void) => {
-          metadataCacheHandlers.set(event, [
-            ...(metadataCacheHandlers.get(event) ?? []),
-            callback,
-          ]);
+          metadataCacheHandlers.set(event, [...(metadataCacheHandlers.get(event) ?? []), callback]);
           return {};
         },
       },
       vault: {
         on: (event: string, callback: (...args: unknown[]) => void) => {
-          vaultHandlers.set(event, [
-            ...(vaultHandlers.get(event) ?? []),
-            callback,
-          ]);
+          vaultHandlers.set(event, [...(vaultHandlers.get(event) ?? []), callback]);
           return {};
         },
       },
@@ -198,14 +184,8 @@ describe("builtin registry", () => {
     const layoutReadyCallback = layoutReadyCallbacks[0];
     expect(layoutReadyCallback).toBeDefined();
     await layoutReadyCallback?.();
-    expect(mocks.tagIndexExtension.fullScan).toHaveBeenCalledWith(
-      context.shell,
-      settings,
-    );
-    expect(mocks.storageSet).toHaveBeenCalledWith(
-      "lastFullScanAt",
-      expect.any(String),
-    );
+    expect(mocks.tagIndexExtension.fullScan).toHaveBeenCalledWith(context.shell, settings);
+    expect(mocks.storageSet).toHaveBeenCalledWith("lastFullScanAt", expect.any(String));
 
     const file = Object.assign(new TFile(), {
       path: "new.md",
@@ -240,9 +220,7 @@ describe("builtin registry", () => {
       "old.md",
       settings,
     );
-    expect(mocks.tagIndexExtension.handleFileDeleted).toHaveBeenCalledWith(
-      file.path,
-    );
+    expect(mocks.tagIndexExtension.handleFileDeleted).toHaveBeenCalledWith(file.path);
 
     expect(settings.files).toEqual([{ path: "keep.md" }]);
     expect(saveSettings).toHaveBeenCalledTimes(2);

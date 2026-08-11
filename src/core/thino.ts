@@ -31,16 +31,11 @@ function isFenceLine(line: string): boolean {
   return /^(```|~~~)/.test(line.trim());
 }
 
-function stripTrailingMetadata(
-  line: string,
-  metadata: Record<string, string>,
-): string {
+function stripTrailingMetadata(line: string, metadata: Record<string, string>): string {
   let nextLine = line;
 
   while (true) {
-    const metadataMatch = nextLine.match(
-      /^(.*?)(?:\s+)?\[([^\]:]+)::([^\]]+)\]\s*$/,
-    );
+    const metadataMatch = nextLine.match(/^(.*?)(?:\s+)?\[([^\]:]+)::([^\]]+)\]\s*$/);
     if (metadataMatch) {
       const [, prefix, key, value] = metadataMatch;
       metadata[key.trim()] = value.trim();
@@ -90,9 +85,7 @@ function extractMessageAndMetadata(
       break;
     }
 
-    const metadataOnlyMatch = lines[lastIndex].match(
-      /^\[([^\]:]+)::([^\]]+)\]$/,
-    );
+    const metadataOnlyMatch = lines[lastIndex].match(/^\[([^\]:]+)::([^\]]+)\]$/);
     const blockIdOnlyMatch = lines[lastIndex].match(/^\^([0-9a-zA-Z-]+)$/);
 
     if (metadataOnlyMatch || blockIdOnlyMatch) {
@@ -128,9 +121,7 @@ function matchTimeBullet(line: string): {
 } | null {
   // Only top-level bullets should start a new Thino entry.
   // Support both "HH:mm:ss" and "YYYY-MM-DD HH:mm:ss" formats.
-  const m = line.match(
-    /^([ ]{0,3})-\s*((?:\d{4}-\d{2}-\d{2}\s+)?\d{2}:\d{2}:\d{2})(?:\s+(.*))?$/,
-  );
+  const m = line.match(/^([ ]{0,3})-\s*((?:\d{4}-\d{2}-\d{2}\s+)?\d{2}:\d{2}:\d{2})(?:\s+(.*))?$/);
   if (!m) {
     return null;
   }
@@ -219,11 +210,7 @@ export function parseThinoEntries(
 
     // End section if we hit a heading of same-or-higher level.
     const headingLevel = getHeadingLevel(line);
-    if (
-      headingLevel != null &&
-      thinoHeadingLevel != null &&
-      headingLevel <= thinoHeadingLevel
-    ) {
+    if (headingLevel != null && thinoHeadingLevel != null && headingLevel <= thinoHeadingLevel) {
       flush(offset);
       break;
     }

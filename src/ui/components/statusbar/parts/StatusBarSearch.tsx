@@ -10,21 +10,16 @@ import { useShallow } from "zustand/shallow";
 export const StatusBarSearch: FC = () => {
   const component = useObsidianComponent() as MFDIView;
   const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    searchQuery,
-    threadOnly,
-    setSearchQuery,
-    setSearchInputOpen,
-    setThreadOnly,
-  } = useSettingsStore(
-    useShallow((s) => ({
-      searchQuery: s.searchQuery,
-      threadOnly: s.threadOnly,
-      setSearchQuery: s.setSearchQuery,
-      setSearchInputOpen: s.setSearchInputOpen,
-      setThreadOnly: s.setThreadOnly,
-    })),
-  );
+  const { searchQuery, threadOnly, setSearchQuery, setSearchInputOpen, setThreadOnly } =
+    useSettingsStore(
+      useShallow((s) => ({
+        searchQuery: s.searchQuery,
+        threadOnly: s.threadOnly,
+        setSearchQuery: s.setSearchQuery,
+        setSearchInputOpen: s.setSearchInputOpen,
+        setThreadOnly: s.setThreadOnly,
+      })),
+    );
 
   const focusSearch = useCallback(() => {
     setSearchInputOpen(true);

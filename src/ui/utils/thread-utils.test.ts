@@ -38,9 +38,7 @@ describe("thread-utils", () => {
   });
 
   test("falls back to path and offset when reply has no mfdiId", () => {
-    expect(resolvePostId({ parentId: "root-1" }, "daily.md", 20)).toBe(
-      "daily.md:20",
-    );
+    expect(resolvePostId({ parentId: "root-1" }, "daily.md", 20)).toBe("daily.md:20");
   });
 
   test("resolves thread root id from parentId or mfdiId", () => {
@@ -79,13 +77,12 @@ describe("thread-utils", () => {
       startOffset: 20,
     });
 
-    const threadPosts = getThreadPosts(
-      [laterReply, root, earlierReply],
+    const threadPosts = getThreadPosts([laterReply, root, earlierReply], "root-1");
+    expect(sortThreadPosts(threadPosts, "root-1").map((post) => post.id)).toEqual([
+      "reply-2",
+      "reply-1",
       "root-1",
-    );
-    expect(
-      sortThreadPosts(threadPosts, "root-1").map((post) => post.id),
-    ).toEqual(["reply-2", "reply-1", "root-1"]);
+    ]);
   });
 
   test("memoRecordToPost maps thread root to mfdiId so it stays visible", () => {

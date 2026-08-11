@@ -76,11 +76,7 @@ export class MFDIEditorModal extends ModalEditor {
     await super.onOpen();
     this.titleEl.empty();
     this.titleEl.style.display = "none";
-    this.contentEl.addEventListener(
-      "mousedown",
-      this.handleSizerMouseDown,
-      true,
-    );
+    this.contentEl.addEventListener("mousedown", this.handleSizerMouseDown, true);
 
     const footer = this.contentEl.createDiv({
       cls: "mfdi-editor-modal__footer",
@@ -95,8 +91,7 @@ export class MFDIEditorModal extends ModalEditor {
   private renderFooter(content: string): void {
     if (!this.footerRoot) return;
 
-    const canSubmit =
-      this.modalOptions.canSubmit?.(content) ?? content.trim().length > 0;
+    const canSubmit = this.modalOptions.canSubmit?.(content) ?? content.trim().length > 0;
 
     this.footerRoot.render(
       createElement(InputAreaFooterBase, {
@@ -115,9 +110,7 @@ export class MFDIEditorModal extends ModalEditor {
         }),
         onSubmit: () => {
           const currentContent = this.getContent();
-          void Promise.resolve(
-            this.modalOptions.onSubmit?.(currentContent),
-          ).then((result) => {
+          void Promise.resolve(this.modalOptions.onSubmit?.(currentContent)).then((result) => {
             if (result === false) return;
             this.submissionState.submitted = true;
             this.close();
@@ -131,11 +124,7 @@ export class MFDIEditorModal extends ModalEditor {
   onClose() {
     // 投稿成功時は submit 側でストアを確定させるため、onClose で内容を
     // 下書きへ戻さない。キャンセル／×閉じる場合だけ最終内容を保持する。
-    this.contentEl.removeEventListener(
-      "mousedown",
-      this.handleSizerMouseDown,
-      true,
-    );
+    this.contentEl.removeEventListener("mousedown", this.handleSizerMouseDown, true);
     this.unsubscribeContent?.();
     this.unsubscribeContent = null;
     this.footerRoot?.unmount();

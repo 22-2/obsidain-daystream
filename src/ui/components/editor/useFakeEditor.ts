@@ -25,10 +25,7 @@ interface UseCompositionGuardOptions {
  * Returns handlers and a wrapped onChange that suppresses intermediate
  * IME composition events, flushing the final value on compositionend.
  */
-function useCompositionGuard({
-  onFlush,
-  getFallbackText,
-}: UseCompositionGuardOptions) {
+function useCompositionGuard({ onFlush, getFallbackText }: UseCompositionGuardOptions) {
   const isComposingRef = useRef(false);
   const pendingTextRef = useRef<string | null>(null);
   const onFlushRef = useLatestRef(onFlush);
@@ -67,10 +64,7 @@ function useCompositionGuard({
  * また FakeEditor の view は EmbeddableMarkdownEditor だが、型 union 上は
  * MarkdownView も含むため `in` で絞り込んでから呼ぶ。
  */
-function applyCtrlEnterKeyBinding(
-  editor: FakeEditor | null,
-  ctrlEnterSends: boolean | undefined,
-) {
+function applyCtrlEnterKeyBinding(editor: FakeEditor | null, ctrlEnterSends: boolean | undefined) {
   const view = editor?.view;
   if (view && "toggleCtrlEnterKeyBinding" in view) {
     view.toggleCtrlEnterKeyBinding(ctrlEnterSends ?? false);
@@ -121,14 +115,8 @@ export function useFakeEditor(
       if (!containerRef.current) return;
       containerRef.current.empty();
 
-      const {
-        app,
-        leaf,
-        initialValue,
-        placeholder,
-        isReadOnly,
-        readonlyPlaceholder,
-      } = optionsRef.current;
+      const { app, leaf, initialValue, placeholder, isReadOnly, readonlyPlaceholder } =
+        optionsRef.current;
 
       const editor = new FakeEditor(app, {
         onChange: (text: string) => {
@@ -137,8 +125,7 @@ export function useFakeEditor(
           // onChange が同期発火するため、ガード無しだと
           // onChange → syncInputSession → set() → re-render → useEffect → setContent
           // の再帰サイクルが散発的に発生し入力フリーズを引き起こす。
-          if (active && isEditorReady && !isSyncingRef.current)
-            composition.handleChange(text);
+          if (active && isEditorReady && !isSyncingRef.current) composition.handleChange(text);
         },
         onEnter: (_editor: unknown, mod: boolean, shift: boolean) => {
           // ctrlEnterSends が false のときはホットキー送信を完全に無効化する。
@@ -185,26 +172,14 @@ export function useFakeEditor(
       const editorContainer = editor.view?.containerEl;
       if (!editorContainer) return;
 
-      editorContainer.addEventListener(
-        "compositionstart",
-        composition.handleCompositionStart,
-      );
-      editorContainer.addEventListener(
-        "compositionend",
-        composition.handleCompositionEnd,
-      );
+      editorContainer.addEventListener("compositionstart", composition.handleCompositionStart);
+      editorContainer.addEventListener("compositionend", composition.handleCompositionEnd);
 
       // Patch destroy to clean up composition listeners
       const originalDestroy = editor.destroy.bind(editor);
       editor.destroy = () => {
-        editorContainer.removeEventListener(
-          "compositionstart",
-          composition.handleCompositionStart,
-        );
-        editorContainer.removeEventListener(
-          "compositionend",
-          composition.handleCompositionEnd,
-        );
+        editorContainer.removeEventListener("compositionstart", composition.handleCompositionStart);
+        editorContainer.removeEventListener("compositionend", composition.handleCompositionEnd);
         originalDestroy();
       };
     };

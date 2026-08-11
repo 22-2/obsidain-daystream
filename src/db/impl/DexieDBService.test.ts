@@ -10,7 +10,6 @@ describe("DexieDBService", () => {
     await service.initialize({ appId: "test-app" });
   });
 
-
   it("initialization queues writes that arrive before the database is ready", async () => {
     const uninitializedService = new DexieDBService();
     const note = {

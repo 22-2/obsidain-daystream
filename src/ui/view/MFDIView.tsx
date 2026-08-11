@@ -210,10 +210,7 @@ export class MFDIView extends ItemView {
           const file = this.app.vault.getAbstractFileByPath(this.state.file);
           if (!(file instanceof TFile)) return;
 
-          await this.app.fileManager.renameFile(
-            file,
-            ensureExtension(newTitle, ".mfdi.md"),
-          );
+          await this.app.fileManager.renameFile(file, ensureExtension(newTitle, ".mfdi.md"));
 
           this.state.file = file.path;
           this.updateView();
@@ -229,9 +226,7 @@ export class MFDIView extends ItemView {
       // Obsidian API: containerEl より contentEl を直接指定する方が安全
       this.root = createRoot(this.contentEl);
     }
-    this.root.render(
-      <ReactView app={this.app} settings={this.settings} view={this} />,
-    );
+    this.root.render(<ReactView app={this.app} settings={this.settings} view={this} />);
   }
 
   // -----------------------------------------------------------------------
@@ -260,9 +255,7 @@ export class MFDIView extends ItemView {
     );
 
     menu.addSeparator();
-    menu.addItem((item) =>
-      item.setTitle("ビュー").setIcon("panels-top-left").setDisabled(true),
-    );
+    menu.addItem((item) => item.setTitle("ビュー").setIcon("panels-top-left").setDisabled(true));
 
     menu.addItem((item) =>
       item
@@ -278,9 +271,7 @@ export class MFDIView extends ItemView {
           .setTitle(isFocus ? "フォーカスモード" : "タイムラインモード")
           .setIcon(isFocus ? "toggle-left" : "toggle-right")
           .onClick(() =>
-            this.actionDelegates.onChangeDisplayMode?.(
-              isFocus ? "timeline" : "focus",
-            ),
+            this.actionDelegates.onChangeDisplayMode?.(isFocus ? "timeline" : "focus"),
           ),
       );
     }
@@ -289,9 +280,7 @@ export class MFDIView extends ItemView {
       item
         .setTitle(this.state.asTask ? "タスクモード" : "メッセージモード")
         .setIcon(this.state.asTask ? "toggle-left" : "toggle-right")
-        .onClick(() =>
-          this.actionDelegates.onChangeAsTask?.(!this.state.asTask),
-        ),
+        .onClick(() => this.actionDelegates.onChangeAsTask?.(!this.state.asTask)),
     );
   }
 
@@ -317,10 +306,7 @@ export class MFDIView extends ItemView {
         .setWarning(true)
         .onClick(async () => {
           if (!this.state.file) return;
-          const file = this.app.metadataCache.getFirstLinkpathDest(
-            this.state.file,
-            "",
-          );
+          const file = this.app.metadataCache.getFirstLinkpathDest(this.state.file, "");
           if (file instanceof TFile) {
             await this.app.fileManager.trashFile(file);
           }

@@ -3,10 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import moment from "moment";
 import React from "react";
 import type { MemoRecord } from "src/db/mfdi-db";
-import {
-  usePostBacklinkCounts,
-  usePostBacklinks,
-} from "src/ui/hooks/usePostBacklinkCounts";
+import { usePostBacklinkCounts, usePostBacklinks } from "src/ui/hooks/usePostBacklinkCounts";
 import type { Post } from "src/ui/types";
 import { SWRConfig } from "swr";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -137,10 +134,9 @@ describe("usePostBacklinkCounts", () => {
       }),
     ]);
 
-    const { result } = renderHook(
-      () => usePostBacklinkCounts([pinnedTarget, normalTarget]),
-      { wrapper: swrWrapper },
-    );
+    const { result } = renderHook(() => usePostBacklinkCounts([pinnedTarget, normalTarget]), {
+      wrapper: swrWrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.get("pinned-target")).toBe(1);
@@ -188,9 +184,10 @@ describe("usePostBacklinkCounts", () => {
     });
 
     await waitFor(() => {
-      expect(
-        result.current.postsMap.get("target")?.map((post) => post.id),
-      ).toEqual(["daily/2026-04-11.md:20", "daily/2026-04-10.md:10"]);
+      expect(result.current.postsMap.get("target")?.map((post) => post.id)).toEqual([
+        "daily/2026-04-11.md:20",
+        "daily/2026-04-10.md:10",
+      ]);
     });
   });
 });

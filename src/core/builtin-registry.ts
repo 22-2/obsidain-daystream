@@ -25,15 +25,8 @@ export interface BuiltinMainContext {
   saveSettings: () => Promise<void>;
   register: (cb: () => unknown) => void;
   registerEvent: (eventRef: EventRef) => void;
-  registerView: (
-    type: string,
-    viewCreator: (leaf: WorkspaceLeaf) => ItemView,
-  ) => void;
-  addRibbonIcon: (
-    icon: string,
-    title: string,
-    callback: () => void,
-  ) => HTMLElement;
+  registerView: (type: string, viewCreator: (leaf: WorkspaceLeaf) => ItemView) => void;
+  addRibbonIcon: (icon: string, title: string, callback: () => void) => HTMLElement;
   addCommand: (command: Command) => Command;
   getMFDISubmitCallback: () => (() => Promise<void>) | undefined;
   getMFDIInputSnapshot: () => string;
@@ -48,9 +41,7 @@ export interface BuiltinMainContext {
 
 function registerView(context: BuiltinMainContext): void {
   context.registerView(VIEW_TYPE_MFDI, (leaf) => context.createMFDIView(leaf));
-  context.registerView(VIEW_TYPE_MFDI_EDITOR, (leaf) =>
-    context.createMFDIEditorView(leaf),
-  );
+  context.registerView(VIEW_TYPE_MFDI_EDITOR, (leaf) => context.createMFDIEditorView(leaf));
 }
 
 function registerRibbon(context: BuiltinMainContext): void {
@@ -123,9 +114,7 @@ function setupTagIndexLifecycle(
         shouldScan = true;
       } else {
         // intervalHours が 0 の場合は、常に(起動のたびに)スキャンを実行する
-        const diffHours = window
-          .moment()
-          .diff(window.moment(last), "hours", true);
+        const diffHours = window.moment().diff(window.moment(last), "hours", true);
         shouldScan = diffHours >= intervalHours;
       }
 
@@ -145,11 +134,7 @@ function setupTagIndexLifecycle(
       // 意図: 日付跨ぎ投稿では「ノート新規作成 -> 直後に追記」が連続し、
       // metadataCache.changed だけに依存すると初回インデックスを取りこぼすケースがある。
       // create を拾っておくことで、少なくとも新規ノート自体は確実に DB へ流せる。
-      void tagIndexExtension.handleFileChanged(
-        context.shell,
-        file,
-        context.getSettings(),
-      );
+      void tagIndexExtension.handleFileChanged(context.shell, file, context.getSettings());
     }),
   );
 
@@ -158,33 +143,20 @@ function setupTagIndexLifecycle(
       if (!(file instanceof TFile)) return;
       // 意図: 投稿保存は Vault の modify 経由で発生するため、
       // ここを一次トリガーにすると UI/DB の反映遅延を最小化できる。
-      void tagIndexExtension.handleFileChanged(
-        context.shell,
-        file,
-        context.getSettings(),
-      );
+      void tagIndexExtension.handleFileChanged(context.shell, file, context.getSettings());
     }),
   );
 
   context.registerEvent(
     context.app.metadataCache.on("changed", (file) => {
-      void tagIndexExtension.handleFileChanged(
-        context.shell,
-        file,
-        context.getSettings(),
-      );
+      void tagIndexExtension.handleFileChanged(context.shell, file, context.getSettings());
     }),
   );
 
   context.registerEvent(
     context.app.vault.on("rename", (file, oldPath) => {
       if (!(file instanceof TFile)) return;
-      void tagIndexExtension.handleFileRenamed(
-        context.shell,
-        file,
-        oldPath,
-        context.getSettings(),
-      );
+      void tagIndexExtension.handleFileRenamed(context.shell, file, oldPath, context.getSettings());
     }),
   );
 
@@ -217,9 +189,7 @@ function setupFixedNoteRegistry(context: BuiltinMainContext): void {
       if (!(file instanceof TFile)) return;
 
       const settings = context.getSettings();
-      const filtered = settings.files.filter(
-        (entry) => entry.path !== file.path,
-      );
+      const filtered = settings.files.filter((entry) => entry.path !== file.path);
       if (filtered.length === settings.files.length) return;
 
       settings.files = filtered;
@@ -236,8 +206,7 @@ function setupFixedNoteViewLifecycle(
     around(WorkspaceLeaf.prototype, {
       setViewState(original: Function) {
         return function (this: WorkspaceLeaf, viewState, eState) {
-          const nextState =
-            fixedNoteViewExtension.convertMarkdownViewState(viewState);
+          const nextState = fixedNoteViewExtension.convertMarkdownViewState(viewState);
           return original.call(this, nextState, eState);
         };
       },
@@ -252,10 +221,7 @@ function setupFixedNoteViewLifecycle(
 
 // 意図: 初期化順が機能要件そのものなので、一般化せず直列で明示する。
 // ここを読めば起動時に何が登録されるかを追える状態にしておく。
-export function activateBuiltins(
-  context: BuiltinMainContext,
-  appId: string,
-): void {
+export function activateBuiltins(context: BuiltinMainContext, appId: string): void {
   const storage = new MFDIStorage(appId);
 
   registerView(context);
@@ -268,9 +234,7 @@ export function activateBuiltins(
     createFixedNoteViewExtension({
       // 意図: setViewState の同期経路で await できないため、存在確認は同期 API で完了させる。
       isFixedNoteAvailable: (filePath) => {
-        return (
-          context.app.vault.getAbstractFileByPath(filePath) instanceof TFile
-        );
+        return context.app.vault.getAbstractFileByPath(filePath) instanceof TFile;
       },
       getPreferredFixedSessionNumber: (filePath) => {
         return readLastOpenedFixedSessionNumber(storage, filePath) ?? undefined;

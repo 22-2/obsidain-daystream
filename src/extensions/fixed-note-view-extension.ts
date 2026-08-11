@@ -1,13 +1,7 @@
 import type { WorkspaceLeaf } from "obsidian";
-import {
-  isMFDIFixedNotePath,
-  normalizeFixedNotePath,
-} from "src/core/fixed-note";
+import { isMFDIFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
 import type { MFDIViewState } from "src/ui/view/state";
-import {
-  createFixedNoteViewState,
-  DEFAULT_MFDI_VIEW_STATE,
-} from "src/ui/view/state";
+import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/ui/view/state";
 
 type LeafWithState = WorkspaceLeaf & {
   view: { getState: () => MFDIViewState; file?: { path?: string } };
@@ -48,9 +42,7 @@ export function findExistingMFDILeaf(
   state: Partial<MFDIViewState>,
 ): WorkspaceLeaf | undefined {
   const isFixedMode = state.noteMode === "fixed";
-  const fixedPath = normalizeFixedNotePath(
-    typeof state.file === "string" ? state.file : "",
-  );
+  const fixedPath = normalizeFixedNotePath(typeof state.file === "string" ? state.file : "");
 
   return leaves.find((leaf) => {
     if (!isViewStatefulLeaf(leaf)) return false;
@@ -77,9 +69,7 @@ function shouldConvertViewState(viewState: unknown): boolean {
 }
 
 function resolveFixedSessionNumber(value: unknown): number | null {
-  return typeof value === "number" && Number.isInteger(value) && value >= 1
-    ? value
-    : null;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 ? value : null;
 }
 
 export function createFixedNoteViewExtension(
@@ -89,16 +79,13 @@ export function createFixedNoteViewExtension(
 
   return {
     convertMarkdownViewState: (viewState) => {
-      if (!shouldConvertViewState(viewState))
-        return viewState as MFDIViewStateWrapper;
+      if (!shouldConvertViewState(viewState)) return viewState as MFDIViewStateWrapper;
       const candidate = viewState as {
         type?: string;
         state?: MFDIViewState;
       } as MFDIViewStateWrapper;
-      const filePath =
-        typeof candidate.state?.file === "string" ? candidate.state.file : "";
-      if (!isMFDIFixedNotePath(filePath))
-        return viewState as MFDIViewStateWrapper;
+      const filePath = typeof candidate.state?.file === "string" ? candidate.state.file : "";
+      if (!isMFDIFixedNotePath(filePath)) return viewState as MFDIViewStateWrapper;
 
       // 意図: 削除済み固定ノートまで MFDI へ強制変換すると、空 state が復元されて誤解を招く。
       // 存在確認が失敗した場合は markdown のまま返し、呼び出し側で通常の欠損ハンドリングに委ねる。
@@ -124,17 +111,13 @@ export function createFixedNoteViewExtension(
 
     replaceOpenFixedMarkdownLeaves: async ({ leaves, attachMFDIView }) => {
       for (const leaf of leaves) {
-        const filePath = isViewStatefulLeaf(leaf)
-          ? (leaf.view.file?.path ?? "")
-          : "";
+        const filePath = isViewStatefulLeaf(leaf) ? (leaf.view.file?.path ?? "") : "";
         if (!isMFDIFixedNotePath(filePath)) continue;
         await attachMFDIView(
           {
             ...createFixedNoteViewState(filePath),
             fixedSessionNumber:
-              resolveFixedSessionNumber(
-                getPreferredFixedSessionNumber?.(filePath),
-              ) ?? 1,
+              resolveFixedSessionNumber(getPreferredFixedSessionNumber?.(filePath)) ?? 1,
           },
           leaf,
         );

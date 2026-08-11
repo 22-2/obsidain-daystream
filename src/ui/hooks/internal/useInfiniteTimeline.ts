@@ -20,16 +20,15 @@ const PAGE_SIZE_DAYS = 14;
  * タイムラインモード（無限スクロール）のデータ取得と管理を担当するHook。
  */
 export const useInfiniteTimeline = () => {
-  const { activeTopic, displayMode, date, searchQuery, threadOnly } =
-    useSettingsStore(
-      useShallow((s) => ({
-        activeTopic: s.activeTopic,
-        displayMode: s.displayMode,
-        date: s.date,
-        searchQuery: s.searchQuery,
-        threadOnly: s.threadOnly,
-      })),
-    );
+  const { activeTopic, displayMode, date, searchQuery, threadOnly } = useSettingsStore(
+    useShallow((s) => ({
+      activeTopic: s.activeTopic,
+      displayMode: s.displayMode,
+      date: s.date,
+      searchQuery: s.searchQuery,
+      threadOnly: s.threadOnly,
+    })),
+  );
   const timelineDayKey = date.format("YYYY-MM-DD");
   // Determine whether DB fetches should run for the timeline view.
   // Use the view-mode check at runtime inside timers to avoid TDZ/closure
@@ -39,9 +38,7 @@ export const useInfiniteTimeline = () => {
     ? ["posts", "timeline-pinned", activeTopic, searchQuery, threadOnly]
     : null;
 
-  const { addPaths } = useNoteStore(
-    useShallow((s) => ({ addPaths: s.addPaths })),
-  );
+  const { addPaths } = useNoteStore(useShallow((s) => ({ addPaths: s.addPaths })));
 
   const { data: pinnedPosts } = useSWR(pinnedPostsKey, async () => {
     const dbService = WorkerClient.get();
@@ -83,14 +80,7 @@ export const useInfiniteTimeline = () => {
     return () => {
       window.clearInterval(timer);
     };
-  }, [
-    activeTopic,
-    displayMode,
-    shouldFetchDb,
-    searchQuery,
-    threadOnly,
-    timelineDayKey,
-  ]);
+  }, [activeTopic, displayMode, shouldFetchDb, searchQuery, threadOnly, timelineDayKey]);
 
   // ---------------------------------------------------------------------------
   // 無限クエリ
@@ -109,10 +99,7 @@ export const useInfiniteTimeline = () => {
       const pageParam =
         pageIndex === 0
           ? null
-          : previousPageData!.lastSearchedDate
-              .clone()
-              .subtract(1, "day")
-              .format();
+          : previousPageData!.lastSearchedDate.clone().subtract(1, "day").format();
 
       return [
         "posts",
@@ -178,8 +165,7 @@ export const useInfiniteTimeline = () => {
     },
   );
 
-  const hasNextPage =
-    infiniteData && infiniteData[infiniteData.length - 1]?.hasMore;
+  const hasNextPage = infiniteData && infiniteData[infiniteData.length - 1]?.hasMore;
   const isFetchingNextPage =
     size > 0 && infiniteData && typeof infiniteData[size - 1] === "undefined";
   // SWR loads all pages on initial mount if size > 1, but here size starts at 1.
@@ -195,9 +181,7 @@ export const useInfiniteTimeline = () => {
     }
 
     const timelinePostIds = new Set(timelinePosts.map((post) => post.id));
-    const pinnedVisiblePosts = pinnedPosts.filter(
-      (post) => !timelinePostIds.has(post.id),
-    );
+    const pinnedVisiblePosts = pinnedPosts.filter((post) => !timelinePostIds.has(post.id));
 
     // 意図: pinned はスクロールに依存せず先頭へ出す。
     // DB から別取得して、ページング結果の前に合成する。
@@ -220,14 +204,7 @@ export const useInfiniteTimeline = () => {
       isLoading,
       isValidating,
     }),
-    [
-      allPosts,
-      loadMore,
-      hasNextPage,
-      isFetchingNextPage,
-      isLoading,
-      isValidating,
-    ],
+    [allPosts, loadMore, hasNextPage, isFetchingNextPage, isLoading, isValidating],
   );
 };
 

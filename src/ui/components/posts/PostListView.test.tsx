@@ -130,9 +130,7 @@ vi.mock("src/ui/context/AppContext", () => ({
 }));
 
 vi.mock("src/ui/store/noteStore", () => ({
-  useNoteStore: <T,>(
-    selector: (state: { openDailyNoteForDate: () => Promise<void> }) => T,
-  ): T =>
+  useNoteStore: <T,>(selector: (state: { openDailyNoteForDate: () => Promise<void> }) => T): T =>
     selector({
       openDailyNoteForDate: vi.fn().mockResolvedValue(undefined),
     }),
@@ -177,18 +175,11 @@ vi.mock("src/ui/store/settingsStore", () => ({
 }));
 
 vi.mock("src/ui/store/editorStore", () => ({
-  useEditorStore: <T,>(selector: (state: typeof mocked.editor) => T): T =>
-    selector(mocked.editor),
+  useEditorStore: <T,>(selector: (state: typeof mocked.editor) => T): T => selector(mocked.editor),
 }));
 
 vi.mock("src/ui/components/posts/PostCardView", () => ({
-  PostCardView: ({
-    post,
-    isHighlighted,
-  }: {
-    post: Post;
-    isHighlighted?: boolean;
-  }) =>
+  PostCardView: ({ post, isHighlighted }: { post: Post; isHighlighted?: boolean }) =>
     React.createElement(
       "div",
       {
@@ -256,9 +247,7 @@ describe("PostListView", () => {
     render(<PostListView />);
 
     expect(screen.getByTestId("post-1")).toBeDefined();
-    expect(screen.getByTestId("post-1").getAttribute("data-highlighted")).toBe(
-      "true",
-    );
+    expect(screen.getByTestId("post-1").getAttribute("data-highlighted")).toBe("true");
   });
 
   it("highlightedPost があると対象位置へスクロールする", () => {

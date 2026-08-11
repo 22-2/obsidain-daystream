@@ -3,16 +3,10 @@ import { resolvePeriodicNote } from "src/core/note-source";
 import { parseThinoEntries } from "src/core/thino";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { PanelSection } from "src/ui/components/layout/PanelPrimitives";
-import {
-  SidebarItemCount,
-  SidebarTextButton,
-} from "src/ui/components/layout/SidebarPrimitives";
-import { HStack, Spinner, Text, VStack } from "src/ui/components/primitives";
+import { SidebarItemCount, SidebarTextButton } from "src/ui/components/layout/SidebarPrimitives";
+import { HStack, Text, VStack } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
-import {
-  GRANULARITY_CONFIG,
-  type Granularity,
-} from "src/ui/config/granularity-config";
+import { GRANULARITY_CONFIG, type Granularity } from "src/ui/config/granularity-config";
 import { useAppStore } from "src/ui/store/appStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
@@ -26,15 +20,9 @@ function buildScaleKey(date: moment.Moment, granularity: Granularity): string {
   return `${granularity}-${date.clone().startOf(granularity).format(GRANULARITY_CONFIG[granularity].inputFormat)}`;
 }
 
-function formatScaleLabel(
-  date: moment.Moment,
-  granularity: Granularity,
-): string {
+function formatScaleLabel(date: moment.Moment, granularity: Granularity): string {
   if (granularity === "quarter") {
-    return date
-      .clone()
-      .startOf("quarter")
-      .format(GRANULARITY_CONFIG.quarter.inputFormat);
+    return date.clone().startOf("quarter").format(GRANULARITY_CONFIG.quarter.inputFormat);
   }
 
   if (granularity === "month") {
@@ -167,23 +155,14 @@ export const SidebarScales: React.FC<{
     >
       <VStack className="items-stretch gap-1">
         <HStack className="mfdi-scale-navigation justify-end gap-1">
-          <NavButton
-            direction="left"
-            onClick={() => handleMoveViewMonth(-1)}
-            className="p-1"
-          />
-          <NavButton
-            direction="right"
-            onClick={() => handleMoveViewMonth(1)}
-            className="p-1"
-          />
+          <NavButton direction="left" onClick={() => handleMoveViewMonth(-1)} className="p-1" />
+          <NavButton direction="right" onClick={() => handleMoveViewMonth(1)} className="p-1" />
         </HStack>
         <VStack className="mfdi-scale-list-unified items-stretch gap-0">
           {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
             const key = buildScaleKey(baseDate, scaleGranularity);
             const counts = countsMap[key];
-            const hasActivity =
-              counts && (counts.posts > 0 || counts.tasks > 0);
+            const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
             const isSelected = granularity === scaleGranularity;
 
             return (
@@ -206,9 +185,7 @@ export const SidebarScales: React.FC<{
                 }}
               >
                 <HStack className="gap-0 justify-between w-full">
-                  <Text as="span">
-                    {formatScaleLabel(baseDate, scaleGranularity)}
-                  </Text>
+                  <Text as="span">{formatScaleLabel(baseDate, scaleGranularity)}</Text>
                   {renderCountBadge(counts)}
                 </HStack>
               </SidebarTextButton>
@@ -216,30 +193,23 @@ export const SidebarScales: React.FC<{
           })}
 
           {weeks.map((w) => {
-            const isSelected =
-              granularity === "week" && date.isSame(w, "isoWeek");
+            const isSelected = granularity === "week" && date.isSame(w, "isoWeek");
             const counts = countsMap[buildScaleKey(w, "week")];
-            const hasActivity =
-              counts && (counts.posts > 0 || counts.tasks > 0);
+            const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
 
             return (
               <SidebarTextButton
                 key={w.format("YYYY-WW")}
                 isSelected={isSelected}
                 isMuted={!hasActivity}
-                className={cn(
-                  "mfdi-scale-item mfdi-scale-item-week",
-                  isSelected && "is-selected",
-                )}
+                className={cn("mfdi-scale-item mfdi-scale-item-week", isSelected && "is-selected")}
                 onClick={() => {
                   if (isSelected) {
                     handleClickHome();
                   } else {
                     setGranularity("week");
                     setDateFilter("today");
-                    const targetDay = w.isBefore(monthStart)
-                      ? monthStart.clone()
-                      : w.clone();
+                    const targetDay = w.isBefore(monthStart) ? monthStart.clone() : w.clone();
                     setDate(targetDay);
                   }
                 }}

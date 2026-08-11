@@ -18,10 +18,7 @@ function stripMarkdownExtension(path: string): string {
 }
 
 function normalizeNoteTarget(value: string): string {
-  return stripMarkdownExtension(value.trim())
-    .replace(/\\/g, "/")
-    .replace(/^\/+/, "")
-    .toLowerCase();
+  return stripMarkdownExtension(value.trim()).replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
 }
 
 function normalizeBlockId(value: string): string {
@@ -68,16 +65,13 @@ function resolveTargetPost(
 ): Post | null {
   if (target.noteTarget == null) {
     return (
-      index.byPath.get(
-        createTargetKey(normalizeNoteTarget(sourcePost.path), target.blockId),
-      ) ?? null
+      index.byPath.get(createTargetKey(normalizeNoteTarget(sourcePost.path), target.blockId)) ??
+      null
     );
   }
 
   const normalizedTarget = normalizeNoteTarget(target.noteTarget);
-  const exactMatch = index.byPath.get(
-    createTargetKey(normalizedTarget, target.blockId),
-  );
+  const exactMatch = index.byPath.get(createTargetKey(normalizedTarget, target.blockId));
   if (exactMatch) {
     return exactMatch;
   }
@@ -89,8 +83,7 @@ function resolveTargetPost(
   }
 
   const noteNameMatches =
-    index.byNoteName.get(createTargetKey(normalizedTarget, target.blockId)) ??
-    [];
+    index.byNoteName.get(createTargetKey(normalizedTarget, target.blockId)) ?? [];
   return noteNameMatches.length === 1 ? noteNameMatches[0] : null;
 }
 
@@ -143,12 +136,8 @@ export function buildTargetPostBacklinkPostsMap(
   targetPosts: Post[],
   sourcePosts: Post[],
 ): Map<string, Post[]> {
-  const visibleTargetPosts = targetPosts.filter((post) =>
-    isVisible(post.metadata),
-  );
-  const visibleSourcePosts = sourcePosts.filter((post) =>
-    isVisible(post.metadata),
-  );
+  const visibleTargetPosts = targetPosts.filter((post) => isVisible(post.metadata));
+  const visibleSourcePosts = sourcePosts.filter((post) => isVisible(post.metadata));
   const index = createPostBlockIndex(visibleTargetPosts);
   const sourcePostsByTargetId = new Map<string, Map<string, Post>>();
 
@@ -168,24 +157,18 @@ export function buildTargetPostBacklinkPostsMap(
       if (sourcePostsMap) {
         sourcePostsMap.set(sourcePost.id, sourcePost);
       } else {
-        sourcePostsByTargetId.set(
-          targetId,
-          new Map([[sourcePost.id, sourcePost]]),
-        );
+        sourcePostsByTargetId.set(targetId, new Map([[sourcePost.id, sourcePost]]));
       }
     }
   }
 
   return new Map(
-    Array.from(
-      sourcePostsByTargetId.entries(),
-      ([targetId, sourcePostsMap]) => [
-        targetId,
-        // 意図: preview はピン留め順より「どの投稿から最近参照されたか」を追いたいので、
-        // source 側は時系列の降順で揃えて modal の一覧を安定させる。
-        sortBacklinkPosts(Array.from(sourcePostsMap.values())),
-      ],
-    ),
+    Array.from(sourcePostsByTargetId.entries(), ([targetId, sourcePostsMap]) => [
+      targetId,
+      // 意図: preview はピン留め順より「どの投稿から最近参照されたか」を追いたいので、
+      // source 側は時系列の降順で揃えて modal の一覧を安定させる。
+      sortBacklinkPosts(Array.from(sourcePostsMap.values())),
+    ]),
   );
 }
 
@@ -193,10 +176,7 @@ export function buildTargetPostBacklinkCountMap(
   targetPosts: Post[],
   sourcePosts: Post[],
 ): Map<string, number> {
-  const sourcePostsByTargetId = buildTargetPostBacklinkPostsMap(
-    targetPosts,
-    sourcePosts,
-  );
+  const sourcePostsByTargetId = buildTargetPostBacklinkPostsMap(targetPosts, sourcePosts);
 
   return new Map(
     Array.from(sourcePostsByTargetId.entries(), ([targetId, matchingPosts]) => [

@@ -15,12 +15,8 @@ function resolve(params: Partial<SidebarAutoToggleParams>) {
 
 describe("getSidebarAutoToggleState", () => {
   it("設定がオフのときは自動開閉しない", () => {
-    expect(
-      resolve({ enabled: false, previousWidth: 1500, nextWidth: 1000 }),
-    ).toBeNull();
-    expect(
-      resolve({ enabled: false, previousWidth: 1000, nextWidth: 1500 }),
-    ).toBeNull();
+    expect(resolve({ enabled: false, previousWidth: 1500, nextWidth: 1000 })).toBeNull();
+    expect(resolve({ enabled: false, previousWidth: 1000, nextWidth: 1500 })).toBeNull();
   });
 
   it("1100px 以下へ跨いだときは閉じる", () => {

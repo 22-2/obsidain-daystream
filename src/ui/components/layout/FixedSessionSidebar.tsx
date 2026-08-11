@@ -2,32 +2,20 @@ import { Menu, Notice, TFile } from "obsidian";
 import type React from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { normalizeFixedNotePath } from "src/core/fixed-note";
-import {
-  ensureFixedSessionHeading,
-  removeFixedSessionSection,
-} from "src/core/fixed-sessions";
+import { ensureFixedSessionHeading, removeFixedSessionSection } from "src/core/fixed-sessions";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import {
   SidebarSectionHeader,
   SidebarTextButton,
 } from "src/ui/components/layout/SidebarPrimitives";
-import {
-  Box,
-  HStack,
-  Spinner,
-  Text,
-  VStack,
-} from "src/ui/components/primitives";
+import { Box, HStack, Spinner, Text, VStack } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { useAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
-import {
-  getDraftMetadataStorageKey,
-  getInputStorageKey,
-} from "src/ui/store/slices/inputStorage";
+import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import {
   readFixedSessionMeta,
   removeFixedSessionMeta,
@@ -96,10 +84,7 @@ interface SessionItemProps {
   isSelected: boolean;
   onSelect: (sessionNumber: number) => void;
   onTogglePin: (sessionNumber: number) => Promise<void>;
-  onOpenMenu: (
-    session: FixedSessionSummary,
-    event: React.MouseEvent<HTMLDivElement>,
-  ) => void;
+  onOpenMenu: (session: FixedSessionSummary, event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const SessionItem: React.FC<SessionItemProps> = ({
@@ -169,10 +154,7 @@ interface SessionGroupProps {
   selectedSessionNumber: number;
   onSelect: (sessionNumber: number) => void;
   onTogglePin: (sessionNumber: number) => Promise<void>;
-  onOpenMenu: (
-    session: FixedSessionSummary,
-    event: React.MouseEvent<HTMLDivElement>,
-  ) => void;
+  onOpenMenu: (session: FixedSessionSummary, event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 interface FixedSessionFetchResult {
@@ -243,10 +225,7 @@ export const FixedSessionSidebar: React.FC = () => {
     useShallow((state) => ({ editingPost: state.editingPost })),
   );
 
-  const normalizedFixedPath = useMemo(
-    () => normalizeFixedNotePath(file ?? ""),
-    [file],
-  );
+  const normalizedFixedPath = useMemo(() => normalizeFixedNotePath(file ?? ""), [file]);
 
   const {
     data: fixedSessionFetch,
@@ -294,10 +273,7 @@ export const FixedSessionSidebar: React.FC = () => {
   const shouldShowLoading =
     normalizedFixedPath.length === 0 || isLoading || fixedSessionFetch == null;
 
-  const groupedSessions = useMemo(
-    () => groupSessionsByActivity(sessions),
-    [sessions],
-  );
+  const groupedSessions = useMemo(() => groupSessionsByActivity(sessions), [sessions]);
 
   useEffect(() => {
     if (!fixedSessionFetch?.noteExists) {
@@ -306,17 +282,8 @@ export const FixedSessionSidebar: React.FC = () => {
 
     // 意図: fixed ノートを reopen したときは新しい leaf に前回の viewState が無いことがある。
     // session 選択をノート単位で退避しておくと、再オープンでも最後の位置から再開できる。
-    writeLastOpenedFixedSessionNumber(
-      storage,
-      normalizedFixedPath,
-      fixedSessionNumber,
-    );
-  }, [
-    fixedSessionFetch?.noteExists,
-    fixedSessionNumber,
-    normalizedFixedPath,
-    storage,
-  ]);
+    writeLastOpenedFixedSessionNumber(storage, normalizedFixedPath, fixedSessionNumber);
+  }, [fixedSessionFetch?.noteExists, fixedSessionNumber, normalizedFixedPath, storage]);
 
   const handleSelectSession = useCallback(
     (sessionNumber: number) => setFixedSessionNumber(sessionNumber),
@@ -325,17 +292,11 @@ export const FixedSessionSidebar: React.FC = () => {
 
   const handleTogglePin = useCallback(
     async (sessionNumber: number) => {
-      await updateFixedSessionMeta(
-        shell,
-        storage,
-        normalizedFixedPath,
-        sessionNumber,
-        (prev) => ({
-          ...prev,
-          createdAt: prev.createdAt ?? window.moment().toISOString(),
-          pinned: !(prev.pinned ?? false),
-        }),
-      );
+      await updateFixedSessionMeta(shell, storage, normalizedFixedPath, sessionNumber, (prev) => ({
+        ...prev,
+        createdAt: prev.createdAt ?? window.moment().toISOString(),
+        pinned: !(prev.pinned ?? false),
+      }));
       await mutate();
     },
     [mutate, normalizedFixedPath, shell, storage],
@@ -366,10 +327,7 @@ export const FixedSessionSidebar: React.FC = () => {
             pinned: prev.pinned ?? false,
           };
 
-          if (
-            trimmedValue.length === 0 ||
-            trimmedValue === `Session ${session.sessionNumber}`
-          ) {
+          if (trimmedValue.length === 0 || trimmedValue === `Session ${session.sessionNumber}`) {
             delete nextMeta.name;
           } else {
             nextMeta.name = trimmedValue;
@@ -422,12 +380,7 @@ export const FixedSessionSidebar: React.FC = () => {
       }
 
       await shell.modifyVaultFile(note, nextContent);
-      await removeFixedSessionMeta(
-        shell,
-        storage,
-        note.path,
-        session.sessionNumber,
-      );
+      await removeFixedSessionMeta(shell, storage, note.path, session.sessionNumber);
 
       if (fixedSessionNumber === session.sessionNumber) {
         const remainingSessionNumbers = sessions
@@ -435,9 +388,7 @@ export const FixedSessionSidebar: React.FC = () => {
           .filter((sessionNumber) => sessionNumber !== session.sessionNumber)
           .sort((left, right) => left - right);
         const fallbackSessionNumber =
-          remainingSessionNumbers.find(
-            (sessionNumber) => sessionNumber > session.sessionNumber,
-          ) ??
+          remainingSessionNumbers.find((sessionNumber) => sessionNumber > session.sessionNumber) ??
           remainingSessionNumbers.at(-1) ??
           1;
         setFixedSessionNumber(fallbackSessionNumber);
@@ -445,12 +396,8 @@ export const FixedSessionSidebar: React.FC = () => {
 
       // 意図: current session 削除時は setFixedSessionNumber 内で旧sessionの下書きを退避し直すため、
       // 切替後に対象sessionの local state をもう一度消して削除結果を確定させる。
-      storage?.remove(
-        getInputStorageKey("fixed", note.path, session.sessionNumber),
-      );
-      storage?.remove(
-        getDraftMetadataStorageKey("fixed", note.path, session.sessionNumber),
-      );
+      storage?.remove(getInputStorageKey("fixed", note.path, session.sessionNumber));
+      storage?.remove(getDraftMetadataStorageKey("fixed", note.path, session.sessionNumber));
 
       await mutate();
     },
@@ -564,8 +511,7 @@ export const FixedSessionSidebar: React.FC = () => {
       insertAfter,
       metaMap: await readFixedSessionMeta(shell, storage, note.path),
     });
-    const nextSessionNumber =
-      Math.max(1, ...existingSessions.map((s) => s.sessionNumber)) + 1;
+    const nextSessionNumber = Math.max(1, ...existingSessions.map((s) => s.sessionNumber)) + 1;
 
     const { nextContent } = ensureFixedSessionHeading({
       content,
@@ -578,17 +524,11 @@ export const FixedSessionSidebar: React.FC = () => {
       await shell.modifyVaultFile(note, nextContent);
     }
 
-    await updateFixedSessionMeta(
-      shell,
-      storage,
-      note.path,
-      nextSessionNumber,
-      (prev) => ({
-        ...prev,
-        createdAt: prev.createdAt ?? window.moment().toISOString(),
-        pinned: prev.pinned ?? false,
-      }),
-    );
+    await updateFixedSessionMeta(shell, storage, note.path, nextSessionNumber, (prev) => ({
+      ...prev,
+      createdAt: prev.createdAt ?? window.moment().toISOString(),
+      pinned: prev.pinned ?? false,
+    }));
 
     setFixedSessionNumber(nextSessionNumber);
     await mutate();

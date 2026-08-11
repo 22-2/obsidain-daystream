@@ -22,10 +22,7 @@ export class DraftListModal extends Modal {
     contentEl.empty();
     this.root = createRoot(contentEl);
     this.root.render(
-      <AppContextProvider
-        app={this.app}
-        settings={this.store.getState().pluginSettings!}
-      >
+      <AppContextProvider app={this.app} settings={this.store.getState().pluginSettings!}>
         <ComponentContextProvider component={this as unknown as Component}>
           <AppStoreProvider store={this.store}>
             <DraftListManager onClose={() => this.close()} />

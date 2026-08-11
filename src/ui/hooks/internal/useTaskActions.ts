@@ -34,23 +34,11 @@ export const useTaskActions = () => {
       if (!noteState.currentDailyNote) return;
       const mark = checked ? "x" : " ";
       postsState.setTasks(
-        postsState.tasks.map((x) =>
-          x.offset === task.offset ? { ...x, mark } : x,
-        ),
+        postsState.tasks.map((x) => (x.offset === task.offset ? { ...x, mark } : x)),
       );
-      await shell!.setCheckMark(
-        noteState.currentDailyNote.path,
-        mark,
-        task.offset,
-      );
+      await shell!.setCheckMark(noteState.currentDailyNote.path, mark, task.offset);
     },
-    [
-      noteState.currentDailyNote,
-      postsState.tasks,
-      postsState.setTasks,
-      shell,
-      isReadOnly,
-    ],
+    [noteState.currentDailyNote, postsState.tasks, postsState.setTasks, shell, isReadOnly],
   );
 
   const openTaskInEditor = useCallback(
@@ -90,9 +78,7 @@ export const useTaskActions = () => {
       let newContent = await shell.loadFile(path);
       newContent = newContent.replace(/\n{4,}/g, "\n\n\n");
       await shell.writeFile(path, newContent);
-      postsState.setTasks(
-        (await shell.getTasks(noteState.currentDailyNote)) ?? [],
-      );
+      postsState.setTasks((await shell.getTasks(noteState.currentDailyNote)) ?? []);
     },
     [shell, noteState.currentDailyNote, isReadOnly, postsState.setTasks],
   );

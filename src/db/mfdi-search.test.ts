@@ -106,12 +106,7 @@ describe("MFDIDatabase Search", () => {
       createMemo({ content: "plain post", metadataJson: JSON.stringify({}) }),
     ]);
 
-    const results = await db.getLatestVisibleMemos(
-      undefined,
-      10,
-      undefined,
-      true,
-    );
+    const results = await db.getLatestVisibleMemos(undefined, 10, undefined, true);
     expect(results).toHaveLength(1);
     expect(results[0].content).toBe("thread root");
   });

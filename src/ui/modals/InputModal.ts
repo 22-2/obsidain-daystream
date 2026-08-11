@@ -9,10 +9,7 @@ export interface InputModalArgs {
   onSubmit?: (value: string) => boolean | void | Promise<boolean | void>;
 }
 
-export async function showInputModal(
-  app: App,
-  args: InputModalArgs,
-): Promise<string | null> {
+export async function showInputModal(app: App, args: InputModalArgs): Promise<string | null> {
   return new InputModal(
     app,
     args.title,
@@ -49,15 +46,10 @@ class InputModal extends MFDIBaseModal<string | null> {
     if (this.defaultValue) this.inputEl.value = this.defaultValue;
 
     const actionsEl = this.createActions(bodyEl);
-    this.cancelButtonEl = this.createButton(actionsEl, "キャンセル", () =>
-      this.close(),
-    );
-    this.submitButtonEl = this.createButton(
-      actionsEl,
-      this.submitLabel,
-      () => void this.submit(),
-      { cta: true },
-    );
+    this.cancelButtonEl = this.createButton(actionsEl, "キャンセル", () => this.close());
+    this.submitButtonEl = this.createButton(actionsEl, this.submitLabel, () => void this.submit(), {
+      cta: true,
+    });
 
     this.inputEl.addEventListener("keydown", (ev) => {
       if (ev.isComposing) return;

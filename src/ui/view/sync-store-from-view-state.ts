@@ -2,10 +2,7 @@ import type { AppStoreApi } from "src/ui/store/appStore";
 import type { MFDIViewState } from "src/ui/view/state";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
 
-export function syncStoreFromMFDIViewState(
-  store: AppStoreApi,
-  viewState: MFDIViewState,
-): void {
+export function syncStoreFromMFDIViewState(store: AppStoreApi, viewState: MFDIViewState): void {
   const nextFixedSessionNumber =
     viewState.noteMode === "fixed" ? (viewState.fixedSessionNumber ?? 1) : 1;
   const currentState = store.getState();

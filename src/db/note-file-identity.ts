@@ -2,10 +2,7 @@ import type { TFile } from "obsidian";
 import type { Topic } from "src/core/topic";
 import { getDateFromFilename } from "src/lib/daily-notes/utils";
 import type { ObsidianAppShell } from "src/shell/obsidian-shell";
-import {
-  GRANULARITIES,
-  type Granularity,
-} from "src/ui/config/granularity-config";
+import { GRANULARITIES, type Granularity } from "src/ui/config/granularity-config";
 import type { MomentLike } from "src/ui/types";
 
 interface NoteFileIdentity {
@@ -14,12 +11,8 @@ interface NoteFileIdentity {
   noteDate: MomentLike;
 }
 
-function normalizeTopicIds(
-  topics: Array<Pick<Topic, "id">> | string[],
-): string[] {
-  const topicIds = topics.map((topic) =>
-    typeof topic === "string" ? topic : topic.id,
-  );
+function normalizeTopicIds(topics: Array<Pick<Topic, "id">> | string[]): string[] {
+  const topicIds = topics.map((topic) => (typeof topic === "string" ? topic : topic.id));
   return [...new Set(topicIds)];
 }
 
@@ -32,12 +25,7 @@ export function inferNoteIdentityFromFilename(
 
   for (const topicId of normalizeTopicIds(topics)) {
     for (const granularity of GRANULARITIES) {
-      const noteDate = getDateFromFilename(
-        filename,
-        granularity,
-        shell,
-        topicId,
-      );
+      const noteDate = getDateFromFilename(filename, granularity, shell, topicId);
       if (!noteDate) {
         continue;
       }

@@ -4,9 +4,7 @@ import { useStore } from "zustand";
 
 export const noteStore = appStore;
 
-export function useNoteStore<T>(
-  selector: (state: NoteSlice & MFDIStore) => T,
-): T {
+export function useNoteStore<T>(selector: (state: NoteSlice & MFDIStore) => T): T {
   const store = useCurrentAppStore();
   return useStore(store, selector as (state: MFDIStore) => T);
 }

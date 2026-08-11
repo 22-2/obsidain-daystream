@@ -29,14 +29,7 @@ export const SidebarTextButton: React.FC<{
   onClick?: () => void;
   onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
   children: React.ReactNode;
-}> = ({
-  isSelected = false,
-  isMuted = false,
-  className,
-  onClick,
-  onContextMenu,
-  children,
-}) => {
+}> = ({ isSelected = false, isMuted = false, className, onClick, onContextMenu, children }) => {
   return (
     <Box
       className={cn(
@@ -63,9 +56,7 @@ export const SidebarTextButton: React.FC<{
   );
 };
 
-export const SidebarItemCount: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const SidebarItemCount: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <Text className="sidebar-item-count text-[length:var(--mfdi-panel-meta-font-size)] text-[var(--text-muted)] ml-1 flex-shrink-0 leading-none">
       {children}

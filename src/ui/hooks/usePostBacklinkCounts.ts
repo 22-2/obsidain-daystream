@@ -44,8 +44,6 @@ export function usePostBacklinks(targetPosts: Post[]): {
   return useMemo(() => ({ countMap, postsMap }), [countMap, postsMap]);
 }
 
-export function usePostBacklinkCounts(
-  targetPosts: Post[],
-): Map<string, number> {
+export function usePostBacklinkCounts(targetPosts: Post[]): Map<string, number> {
   return usePostBacklinks(targetPosts).countMap;
 }

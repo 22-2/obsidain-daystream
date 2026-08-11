@@ -111,8 +111,5 @@ export function useCurrentTime(enabled: boolean) {
 }
 
 export function useCapabilities(viewNoteMode: MFDINoteMode) {
-  return useMemo(
-    () => getMFDIViewCapabilities({ noteMode: viewNoteMode }),
-    [viewNoteMode],
-  );
+  return useMemo(() => getMFDIViewCapabilities({ noteMode: viewNoteMode }), [viewNoteMode]);
 }

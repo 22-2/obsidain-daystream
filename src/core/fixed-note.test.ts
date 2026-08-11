@@ -15,12 +15,8 @@ const mockFile = (path: string) => ({ path }) as TFile;
 describe("fixed note utilities", () => {
   it("パスの正規化と拡張子の判定", () => {
     // normalizeFixedNotePath (フォルダの正規化もここに含まれる)
-    expect(normalizeFixedNotePath(" inbox/fixed-note ")).toBe(
-      "inbox/fixed-note.md",
-    );
-    expect(normalizeFixedNotePath("inbox/fixed-note.md")).toBe(
-      "inbox/fixed-note.md",
-    );
+    expect(normalizeFixedNotePath(" inbox/fixed-note ")).toBe("inbox/fixed-note.md");
+    expect(normalizeFixedNotePath("inbox/fixed-note.md")).toBe("inbox/fixed-note.md");
     expect(normalizeFixedNotePath("   ")).toBe("");
 
     // isMFDIFixedNotePath
@@ -32,9 +28,7 @@ describe("fixed note utilities", () => {
   it("fixed mode でのノート解決", () => {
     const file = mockFile("notes/fixed.md");
     const shell = {
-      getAbstractFileByPath: vi.fn((p) =>
-        p === "notes/fixed.md" ? file : null,
-      ),
+      getAbstractFileByPath: vi.fn((p) => (p === "notes/fixed.md" ? file : null)),
     } as any;
 
     const source = resolveNoteSource({
@@ -72,13 +66,9 @@ describe("fixed note utilities", () => {
     } as any;
 
     // 重複して 2 になるはず
-    expect(buildFixedNotePathFromName("MFDI", "Note", shell)).toBe(
-      "MFDI/Note 2.mfdi.md",
-    );
+    expect(buildFixedNotePathFromName("MFDI", "Note", shell)).toBe("MFDI/Note 2.mfdi.md");
     // 名前が空なら Untitled
-    expect(buildFixedNotePathFromName("MFDI", "", shell)).toBe(
-      "MFDI/Untitled.mfdi.md",
-    );
+    expect(buildFixedNotePathFromName("MFDI", "", shell)).toBe("MFDI/Untitled.mfdi.md");
     // フォルダなしならルート
     expect(buildFixedNotePathFromName("", "Root", shell)).toBe("Root.mfdi.md");
   });

@@ -33,11 +33,7 @@ describe("fetchPastTodayPostCount", () => {
   });
 
   it("過去年の同じ月日のルート投稿だけをトピック別に数える", async () => {
-    getAllActiveDates.mockResolvedValue([
-      "2026-08-11",
-      "2025-08-11",
-      "2024-08-01",
-    ]);
+    getAllActiveDates.mockResolvedValue(["2026-08-11", "2025-08-11", "2024-08-01"]);
     getMemos.mockImplementation(async ({ startDate, topicId }) => {
       expect(topicId).toBe("work");
       const year = window.moment(startDate).year();
@@ -68,14 +64,8 @@ describe("fetchPastTodayPostCount", () => {
   });
 
   it("2月29日はうるう年だけを取得する", async () => {
-    getAllActiveDates.mockResolvedValue([
-      "2024-02-29",
-      "2023-02-28",
-      "2022-02-01",
-    ]);
-    getMemos.mockResolvedValue([
-      createMemoRecord("leap-day", "2024-02-29T09:00:00.000Z"),
-    ]);
+    getAllActiveDates.mockResolvedValue(["2024-02-29", "2023-02-28", "2022-02-01"]);
+    getMemos.mockResolvedValue([createMemoRecord("leap-day", "2024-02-29T09:00:00.000Z")]);
 
     const count = await fetchPastTodayPostCount(
       { getAllActiveDates, getMemos },

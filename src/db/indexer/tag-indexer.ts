@@ -1,14 +1,7 @@
 import type { TFile } from "obsidian";
 import PQueue from "p-queue";
-import {
-  DEFAULT_QUEUE_CONCURRENCY,
-  DEFAULT_SCAN_CHUNK_SIZE,
-} from "src/db/indexer/types";
-import {
-  collectScanTargets,
-  normalizeTopics,
-  toScannableNote,
-} from "src/db/indexer/utils";
+import { DEFAULT_QUEUE_CONCURRENCY, DEFAULT_SCAN_CHUNK_SIZE } from "src/db/indexer/types";
+import { collectScanTargets, normalizeTopics, toScannableNote } from "src/db/indexer/utils";
 import { inferNoteIdentityFromFile } from "src/db/note-file-identity";
 import { WorkerClient } from "src/db/worker-client";
 import type { Settings } from "src/settings";
@@ -85,18 +78,12 @@ export async function indexNoteContent(
   settings: Settings,
   content: string,
 ): Promise<void> {
-  const identity = inferNoteIdentityFromFile(
-    file,
-    normalizeTopics(settings.topics),
-    shell,
-  );
+  const identity = inferNoteIdentityFromFile(file, normalizeTopics(settings.topics), shell);
   if (!identity) return;
 
   await enqueueForPath(file.path, async () => {
     const note = toWorkerNote(file, identity, content);
-    await WorkerClient.runWithRecovery((dbService) =>
-      dbService.onFileChanged(note),
-    );
+    await WorkerClient.runWithRecovery((dbService) => dbService.onFileChanged(note));
   });
 }
 
@@ -109,8 +96,7 @@ export class TagIndexer {
   private readonly scanChunkSize: number;
 
   constructor(_appId: string, options: TagIndexerOptions = {}) {
-    this.queueConcurrency =
-      options.queueConcurrency ?? DEFAULT_QUEUE_CONCURRENCY;
+    this.queueConcurrency = options.queueConcurrency ?? DEFAULT_QUEUE_CONCURRENCY;
     this.scanChunkSize = options.scanChunkSize ?? DEFAULT_SCAN_CHUNK_SIZE;
   }
 
@@ -118,10 +104,7 @@ export class TagIndexer {
   // Full scan
   // -------------------------------------------------------------------------
 
-  async scanAllNotes(
-    shell: ObsidianAppShell,
-    settings: Settings,
-  ): Promise<void> {
+  async scanAllNotes(shell: ObsidianAppShell, settings: Settings): Promise<void> {
     const targets = collectScanTargets(shell, settings);
     const readQueue = new PQueue({ concurrency: this.queueConcurrency });
 
@@ -129,31 +112,18 @@ export class TagIndexer {
       targets.map((t) => readQueue.add(() => toScannableNote(shell, t))),
     );
 
-    const validNotes = scannableNotes.filter(
-      (n): n is NonNullable<typeof n> => n !== null,
-    );
+    const validNotes = scannableNotes.filter((n): n is NonNullable<typeof n> => n !== null);
 
-    await WorkerClient.runWithRecovery(
-      (dbService) => dbService.scanAllNotes(validNotes),
-      120_000,
-    );
+    await WorkerClient.runWithRecovery((dbService) => dbService.scanAllNotes(validNotes), 120_000);
   }
 
   // -------------------------------------------------------------------------
   // Incremental updates
   // -------------------------------------------------------------------------
 
-  async onFileChanged(
-    shell: ObsidianAppShell,
-    file: TFile,
-    settings: Settings,
-  ): Promise<void> {
+  async onFileChanged(shell: ObsidianAppShell, file: TFile, settings: Settings): Promise<void> {
     // 意図: 対象外ファイルで無駄な read をしないよう、identity 判定を read より先に行う。
-    const identity = inferNoteIdentityFromFile(
-      file,
-      normalizeTopics(settings.topics),
-      shell,
-    );
+    const identity = inferNoteIdentityFromFile(file, normalizeTopics(settings.topics), shell);
     if (!identity) return;
 
     // 意図: read はチェーン内で行う。イベント発火時点ではなく実行順が来た
@@ -162,16 +132,12 @@ export class TagIndexer {
     await enqueueForPath(file.path, async () => {
       const content = await shell.cachedReadFile(file);
       const note = toWorkerNote(file, identity, content);
-      await WorkerClient.runWithRecovery((dbService) =>
-        dbService.onFileChanged(note),
-      );
+      await WorkerClient.runWithRecovery((dbService) => dbService.onFileChanged(note));
     });
   }
 
   async onFileDeleted(path: string): Promise<void> {
-    await WorkerClient.runWithRecovery((dbService) =>
-      dbService.onFileDeleted(path),
-    );
+    await WorkerClient.runWithRecovery((dbService) => dbService.onFileDeleted(path));
   }
 
   async onFileRenamed(
@@ -180,20 +146,14 @@ export class TagIndexer {
     oldPath: string,
     settings: Settings,
   ): Promise<void> {
-    const identity = inferNoteIdentityFromFile(
-      file,
-      normalizeTopics(settings.topics),
-      shell,
-    );
+    const identity = inferNoteIdentityFromFile(file, normalizeTopics(settings.topics), shell);
     if (!identity) return;
 
     // rename も新パスのチェーンに乗せ、他イベントとの順序入れ替わりを防ぐ。
     await enqueueForPath(file.path, async () => {
       const content = await shell.cachedReadFile(file);
       const note = toWorkerNote(file, identity, content);
-      await WorkerClient.runWithRecovery((dbService) =>
-        dbService.onFileRenamed(note, oldPath),
-      );
+      await WorkerClient.runWithRecovery((dbService) => dbService.onFileRenamed(note, oldPath));
     });
   }
 

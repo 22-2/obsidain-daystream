@@ -57,11 +57,9 @@ describe("buildMemoRecordsForNote", () => {
       topicId: "",
       noteGranularity: "day",
       noteDate: "2026-03-23T00:00:00.000Z",
-      content: [
-        "## Thino",
-        "- 10:00:00 hello",
-        "    [posted::2026-03-24T08:00:00.000Z]",
-      ].join("\n"),
+      content: ["## Thino", "- 10:00:00 hello", "    [posted::2026-03-24T08:00:00.000Z]"].join(
+        "\n",
+      ),
     });
 
     expect(records[0]?.createdAt).toBe("2026-03-24T08:00:00.000Z");

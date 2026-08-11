@@ -62,7 +62,5 @@ export function filterPostsByRelativeWindow(
     return dateFilteredPosts;
   }
 
-  return dateFilteredPosts.filter(
-    (post) => now.diff(post.timestamp, "hours", true) < hours,
-  );
+  return dateFilteredPosts.filter((post) => now.diff(post.timestamp, "hours", true) < hours);
 }

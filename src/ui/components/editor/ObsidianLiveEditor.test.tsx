@@ -24,15 +24,13 @@ const editorState = vi.hoisted(() => ({
 vi.mock("@22-2/obsidian-magical-editor", () => ({}));
 
 vi.mock("src/ui/components/editor/useFakeEditor", () => ({
-  useFakeEditor: vi.fn(
-    (_containerRef: unknown, options: { onChange: (text: string) => void }) => {
-      editorState.onChange = options.onChange;
-      return {
-        editorRef: { current: editorState.api },
-        isSyncingRef: { current: false },
-      };
-    },
-  ),
+  useFakeEditor: vi.fn((_containerRef: unknown, options: { onChange: (text: string) => void }) => {
+    editorState.onChange = options.onChange;
+    return {
+      editorRef: { current: editorState.api },
+      isSyncingRef: { current: false },
+    };
+  }),
 }));
 
 function createMockEditor(snapshot = ""): MockEditorApi {

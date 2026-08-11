@@ -34,9 +34,8 @@ vi.mock("swr", () => ({
 vi.mock("swr/infinite", () => {
   return {
     default: (...args: unknown[]) => useSWRInfiniteMock(...args),
-    unstable_serialize: (
-      getKey: (pageIndex: number, previousPageData: null) => unknown,
-    ) => `$inf$${JSON.stringify(getKey(0, null))}`,
+    unstable_serialize: (getKey: (pageIndex: number, previousPageData: null) => unknown) =>
+      `$inf$${JSON.stringify(getKey(0, null))}`,
   };
 });
 
@@ -54,20 +53,17 @@ vi.mock("src/ui/store/settingsStore", () => ({
   settingsStore: {
     getState: () => settingsState,
   },
-  useSettingsStore: (selector: (state: typeof settingsState) => unknown) =>
-    selector(settingsState),
+  useSettingsStore: (selector: (state: typeof settingsState) => unknown) => selector(settingsState),
 }));
 
 vi.mock("src/ui/store/postsStore", () => ({
-  usePostsStore: (
-    selector: (state: { setPosts: typeof setPostsMock }) => unknown,
-  ) => selector({ setPosts: setPostsMock }),
+  usePostsStore: (selector: (state: { setPosts: typeof setPostsMock }) => unknown) =>
+    selector({ setPosts: setPostsMock }),
 }));
 
 vi.mock("src/ui/store/noteStore", () => ({
-  useNoteStore: (
-    selector: (state: { addPaths: typeof addPathsMock }) => unknown,
-  ) => selector({ addPaths: addPathsMock }),
+  useNoteStore: (selector: (state: { addPaths: typeof addPathsMock }) => unknown) =>
+    selector({ addPaths: addPathsMock }),
 }));
 
 vi.mock("src/ui/utils/view-mode", () => ({
@@ -81,8 +77,7 @@ vi.mock("./timelinePosts", () => ({
     (pageParam: string | null, getEffectiveDate: () => moment.Moment) =>
       pageParam ? moment(pageParam) : getEffectiveDate(),
   ),
-  createTimelinePageFetcher: (...args: unknown[]) =>
-    createTimelinePageFetcherMock(...args),
+  createTimelinePageFetcher: (...args: unknown[]) => createTimelinePageFetcherMock(...args),
 }));
 
 vi.mock("src/db/worker-client", () => ({
@@ -140,30 +135,14 @@ describe("useInfiniteTimeline", () => {
 
     const getKey = useSWRInfiniteMock.mock.calls[0][0];
     const key = getKey(0, null);
-    expect(key).toEqual([
-      "posts",
-      "topic-a",
-      "timeline",
-      "2026-03-15",
-      "",
-      false,
-      null,
-    ]);
+    expect(key).toEqual(["posts", "topic-a", "timeline", "2026-03-15", "", false, null]);
 
     settingsState.date = moment("2026-03-16T00:00:00.000Z");
     rerender();
 
     const secondGetKey = useSWRInfiniteMock.mock.calls[1][0];
     const secondKey = secondGetKey(0, null);
-    expect(secondKey).toEqual([
-      "posts",
-      "topic-a",
-      "timeline",
-      "2026-03-16",
-      "",
-      false,
-      null,
-    ]);
+    expect(secondKey).toEqual(["posts", "topic-a", "timeline", "2026-03-16", "", false, null]);
   });
 
   it("スクロール後に更新した投稿も即時反映できるよう全ページ再検証を有効化する", () => {
@@ -181,15 +160,7 @@ describe("useInfiniteTimeline", () => {
     renderHook(() => useInfiniteTimeline());
 
     const fetcher = useSWRInfiniteMock.mock.calls[0][1];
-    await fetcher([
-      "posts",
-      "topic-a",
-      "timeline",
-      "2026-03-15",
-      "",
-      false,
-      null,
-    ]);
+    await fetcher(["posts", "topic-a", "timeline", "2026-03-15", "", false, null]);
 
     expect(getMemosMock).toHaveBeenCalled();
   });
@@ -225,8 +196,6 @@ describe("useInfiniteTimeline", () => {
 
     expect(setDateMock).toHaveBeenCalledTimes(1);
     const calledMoment = setDateMock.mock.calls[0][0];
-    expect(calledMoment.isSame(moment("2026-03-16T00:01:00.000Z"), "day")).toBe(
-      true,
-    );
+    expect(calledMoment.isSame(moment("2026-03-16T00:01:00.000Z"), "day")).toBe(true);
   });
 });

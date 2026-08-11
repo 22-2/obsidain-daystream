@@ -14,8 +14,7 @@ export const DayCell: React.FC<Props> = ({
   onClick,
 }) => {
   const isToday = day.isSame(window.moment(), "day");
-  const isForeground =
-    isCurrentMonth || isSelectedDay || isInSelectedRange || isToday;
+  const isForeground = isCurrentMonth || isSelectedDay || isInSelectedRange || isToday;
   const effectiveInRange = showRangeHighlight && isInSelectedRange;
 
   // ---- className helpers ----

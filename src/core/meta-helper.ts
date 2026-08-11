@@ -1,21 +1,14 @@
-export function getMetaByProperty(
-  dom: Document,
-  property: string,
-): string | undefined {
-  return dom
-    .querySelector(`meta[property='${property}']`)
-    ?.attributes.getNamedItem("content")?.value;
+export function getMetaByProperty(dom: Document, property: string): string | undefined {
+  return dom.querySelector(`meta[property='${property}']`)?.attributes.getNamedItem("content")
+    ?.value;
 }
 
 export function getMetaByName(dom: Document, name: string): string | undefined {
-  return dom
-    .querySelector(`meta[name='${name}']`)
-    ?.attributes.getNamedItem("content")?.value;
+  return dom.querySelector(`meta[name='${name}']`)?.attributes.getNamedItem("content")?.value;
 }
 
 export function getCharsetFromMeta(dom: Document): string | undefined {
-  return dom.querySelector(`meta[charset]`)?.attributes.getNamedItem("charset")
-    ?.value;
+  return dom.querySelector(`meta[charset]`)?.attributes.getNamedItem("charset")?.value;
 }
 
 export function getMetaByHttpEquiv(
@@ -49,9 +42,7 @@ export function getFaviconUrl(dom: Document, url: string): string {
     return new URL("/favicon.ico", url).toString();
   }
 
-  const baseUrl = dom
-    .querySelector("base")
-    ?.attributes.getNamedItem("href")?.value;
+  const baseUrl = dom.querySelector("base")?.attributes.getNamedItem("href")?.value;
   return baseUrl
     ? new URL(iconHref, new URL(baseUrl, url).toString()).toString()
     : new URL(iconHref, url).toString();

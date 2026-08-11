@@ -5,10 +5,7 @@ describe("parseTaskTimestamp", () => {
   const fileBasename = "2026-03-08";
 
   test("extracts time and combines with file date", () => {
-    const { displayName, timestamp } = parseTaskTimestamp(
-      "16:37:23 My Task",
-      fileBasename,
-    );
+    const { displayName, timestamp } = parseTaskTimestamp("16:37:23 My Task", fileBasename);
     expect(displayName).toBe("My Task");
     expect(timestamp.format("YYYY-MM-DD HH:mm:ss")).toBe("2026-03-08 16:37:23");
   });
@@ -23,10 +20,7 @@ describe("parseTaskTimestamp", () => {
   });
 
   test("falls back to file date if no time in text", () => {
-    const { displayName, timestamp } = parseTaskTimestamp(
-      "Simple Task",
-      fileBasename,
-    );
+    const { displayName, timestamp } = parseTaskTimestamp("Simple Task", fileBasename);
     expect(displayName).toBe("Simple Task");
     expect(timestamp.format("YYYY-MM-DD")).toBe("2026-03-08");
   });
@@ -38,10 +32,7 @@ describe("parseTaskTimestamp", () => {
 
   test("handles multi-line tasks starting with timestamp", () => {
     const multiLine = "16:37:23 Task\n    details\n    more details";
-    const { displayName, timestamp } = parseTaskTimestamp(
-      multiLine,
-      fileBasename,
-    );
+    const { displayName, timestamp } = parseTaskTimestamp(multiLine, fileBasename);
     expect(displayName).toBe("Task\n    details\n    more details");
     expect(timestamp.format("HH:mm:ss")).toBe("16:37:23");
   });

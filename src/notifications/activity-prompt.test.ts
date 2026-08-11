@@ -23,15 +23,11 @@ describe("activity prompt notifications", () => {
     const setInterval = vi.fn((callback: () => void) => {
       emit = callback;
       return timerId;
-    }) as unknown as NonNullable<
-      ActivityPromptNotificationSchedulerOptions["setInterval"]
-    >;
+    }) as unknown as NonNullable<ActivityPromptNotificationSchedulerOptions["setInterval"]>;
     const clearInterval = vi.fn() as unknown as NonNullable<
       ActivityPromptNotificationSchedulerOptions["clearInterval"]
     >;
-    const prompts: Array<
-      ActivityPromptNotification & { close: ReturnType<typeof vi.fn> }
-    > = [];
+    const prompts: Array<ActivityPromptNotification & { close: ReturnType<typeof vi.fn> }> = [];
     const Notification = vi.fn(function () {
       const prompt = {
         onclick: null,
@@ -82,9 +78,7 @@ describe("activity prompt notifications", () => {
     const setInterval = vi.fn((callback: () => void) => {
       emit = callback;
       return 1;
-    }) as unknown as NonNullable<
-      ActivityPromptNotificationSchedulerOptions["setInterval"]
-    >;
+    }) as unknown as NonNullable<ActivityPromptNotificationSchedulerOptions["setInterval"]>;
     const Notification = vi.fn(function () {
       return { onclick: null };
     }) as unknown as ActivityPromptNotificationConstructor;

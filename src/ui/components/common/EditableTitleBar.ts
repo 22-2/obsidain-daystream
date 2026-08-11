@@ -32,10 +32,7 @@ export class EditableTitleBar {
   }
 
   public render(): void {
-    if (
-      !(this.titleEl instanceof HTMLElement) ||
-      !(this.titleContainerEl instanceof HTMLElement)
-    ) {
+    if (!(this.titleEl instanceof HTMLElement) || !(this.titleContainerEl instanceof HTMLElement)) {
       return;
     }
 
@@ -68,12 +65,8 @@ export class EditableTitleBar {
       if (evt.target !== this.titleEl) this.focus();
     });
 
-    this.view.registerDomEvent(this.titleEl, "focus", (evt) =>
-      this.handleFocus(evt),
-    );
-    this.view.registerDomEvent(this.titleEl, "keydown", (evt) =>
-      this.handleKeyDown(evt),
-    );
+    this.view.registerDomEvent(this.titleEl, "focus", (evt) => this.handleFocus(evt));
+    this.view.registerDomEvent(this.titleEl, "keydown", (evt) => this.handleKeyDown(evt));
     this.view.registerDomEvent(this.titleEl, "blur", () => this.handleBlur());
 
     this.scope.register([], "Escape", () => {

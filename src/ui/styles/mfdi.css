@@ -86,7 +86,7 @@
    ============================================== */
 
 [data-type="mfdi-view"] .view-content {
-  padding: 0!important;
+  padding: 0 !important;
   /* padding-bottom: 0; */
   background-color: transparent !important;
 }
@@ -102,14 +102,12 @@
    エディタ: 共通
    ============================================== */
 
-
 :is([data-type="mfdi-view"]) .magical-editor-modal-editor-area {
   margin-top: var(--size-4-3);
 }
 
 /* アクティブライン */
-:is([data-type="mfdi-view"], .magical-editor-modal-editor-area)
-  .cm-line.cm-active {
+:is([data-type="mfdi-view"], .magical-editor-modal-editor-area) .cm-line.cm-active {
   background-color: var(--active-line-bg);
   box-shadow:
     -25vw 0 var(--active-line-bg),
@@ -216,9 +214,7 @@
 /* 意図: CodeMirror マウント用の中間コンテナを box tree から除去し、
    .cm-editor を直接 flex 配分の対象にする（CodeMirror 自身が
    .cm-editor { display:flex } / .cm-scroller { flex:1 } を持つため） */
-[data-type="mfdi-view"]
-  .mfdi-input-area.mod-maxmized
-  .mfdi-live-editor-container {
+[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .mfdi-live-editor-container {
   display: contents;
 }
 
@@ -247,15 +243,9 @@
       .cm-contentContainer.cm-contentContainer
       > .cm-content
       > div,
-    .markdown-source-view.mod-cm6.is-readable-line-width
-      .cm-sizer
-      > .embedded-backlinks,
-    .markdown-source-view.mod-cm6.is-readable-line-width
-      .cm-sizer
-      > .inline-title,
-    .markdown-source-view.mod-cm6.is-readable-line-width
-      .cm-sizer
-      > .metadata-container
+    .markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer > .embedded-backlinks,
+    .markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer > .inline-title,
+    .markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer > .metadata-container
   ) {
   max-width: initial !important;
   width: initial !important;
@@ -274,8 +264,7 @@
    日付入力
    ============================================== */
 
-[data-type="mfdi-view"]
-  :is(.mfdi-date-input, input[type="month"], input[type="week"]) {
+[data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]) {
   background: var(--background-modifier-form-field);
   border: var(--input-border-width) solid var(--background-modifier-border);
   color: var(--text-normal);
@@ -290,8 +279,7 @@
 }
 
 @media (hover: hover) {
-  [data-type="mfdi-view"]
-    :is(.mfdi-date-input, input[type="month"], input[type="week"]):hover {
+  [data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]):hover {
     background-color: var(--background-modifier-form-field-hover);
     border-color: var(--background-modifier-border-hover);
     transition:
@@ -300,8 +288,7 @@
   }
 }
 
-[data-type="mfdi-view"]
-  :is(.mfdi-date-input, input[type="month"], input[type="week"]):focus {
+[data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]):focus {
   border-color: var(--background-modifier-border-focus);
 }
 
@@ -393,10 +380,8 @@
    カードハイライト
    ============================================== */
 
-:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"])
-  .mfdi-card--highlighted,
-:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"])
-  .mfdi-card--highlighted:hover,
+:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .mfdi-card--highlighted,
+:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .mfdi-card--highlighted:hover,
 .mfdi-card--highlighted,
 .mfdi-card--highlighted:hover {
   /* :hover セレクタも列挙し、hover:bg-* による上書きを防ぐ */
@@ -452,8 +437,7 @@
 .mfdi-modal__input:focus {
   outline: none;
   border-color: var(--interactive-accent);
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--interactive-accent) 24%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 24%, transparent);
 }
 
 .mfdi-modal__checkbox-row {
@@ -596,11 +580,7 @@
     var(--interactive-accent) 35%,
     var(--background-modifier-border)
   );
-  background-color: color-mix(
-    in srgb,
-    var(--interactive-accent) 12%,
-    var(--background-secondary)
-  );
+  background-color: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-secondary));
   color: var(--text-normal);
 }
 
@@ -760,7 +740,11 @@
 
 [data-type="mfdi-view"] .mfdi-insight-tabs button.is-active,
 [data-type="mfdi-view"] .mfdi-insight-years button.is-active {
-  border-color: color-mix(in srgb, var(--interactive-accent) 42%, var(--background-modifier-border));
+  border-color: color-mix(
+    in srgb,
+    var(--interactive-accent) 42%,
+    var(--background-modifier-border)
+  );
   color: var(--text-accent);
   background: color-mix(in srgb, var(--interactive-accent) 16%, var(--background-secondary));
   font-weight: var(--font-semibold);
@@ -792,7 +776,7 @@
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   font-weight: var(--font-semibold);
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
 
 [data-type="mfdi-view"] .mfdi-insight-card__meta,
@@ -861,7 +845,9 @@
 }
 
 [data-type="mfdi-view"] .mfdi-activity-grid span,
-[data-type="mfdi-view"] .mfdi-time-heatmap > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day),
+[data-type="mfdi-view"]
+  .mfdi-time-heatmap
+  > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day),
 [data-type="mfdi-view"] .mfdi-mini-bars span,
 [data-type="mfdi-view"] .mfdi-word-trend span {
   display: block;
@@ -893,7 +879,9 @@
   font-size: var(--font-ui-smaller);
 }
 
-[data-type="mfdi-view"] .mfdi-time-heatmap > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day) {
+[data-type="mfdi-view"]
+  .mfdi-time-heatmap
+  > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day) {
   min-width: 7px;
   height: 100%;
   border-radius: 3px;
@@ -1020,7 +1008,7 @@
   min-width: 3px;
   border-radius: 99px;
   background: var(--interactive-accent);
-  opacity: .8;
+  opacity: 0.8;
 }
 
 [data-type="mfdi-view"] .mfdi-insight-ranking {
@@ -1063,9 +1051,7 @@
   padding-bottom: var(--mfdi-panel-section-padding-bottom);
 }
 
-[data-type="mfdi-view"]
-  .mfdi-dashboard-sidebar
-  .mfdi-panel-section__toggle {
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .mfdi-panel-section__toggle {
   padding-block: var(--mfdi-panel-heading-padding-block);
   font-size: var(--mfdi-panel-heading-font-size);
   line-height: var(--mfdi-panel-heading-line-height);
@@ -1075,10 +1061,7 @@
   padding-inline: var(--mfdi-panel-section-padding-inline);
 }
 
-[data-type="mfdi-view"]
-  .mfdi-dashboard-sidebar
-  .sidebar-section-header
-  > * {
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-section-header > * {
   font-size: var(--mfdi-panel-heading-font-size);
 }
 
@@ -1108,9 +1091,7 @@
   margin-left: var(--mfdi-calendar-header-margin-left);
 }
 
-[data-type="mfdi-view"]
-  .mfdi-calendar-section
-  .mini-calendar__period-label {
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__period-label {
   min-height: var(--mfdi-calendar-header-height);
   padding-inline: 4px;
   font-size: var(--mfdi-calendar-header-font-size);
@@ -1134,9 +1115,7 @@
   margin-inline: auto;
 }
 
-[data-type="mfdi-view"]
-  .mfdi-calendar-section
-  .mini-calendar__weekday-label {
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__weekday-label {
   padding-block: var(--mfdi-calendar-weekday-padding-block);
   font-size: var(--mfdi-calendar-weekday-font-size);
 }
@@ -1155,19 +1134,12 @@
   font-size: var(--mfdi-calendar-cell-font-size);
 }
 
-[data-type="mfdi-view"]
-  .mfdi-calendar-section
-  .mini-calendar__day-cell
-  > div {
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell > div {
   grid-template-rows: 1em var(--mfdi-calendar-dot-size);
   gap: var(--mfdi-calendar-day-gap);
 }
 
-[data-type="mfdi-view"]
-  .mfdi-calendar-section
-  .mini-calendar__day-cell
-  > div
-  > div {
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell > div > div {
   width: var(--mfdi-calendar-dot-size);
   height: var(--mfdi-calendar-dot-size);
 }
@@ -1319,8 +1291,7 @@
 }
 
 .mfdi-backlink-preview__item:focus-visible {
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--interactive-accent) 28%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 28%, transparent);
 }
 
 .mfdi-backlink-preview__item--target {
@@ -1330,11 +1301,7 @@
     var(--interactive-accent) 48%,
     var(--background-modifier-border)
   );
-  background: color-mix(
-    in srgb,
-    var(--interactive-accent) 8%,
-    var(--background-primary-alt)
-  );
+  background: color-mix(in srgb, var(--interactive-accent) 8%, var(--background-primary-alt));
 }
 
 .mfdi-backlink-preview__item--target:is(:hover, :focus-visible) {

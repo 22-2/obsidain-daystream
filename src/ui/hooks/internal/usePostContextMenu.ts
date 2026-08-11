@@ -102,9 +102,7 @@ export function usePostContextMenu({
           si
             .setTitle("明日に送る")
             .setIcon("fast-forward")
-            .setDisabled(
-              isReadOnly || !capabilities.supportsMovePostBetweenDays,
-            )
+            .setDisabled(isReadOnly || !capabilities.supportsMovePostBetweenDays)
             .onClick(() => {
               movePostToTomorrow(post);
             }),

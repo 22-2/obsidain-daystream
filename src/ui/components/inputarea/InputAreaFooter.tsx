@@ -1,10 +1,10 @@
 import { Menu } from "obsidian";
-import { memo, type FC, useCallback } from "react";
+import { memo, useCallback, type FC } from "react";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
-import { cn } from "src/ui/components/primitives/utils";
 import { FULL_EXPANSION_STYLE } from "src/ui/components/inputarea/constants";
 import { InputAreaFooterBase } from "src/ui/components/inputarea/InputAreaFooterBase";
 import { InputAreaMetadataActions } from "src/ui/components/inputarea/InputAreaMetadataActions";
+import { cn } from "src/ui/components/primitives/utils";
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
@@ -17,14 +17,13 @@ import { useShallow } from "zustand/shallow";
 export const InputAreaFooter: FC = memo(() => {
   const { posts } = usePosts();
 
-  const { isReadOnly, inputAreaSize, editorExpansionMode } =
-    useSettingsStore(
-      useShallow((s) => ({
-        isReadOnly: s.isReadOnly(),
-        inputAreaSize: s.inputAreaSize,
-        editorExpansionMode: s.pluginSettings?.editorExpansionMode ?? "default",
-      })),
-    );
+  const { isReadOnly, inputAreaSize, editorExpansionMode } = useSettingsStore(
+    useShallow((s) => ({
+      isReadOnly: s.isReadOnly(),
+      inputAreaSize: s.inputAreaSize,
+      editorExpansionMode: s.pluginSettings?.editorExpansionMode ?? "default",
+    })),
+  );
   const isMaximized = inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
 
   const { canSubmit, cancelEdit } = useEditorStore(
@@ -108,9 +107,7 @@ export const InputAreaFooter: FC = memo(() => {
         menu.showAtMouseEvent(e.nativeEvent);
       }}
     >
-      {isMaximized && editorExpansionMode === "full" && (
-        <style>{FULL_EXPANSION_STYLE}</style>
-      )}
+      {isMaximized && editorExpansionMode === "full" && <style>{FULL_EXPANSION_STYLE}</style>}
     </InputAreaFooterBase>
   );
 });

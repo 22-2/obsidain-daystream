@@ -38,9 +38,7 @@ export const InViewComposer: FC = memo(() => {
   const { posts } = usePosts();
   const canSubmit = useEditorStore((s) => s.canSubmit(posts));
   const { handleSubmit } = usePostActions();
-  const ctrlEnterSends = useSettingsStore(
-    (s) => s.pluginSettings?.ctrlEnterSends ?? false,
-  );
+  const ctrlEnterSends = useSettingsStore((s) => s.pluginSettings?.ctrlEnterSends ?? false);
 
   const handleClose = useCallback(() => {
     if (editingPost) cancelEdit();

@@ -13,9 +13,7 @@ const buildTopicMenu = (
 ) => {
   const menu = new Menu();
   menu.addSeparator();
-  menu.addItem((item) =>
-    item.setTitle("トピック").setIcon("tag").setDisabled(true),
-  );
+  menu.addItem((item) => item.setTitle("トピック").setIcon("tag").setDisabled(true));
   topics
     .filter((t) => !t.archived)
     .forEach((topic) => {
@@ -41,9 +39,7 @@ export const TopicDisplay: FC = () => {
 
   if (viewNoteMode === "fixed" || !settings) return null;
 
-  const activeTopicName = settings.topics.find(
-    (t) => t.id === activeTopic,
-  )?.title;
+  const activeTopicName = settings.topics.find((t) => t.id === activeTopic)?.title;
 
   if (!activeTopicName) return null;
 

@@ -13,9 +13,7 @@ export interface ActivitySummary {
 }
 
 /** ISO日時／日付文字列を、表示するローカル日のキーへ正規化する。 */
-export function normalizeActivityDate(
-  value: string | null | undefined,
-): string | null {
+export function normalizeActivityDate(value: string | null | undefined): string | null {
   if (!value) return null;
 
   const parsed = parseISO(value);
@@ -45,9 +43,7 @@ export function buildActivitySummary(
     if (record.archived || record.deleted) continue;
     if (activeTag && !(record.tags ?? []).includes(activeTag)) continue;
 
-    const date =
-      normalizeActivityDate(record.noteDate) ??
-      normalizeActivityDate(record.createdAt);
+    const date = normalizeActivityDate(record.noteDate) ?? normalizeActivityDate(record.createdAt);
     if (!date) continue;
     dailyCounts[date] = (dailyCounts[date] ?? 0) + 1;
   }
@@ -55,10 +51,7 @@ export function buildActivitySummary(
   const dates = Object.keys(dailyCounts).sort();
   return {
     dailyCounts,
-    totalPosts: Object.values(dailyCounts).reduce(
-      (sum, count) => sum + count,
-      0,
-    ),
+    totalPosts: Object.values(dailyCounts).reduce((sum, count) => sum + count, 0),
     activeDays: dates.length,
     tagCount,
     firstDate: dates[0] ?? null,

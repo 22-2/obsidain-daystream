@@ -19,9 +19,7 @@ export function resolveTopicNotePath(
   const dateStr = date.format(format);
   const prefix = topicId ? `${topicId}-` : "";
   const filename = `${prefix}${dateStr}.md`;
-  return folder
-    ? normalizePath(`${folder}/${filename}`)
-    : normalizePath(filename);
+  return folder ? normalizePath(`${folder}/${filename}`) : normalizePath(filename);
 }
 
 /**
@@ -38,8 +36,7 @@ export function getAllTopicNotes(
 
   const folderPath = folder ? normalizePath(folder) : "/";
   const folderFile = vault.getAbstractFileByPath(folderPath);
-  const folderToSearch =
-    folderFile instanceof TFolder ? folderFile : vault.getRoot();
+  const folderToSearch = folderFile instanceof TFolder ? folderFile : vault.getRoot();
 
   const result: Record<string, TFile> = {};
 

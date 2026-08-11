@@ -1,10 +1,6 @@
 import type { Remote } from "comlink";
 import type { IDBService } from "src/db/interfaces/IDBService";
-import {
-  WorkerClient,
-  WorkerRequestTimeoutError,
-  withWorkerTimeout,
-} from "src/db/worker-client";
+import { WorkerClient, WorkerRequestTimeoutError, withWorkerTimeout } from "src/db/worker-client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("withWorkerTimeout", () => {
@@ -23,9 +19,7 @@ describe("withWorkerTimeout", () => {
   it("Worker が応答しない場合は指定時間で失敗する", async () => {
     vi.useFakeTimers();
     const request = withWorkerTimeout(new Promise<void>(() => {}), 1_000);
-    const rejection = expect(request).rejects.toBeInstanceOf(
-      WorkerRequestTimeoutError,
-    );
+    const rejection = expect(request).rejects.toBeInstanceOf(WorkerRequestTimeoutError);
 
     await vi.advanceTimersByTimeAsync(1_000);
     await rejection;
@@ -34,9 +28,7 @@ describe("withWorkerTimeout", () => {
   it("Worker が応答した場合はタイマーを解除して結果を返す", async () => {
     vi.useFakeTimers();
 
-    await expect(withWorkerTimeout(Promise.resolve("ok"), 1_000)).resolves.toBe(
-      "ok",
-    );
+    await expect(withWorkerTimeout(Promise.resolve("ok"), 1_000)).resolves.toBe("ok");
     expect(vi.getTimerCount()).toBe(0);
   });
 
@@ -61,10 +53,7 @@ describe("withWorkerTimeout", () => {
       .mockReturnValueOnce(firstDb as unknown as Remote<IDBService>)
       .mockReturnValue(recoveredDb as unknown as Remote<IDBService>);
 
-    await WorkerClient.runWithRecovery(
-      (db) => db.onFileDeleted("daily/2026-08-01.md"),
-      1_000,
-    );
+    await WorkerClient.runWithRecovery((db) => db.onFileDeleted("daily/2026-08-01.md"), 1_000);
 
     expect(terminate).toHaveBeenCalledOnce();
     expect(recoveredDb.initialize).toHaveBeenCalledWith({ appId: "vault-1" });

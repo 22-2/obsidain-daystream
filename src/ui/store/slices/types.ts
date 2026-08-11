@@ -4,8 +4,8 @@ import type { Task } from "src/core/task-text";
 import type { Settings } from "src/settings";
 import type { ObsidianAppShell } from "src/shell/obsidian-shell";
 import type {
-  DateFilter,
   ContentView,
+  DateFilter,
   DisplayMode,
   Draft,
   Granularity,
@@ -113,10 +113,7 @@ export interface NoteSlice {
     targetDate?: MomentLike,
     options?: { ensureInsertAfter?: boolean },
   ) => Promise<TFile | null>;
-  handleClickOpenDailyNote: (
-    shell: ObsidianAppShell,
-    settings: Settings,
-  ) => Promise<void>;
+  handleClickOpenDailyNote: (shell: ObsidianAppShell, settings: Settings) => Promise<void>;
   openDailyNoteForDate: (
     shell: ObsidianAppShell,
     settings: Settings,

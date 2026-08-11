@@ -27,15 +27,13 @@ export const PanelSection: React.FC<{
   children,
 }) => {
   const storage = useSettingsStore((state) => state.storage);
-  const resolvedStorageKey =
-    storageKey ?? (typeof title === "string" ? title : null);
+  const resolvedStorageKey = storageKey ?? (typeof title === "string" ? title : null);
   const [isOpen, setIsOpen] = useState(() => {
     if (!resolvedStorageKey) return defaultOpen;
     return (
-      storage?.get<Record<string, boolean>>(
-        STORAGE_KEYS.PANEL_SECTION_STATES,
-        {},
-      )[resolvedStorageKey] ?? defaultOpen
+      storage?.get<Record<string, boolean>>(STORAGE_KEYS.PANEL_SECTION_STATES, {})[
+        resolvedStorageKey
+      ] ?? defaultOpen
     );
   });
   const contentId = useId();
@@ -43,10 +41,9 @@ export const PanelSection: React.FC<{
 
   useEffect(() => {
     if (!storage || !resolvedStorageKey) return;
-    const saved = storage.get<Record<string, boolean>>(
-      STORAGE_KEYS.PANEL_SECTION_STATES,
-      {},
-    )[resolvedStorageKey];
+    const saved = storage.get<Record<string, boolean>>(STORAGE_KEYS.PANEL_SECTION_STATES, {})[
+      resolvedStorageKey
+    ];
     if (typeof saved === "boolean") setIsOpen(saved);
   }, [resolvedStorageKey, storage]);
 
@@ -58,10 +55,7 @@ export const PanelSection: React.FC<{
     setIsOpen((current) => {
       const next = !current;
       if (storage && resolvedStorageKey) {
-        const states = storage.get<Record<string, boolean>>(
-          STORAGE_KEYS.PANEL_SECTION_STATES,
-          {},
-        );
+        const states = storage.get<Record<string, boolean>>(STORAGE_KEYS.PANEL_SECTION_STATES, {});
         storage.set(STORAGE_KEYS.PANEL_SECTION_STATES, {
           ...states,
           [resolvedStorageKey]: next,
@@ -88,10 +82,7 @@ export const PanelSection: React.FC<{
           onClick={toggle}
         >
           {collapsible ? (
-            <ObsidianIcon
-              name={expanded ? "chevron-down" : "chevron-right"}
-              size="0.9em"
-            />
+            <ObsidianIcon name={expanded ? "chevron-down" : "chevron-right"} size="0.9em" />
           ) : null}
           <span className="min-w-0 truncate">{title}</span>
         </button>

@@ -6,15 +6,7 @@ import {
   openBacklinkPreviewModal,
 } from "src/ui/modals/BacklinkPreviewModal";
 import type { Post } from "src/ui/types";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 type TestHTMLElement = HTMLElement & {
   addClass?: (...classNames: string[]) => void;
@@ -35,9 +27,7 @@ type TestCreateOptions = {
 };
 
 function toTestCreateOptions(options: unknown): TestCreateOptions {
-  return typeof options === "object" && options !== null
-    ? (options as TestCreateOptions)
-    : {};
+  return typeof options === "object" && options !== null ? (options as TestCreateOptions) : {};
 }
 
 vi.mock("obsidian", () => {
@@ -149,9 +139,7 @@ afterAll(() => {
 
 describe("BacklinkPreviewModal", () => {
   it("本文 preview は先頭 2 行までに整える", () => {
-    expect(buildBacklinkPreviewText("first\n\nsecond\nthird")).toBe(
-      "first\nsecond …",
-    );
+    expect(buildBacklinkPreviewText("first\n\nsecond\nthird")).toBe("first\nsecond …");
   });
 
   it("preview item をクリックすると callback を呼んで modal を閉じる", () => {
@@ -179,8 +167,6 @@ describe("BacklinkPreviewModal", () => {
     fireEvent.click(screen.getByRole("button", { name: /preview line 1/i }));
 
     expect(onSelectPost).toHaveBeenCalledWith(sourcePost);
-    expect(
-      document.body.querySelector(".mfdi-backlink-preview-modal"),
-    ).toBeNull();
+    expect(document.body.querySelector(".mfdi-backlink-preview-modal")).toBeNull();
   });
 });

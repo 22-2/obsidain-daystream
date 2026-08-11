@@ -28,14 +28,12 @@ vi.mock("src/ui/store/appStore", () => ({
 }));
 
 vi.mock("src/ui/store/settingsStore", () => ({
-  useSettingsStore: <T,>(
-    selector: (state: { viewNoteMode: "periodic" }) => T,
-  ): T => selector({ viewNoteMode: "periodic" }),
+  useSettingsStore: <T,>(selector: (state: { viewNoteMode: "periodic" }) => T): T =>
+    selector({ viewNoteMode: "periodic" }),
 }));
 
 vi.mock("src/ui/components/common/ObsidianMarkdown", () => ({
-  ObsidianMarkdown: ({ content }: { content: string }) =>
-    React.createElement("div", null, content),
+  ObsidianMarkdown: ({ content }: { content: string }) => React.createElement("div", null, content),
 }));
 
 vi.mock("src/ui/components/common/ObsidianIcon", () => ({
@@ -47,12 +45,7 @@ vi.mock("src/ui/components/common/ObsidianIcon", () => ({
     name: string;
     children?: React.ReactNode;
     [key: string]: unknown;
-  }) =>
-    React.createElement(
-      "div",
-      { "data-icon-name": name, ...restProps },
-      children,
-    ),
+  }) => React.createElement("div", { "data-icon-name": name, ...restProps }, children),
 }));
 
 function createPost(overrides: Partial<Post>): Post {
@@ -118,12 +111,7 @@ describe("PostCardView", () => {
     const post = createPost({ id: "post-highlight", threadRootId: null });
 
     const { container } = render(
-      <PostCardView
-        post={post}
-        backlinkCount={0}
-        granularity="day"
-        isHighlighted
-      />,
+      <PostCardView post={post} backlinkCount={0} granularity="day" isHighlighted />,
     );
 
     expect(container.querySelector(".mfdi-card--highlighted")).not.toBeNull();

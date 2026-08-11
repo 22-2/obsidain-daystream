@@ -34,9 +34,7 @@ describe("TagIndexer", () => {
   beforeEach(() => {
     api = createApiMock();
     vi.mocked(WorkerClient.get).mockReturnValue(api);
-    vi.mocked(WorkerClient.runWithRecovery).mockImplementation(
-      async (operation) => operation(api),
-    );
+    vi.mocked(WorkerClient.runWithRecovery).mockImplementation(async (operation) => operation(api));
   });
 
   afterEach(() => {
@@ -114,21 +112,14 @@ describe("TagIndexer", () => {
     // create イベント相当（read が保留のまま）
     const eventIndexing = indexer.onFileChanged(shell, file, settings);
     // 投稿直後の明示インデックス（新内容が確定済み）
-    const explicitIndexing = indexNoteContent(
-      shell,
-      file,
-      settings,
-      "- 10:00:00 new post",
-    );
+    const explicitIndexing = indexNoteContent(shell, file, settings, "- 10:00:00 new post");
 
     // 保留中の read をここで解決 → 直列化がなければ空内容が後着して上書きする
     await Promise.resolve();
     releaseRead?.();
     await Promise.all([eventIndexing, explicitIndexing]);
 
-    const contents = api.onFileChanged.mock.calls.map(
-      (call: any[]) => call[0].content,
-    );
+    const contents = api.onFileChanged.mock.calls.map((call: any[]) => call[0].content);
     // 最後に worker へ届くのは必ず新しい内容であること
     expect(contents).toEqual(["", "- 10:00:00 new post"]);
   });
@@ -143,10 +134,7 @@ describe("TagIndexer", () => {
       .spyOn(dailyNotesModule, "getAllTopicNotes")
       .mockImplementation(
         (_, granularity) =>
-          (granularity === "day" ? { day: file as any } : {}) as Record<
-            string,
-            any
-          >,
+          (granularity === "day" ? { day: file as any } : {}) as Record<string, any>,
       );
 
     await indexer.scanAllNotes(shell, { topics: [DEFAULT_TOPIC] } as any);

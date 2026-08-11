@@ -48,10 +48,7 @@ describe("useFilteredPosts", () => {
       }),
     );
 
-    expect(result.current.map((post) => post.id)).toEqual([
-      "root-1",
-      "plain-1",
-    ]);
+    expect(result.current.map((post) => post.id)).toEqual(["root-1", "plain-1"]);
   });
 
   test("スレッド表示では親と子だけを返す", () => {
@@ -86,11 +83,7 @@ describe("useFilteredPosts", () => {
       }),
     );
 
-    expect(result.current.map((post) => post.id)).toEqual([
-      "reply-2",
-      "reply-1",
-      "root-1",
-    ]);
+    expect(result.current.map((post) => post.id)).toEqual(["reply-2", "reply-1", "root-1"]);
   });
 
   test("スレッド表示中は activeTag が残っていても対象スレッドを表示する", () => {
@@ -119,10 +112,7 @@ describe("useFilteredPosts", () => {
       }),
     );
 
-    expect(result.current.map((post) => post.id)).toEqual([
-      "reply-1",
-      "root-1",
-    ]);
+    expect(result.current.map((post) => post.id)).toEqual(["reply-1", "root-1"]);
   });
 
   test("activeTag があるとタグ一致の投稿だけ返す", () => {
@@ -251,10 +241,7 @@ describe("useFilteredPosts", () => {
       }),
     );
 
-    expect(result.current.map((post) => post.id)).toEqual([
-      "today-1",
-      "within-3d",
-    ]);
+    expect(result.current.map((post) => post.id)).toEqual(["today-1", "within-3d"]);
   });
 
   test("fixed note では timeFilter を適用し、activeTag は無視する", () => {

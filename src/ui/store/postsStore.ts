@@ -6,16 +6,11 @@ import { useStore } from "zustand";
 
 export const postsStore = appStore;
 
-export function initializePostsStore(
-  shell: ObsidianAppShell,
-  store: AppStoreApi = appStore,
-) {
+export function initializePostsStore(shell: ObsidianAppShell, store: AppStoreApi = appStore) {
   store.getState().setAppDependencies(shell);
 }
 
-export function usePostsStore<T>(
-  selector: (state: PostsSlice & MFDIStore) => T,
-): T {
+export function usePostsStore<T>(selector: (state: PostsSlice & MFDIStore) => T): T {
   const store = useCurrentAppStore();
   return useStore(store, selector as (state: MFDIStore) => T);
 }

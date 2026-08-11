@@ -16,16 +16,16 @@ import {
 } from "src/ui/store/slices/inputStorage";
 import type { MFDIStore, SettingsSlice } from "src/ui/store/slices/types";
 import type {
-  DateFilter,
   ContentView,
+  DateFilter,
   DisplayMode,
   Granularity,
   InputAreaSize,
   MomentLike,
   TimeFilter,
 } from "src/ui/types";
-import type { MFDINoteMode } from "src/ui/view/state";
 import { isTimelineView } from "src/ui/utils/view-mode";
+import type { MFDINoteMode } from "src/ui/view/state";
 import type { StateCreator } from "zustand/vanilla";
 
 export const DEFAULT_VIEW_STATE = {
@@ -61,13 +61,7 @@ export function isViewReadOnly(params: {
   allowEditingPastNotes: boolean;
   noteMode?: "periodic" | "fixed";
 }) {
-  const {
-    date,
-    granularity,
-    displayMode,
-    allowEditingPastNotes,
-    noteMode = "periodic",
-  } = params;
+  const { date, granularity, displayMode, allowEditingPastNotes, noteMode = "periodic" } = params;
   if (noteMode === "fixed") return false;
   if (isTimelineView(displayMode)) return false;
   return isPastDateReadOnly({ date, granularity, allowEditingPastNotes });
@@ -90,10 +84,8 @@ function resolveInitialSettingsState(
   const granularity =
     editingPost !== null
       ? (editingPost.granularity as Granularity)
-      : (storage?.get<Granularity>(
-          STORAGE_KEYS.GRANULARITY,
-          GRANULARITY_CONFIG.day.unit,
-        ) ?? GRANULARITY_CONFIG.day.unit);
+      : (storage?.get<Granularity>(STORAGE_KEYS.GRANULARITY, GRANULARITY_CONFIG.day.unit) ??
+        GRANULARITY_CONFIG.day.unit);
 
   const savedDate =
     editingPost !== null
@@ -102,19 +94,15 @@ function resolveInitialSettingsState(
 
   const date = savedDate ? window.moment(savedDate) : window.moment();
   const validDate = date.isValid() ? date : window.moment();
-  const sidebarOpen =
-    storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true;
+  const sidebarOpen = storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true;
   const leftPanelOpen =
-    storage?.get<boolean>(STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen) ??
-    sidebarOpen;
+    storage?.get<boolean>(STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen) ?? sidebarOpen;
   const rightPanelOpen =
-    storage?.get<boolean>(STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen) ??
-    sidebarOpen;
+    storage?.get<boolean>(STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen) ?? sidebarOpen;
 
   return {
     activeTopic: settings.activeTopic ?? "",
-    activeTag:
-      storage?.get<string | null>(STORAGE_KEYS.ACTIVE_TAG, null) ?? null,
+    activeTag: storage?.get<string | null>(STORAGE_KEYS.ACTIVE_TAG, null) ?? null,
     fixedSessionNumber: 1,
     granularity,
     date: validDate,
@@ -122,48 +110,30 @@ function resolveInitialSettingsState(
       storage?.get<TimeFilter>(STORAGE_KEYS.TIME_FILTER, TIME_FILTER_IDS.ALL) ??
       TIME_FILTER_IDS.ALL,
     dateFilter:
-      storage?.get<DateFilter>(
-        STORAGE_KEYS.DATE_FILTER,
-        DATE_FILTER_IDS.TODAY,
-      ) ?? DATE_FILTER_IDS.TODAY,
+      storage?.get<DateFilter>(STORAGE_KEYS.DATE_FILTER, DATE_FILTER_IDS.TODAY) ??
+      DATE_FILTER_IDS.TODAY,
     sidebarOpen,
     leftPanelOpen,
     rightPanelOpen,
     displayMode:
-      storage?.get<DisplayMode>(
-        STORAGE_KEYS.DISPLAY_MODE,
-        DISPLAY_MODE.TIMELINE,
-      ) ?? (DISPLAY_MODE.TIMELINE as DisplayMode),
+      storage?.get<DisplayMode>(STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.TIMELINE) ??
+      (DISPLAY_MODE.TIMELINE as DisplayMode),
     contentView:
-      storage?.get<ContentView>(
-        STORAGE_KEYS.CONTENT_VIEW,
-        CONTENT_VIEW.TIMELINE,
-      ) ?? CONTENT_VIEW.TIMELINE,
+      storage?.get<ContentView>(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.TIMELINE) ??
+      CONTENT_VIEW.TIMELINE,
     asTask: storage?.get<boolean>(STORAGE_KEYS.AS_TASK, false) ?? false,
     threadOnly: false,
     searchQuery: "",
-    threadFocusRootId:
-      storage?.get<string | null>(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null) ??
-      null,
+    threadFocusRootId: storage?.get<string | null>(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null) ?? null,
     inputAreaSize:
       storage?.get<InputAreaSize>(
-        getInputAreaSizeStorageKey(
-          viewNoteMode,
-          file,
-          granularity,
-          validDate.format("YYYY-MM-DD"),
-        ),
+        getInputAreaSizeStorageKey(viewNoteMode, file, granularity, validDate.format("YYYY-MM-DD")),
         INPUT_AREA_SIZE.DEFAULT,
       ) ?? INPUT_AREA_SIZE.DEFAULT,
   };
 }
 
-export const createSettingsSlice: StateCreator<
-  MFDIStore,
-  [],
-  [],
-  SettingsSlice
-> = (set, get) => ({
+export const createSettingsSlice: StateCreator<MFDIStore, [], [], SettingsSlice> = (set, get) => ({
   activeTopic: "",
   activeTag: null,
   fixedSessionNumber: 1,
@@ -187,10 +157,7 @@ export const createSettingsSlice: StateCreator<
 
   setInputAreaSize: (size) => {
     // 入力内容がある状態で最小化するのを防止
-    if (
-      size === INPUT_AREA_SIZE.MINIMIZED &&
-      get().getInputValue().trim().length > 0
-    ) {
+    if (size === INPUT_AREA_SIZE.MINIMIZED && get().getInputValue().trim().length > 0) {
       new Notice("編集中は最小化できません");
       return;
     }
@@ -198,12 +165,7 @@ export const createSettingsSlice: StateCreator<
     set({ inputAreaSize: size });
     const { storage, viewNoteMode, file, granularity, date } = get();
     storage?.set(
-      getInputAreaSizeStorageKey(
-        viewNoteMode,
-        file,
-        granularity,
-        date.format("YYYY-MM-DD"),
-      ),
+      getInputAreaSizeStorageKey(viewNoteMode, file, granularity, date.format("YYYY-MM-DD")),
       size,
     );
   },
@@ -212,12 +174,7 @@ export const createSettingsSlice: StateCreator<
     const { storage, viewNoteMode, file, granularity, date } = get();
     if (!storage) return;
     const size = storage.get<InputAreaSize>(
-      getInputAreaSizeStorageKey(
-        viewNoteMode,
-        file,
-        granularity,
-        date.format("YYYY-MM-DD"),
-      ),
+      getInputAreaSizeStorageKey(viewNoteMode, file, granularity, date.format("YYYY-MM-DD")),
       INPUT_AREA_SIZE.DEFAULT,
     );
     set({ inputAreaSize: size });
@@ -261,17 +218,10 @@ export const createSettingsSlice: StateCreator<
         getInputStorageKey(viewNoteMode, file, currentFixedSessionNumber),
         getInputValue(),
       );
-      storage.set(
-        getDraftMetadataStorageKey(
-          viewNoteMode,
-          file,
-          currentFixedSessionNumber,
-        ),
-        {
-          draftMetadata,
-          draftMetadataBase,
-        },
-      );
+      storage.set(getDraftMetadataStorageKey(viewNoteMode, file, currentFixedSessionNumber), {
+        draftMetadata,
+        draftMetadataBase,
+      });
     }
 
     set({ fixedSessionNumber, threadFocusRootId: null });
@@ -302,9 +252,7 @@ export const createSettingsSlice: StateCreator<
       granularity,
       threadFocusRootId: null,
       displayMode:
-        granularity !== GRANULARITY_CONFIG.day.unit
-          ? DISPLAY_MODE.FOCUS
-          : state.displayMode,
+        granularity !== GRANULARITY_CONFIG.day.unit ? DISPLAY_MODE.FOCUS : state.displayMode,
     }));
     const state = get();
     persistValue(state, STORAGE_KEYS.GRANULARITY, granularity);
@@ -398,12 +346,8 @@ export const createSettingsSlice: StateCreator<
   setThreadFocusRootId: (threadFocusRootId, focusDate) => {
     set((state) => ({
       threadFocusRootId,
-      date:
-        threadFocusRootId !== null && focusDate != null
-          ? focusDate.clone()
-          : state.date,
-      displayMode:
-        threadFocusRootId !== null ? DISPLAY_MODE.FOCUS : state.displayMode,
+      date: threadFocusRootId !== null && focusDate != null ? focusDate.clone() : state.date,
+      displayMode: threadFocusRootId !== null ? DISPLAY_MODE.FOCUS : state.displayMode,
     }));
     const state = get();
     persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, threadFocusRootId);
@@ -423,38 +367,14 @@ export const createSettingsSlice: StateCreator<
       searchInputOpen: false,
     });
     const state = get();
-    persistValue(
-      state,
-      STORAGE_KEYS.DISPLAY_MODE,
-      DEFAULT_VIEW_STATE.displayMode,
-    );
-    persistValue(
-      state,
-      STORAGE_KEYS.CONTENT_VIEW,
-      DEFAULT_VIEW_STATE.contentView,
-    );
-    persistValue(
-      state,
-      STORAGE_KEYS.GRANULARITY,
-      DEFAULT_VIEW_STATE.granularity,
-    );
-    persistValue(
-      state,
-      STORAGE_KEYS.DATE_FILTER,
-      DEFAULT_VIEW_STATE.dateFilter,
-    );
-    persistValue(
-      state,
-      STORAGE_KEYS.TIME_FILTER,
-      DEFAULT_VIEW_STATE.timeFilter,
-    );
+    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DEFAULT_VIEW_STATE.displayMode);
+    persistValue(state, STORAGE_KEYS.CONTENT_VIEW, DEFAULT_VIEW_STATE.contentView);
+    persistValue(state, STORAGE_KEYS.GRANULARITY, DEFAULT_VIEW_STATE.granularity);
+    persistValue(state, STORAGE_KEYS.DATE_FILTER, DEFAULT_VIEW_STATE.dateFilter);
+    persistValue(state, STORAGE_KEYS.TIME_FILTER, DEFAULT_VIEW_STATE.timeFilter);
     persistValue(state, STORAGE_KEYS.AS_TASK, DEFAULT_VIEW_STATE.asTask);
     persistValue(state, STORAGE_KEYS.DATE, now.toISOString());
-    persistValue(
-      state,
-      STORAGE_KEYS.THREAD_FOCUS_ROOT_ID,
-      DEFAULT_VIEW_STATE.threadFocusRootId,
-    );
+    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, DEFAULT_VIEW_STATE.threadFocusRootId);
     persistValue(state, STORAGE_KEYS.ACTIVE_TAG, DEFAULT_VIEW_STATE.activeTag);
   },
 
@@ -546,8 +466,7 @@ export const createSettingsSlice: StateCreator<
   },
 
   isReadOnly: () => {
-    const { date, granularity, displayMode, pluginSettings, viewNoteMode } =
-      get();
+    const { date, granularity, displayMode, pluginSettings, viewNoteMode } = get();
     return isViewReadOnly({
       date,
       granularity,
@@ -558,12 +477,7 @@ export const createSettingsSlice: StateCreator<
   },
 
   isDateReadOnly: (date, granularity) => {
-    const {
-      granularity: activeGranularity,
-      pluginSettings,
-      displayMode,
-      viewNoteMode,
-    } = get();
+    const { granularity: activeGranularity, pluginSettings, displayMode, viewNoteMode } = get();
     return isViewReadOnly({
       date,
       granularity: granularity ?? activeGranularity,
@@ -581,8 +495,6 @@ export const createSettingsSlice: StateCreator<
   hydrateSettingsState: () => {
     const { pluginSettings, storage, viewNoteMode, file } = get();
     if (!pluginSettings || !storage) return;
-    set(
-      resolveInitialSettingsState(pluginSettings, storage, viewNoteMode, file),
-    );
+    set(resolveInitialSettingsState(pluginSettings, storage, viewNoteMode, file));
   },
 });

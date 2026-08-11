@@ -11,9 +11,8 @@ vi.mock("src/lib/daily-notes", () => ({
   getTopicNote: vi.fn((shell: any, date: any, _g: any, _topicId: any) =>
     shell.getAbstractFileByPath(`daily/${date.format("YYYY-MM-DD")}.md`),
   ),
-  createTopicNote: vi.fn(
-    async (shell: any, _date: any, _g: any, _topicId: any) =>
-      shell.createFile("daily/2026-03-15.md", ""),
+  createTopicNote: vi.fn(async (shell: any, _date: any, _g: any, _topicId: any) =>
+    shell.createFile("daily/2026-03-15.md", ""),
   ),
   getAllTopicNotes: vi.fn((_shell: any, _g: any, _topicId: any) => ({
     "day-2026-03-15": Object.assign(new TFile(), {
@@ -33,12 +32,9 @@ vi.mock("src/lib/daily-notes", () => ({
     }),
   })),
   getDateUID: vi.fn(
-    (date: any, granularity: string) =>
-      `${granularity}-${date.format("YYYY-MM-DD")}`,
+    (date: any, granularity: string) => `${granularity}-${date.format("YYYY-MM-DD")}`,
   ),
-  getDateFromFile: vi.fn((file: TFile) =>
-    window.moment(file.path.match(/\d{4}-\d{2}-\d{2}/)?.[0]),
-  ),
+  getDateFromFile: vi.fn((file: TFile) => window.moment(file.path.match(/\d{4}-\d{2}-\d{2}/)?.[0])),
   resolveTopicNotePath: vi.fn(() => "daily/2026-03-15.md"),
 }));
 

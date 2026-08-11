@@ -4,10 +4,7 @@ import { DEFAULT_SETTINGS } from "src/settings";
 import { MiniCalendar } from "src/ui/components/calendar/MiniCalendar";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { initializePostsStore } from "src/ui/store/postsStore";
-import {
-  initializeSettingsStore,
-  settingsStore,
-} from "src/ui/store/settingsStore";
+import { initializeSettingsStore, settingsStore } from "src/ui/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({
@@ -156,15 +153,9 @@ describe("MiniCalendar", () => {
     });
 
     const { container } = render(<MiniCalendar />);
-    const selectedWeek = moment("2026-03-09T00:00:00.000Z")
-      .isoWeek()
-      .toString();
-    const weekButtons = Array.from(
-      container.querySelectorAll(".mini-calendar__week-number"),
-    );
-    const selectedWeekButton = weekButtons.find(
-      (el) => el.textContent?.trim() === selectedWeek,
-    );
+    const selectedWeek = moment("2026-03-09T00:00:00.000Z").isoWeek().toString();
+    const weekButtons = Array.from(container.querySelectorAll(".mini-calendar__week-number"));
+    const selectedWeekButton = weekButtons.find((el) => el.textContent?.trim() === selectedWeek);
 
     expect(selectedWeekButton).toBeTruthy();
     fireEvent.click(selectedWeekButton as HTMLElement);

@@ -1,9 +1,6 @@
 import { differenceInCalendarDays, isValid, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import {
-  PanelDivider,
-  PanelSection,
-} from "src/ui/components/layout/PanelPrimitives";
+import { PanelDivider, PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import {
   buildActivitySummary,
   formatActivityDate,
@@ -42,10 +39,7 @@ function buildActivityBars(summary: ActivitySummary | null) {
 
     const index = Math.min(
       ACTIVITY_BAR_COUNT - 1,
-      Math.max(
-        0,
-        Math.floor(differenceInCalendarDays(activityDate, start) / bucketSize),
-      ),
+      Math.max(0, Math.floor(differenceInCalendarDays(activityDate, start) / bucketSize)),
     );
     bars[index] += count;
   }
@@ -104,11 +98,7 @@ export const InsightsSidebar: React.FC = () => {
 
   return (
     <VStack className="h-full w-full items-stretch gap-0 overflow-y-auto">
-      <PanelSection
-        title="アクティビティ"
-        storageKey="insights-activity"
-        className="pt-2"
-      >
+      <PanelSection title="アクティビティ" storageKey="insights-activity" className="pt-2">
         <div
           className="mfdi-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
           aria-label="投稿アクティビティ"
@@ -125,9 +115,7 @@ export const InsightsSidebar: React.FC = () => {
           ))}
         </div>
         <HStack className="justify-between text-[length:var(--mfdi-panel-meta-font-size)] text-[var(--text-muted)]">
-          <Text>
-            {loading ? "読み込み中…" : formatDate(summary?.firstDate ?? null)}
-          </Text>
+          <Text>{loading ? "読み込み中…" : formatDate(summary?.firstDate ?? null)}</Text>
           <Text>{formatDate(summary?.latestDate ?? null)}</Text>
         </HStack>
       </PanelSection>
@@ -136,21 +124,9 @@ export const InsightsSidebar: React.FC = () => {
 
       <PanelSection title="統計" storageKey="insights-statistics" className="pt-2">
         <VStack className="items-stretch gap-1 text-[length:var(--mfdi-panel-label-font-size)]">
-          <StatRow
-            label="投稿"
-            value={summary?.totalPosts ?? 0}
-            loading={loading}
-          />
-          <StatRow
-            label="投稿のある日"
-            value={summary?.activeDays ?? 0}
-            loading={loading}
-          />
-          <StatRow
-            label="タグ"
-            value={summary?.tagCount ?? 0}
-            loading={loading}
-          />
+          <StatRow label="投稿" value={summary?.totalPosts ?? 0} loading={loading} />
+          <StatRow label="投稿のある日" value={summary?.activeDays ?? 0} loading={loading} />
+          <StatRow label="タグ" value={summary?.tagCount ?? 0} loading={loading} />
           <StatRow
             label="開始日"
             value={formatDate(summary?.firstDate ?? null, "yyyy-MM-dd")}

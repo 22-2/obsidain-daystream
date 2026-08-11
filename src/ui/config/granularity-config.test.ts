@@ -56,19 +56,11 @@ describe("GRANULARITY_CONFIG", () => {
   });
 
   it("月・年フィルターは粒度に関係なく該当範囲を計算できる", () => {
-    const month = getGranularityRange(
-      window.moment("2026-05-12"),
-      "day",
-      "this_month",
-    );
+    const month = getGranularityRange(window.moment("2026-05-12"), "day", "this_month");
     expect(month.rangeStart.format("YYYY-MM-DD")).toBe("2026-05-01");
     expect(month.rangeEnd.format("YYYY-MM-DD")).toBe("2026-05-31");
 
-    const year = getGranularityRange(
-      window.moment("2026-05-12"),
-      "day",
-      "this_year",
-    );
+    const year = getGranularityRange(window.moment("2026-05-12"), "day", "this_year");
     expect(year.rangeStart.format("YYYY-MM-DD")).toBe("2026-01-01");
     expect(year.rangeEnd.format("YYYY-MM-DD")).toBe("2026-12-31");
   });

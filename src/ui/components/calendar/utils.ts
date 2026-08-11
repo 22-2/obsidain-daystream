@@ -1,4 +1,3 @@
-import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getPeriodicNoteDate, listPeriodicNotes } from "src/core/note-source";
 import type { Week } from "src/ui/components/calendar/types";
@@ -74,9 +73,7 @@ export function useMiniCalendar() {
     },
   );
 
-  const [viewDate, setViewDate] = useState(() =>
-    window.moment(date).startOf("month"),
-  );
+  const [viewDate, setViewDate] = useState(() => window.moment(date).startOf("month"));
 
   const prevDateRef = useRef(date);
   const skipNextViewUpdate = useRef(false);
@@ -139,8 +136,7 @@ export function useMiniCalendar() {
 
   const handleSelectMonth = () => {
     const isSelectedMonth =
-      dateFilter === DATE_FILTER_IDS.THIS_MONTH &&
-      date.isSame(viewDate, "month");
+      dateFilter === DATE_FILTER_IDS.THIS_MONTH && date.isSame(viewDate, "month");
 
     // 同じ月を再クリックした時は、絞り込みを解除してHomeへ戻す。
     if (isSelectedMonth) {
@@ -166,11 +162,7 @@ export function useMiniCalendar() {
   }, [shell, activeTopic, dbActiveDates]);
 
   const weeks = useMemo(() => buildWeeksInMonth(viewDate), [viewDate]);
-  const { rangeStart, rangeEnd } = getGranularityRange(
-    date,
-    granularity,
-    dateFilter as string,
-  );
+  const { rangeStart, rangeEnd } = getGranularityRange(date, granularity, dateFilter as string);
 
   return {
     date,

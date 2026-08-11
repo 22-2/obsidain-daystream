@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MemoRecord } from "src/db/mfdi-db";
-import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
 import {
   buildInsightSummary,
   clearInsightCache,
   type InsightSummary,
 } from "src/ui/components/insights/insightSummary";
+import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -36,9 +36,7 @@ export function useInsights(): UseInsightsResult {
       setLoading(true);
       setError(null);
       try {
-        const nextRecords = await db.getAllVisibleMemos(
-          activeTopic || undefined,
-        );
+        const nextRecords = await db.getAllVisibleMemos(activeTopic || undefined);
         if (!mounted || currentRequest !== requestId) return;
         setRecords(nextRecords);
       } catch (cause) {

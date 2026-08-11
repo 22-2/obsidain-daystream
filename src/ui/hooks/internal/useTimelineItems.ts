@@ -1,11 +1,5 @@
 import { useMemo } from "react";
-import type {
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  MomentLike,
-  Post,
-} from "src/ui/types";
+import type { DateFilter, DisplayMode, Granularity, MomentLike, Post } from "src/ui/types";
 import { isPinned } from "src/ui/utils/post-metadata";
 import { isTimelineView } from "src/ui/utils/view-mode";
 import type { MFDINoteMode } from "src/ui/view/state";
@@ -56,13 +50,10 @@ export function useTimelineItems({
     let currentDateGroupCollapsed = false;
 
     const pinnedPosts = filteredPosts.filter((post) => isPinned(post.metadata));
-    const unpinnedPosts = filteredPosts.filter(
-      (post) => !isPinned(post.metadata),
-    );
+    const unpinnedPosts = filteredPosts.filter((post) => !isPinned(post.metadata));
     const hasPinnedSection = pinnedPosts.length > 0;
     const pinnedGroupKey = "pinned";
-    const isPinnedCollapsed =
-      canCollapseDividers && collapsedGroupSet.has(pinnedGroupKey);
+    const isPinnedCollapsed = canCollapseDividers && collapsedGroupSet.has(pinnedGroupKey);
 
     if (pinnedPosts.length > 0) {
       // 意図: ピン留め投稿は日付グループとは独立して、
@@ -104,8 +95,7 @@ export function useTimelineItems({
 
       if (showDivider) {
         const groupKey = `date-${currentDate}`;
-        currentDateGroupCollapsed =
-          canCollapseDividers && collapsedGroupSet.has(groupKey);
+        currentDateGroupCollapsed = canCollapseDividers && collapsedGroupSet.has(groupKey);
         list.push({
           type: "divider",
           date: post.timestamp,

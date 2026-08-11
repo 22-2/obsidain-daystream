@@ -20,15 +20,10 @@ export function useCollapsedGroups({
 }: UseCollapsedGroupsInput): UseCollapsedGroupsOutput {
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<string[]>(() =>
     // 意図: 日付dividerはセッション中のみ保持するため、初期化時にpinned以外のキーを除外する。
-    storage
-      .get<string[]>(STORAGE_KEYS.COLLAPSED_POST_GROUP_KEYS, [])
-      .filter((k) => k === "pinned"),
+    storage.get<string[]>(STORAGE_KEYS.COLLAPSED_POST_GROUP_KEYS, []).filter((k) => k === "pinned"),
   );
 
-  const collapsedGroupSet = useMemo(
-    () => new Set(collapsedGroupKeys),
-    [collapsedGroupKeys],
-  );
+  const collapsedGroupSet = useMemo(() => new Set(collapsedGroupKeys), [collapsedGroupKeys]);
 
   // 意図: 更新と永続化を一箇所に集約し、状態の書き漏れを防ぐ。
   // pinned dividerの開閉状態のみ永続化し、日付dividerはセッション中のみ保持する。

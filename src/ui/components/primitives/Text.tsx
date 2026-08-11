@@ -6,17 +6,8 @@ type TextProps = React.HTMLAttributes<HTMLElement> & {
   className?: string;
 };
 
-export const Text = ({
-  as: Comp = "span",
-  className,
-  children,
-  ...rest
-}: TextProps) => {
-  return React.createElement(
-    Comp as any,
-    { className: cn(className), ...rest },
-    children,
-  );
+export const Text = ({ as: Comp = "span", className, children, ...rest }: TextProps) => {
+  return React.createElement(Comp as any, { className: cn(className), ...rest }, children);
 };
 
 Text.displayName = "Text";

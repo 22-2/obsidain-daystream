@@ -196,14 +196,9 @@ export function readLastOpenedFixedSessionNumber(
     return null;
   }
 
-  const rawValue = storage.get<unknown>(
-    getFixedSessionLastOpenedStorageKey(file),
-    null,
-  );
+  const rawValue = storage.get<unknown>(getFixedSessionLastOpenedStorageKey(file), null);
 
-  return typeof rawValue === "number" &&
-    Number.isInteger(rawValue) &&
-    rawValue >= 1
+  return typeof rawValue === "number" && Number.isInteger(rawValue) && rawValue >= 1
     ? rawValue
     : null;
 }

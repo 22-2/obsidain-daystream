@@ -75,8 +75,7 @@ vi.mock("src/db/worker-client", () => ({
 }));
 
 vi.mock("src/ui/store/settingsStore", () => ({
-  useSettingsStore: <T,>(selector: (state: MockSettingsState) => T): T =>
-    selector(mocked.settings),
+  useSettingsStore: <T,>(selector: (state: MockSettingsState) => T): T => selector(mocked.settings),
 }));
 
 type MemoRecordLike = {
@@ -148,11 +147,7 @@ describe("useFocusPosts hook integration", () => {
     mocked.settings.threadOnly = false;
 
     mocked.loadFile.mockResolvedValue(
-      [
-        "## Thino",
-        "- 12:00:00 from-fixed [mfdiId::root-1]",
-        "- 12:01:00 from-other",
-      ].join("/n"),
+      ["## Thino", "- 12:00:00 from-fixed [mfdiId::root-1]", "- 12:01:00 from-other"].join("/n"),
     );
 
     const { result } = renderHook(() => useFocusPosts(), {
@@ -185,10 +180,7 @@ describe("useFocusPosts hook integration", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.posts.map((post) => post.message)).toEqual([
-        "first",
-        "second",
-      ]);
+      expect(result.current.posts.map((post) => post.message)).toEqual(["first", "second"]);
     });
 
     expect(mocked.getMemos).toHaveBeenCalledWith(
@@ -305,15 +297,11 @@ describe("useFocusPosts hook integration", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.posts.map((post) => post.message)).toEqual([
-        "wanted",
-      ]);
+      expect(result.current.posts.map((post) => post.message)).toEqual(["wanted"]);
     });
 
     expect(mocked.getMemos).not.toHaveBeenCalled();
     expect(mocked.getDb).not.toHaveBeenCalled();
-    expect(mocked.loadFile).toHaveBeenCalledWith(
-      "home/着ぐるみ購入についてあれこれ.mfdi.md",
-    );
+    expect(mocked.loadFile).toHaveBeenCalledWith("home/着ぐるみ購入についてあれこれ.mfdi.md");
   });
 });

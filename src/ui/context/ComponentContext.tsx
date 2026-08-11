@@ -7,9 +7,7 @@ const ComponentContext = createContext<Component | null>(null);
 export function useObsidianComponent(): Component {
   const ctx = useContext(ComponentContext);
   if (!ctx) {
-    throw new Error(
-      "useObsidianComponent must be used within ComponentContextProvider",
-    );
+    throw new Error("useObsidianComponent must be used within ComponentContextProvider");
   }
   return ctx;
 }
@@ -19,12 +17,9 @@ interface ComponentContextProviderProps {
   children: ReactNode;
 }
 
-export const ComponentContextProvider: React.FC<
-  ComponentContextProviderProps
-> = ({ component, children }) => {
-  return (
-    <ComponentContext.Provider value={component}>
-      {children}
-    </ComponentContext.Provider>
-  );
+export const ComponentContextProvider: React.FC<ComponentContextProviderProps> = ({
+  component,
+  children,
+}) => {
+  return <ComponentContext.Provider value={component}>{children}</ComponentContext.Provider>;
 };

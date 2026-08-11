@@ -1,16 +1,12 @@
+import { cn } from "src/ui/components/primitives/utils";
 import { CONTENT_VIEW } from "src/ui/config/consntants";
 import type { ContentView } from "src/ui/types";
-import { cn } from "src/ui/components/primitives/utils";
 
 export const ContentViewSwitcher: React.FC<{
   value: ContentView;
   onChange: (value: ContentView) => void;
 }> = ({ value, onChange }) => (
-  <nav
-    className="mfdi-content-view-switcher"
-    aria-label="メインビュー"
-    role="tablist"
-  >
+  <nav className="mfdi-content-view-switcher" aria-label="メインビュー" role="tablist">
     <button
       type="button"
       role="tab"

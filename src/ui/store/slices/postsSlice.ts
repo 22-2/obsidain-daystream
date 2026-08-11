@@ -1,10 +1,7 @@
 import type { MFDIStore, PostsSlice } from "src/ui/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createPostsSlice: StateCreator<MFDIStore, [], [], PostsSlice> = (
-  set,
-  get,
-) => ({
+export const createPostsSlice: StateCreator<MFDIStore, [], [], PostsSlice> = (set, get) => ({
   tasks: [],
 
   setTasks: (tasks) => {

@@ -3,10 +3,7 @@ import type { MomentLike } from "src/ui/types";
 export function formatTaskText(input: string, time?: string): string {
   const normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   const t =
-    time ??
-    (typeof window !== "undefined"
-      ? window.moment().format("HH:mm:ss")
-      : "23:59:59");
+    time ?? (typeof window !== "undefined" ? window.moment().format("HH:mm:ss") : "23:59:59");
 
   if (normalized.length === 0) {
     return `- [ ] ${t}`;
@@ -21,9 +18,7 @@ export function formatTaskText(input: string, time?: string): string {
     return head;
   }
 
-  const body = restLines
-    .map((x) => (x.length === 0 ? "" : `    ${x}`))
-    .join("\n");
+  const body = restLines.map((x) => (x.length === 0 ? "" : `    ${x}`)).join("\n");
 
   return `${head}\n${body}`;
 }

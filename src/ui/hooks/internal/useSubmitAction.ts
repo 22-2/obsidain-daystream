@@ -1,9 +1,9 @@
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
 import { ensureFixedSessionHeading } from "src/core/fixed-sessions";
-import { indexNoteContent } from "src/db/indexer/tag-indexer";
 import { resolveNoteSource } from "src/core/note-source";
 import { toText } from "src/core/post-utils";
+import { indexNoteContent } from "src/db/indexer/tag-indexer";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { usePostHelpers } from "src/ui/hooks/internal/usePostHelpers";
@@ -54,24 +54,16 @@ export const useSubmitAction = () => {
 
   const { scrollContainerRef } = useEditorRefs();
 
-  const noteState = useNoteStore(
-    useShallow((s) => ({ currentDailyNote: s.currentDailyNote })),
-  );
+  const noteState = useNoteStore(useShallow((s) => ({ currentDailyNote: s.currentDailyNote })));
 
-  const {
-    refreshPosts,
-    getSerializedTimestamp,
-    notifyNotFoundAndRefresh,
-    findLatestPost,
-  } = usePostHelpers();
+  const { refreshPosts, getSerializedTimestamp, notifyNotFoundAndRefresh, findLatestPost } =
+    usePostHelpers();
 
   const ensureFixedSessionInsertMarker = useCallback(
     async (note: TFile): Promise<string | null> => {
       const insertAfter = settings.insertAfter.trim();
       if (!insertAfter) {
-        new Notice(
-          "fixed session を使うには insertAfter 見出しの設定が必要です",
-        );
+        new Notice("fixed session を使うには insertAfter 見出しの設定が必要です");
         return null;
       }
 
@@ -116,10 +108,7 @@ export const useSubmitAction = () => {
       const editingPost = editorState.editingPost!;
       const latestPost = await findLatestPost(editingPost);
       if (!latestPost) {
-        await notifyNotFoundAndRefresh(
-          editingPost.path,
-          "編集中の投稿を再特定できませんでした",
-        );
+        await notifyNotFoundAndRefresh(editingPost.path, "編集中の投稿を再特定できませんでした");
         return;
       }
 
@@ -139,13 +128,7 @@ export const useSubmitAction = () => {
         targetTs = now;
       }
 
-      const text = toText(
-        currentInput,
-        false,
-        settingsState.granularity,
-        targetTs,
-        metadata,
-      );
+      const text = toText(currentInput, false, settingsState.granularity, targetTs, metadata);
 
       const newContent = await shell.replaceRange(
         latestPost.path,
@@ -178,9 +161,7 @@ export const useSubmitAction = () => {
   /** スレッドへの返信を投稿する */
   const handleThreadReplySubmit = useCallback(
     async (currentInput: string) => {
-      const rootPost = allPosts.find(
-        (p) => p.id === settingsState.threadFocusRootId,
-      );
+      const rootPost = allPosts.find((p) => p.id === settingsState.threadFocusRootId);
       if (!rootPost) {
         new Notice("スレッドの親投稿が見つかりませんでした");
         settingsState.setThreadFocusRootId(null);
@@ -227,11 +208,7 @@ export const useSubmitAction = () => {
         return;
       }
 
-      const newContent = await shell.insertTextAfter(
-        noteFile,
-        text,
-        insertMarker,
-      );
+      const newContent = await shell.insertTextAfter(noteFile, text, insertMarker);
       // 意図: 書き込んだ内容で即インデックスし、直後の再検証で確実に返信が載るようにする。
       await indexSavedNote(noteFile, newContent);
       await refreshPosts(rootPost.path);
@@ -263,10 +240,7 @@ export const useSubmitAction = () => {
       });
 
       // 日をまたぐ投稿には `posted` を付与（同日投稿は通常通りタイムスタンプ）
-      if (
-        settingsState.viewNoteMode === "fixed" ||
-        !targetDate.isSame(now, "day")
-      ) {
+      if (settingsState.viewNoteMode === "fixed" || !targetDate.isSame(now, "day")) {
         metadata.posted = now.toISOString();
       }
 
@@ -331,11 +305,7 @@ export const useSubmitAction = () => {
         // 意図: 「マーカー追記」と「本文挿入」を 1 read + 1 write に畳む。
         // 別々に書くと modify イベントが多重発火し、インデックスと SWR 再検証が
         // 連鎖してタイムラインがガクつく。
-        newContent = await shell.insertTextAfterEnsuringMarker(
-          note,
-          text,
-          settings.insertAfter,
-        );
+        newContent = await shell.insertTextAfterEnsuringMarker(note, text, settings.insertAfter);
       }
 
       // 意図: vault イベント経由の非同期インデックス完了を待たず、
@@ -359,10 +329,7 @@ export const useSubmitAction = () => {
       await refreshPosts(note.path);
 
       // フォーカスモードでは、投稿後に基準日を「いま」に同期する。
-      if (
-        settingsState.viewNoteMode === "periodic" &&
-        settingsState.displayMode === "focus"
-      ) {
+      if (settingsState.viewNoteMode === "periodic" && settingsState.displayMode === "focus") {
         settingsState.setDate(window.moment());
       }
     },
@@ -395,8 +362,7 @@ export const useSubmitAction = () => {
     const currentInput = editorState.getInputValue();
 
     if (editorState.editingPost) return handleEditSubmit(currentInput);
-    if (settingsState.threadFocusRootId)
-      return handleThreadReplySubmit(currentInput);
+    if (settingsState.threadFocusRootId) return handleThreadReplySubmit(currentInput);
     return handleNewPostSubmit(currentInput);
   }, [
     allPosts,

@@ -31,10 +31,7 @@ export class MFDIStorage {
       if (value === null) return defaultValue;
       return JSON.parse(value) as T;
     } catch (e) {
-      console.warn(
-        `Failed to parse localStorage value for ${key}, using default`,
-        e,
-      );
+      console.warn(`Failed to parse localStorage value for ${key}, using default`, e);
       return defaultValue;
     }
   }

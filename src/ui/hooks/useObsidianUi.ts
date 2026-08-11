@@ -5,10 +5,7 @@ import {
   openBacklinkPreviewModal,
   type BacklinkPreviewModalOptions,
 } from "src/ui/modals/BacklinkPreviewModal";
-import {
-  DeleteConfirmModal,
-  showDeleteConfirmModal,
-} from "src/ui/modals/DeleteConfirmModal";
+import { DeleteConfirmModal, showDeleteConfirmModal } from "src/ui/modals/DeleteConfirmModal";
 import { DraftListModal } from "src/ui/modals/DraftListModal";
 import { showInputModal } from "src/ui/modals/InputModal";
 import type { MFDIEditorModalOptions } from "src/ui/modals/MFDIEditorModal";
@@ -59,8 +56,7 @@ export function useObsidianUi() {
   );
 
   const confirmDelete = useCallback(
-    (args: DeleteConfirmArgs) =>
-      showDeleteConfirmModal(shell.getRawApp(), args),
+    (args: DeleteConfirmArgs) => showDeleteConfirmModal(shell.getRawApp(), args),
     [shell],
   );
 

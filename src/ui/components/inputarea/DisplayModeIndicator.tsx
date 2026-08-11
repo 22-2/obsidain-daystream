@@ -9,23 +9,21 @@ export const DisplayModeIndicator: FC<{
   activeTag: string | null;
   onClick: () => void;
   className?: string;
-}> = memo(
-  ({ displayMode, threadFocusRootId, activeTag, onClick, className }) => {
-    const text = getCenterIndicatorLabel({
-      displayMode,
-      threadFocusRootId,
-      activeTag,
-    });
-    return (
-      <Box
-        className={cn(
-          "text-[length:var(--font-ui-smaller)] font-bold text-[var(--text-accent)] cursor-pointer",
-          className,
-        )}
-        onClick={onClick}
-      >
-        {text}
-      </Box>
-    );
-  },
-);
+}> = memo(({ displayMode, threadFocusRootId, activeTag, onClick, className }) => {
+  const text = getCenterIndicatorLabel({
+    displayMode,
+    threadFocusRootId,
+    activeTag,
+  });
+  return (
+    <Box
+      className={cn(
+        "text-[length:var(--font-ui-smaller)] font-bold text-[var(--text-accent)] cursor-pointer",
+        className,
+      )}
+      onClick={onClick}
+    >
+      {text}
+    </Box>
+  );
+});

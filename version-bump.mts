@@ -22,7 +22,7 @@ if (!version) {
   console.error("Required: ${version} (ex: bun version 1.2.3)");
   exit(1);
 }
-if (!Boolean(version.match(/\d+\.\d+\.\d+/))) {
+if (!version.match(/\d+\.\d+\.\d+/)) {
   console.error("The version is not valid (ex: bun version 1.2.3)");
   exit(1);
 }

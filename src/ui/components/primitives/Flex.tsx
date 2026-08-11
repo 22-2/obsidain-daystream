@@ -7,14 +7,7 @@ type FlexProps<T extends ElementType = "div"> = {
   as?: T;
   direction?: "row" | "column" | "row-reverse" | "column-reverse";
   align?: "center" | "start" | "end" | "stretch" | "baseline" | string;
-  justify?:
-    | "center"
-    | "start"
-    | "end"
-    | "between"
-    | "around"
-    | "evenly"
-    | string;
+  justify?: "center" | "start" | "end" | "between" | "around" | "evenly" | string;
   gap?: string | number;
   className?: string;
 } & Omit<ComponentPropsWithRef<T>, "className" | "style">;
@@ -60,11 +53,7 @@ export const Flex = forwardRef<HTMLElement, FlexProps>((props, ref) => {
   };
 
   const gapClass =
-    gap === undefined
-      ? ""
-      : typeof gap === "number"
-        ? `gap-[${gap}px]`
-        : `gap-[${String(gap)}]`;
+    gap === undefined ? "" : typeof gap === "number" ? `gap-[${gap}px]` : `gap-[${String(gap)}]`;
 
   const classes = cn(
     "flex",
@@ -75,11 +64,7 @@ export const Flex = forwardRef<HTMLElement, FlexProps>((props, ref) => {
     className,
   );
 
-  return React.createElement(
-    Comp as any,
-    { ref, className: classes, ...rest },
-    children,
-  );
+  return React.createElement(Comp as any, { ref, className: classes, ...rest }, children);
 });
 
 Flex.displayName = "Flex";

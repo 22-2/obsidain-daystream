@@ -7,14 +7,7 @@ type CardProps = React.ComponentPropsWithoutRef<"div"> & {
 };
 
 export const Card = (props: CardProps) => {
-  const {
-    children,
-    onContextMenu,
-    onDoubleClick,
-    className,
-    disableHoverBg,
-    ...rest
-  } = props;
+  const { children, onContextMenu, onDoubleClick, className, disableHoverBg, ...rest } = props;
 
   return (
     <Box
