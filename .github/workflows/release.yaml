@@ -15,7 +15,7 @@ jobs:
           node-version: 24
           scope: "@22-2"
           registry-url: "https://npm.pkg.github.com"
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
       - run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
