@@ -17,7 +17,7 @@ export const StatusBarPostInput: FC = () => {
     >
       <ObsidianIcon
         name="pencil"
-        size="1em"
+        size="var(--font-ui-small)"
         className="pointer-events-none shrink-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-muted)]"
       />
       <Input
@@ -25,7 +25,7 @@ export const StatusBarPostInput: FC = () => {
         type="text"
         placeholder={PLACEHOLDER_TEXT}
         aria-label="新しい投稿"
-        className="!h-auto min-h-8 min-w-0 flex-1 cursor-pointer border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-small)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
+        className="!h-auto min-h-8 min-w-0 flex-1 cursor-pointer border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-smaller)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
       />
     </div>
   );

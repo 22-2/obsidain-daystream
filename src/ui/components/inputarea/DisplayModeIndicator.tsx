@@ -19,7 +19,7 @@ export const DisplayModeIndicator: FC<{
     return (
       <Box
         className={cn(
-          "text-[length:var(--font-ui-small)] font-bold text-[var(--text-accent)] cursor-pointer",
+          "text-[length:var(--font-ui-smaller)] font-bold text-[var(--text-accent)] cursor-pointer",
           className,
         )}
         onClick={onClick}

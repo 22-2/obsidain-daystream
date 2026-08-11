@@ -87,7 +87,7 @@ export const StatusBarDateNavigation: FC = () => {
           threadFocusRootId={threadFocusRootId}
           activeTag={activeTag}
           onClick={handleIndicatorClick}
-          className="text-[length:var(--font-ui-medium)]"
+          className="text-[length:var(--font-ui-smaller)]"
         />
       ) : (
         <>
@@ -97,7 +97,7 @@ export const StatusBarDateNavigation: FC = () => {
             className="p-1"
           />
           <Input
-            className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-medium)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
+            className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
             type={GRANULARITY_CONFIG[granularity].inputType}
             value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
             onChange={handleChangeDate}

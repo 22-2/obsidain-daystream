@@ -52,7 +52,7 @@ export const DateDivider: FC<DateDividerProps> = ({
     >
       <Box className="flex-1 h-[1px] bg-[var(--background-modifier-border)] opacity-50" />
       <Text
-        className={`flex items-center gap-1 text-[length:var(--font-ui-small)] font-semibold whitespace-nowrap tracking-[0.05em] uppercase ${
+        className={`flex items-center gap-1 text-[length:var(--font-ui-smaller)] font-semibold whitespace-nowrap tracking-[0.05em] uppercase ${
           isTodayDivider
             ? "text-[var(--interactive-accent)]"
             : "text-[var(--text-muted)]"

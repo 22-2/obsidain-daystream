@@ -76,7 +76,7 @@ export const StatusBarSearch: FC = () => {
     <HStack className="mfdi-statusbar-search min-w-0 my-2 gap-1">
       <ObsidianIcon
         name="search"
-        size="1em"
+        size="var(--font-ui-small)"
         className="pointer-events-none shrink-0 cursor-default p-0 text-[var(--text-muted)] hover:text-[var(--text-muted)]"
       />
       <Input
@@ -84,7 +84,6 @@ export const StatusBarSearch: FC = () => {
         type="search"
         value={searchQuery}
         placeholder="検索"
-        aria-label="検索"
         className="mfdi-statusbar-search__input !h-auto min-h-0 min-w-0 flex-1 border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-small)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
         onFocus={() => setSearchInputOpen(true)}
         onBlur={() => setSearchInputOpen(false)}

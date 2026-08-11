@@ -7,6 +7,78 @@
   --mfdi-icon-color: var(--text-muted);
   --mfdi-icon-color-hover: var(--text-normal);
   --mfdi-content-color-dark: #d1d1d1;
+
+  /* ダッシュボードのパネルとパネル内 UI はここで一括調整する */
+  --mfdi-panel-width: 230px;
+  --mfdi-panel-heading-font-size: 11px;
+  --mfdi-panel-label-font-size: 11px;
+  --mfdi-panel-meta-font-size: 10px;
+  --mfdi-panel-item-height: 22px;
+  --mfdi-panel-item-padding-inline: 8px;
+  --mfdi-panel-item-padding-block: 4px;
+  --mfdi-panel-section-gap: 6px;
+  --mfdi-panel-section-padding-inline: 8px;
+  --mfdi-panel-section-padding-bottom: 8px;
+  --mfdi-panel-heading-padding-block: 2px;
+  --mfdi-panel-heading-line-height: 1.2;
+
+  --mfdi-calendar-width: 206px;
+  --mfdi-calendar-cell-size: 24px;
+  --mfdi-calendar-grid-gap: 2px;
+  --mfdi-calendar-header-font-size: 12px;
+  --mfdi-calendar-header-height: 20px;
+  --mfdi-calendar-header-gap: 2px;
+  --mfdi-calendar-header-margin-left: 4px;
+  --mfdi-calendar-nav-gap: 2px;
+  --mfdi-calendar-nav-padding: 2px;
+  --mfdi-calendar-weekday-font-size: 10px;
+  --mfdi-calendar-weekday-padding-block: 3px;
+  --mfdi-calendar-cell-font-size: 10px;
+  --mfdi-calendar-dot-size: 3px;
+  --mfdi-calendar-day-gap: 1px;
+}
+
+/* ==============================================
+   設定: セクションタブ
+   ============================================== */
+
+.mfdi-settings-tabs {
+  display: flex;
+  gap: var(--size-2-2);
+  margin-bottom: var(--size-4-4);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.mfdi-settings-tabs__tab {
+  flex: 0 0 auto;
+  padding: var(--size-2-2) var(--size-4-2);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--text-muted);
+  background: transparent;
+  font-size: var(--font-ui-small);
+  cursor: pointer;
+}
+
+.mfdi-settings-tabs__tab:is(:hover, :focus-visible) {
+  color: var(--text-normal);
+}
+
+.mfdi-settings-tabs__tab:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+.mfdi-settings-tabs__tab.is-active {
+  border-bottom-color: var(--interactive-accent);
+  color: var(--text-accent);
+  font-weight: var(--font-semibold);
+}
+
+.mfdi-settings-tab-panel > .setting-item-heading {
+  margin-top: 0;
 }
 
 /* ==============================================
@@ -533,7 +605,124 @@
 }
 
 [data-type="mfdi-view"] .mfdi-dashboard-sidebar {
-  flex: 0 0 260px;
+  flex: 0 0 var(--mfdi-panel-width);
+  width: var(--mfdi-panel-width);
+  min-width: var(--mfdi-panel-width);
+}
+
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .mfdi-panel-section {
+  gap: var(--mfdi-panel-section-gap);
+  padding-inline: var(--mfdi-panel-section-padding-inline);
+  padding-bottom: var(--mfdi-panel-section-padding-bottom);
+}
+
+[data-type="mfdi-view"]
+  .mfdi-dashboard-sidebar
+  .mfdi-panel-section__toggle {
+  padding-block: var(--mfdi-panel-heading-padding-block);
+  font-size: var(--mfdi-panel-heading-font-size);
+  line-height: var(--mfdi-panel-heading-line-height);
+}
+
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-section-header {
+  padding-inline: var(--mfdi-panel-section-padding-inline);
+}
+
+[data-type="mfdi-view"]
+  .mfdi-dashboard-sidebar
+  .sidebar-section-header
+  > * {
+  font-size: var(--mfdi-panel-heading-font-size);
+}
+
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-text-button {
+  height: var(--mfdi-panel-item-height);
+  padding-inline: var(--mfdi-panel-item-padding-inline);
+  font-size: var(--mfdi-panel-label-font-size);
+}
+
+[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-item-count {
+  font-size: var(--mfdi-panel-meta-font-size);
+}
+
+/* 290px パネル内でもカレンダーはコンパクトなサイズを保つ */
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar {
+  width: min(100%, var(--mfdi-calendar-width));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__header {
+  padding-inline: 0;
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__month-label {
+  gap: var(--mfdi-calendar-header-gap);
+  margin-left: var(--mfdi-calendar-header-margin-left);
+}
+
+[data-type="mfdi-view"]
+  .mfdi-calendar-section
+  .mini-calendar__period-label {
+  min-height: var(--mfdi-calendar-header-height);
+  padding-inline: 4px;
+  font-size: var(--mfdi-calendar-header-font-size);
+  line-height: var(--mfdi-calendar-header-height);
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__nav {
+  gap: var(--mfdi-calendar-nav-gap);
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__nav-button {
+  width: var(--mfdi-calendar-header-height);
+  height: var(--mfdi-calendar-header-height);
+  padding: var(--mfdi-calendar-nav-padding);
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__grid {
+  grid-template-columns: repeat(8, var(--mfdi-calendar-cell-size));
+  gap: var(--mfdi-calendar-grid-gap);
+  width: fit-content;
+  margin-inline: auto;
+}
+
+[data-type="mfdi-view"]
+  .mfdi-calendar-section
+  .mini-calendar__weekday-label {
+  padding-block: var(--mfdi-calendar-weekday-padding-block);
+  font-size: var(--mfdi-calendar-weekday-font-size);
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__week-number {
+  height: var(--mfdi-calendar-cell-size);
+  padding-block: 0;
+  font-size: var(--mfdi-calendar-cell-font-size);
+  border-radius: 4px;
+}
+
+[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell {
+  width: var(--mfdi-calendar-cell-size);
+  height: var(--mfdi-calendar-cell-size);
+  aspect-ratio: auto;
+  font-size: var(--mfdi-calendar-cell-font-size);
+}
+
+[data-type="mfdi-view"]
+  .mfdi-calendar-section
+  .mini-calendar__day-cell
+  > div {
+  grid-template-rows: 1em var(--mfdi-calendar-dot-size);
+  gap: var(--mfdi-calendar-day-gap);
+}
+
+[data-type="mfdi-view"]
+  .mfdi-calendar-section
+  .mini-calendar__day-cell
+  > div
+  > div {
+  width: var(--mfdi-calendar-dot-size);
+  height: var(--mfdi-calendar-dot-size);
 }
 
 [data-type="mfdi-view"] .mfdi-compose-button {

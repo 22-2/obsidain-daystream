@@ -13,7 +13,7 @@ export const PastTodayNotice: FC = () => {
     <Box
       role="status"
       aria-live="polite"
-      className="mfdi-past-today-notice mx-auto my-1 flex w-[75%] max-w-[calc(100%_-_1rem)] items-center justify-between gap-2 rounded-[var(--radius-m)] border px-3 py-2 text-[length:var(--font-ui-small)] font-medium"
+      className="mfdi-past-today-notice mx-auto my-1 flex w-[75%] max-w-[calc(100%_-_1rem)] items-center justify-between gap-2 rounded-[var(--radius-m)] border px-3 py-2 text-[length:var(--font-ui-smaller)] font-medium"
     >
       <Box as="span">過去の今日の投稿が{count}件あります</Box>
       <ObsidianIcon

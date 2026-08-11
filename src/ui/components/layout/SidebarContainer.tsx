@@ -12,7 +12,9 @@ export const SidebarContainer: React.FC<{
       aria-label={ariaLabel}
       role="region"
       className={cn(
-        isOpen ? "flex w-[260px] min-w-[260px]" : "hidden w-0 min-w-0",
+        isOpen
+          ? "flex w-[var(--mfdi-panel-width)] min-w-[var(--mfdi-panel-width)]"
+          : "hidden w-0 min-w-0",
         side === "left"
           ? "mfdi-dashboard-sidebar--left mr-[var(--size-4-2)]"
           : "mfdi-dashboard-sidebar--right ml-[var(--size-4-2)]",

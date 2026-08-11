@@ -10,7 +10,7 @@ import { StatusBarSearch } from "src/ui/components/statusbar/parts/StatusBarSear
  */
 export const StatusBar: FC = () => {
   return (
-    <Box className="mfdi-statusbar-controls relative mx-auto my-1 w-[75%] max-w-[calc(100%_-_1rem)] rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] !px-2 !py-1.5">
+    <Box className="mfdi-statusbar-controls relative mx-auto my-1 w-[90%] max-w-[calc(100%_-_1rem)] rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] !px-2 !py-1.5">
       <StatusBarHome />
       <VStack className="w-full !items-stretch !gap-1">
         <HStack className="min-h-7 w-full justify-center [&_.mfdi-statusbar-date-bar]:!border-0 [&_.mfdi-statusbar-date-bar]:!bg-transparent [&_.mfdi-statusbar-date-bar]:!p-0">

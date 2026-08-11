@@ -50,7 +50,7 @@ export const DayCell: React.FC<Props> = ({
       className={cn(
         "mini-calendar__day-cell relative cursor-pointer",
         "flex items-center justify-center",
-        "w-full aspect-square",
+        "w-[var(--mfdi-calendar-cell-size)] h-[var(--mfdi-calendar-cell-size)]",
         "transition-all duration-100 ease-in-out",
         isToday || effectiveInRange ? "font-bold" : "font-normal",
         backgroundCx,
@@ -59,12 +59,12 @@ export const DayCell: React.FC<Props> = ({
       )}
       onClick={() => onClick(day)}
     >
-      <div className="grid grid-rows-[1em_4px] justify-items-center gap-[2px]">
+      <div className="grid grid-rows-[1em_var(--mfdi-calendar-dot-size)] justify-items-center gap-[var(--mfdi-calendar-day-gap)]">
         <span className="leading-none">{day.date()}</span>
 
         <div
           className={cn(
-            "h-1 w-1 rounded-full",
+            "h-[var(--mfdi-calendar-dot-size)] w-[var(--mfdi-calendar-dot-size)] rounded-full",
             hasPost ? dotColorCx : "bg-transparent",
           )}
         />

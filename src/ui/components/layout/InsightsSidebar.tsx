@@ -120,7 +120,7 @@ export const InsightsSidebar: React.FC = () => {
             />
           ))}
         </div>
-        <HStack className="justify-between text-[length:var(--font-ui-smaller)] text-[var(--text-muted)]">
+        <HStack className="justify-between text-[length:var(--mfdi-panel-meta-font-size)] text-[var(--text-muted)]">
           <Text>
             {loading ? "読み込み中…" : formatDate(summary?.firstDate ?? null)}
           </Text>
@@ -131,7 +131,7 @@ export const InsightsSidebar: React.FC = () => {
       <PanelDivider />
 
       <PanelSection title="統計" className="pt-2">
-        <VStack className="items-stretch gap-1 text-[length:var(--font-ui-small)]">
+        <VStack className="items-stretch gap-1 text-[length:var(--mfdi-panel-label-font-size)]">
           <StatRow
             label="投稿"
             value={summary?.totalPosts ?? 0}

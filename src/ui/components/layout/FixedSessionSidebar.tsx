@@ -118,7 +118,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
     <SidebarTextButton
       isSelected={isSelected}
       className={cn(
-        "!h-auto min-h-[48px] whitespace-normal rounded-[var(--radius-s)] px-3 py-2",
+        "!h-auto min-h-[48px] whitespace-normal rounded-[var(--radius-s)] px-[var(--mfdi-panel-item-padding-inline)] py-[var(--mfdi-panel-item-padding-block)]",
         {
           "bg-transparent": !isSelected,
           "bg-[var(--background-modifier-hover)]": isSelected,
@@ -133,7 +133,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             <Text
               as="span"
               className={cn(
-                "truncate text-[13px] font-medium leading-[1.2]",
+                "truncate text-[length:var(--mfdi-panel-label-font-size)] font-medium leading-[1.2]",
                 isSelected && "text-[var(--color-accent)]",
               )}
             >
@@ -141,7 +141,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             </Text>
           </HStack>
           <Box
-            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--background-modifier-hover)]"
+            className="flex h-[var(--mfdi-panel-item-height)] w-[var(--mfdi-panel-item-height)] cursor-pointer items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--background-modifier-hover)]"
             onClick={handlePinClick}
           >
             <ObsidianIcon
@@ -155,7 +155,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             />
           </Box>
         </HStack>
-        <Text className="text-[11px] leading-[1.25] text-[var(--text-muted)]">
+        <Text className="text-[length:var(--mfdi-panel-meta-font-size)] leading-[1.25] text-[var(--text-muted)]">
           {formatLastActiveLabel(session.lastActiveAt)}
         </Text>
       </VStack>
@@ -196,7 +196,7 @@ const SessionGroup: React.FC<SessionGroupProps> = ({
       <SidebarSectionHeader
         className="justify-between px-2 pt-3"
         rightAddon={
-          <Text className="text-[11px] font-medium text-[var(--text-muted)]">
+          <Text className="text-[length:var(--mfdi-panel-meta-font-size)] font-medium text-[var(--text-muted)]">
             {sessions.length}
           </Text>
         }
@@ -627,7 +627,10 @@ export const FixedSessionSidebar: React.FC = () => {
           void handleCreateSession();
         }}
       >
-        <Text as="span" className="text-[12px] font-medium text-[inherit]">
+        <Text
+          as="span"
+          className="text-[length:var(--mfdi-panel-label-font-size)] font-medium text-[inherit]"
+        >
           New Session
         </Text>
       </SidebarTextButton>

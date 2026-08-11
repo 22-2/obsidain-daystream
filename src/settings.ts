@@ -78,20 +78,59 @@ export class MFDISettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl).setHeading().setName("✏️ エディタ");
-    this.addEditorSettings(containerEl);
+    const sections = [
+      { id: "editor", label: "✏️ エディタ", render: this.addEditorSettings },
+      { id: "display", label: "🖼️ 表示", render: this.addDisplaySettings },
+      { id: "post", label: "📝 投稿", render: this.addPostSettings },
+      { id: "scan", label: "🔍 スキャン", render: this.addScanSettings },
+      {
+        id: "notification",
+        label: "🔔 通知",
+        render: this.addNotificationSettings,
+      },
+    ] as const;
 
-    new Setting(containerEl).setHeading().setName("🖼️ 表示");
-    this.addDisplaySettings(containerEl);
+    const tabListEl = containerEl.createDiv({ cls: "mfdi-settings-tabs" });
+    tabListEl.setAttribute("role", "tablist");
+    tabListEl.setAttribute("aria-label", "設定セクション");
+    const panelEl = containerEl.createDiv({ cls: "mfdi-settings-tab-panel" });
+    panelEl.setAttribute("role", "tabpanel");
 
-    new Setting(containerEl).setHeading().setName("📝 投稿");
-    this.addPostSettings(containerEl);
+    const tabButtons = new Map<string, HTMLButtonElement>();
+    const activate = (sectionId: (typeof sections)[number]["id"]): void => {
+      const section = sections.find(({ id }) => id === sectionId);
+      if (!section) return;
 
-    new Setting(containerEl).setHeading().setName("🔍 スキャン");
-    this.addScanSettings(containerEl);
+      for (const [id, button] of tabButtons) {
+        const isActive = id === sectionId;
+        button.toggleClass("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+      }
 
-    new Setting(containerEl).setHeading().setName("🔔 通知");
-    this.addNotificationSettings(containerEl);
+      panelEl.empty();
+      panelEl.setAttribute("aria-labelledby", `mfdi-settings-tab-${section.id}`);
+      new Setting(panelEl).setHeading().setName(section.label);
+      section.render.call(this, panelEl);
+    };
+
+    for (const section of sections) {
+      const button = tabListEl.createEl("button", {
+        cls: "mfdi-settings-tabs__tab",
+        text: section.label,
+        attr: {
+          id: `mfdi-settings-tab-${section.id}`,
+          type: "button",
+          role: "tab",
+          "aria-controls": "mfdi-settings-tab-panel",
+        },
+      });
+      button.addEventListener("click", () => activate(section.id));
+      tabButtons.set(section.id, button);
+    }
+
+    panelEl.id = "mfdi-settings-tab-panel";
+    activate(sections[0].id);
   }
 
   // ---------------------------------------------------------------------------
