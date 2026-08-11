@@ -12,7 +12,7 @@ export const StatusBarPostInput: FC = () => {
 
   return (
     <div
-      className="mfdi-statusbar-post-input flex min-h-7 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-2 transition-colors hover:bg-[var(--background-modifier-hover)]"
+      className="mfdi-statusbar-post-input flex min-h-12 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-2 transition-colors hover:bg-[var(--background-modifier-hover)]"
       onClick={openComposer}
     >
       <ObsidianIcon
@@ -25,7 +25,7 @@ export const StatusBarPostInput: FC = () => {
         type="text"
         placeholder={PLACEHOLDER_TEXT}
         aria-label="新しい投稿"
-        className="!h-auto min-h-7 min-w-0 flex-1 cursor-pointer border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-small)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
+        className="!h-auto min-h-8 min-w-0 flex-1 cursor-pointer border-0 bg-transparent px-0 py-0 text-[length:var(--font-ui-small)] text-[var(--text-normal)] shadow-none placeholder:text-[var(--text-muted)] focus:ring-0"
       />
     </div>
   );
