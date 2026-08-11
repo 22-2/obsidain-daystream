@@ -7,7 +7,7 @@ import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
 /**
- * タイムライン上の入力欄を常設せず、必要なときだけ投稿ダイアログを開く導線。
+ * タイムライン上の入力欄を常設せず、必要なときだけ投稿入力画面を開く導線。
  * 入力内容は既存の editor store と同期するため、閉じても下書きを失わない。
  */
 export const PostComposerButton: React.FC = () => {

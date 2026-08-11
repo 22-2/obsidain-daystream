@@ -4,7 +4,7 @@ import { Input } from "src/ui/components/primitives";
 import { PLACEHOLDER_TEXT } from "src/ui/config/consntants";
 import { usePostComposer } from "src/ui/hooks/usePostComposer";
 
-/** ツールバーから投稿入力ダイアログを開くプレースホルダー。 */
+/** ツールバーから投稿入力画面を開くプレースホルダー。 */
 export const StatusBarPostInput: FC = () => {
   const { isReadOnly, openComposer } = usePostComposer();
 

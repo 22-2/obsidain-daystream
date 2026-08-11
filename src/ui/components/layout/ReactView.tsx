@@ -10,6 +10,7 @@ import {
 import type { Settings } from "src/settings";
 import { EmptyState } from "src/ui/components/EmptyState";
 import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
+import { InViewComposer } from "src/ui/components/inputarea/InViewComposer";
 import { ContentViewSwitcher } from "src/ui/components/layout/ContentViewSwitcher";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
@@ -298,6 +299,7 @@ const ReactViewContent = () => {
   );
 
   const { scrollContainerRef, listHeaderRef } = useEditorRefs();
+  const composerOpen = useEditorStore((s) => s.composerOpen);
 
   useEffect(() => {
     component.actionDelegates.onClickHome = handleClickHome;
@@ -415,6 +417,10 @@ const ReactViewContent = () => {
       <PostListView />
     );
   }, [asTask, contentView, granularity, isCSSLoaded, isEmpty]);
+
+  if (composerOpen) {
+    return <InViewComposer />;
+  }
 
   return (
     <Flex

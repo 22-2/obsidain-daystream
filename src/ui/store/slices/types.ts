@@ -126,6 +126,7 @@ export interface NoteSlice {
 }
 
 export interface EditorSlice {
+  composerOpen: boolean;
   inputSnapshot: string;
   inputSnapshotVersion: number;
   draftMetadata: Record<string, string>;
@@ -135,6 +136,8 @@ export interface EditorSlice {
   highlightedPost: Post | null;
   highlightRequestId: number;
   syncInputSession: (v: string) => void;
+  openComposer: () => void;
+  closeComposer: () => void;
   replaceInput: (v: string) => void;
   clearInput: () => void;
   setDraftMetadata: (metadata: Record<string, string>) => void;

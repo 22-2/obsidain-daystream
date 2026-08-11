@@ -124,6 +124,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
   };
 
   return {
+    composerOpen: false,
     inputSnapshot: "",
     inputSnapshotVersion: 0,
     draftMetadata: {},
@@ -138,6 +139,10 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         persistMode: "debounced",
       });
     },
+
+    openComposer: () => set({ composerOpen: true }),
+
+    closeComposer: () => set({ composerOpen: false }),
 
     replaceInput: (input) => {
       updateSessionInput(input, {

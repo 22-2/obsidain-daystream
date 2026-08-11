@@ -121,6 +121,11 @@ export class MFDIView extends ItemView {
     this.updateView();
   }
 
+  /** React 側で一時的にビューアクションを差し替えた後に再描画する。 */
+  refreshActions(): void {
+    this.updateActions();
+  }
+
   // -----------------------------------------------------------------------
   // Setup & Events
   // -----------------------------------------------------------------------
