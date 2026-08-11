@@ -13,6 +13,9 @@ on:
 jobs:
   e2e:
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: read
     env:
       OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION: "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.obsidian_version || 'latest' }}"
       TZ: Asia/Tokyo
@@ -42,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache plugin downloads
         uses: actions/cache@v4
@@ -71,7 +74,7 @@ jobs:
 
       - name: Install dependencies
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm install
 
       - name: Install Playwright chromium (Unix)

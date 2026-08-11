@@ -9,6 +9,9 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: read
     env:
       TZ: Asia/Tokyo
     strategy:
@@ -37,8 +40,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         env:
-          # Mental model: private @22-2 packages are resolved by npmrc auth + NODE_AUTH_TOKEN.
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
         run: pnpm test
