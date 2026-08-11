@@ -1,8 +1,6 @@
 import type { FC } from "react";
 import { memo, useCallback, useEffect } from "react";
 import { ObsidianLiveEditor } from "src/ui/components/editor/ObsidianLiveEditor";
-import { InputAreaFooterBase } from "src/ui/components/inputarea/InputAreaFooterBase";
-import { InputAreaMetadataActions } from "src/ui/components/inputarea/InputAreaMetadataActions";
 import { Flex } from "src/ui/components/primitives";
 import { PLACEHOLDER_TEXT, STORAGE_KEYS } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
@@ -91,15 +89,33 @@ export const PopoutInputArea: FC = memo(() => {
   }, [editingPost, inputSnapshot, storage, shell, clearInput, closeView]);
 
   const handleSubmitAndClose = useCallback(async () => {
+    if (!canSubmit) return;
     await handleSubmit();
     // 意図: submit は成功時に clearInput するため、その後に閉じる。
     closeView();
-  }, [handleSubmit, closeView]);
+  }, [canSubmit, handleSubmit, closeView]);
 
   // 意図: popout が開いた直後にエディタへフォーカスを移し、すぐに入力できるようにする。
   useEffect(() => {
     window.setTimeout(() => inputRef.current?.focus());
   }, [inputRef]);
+
+  useEffect(() => {
+    const closeAction = view.addAction("x", "閉じる", () => {
+      void handleCancel();
+    });
+    closeAction.setAttr("data-mfdi-popout-actions", "true");
+
+    const submitAction = view.addAction("send-horizontal", "投稿", () => {
+      void handleSubmitAndClose();
+    });
+    submitAction.setAttr("data-mfdi-popout-actions", "true");
+
+    return () => {
+      submitAction.detach();
+      closeAction.detach();
+    };
+  }, [handleCancel, handleSubmitAndClose, view]);
 
   return (
     <Flex className="mfdi-popout-editor h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
@@ -115,14 +131,6 @@ export const PopoutInputArea: FC = memo(() => {
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}
         ctrlEnterSends={ctrlEnterSends}
-      />
-      <InputAreaFooterBase
-        canSubmit={canSubmit}
-        submitLabel={editingPost ? "更新" : "投稿"}
-        onSubmit={handleSubmitAndClose}
-        onCancel={handleCancel}
-        characterCount={inputSnapshot.length}
-        leadingActions={<InputAreaMetadataActions isReadOnly={false} />}
       />
     </Flex>
   );
