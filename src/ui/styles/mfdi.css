@@ -611,8 +611,6 @@
 }
 
 [data-type="mfdi-view"] .mfdi-main-toolbar .mfdi-statusbar-controls {
-  width: 100%;
-  max-width: none;
   margin: 4px 0;
 }
 
@@ -654,7 +652,7 @@
 
 [data-type="mfdi-view"] .mfdi-main-toolbar > .mfdi-content-view-switcher {
   margin: 0;
-  padding-inline: 8px;
+  padding-inline: 0;
   border-bottom: 0;
 }
 
