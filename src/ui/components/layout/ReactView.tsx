@@ -19,6 +19,7 @@ import { PostListView } from "src/ui/components/posts/PostListView";
 import { Flex, Spinner } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { StatusBar } from "src/ui/components/statusbar/StatusBar";
+import { PastTodayNotice } from "src/ui/components/statusbar/parts/PastTodayNotice";
 import { TaskListView } from "src/ui/components/tasks/TaskListView";
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
@@ -417,6 +418,7 @@ const ReactViewContent = () => {
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
           <div ref={listHeaderRef} className="mfdi-list-header">
             <StatusBar />
+            <PastTodayNotice />
           </div>
           {content}
         </Flex>

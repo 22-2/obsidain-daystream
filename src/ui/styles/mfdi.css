@@ -489,6 +489,20 @@
   text-overflow: clip !important;
 }
 
+[data-type="mfdi-view"] .mfdi-past-today-notice {
+  border-color: color-mix(
+    in srgb,
+    var(--interactive-accent) 35%,
+    var(--background-modifier-border)
+  );
+  background-color: color-mix(
+    in srgb,
+    var(--interactive-accent) 12%,
+    var(--background-secondary)
+  );
+  color: var(--text-normal);
+}
+
 [data-type="mfdi-view"] .mfdi-statusbar-search {
   width: min(22rem, 46vw);
   flex: 0 1 22rem;
