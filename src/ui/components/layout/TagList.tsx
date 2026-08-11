@@ -70,7 +70,11 @@ export const TagList: React.FC = () => {
   if (!displayItems?.length) return null;
 
   return (
-    <PanelSection title="タグ" className="mfdi-tag-section">
+    <PanelSection
+      title="タグ"
+      storageKey="periodic-tags"
+      className="mfdi-tag-section"
+    >
       <VStack className="mfdi-tag-list items-stretch gap-0">
         {displayItems.map((item) => {
           const isActive = activeTag === item.tag;

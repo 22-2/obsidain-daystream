@@ -140,9 +140,15 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
       });
     },
 
-    openComposer: () => set({ composerOpen: true }),
+    openComposer: () => {
+      set({ composerOpen: true });
+      get().storage?.set(STORAGE_KEYS.COMPOSER_OPEN, true);
+    },
 
-    closeComposer: () => set({ composerOpen: false }),
+    closeComposer: () => {
+      set({ composerOpen: false });
+      get().storage?.set(STORAGE_KEYS.COMPOSER_OPEN, false);
+    },
 
     replaceInput: (input) => {
       updateSessionInput(input, {
@@ -266,9 +272,14 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
       return input !== editingPost.message;
     },
 
-    hydrateEditorState: () => {
+  hydrateEditorState: () => {
       const { storage, viewNoteMode, file: file, fixedSessionNumber } = get();
-      if (!storage) return;
+    if (!storage) return;
+
+    const composerOpen = storage.get<boolean>(
+      STORAGE_KEYS.COMPOSER_OPEN,
+      false,
+    );
 
       const persistedInput = storage.get<string>(
         getInputStorageKey(viewNoteMode, file, fixedSessionNumber),
@@ -292,8 +303,9 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
           ? reconstructEditingPost(persisted, persistedInput)
           : null;
 
-      set((state) => ({
-        inputSnapshot: state.inputSnapshot || persistedInput,
+    set((state) => ({
+      composerOpen,
+      inputSnapshot: state.inputSnapshot || persistedInput,
         inputSnapshotVersion: state.inputSnapshotVersion + 1,
         editingPostOffset: state.editingPostOffset ?? persisted?.offset ?? null,
         editingPost: state.editingPost ?? reconstructedPost,

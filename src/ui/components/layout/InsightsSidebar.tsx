@@ -104,7 +104,11 @@ export const InsightsSidebar: React.FC = () => {
 
   return (
     <VStack className="h-full w-full items-stretch gap-0 overflow-y-auto">
-      <PanelSection title="アクティビティ" className="pt-2">
+      <PanelSection
+        title="アクティビティ"
+        storageKey="insights-activity"
+        className="pt-2"
+      >
         <div
           className="mfdi-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
           aria-label="投稿アクティビティ"
@@ -130,7 +134,7 @@ export const InsightsSidebar: React.FC = () => {
 
       <PanelDivider />
 
-      <PanelSection title="統計" className="pt-2">
+      <PanelSection title="統計" storageKey="insights-statistics" className="pt-2">
         <VStack className="items-stretch gap-1 text-[length:var(--mfdi-panel-label-font-size)]">
           <StatRow
             label="投稿"

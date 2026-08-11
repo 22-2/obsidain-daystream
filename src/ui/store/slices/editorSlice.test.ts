@@ -74,6 +74,22 @@ describe("editorSlice", () => {
     vi.useRealTimers();
   });
 
+  it("コンポーザの表示状態を storage に保存し、hydrate で復元する", () => {
+    const store = createAppStore();
+    const { storage, values } = createMockStorage({
+      [STORAGE_KEYS.COMPOSER_OPEN]: true,
+    });
+
+    store.setState({ storage });
+    store.getState().hydrateEditorState();
+    expect(store.getState().composerOpen).toBe(true);
+
+    store.getState().closeComposer();
+    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
+    store.getState().openComposer();
+    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(true);
+  });
+
   it("hydrateEditorState は保存済み入力を snapshot と editor に復元する", () => {
     const store = createAppStore();
     const persistedInput = "restored draft";

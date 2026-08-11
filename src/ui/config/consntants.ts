@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   SIDEBAR_OPEN: "sidebarOpen",
   PANEL_LEFT_OPEN: "panelLeftOpen",
   PANEL_RIGHT_OPEN: "panelRightOpen",
+  PANEL_SECTION_STATES: "panelSectionStates",
   GRANULARITY: "granularity",
   DATE: "date",
   DISPLAY_MODE: "displayMode",
@@ -34,6 +35,7 @@ export const STORAGE_KEYS = {
   THREAD_FOCUS_ROOT_ID: "threadFocusRootId",
   COLLAPSED_POST_GROUP_KEYS: "collapsedPostGroupKeys",
   INPUT_AREA_SIZE: "inputAreaSize",
+  COMPOSER_OPEN: "composerOpen",
   FIXED_SESSION_META: "fixedSessionMeta",
   FIXED_SESSION_LAST_OPENED: "fixedSessionLastOpened",
   // ポップアウトエディタのキャンセル時に確認モーダルをスキップするかどうか

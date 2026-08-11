@@ -161,6 +161,7 @@ export const SidebarScales: React.FC<{
   return (
     <PanelSection
       title="年月日別"
+      storageKey="periodic-scales"
       className="mfdi-sidebar-scales items-stretch gap-0"
       onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
     >
