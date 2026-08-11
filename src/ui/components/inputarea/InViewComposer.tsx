@@ -65,7 +65,7 @@ export const InViewComposer: FC = memo(() => {
     const closeAction = view.addAction("x", "閉じる", handleClose);
     closeAction.setAttr("data-mfdi-composer-actions", "true");
 
-    const saveAction = view.addAction("save", "保存", () => {
+    const saveAction = view.addAction("send-horizontal", "投稿", () => {
       void handleSubmitAndClose();
     });
     saveAction.setAttr("data-mfdi-composer-actions", "true");
