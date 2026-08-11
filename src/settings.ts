@@ -7,7 +7,7 @@ import type MFDIPlugin from "src/main";
 
 const logger = createLogger("settings");
 
-export type OpenInNewWindowMode = "disabled" | "minimized_only" | "always";
+export type OpenInNewWindowMode = "disabled" | "always";
 
 type BooleanSettingKey = Exclude<
   {
@@ -211,12 +211,11 @@ export class MFDISettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("新しいウィンドウで編集")
       .setDesc(
-        "投稿の編集をポップアウトウィンドウで開くタイミングを設定します。「最小化時のみ」は入力エリアが最小化されているときに自動でポップアウトします。",
+        "投稿の編集をポップアウトウィンドウで開くタイミングを設定します。「常に」は常にポップアウトします。",
       )
       .addDropdown((tc) =>
         tc
           .addOption("disabled", "無効")
-          .addOption("minimized_only", "最小化時のみ")
           .addOption("always", "常に")
           .setValue(this.plugin.settings.openInNewWindowMode ?? "disabled")
           .onChange(async (value) => {

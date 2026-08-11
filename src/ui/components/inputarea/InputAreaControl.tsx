@@ -22,7 +22,6 @@ export const InputAreaControl: FC<{
 }> = memo(
   ({ isReadOnly, inputAreaSize, onMaximizeToMaxHeight, onMinimize }) => {
     const isExpanded = inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
-    const isMinimized = inputAreaSize === INPUT_AREA_SIZE.MINIMIZED;
     const { viewNoteMode } = useAppStore(
       useShallow((s) => ({
         viewNoteMode: s.viewNoteMode,
