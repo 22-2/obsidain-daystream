@@ -118,7 +118,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
     <SidebarTextButton
       isSelected={isSelected}
       className={cn(
-        "!h-auto min-h-[48px] whitespace-normal rounded-[var(--radius-s)] px-[var(--mfdi-panel-item-padding-inline)] py-[var(--mfdi-panel-item-padding-block)]",
+        "!h-auto min-h-[40px] whitespace-normal rounded-[var(--radius-s)] px-[var(--mfdi-panel-item-padding-inline)] py-[var(--mfdi-panel-item-padding-block)]",
         {
           "bg-transparent": !isSelected,
           "bg-[var(--background-modifier-hover)]": isSelected,
