@@ -1,125 +1,127 @@
 name: E2E Tests
 
 on:
-  push: {}
-  pull_request: {}
-  workflow_dispatch:
-    inputs:
-      obsidian_version:
-        description: "Obsidian release version (e.g. 1.12.4). Use latest for latest release."
-        required: false
-        default: "latest"
+    push: {}
+    pull_request: {}
+    workflow_dispatch:
+        inputs:
+            obsidian_version:
+                description: "Obsidian release version (e.g. 1.12.4). Use latest for latest release."
+                required: false
+                default: "latest"
+
+defaults:
+    run:
+        shell: bash
 
 jobs:
-  e2e:
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read
-      packages: read
-    env:
-      OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION: "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.obsidian_version || 'latest' }}"
-      TZ: Asia/Tokyo
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
+    e2e:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [macos-latest, windows-latest]
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.x"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
-          scope: "@22-2"
-          registry-url: "https://npm.pkg.github.com"
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '26.5.0'
+                  cache: "pnpm"
+                  cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Read Obsidian version from versions.json
+              id: set-version
+              run: |
+                  node -e '
+                    const fs = require("fs");
+                    const ver = JSON.parse(fs.readFileSync("versions.json", "utf8")).obsidian || "latest";
+                    fs.appendFileSync(process.env.GITHUB_OUTPUT, `obsidian_version=${ver}\n`);
+                  '
 
-      - name: Cache plugin downloads
-        uses: actions/cache@v4
-        with:
-          path: myfiles
-          key: ${{ runner.os }}-myfiles-${{ hashFiles('tests/plugin-sources.json') }}
-          restore-keys: |
-            ${{ runner.os }}-myfiles-
+            - name: Cache plugin downloads
+              uses: actions/cache@v6
+              with:
+                  path: myfiles
+                  key: ${{ runner.os }}-myfiles-${{ hashFiles('tests/plugin-sources.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-myfiles-
 
-      - name: Cache toolkit assets
-        uses: actions/cache@v4
-        with:
-          path: obsidian-e2e-toolkit-assets
-          key: "${{ runner.os }}-obsidians-e2e-toolkit-v4-${{ env.OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION }}"
-          restore-keys: |
-            ${{ runner.os }}-obsidians-e2e-toolkit-v4-
+            - name: Cache toolkit assets
+              uses: actions/cache@v6
+              with:
+                  path: obsidian-e2e-toolkit-assets
+                  key: >-
+                      ${{ runner.os }}-obsidians-e2e-toolkit-v4-${{
+                        github.event_name == 'workflow_dispatch'
+                        && github.event.inputs.obsidian_version
+                        || steps.set-version.outputs.obsidian_version
+                        || 'latest'
+                      }}
+                  restore-keys: |
+                      ${{ runner.os }}-obsidians-e2e-toolkit-v4-
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: .cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
+            - name: Cache Playwright browsers
+              id: playwright-cache
+              uses: actions/cache@v6
+              with:
+                  path: .cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-chromium-
 
-      - name: Install dependencies
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm install
+            - name: Install dependencies
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+                  pnpm install --no-frozen-lockfile
 
-      - name: Install Playwright chromium (Unix)
-        if: matrix.os != 'windows-latest' && steps.playwright-cache.outputs.cache-hit != 'true'
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-        run: pnpx playwright install chromium
-        shell: bash
+            - name: Install Playwright chromium
+              # macOS runner では cdn.playwright.dev からの DL が 100% 表示後に
+              # スタールすることがある。Playwright 側に全体タイムアウトが無いため、
+              # 試行ごとのタイムアウト + リトライでハングを防ぐ。
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              uses: nick-fields/retry@v4
+              env:
+                  PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+              with:
+                  timeout_minutes: 10
+                  max_attempts: 3
+                  shell: bash
+                  command: pnpm exec playwright install chromium
 
-      - name: Install Playwright chromium (Windows)
-        if: matrix.os == 'windows-latest' && steps.playwright-cache.outputs.cache-hit != 'true'
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-        run: pnpx playwright install chromium
-        shell: pwsh
+            - name: Build plugin under test
+              run: pnpm run build
 
-      - name: Build plugin under test
-        run: pnpm run build
+            - name: Ensure toolkit Obsidian is installed
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  OBSIDIAN_E2E_TOOLKIT_HOME: ${{ github.workspace }}
+                  OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION: >-
+                      ${{
+                        github.event_name == 'workflow_dispatch'
+                        && github.event.inputs.obsidian_version
+                        || steps.set-version.outputs.obsidian_version
+                        || 'latest'
+                      }}
+              run: node node_modules/obsidian-e2e-toolkit/scripts/setup.mjs
 
-      - name: Ensure toolkit Obsidian is installed (Unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          node "${{ github.workspace }}/node_modules/obsidian-e2e-toolkit/scripts/setup.mjs"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OBSIDIAN_E2E_TOOLKIT_HOME: ${{ github.workspace }}
-          OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION: ${{ env.OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION }}
-        shell: bash
+            - name: Run E2E tests
+              env:
+                  CI: true
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+              run: pnpm run test:e2e
 
-      - name: Ensure toolkit Obsidian is installed (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          node "$env:GITHUB_WORKSPACE\node_modules\obsidian-e2e-toolkit\scripts\setup.mjs"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OBSIDIAN_E2E_TOOLKIT_HOME: ${{ github.workspace }}
-          OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION: ${{ env.OBSIDIAN_E2E_TOOLKIT_OBSIDIAN_VERSION }}
-        shell: pwsh
-
-      - name: Run E2E tests
-        env:
-          CI: true
-          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-        run: pnpm run test:e2e
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ matrix.os }}
-          path: playwright-report
+            - name: Upload Playwright report
+              if: always()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: playwright-report-${{ matrix.os }}
+                  path: playwright-report
