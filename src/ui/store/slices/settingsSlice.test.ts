@@ -27,7 +27,6 @@ describe("settingsSlice", () => {
         topics: [],
         activeTopic: "",
         files: [],
-        clickToActivateScroll: false,
         editorExpansionMode: "default",
         fullScanIntervalHours: 24,
         openInNewWindowMode: "always",

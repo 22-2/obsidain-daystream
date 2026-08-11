@@ -23,7 +23,6 @@ export interface Settings {
   autoToggleSidebar: boolean;
   debugMode: boolean;
   // When true, posts become scrollable only after being clicked (activated).
-  clickToActivateScroll: boolean;
   allowEditingPastNotes: boolean;
   updateDateStrategy: "never" | "always" | "same_day";
   topics: Topic[];
@@ -45,7 +44,6 @@ export const DEFAULT_SETTINGS: Settings = {
   enabledCardView: false,
   autoToggleSidebar: true,
   debugMode: false,
-  clickToActivateScroll: true,
   allowEditingPastNotes: false,
   updateDateStrategy: "never",
   topics: [DEFAULT_TOPIC],
@@ -229,13 +227,6 @@ export class MFDISettingTab extends PluginSettingTab {
             this.debouncedRerender();
           }),
       );
-
-    this.addToggleSetting(
-      containerEl,
-      "投稿のクリックでスクロールを有効化",
-      "有効にすると投稿をクリック（アクティベート）したときだけ内部がスクロール可能になります。",
-      "clickToActivateScroll",
-    );
 
     this.addToggleSetting(
       containerEl,
