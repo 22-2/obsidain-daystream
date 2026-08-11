@@ -596,6 +596,17 @@
   background: var(--background-modifier-form-field);
 }
 
+[data-type="mfdi-view"] .mfdi-message-body {
+  --mfdi-message-font-size: 14px;
+  --font-text-size: var(--mfdi-message-font-size) !important;
+  --checkbox-size: var(--mfdi-message-font-size) !important;
+  font-size: var(--mfdi-message-font-size) !important;
+}
+
+[data-type="mfdi-view"] .mfdi-message-body .markdown-rendered {
+  font-size: var(--mfdi-message-font-size) !important;
+}
+
 [data-type="mfdi-view"] .mfdi-dashboard-root {
   gap: 0;
 }

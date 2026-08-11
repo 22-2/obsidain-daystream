@@ -159,7 +159,7 @@ export const PostCard = React.memo(
                 gap={3}
               >
                 {/* Message Body */}
-                <Box className="text-[length:var(--font-ui-smaller)] px-1 break-words">
+                <Box className="mfdi-message-body px-1 break-words">
                   <ObsidianMarkdown
                     content={displayText}
                     sourcePath={sourcePath}
