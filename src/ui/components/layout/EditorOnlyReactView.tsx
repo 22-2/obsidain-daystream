@@ -89,7 +89,7 @@ const EditorOnlyAppRoot: React.FC<{
     store.getState().replaceInput(message);
     store.getState().setDraftMetadata(draftMetadata);
     store.getState().setDraftMetadataBase(draftMetadataBase);
-  }, [store]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [store]); // oxlint-disable-line react-hooks/exhaustive-deps
 
   return <>{children}</>;
 };

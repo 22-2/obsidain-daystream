@@ -8,16 +8,14 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
-    "dev:pc": "cd paper-cut && pnpm exec vite build --watch",
-    "build:pc": "cd paper-cut && pnpm exec vite build",
     "build:analyze": "vite build -- --analyze",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "typecheck": "pnpm tsc6 --noEmit -skipLibCheck",
-    "format": "pnpx organize-imports-cli tsconfig.json && pnpx prettier --editorconfig --write ./src && pnpm exec eslint --fix",
-    "pre:push": "pnpm typecheck && pnpm run test",
+    "check": "pnpm tsc6 --noEmit -skipLibCheck",
+    "format": "pnpx organize-imports-cli tsconfig.json && vp format --write ./src && vp lint --fix",
+    "pre:push": "pnpm check && pnpm run test",
     "ci": "pnpm install && pnpm run build && pnpm run test",
     "release": "pnpm ci && pnpm version-bump.mts ${VERSION} && git add package.json manifest.json versions.json pnpm.lockb && git commit -m ${VERSION} && git tag ${VERSION} && git push --tags && git push"
   },
@@ -28,7 +26,6 @@
     "@22-2/obsidian-copy-bundler-plugin": "1.0.2",
     "@codemirror/state": "6.7.1",
     "@codemirror/view": "6.43.8",
-    "@eslint/js": "^10.0.1",
     "@obsidian-typings/obsidian-public-latest": "^6.29.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
@@ -43,8 +40,6 @@
     "@vitejs/plugin-react": "^6.0.5",
     "electron": "43.3.0",
     "es-toolkit": "^1.50.0",
-    "eslint": "^10.8.0",
-    "eslint-plugin-react": "^7.37.5",
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.9.0",
     "jiti": "^2.7.0",
@@ -57,7 +52,6 @@
     "shadcn": "^4.16.2",
     "tailwindcss": "^4.3.3",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "typescript-eslint": "^8.66.0",
     "vite": "^8.2.1",
     "vite-bundle-analyzer": "^1.3.9",
     "vite-plugin-inspect": "12.0.2",
@@ -91,5 +85,12 @@
       "electron",
       "obsidian-e2e-toolkit"
     ]
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.21.0",
+      "onFail": "download"
+    }
   }
 }
