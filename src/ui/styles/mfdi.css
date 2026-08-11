@@ -510,8 +510,9 @@
 
 .mfdi-modal-editor {
   width: min(820px, 94vw) !important;
-  max-height: 86vh !important;
+  max-height: 43vh !important;
   position: relative;
+  top: -16vh;
 }
 
 .mfdi-modal-editor .modal-content {
@@ -532,6 +533,34 @@
 .mfdi-editor-modal__footer-content {
   margin: 0;
   padding: 0 !important;
+}
+
+.mfdi-in-view-composer__editor {
+  display: flex;
+  flex-direction: column;
+}
+
+.mfdi-in-view-composer__editor .mfdi-live-editor-container,
+.mfdi-in-view-composer__editor .mfdi-live-editor-container > div,
+.mfdi-in-view-composer__editor .markdown-source-view,
+.mfdi-in-view-composer__editor .cm-editor {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.mfdi-in-view-composer__editor .cm-scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* .cm-sizer をコンテナ全体に広げて余白クリックを可能にする。
+   通常の MarkdownView は .markdown-source-view.mod-cm6 .cm-sizer で
+   min-height: 100% が当たるが、バーチャルエディタにはそのクラスがない。 */
+.mfdi-in-view-composer__editor .cm-sizer {
+  min-height: 100%;
 }
 
 /* ==============================================
