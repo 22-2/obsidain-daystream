@@ -9,6 +9,13 @@ const logger = createLogger("settings");
 
 export type OpenInNewWindowMode = "disabled" | "minimized_only" | "always";
 
+type BooleanSettingKey = Exclude<
+  {
+    [K in keyof Settings]-?: Settings[K] extends boolean ? K : never;
+  }[keyof Settings],
+  undefined
+>;
+
 export interface Settings {
   postFormatOption: PostFormatOption;
   insertAfter: string;
@@ -23,6 +30,8 @@ export interface Settings {
   activeTopic: string;
   files: { path: string }[];
   fullScanIntervalHours?: number;
+  // 「今なにやってる？」通知の間隔（分）。0 以下で無効。
+  activityPromptIntervalMinutes?: number;
   editorExpansionMode: "full" | "default";
   // 投稿の編集をポップアウトウィンドウで開くタイミング
   openInNewWindowMode: OpenInNewWindowMode;
@@ -43,6 +52,7 @@ export const DEFAULT_SETTINGS: Settings = {
   activeTopic: "",
   files: [],
   fullScanIntervalHours: 24,
+  activityPromptIntervalMinutes: 60,
   editorExpansionMode: "default",
   openInNewWindowMode: "disabled",
   ctrlEnterSends: false,
@@ -79,6 +89,9 @@ export class MFDISettingTab extends PluginSettingTab {
 
     new Setting(containerEl).setHeading().setName("🔍 スキャン");
     this.addScanSettings(containerEl);
+
+    new Setting(containerEl).setHeading().setName("🔔 通知");
+    this.addNotificationSettings(containerEl);
   }
 
   // ---------------------------------------------------------------------------
@@ -98,18 +111,16 @@ export class MFDISettingTab extends PluginSettingTab {
     containerEl: HTMLElement,
     name: string,
     desc: string,
-    key: keyof Settings,
+    key: BooleanSettingKey,
   ): void {
     new Setting(containerEl)
       .setName(name)
       .setDesc(desc)
       .addToggle((tc) =>
-        tc
-          .setValue(Boolean(this.plugin.settings[key]))
-          .onChange(async (value) => {
-            await this.updateSetting(key as any, value as any);
-            this.debouncedRerender();
-          }),
+        tc.setValue(this.plugin.settings[key]).onChange(async (value) => {
+          await this.updateSetting(key, value);
+          this.debouncedRerender();
+        }),
       );
   }
 
@@ -193,6 +204,33 @@ export class MFDISettingTab extends PluginSettingTab {
       "有効にすると Ctrl+Enter で投稿を送信します。無効のときはキーボードショートカットでの送信を行いません。",
       "ctrlEnterSends",
     );
+  }
+
+  private addNotificationSettings(containerEl: HTMLElement): void {
+    new Setting(containerEl)
+      .setName("活動確認通知")
+      .setDesc(
+        "指定した間隔で「今なにやってる？」と通知します。通知をクリックすると入力ダイアログを開きます。",
+      )
+      .addDropdown((tc) =>
+        tc
+          .addOption("0", "無効")
+          .addOption("15", "15分")
+          .addOption("30", "30分")
+          .addOption("60", "1時間（デフォルト）")
+          .addOption("120", "2時間")
+          .addOption("240", "4時間")
+          .setValue(
+            String(this.plugin.settings.activityPromptIntervalMinutes ?? 60),
+          )
+          .onChange(async (value) => {
+            await this.updateSetting(
+              "activityPromptIntervalMinutes",
+              parseInt(value, 10),
+            );
+            this.debouncedRerender();
+          }),
+      );
   }
 
   private addDisplaySettings(containerEl: HTMLElement): void {

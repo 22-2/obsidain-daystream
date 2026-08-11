@@ -1,6 +1,7 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
 import type { WorkspaceLeaf } from "obsidian";
-import { Plugin } from "obsidian";
+import { Notice, Plugin } from "obsidian";
+import { saveActivityPromptResponse } from "src/core/activity-prompt";
 import type { BuiltinMainContext } from "src/core/builtin-registry";
 import { activateBuiltins } from "src/core/builtin-registry";
 import { setConsolaLevel } from "src/core/logger";
@@ -9,8 +10,15 @@ import type { Topic } from "src/core/topic";
 import { WorkerClient } from "src/db/worker-client";
 import { extension as mfdiBottomPaddingExtension } from "src/extension";
 import { findExistingMFDILeaf } from "src/extensions/fixed-note-view-extension";
+import {
+  ACTIVITY_PROMPT_TEXT,
+  createActivityPromptNotificationScheduler,
+  resolveActivityPromptIntervalMs,
+  type ActivityPromptNotificationScheduler,
+} from "src/notifications/activity-prompt";
 import type { Settings } from "src/settings";
 import { DEFAULT_SETTINGS, MFDISettingTab } from "src/settings";
+import { restoreAndFocusElectronWindow } from "src/shell/electron-window";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { showInputModal } from "src/ui/modals/InputModal";
 import { TopicManagerModal } from "src/ui/modals/TopicManagerModal";
@@ -26,6 +34,10 @@ export default class MFDIPlugin extends Plugin {
   shell: ObsidianAppShell;
   settings: Settings;
   view?: MFDIView;
+  private activityPromptScheduler: ActivityPromptNotificationScheduler | null =
+    null;
+  private activityPromptNotificationsReady = false;
+  private activityPromptDialogPromise: Promise<void> | null = null;
 
   private createBootstrapSettings(): Settings {
     return {
@@ -62,6 +74,10 @@ export default class MFDIPlugin extends Plugin {
     await this.loadSettings();
     setConsolaLevel(this.settings.debugMode ? 4 : 0);
     this.rerenderView();
+
+    this.activityPromptNotificationsReady = true;
+    this.register(() => this.stopActivityPromptNotifications());
+    this.restartActivityPromptNotifications();
 
     this.app.workspace.onLayoutReady(() => {
       // Worker 初期化は非同期に開始（失敗はログのみ）。
@@ -179,9 +195,91 @@ export default class MFDIPlugin extends Plugin {
   // 設定管理
   // ---------------------------------------------------------------------------
 
+  private stopActivityPromptNotifications(): void {
+    this.activityPromptScheduler?.stop();
+    this.activityPromptScheduler = null;
+  }
+
+  private restartActivityPromptNotifications(): void {
+    this.stopActivityPromptNotifications();
+
+    const intervalMs = resolveActivityPromptIntervalMs(
+      this.settings.activityPromptIntervalMinutes,
+    );
+    if (intervalMs === null) return;
+
+    this.activityPromptScheduler = createActivityPromptNotificationScheduler({
+      intervalMs,
+      onClick: () => this.openActivityPromptDialog(),
+    });
+    this.activityPromptScheduler.start();
+  }
+
+  private openActivityPromptDialog(): void {
+    restoreAndFocusElectronWindow();
+    if (this.activityPromptDialogPromise) return;
+
+    const dialogPromise = this.showActivityPromptDialog().catch((error) => {
+      console.error("Failed to open activity prompt dialog:", error);
+      new Notice("活動記録の入力ダイアログを開けませんでした");
+    });
+    this.activityPromptDialogPromise = dialogPromise;
+    void dialogPromise.finally(() => {
+      if (this.activityPromptDialogPromise === dialogPromise) {
+        this.activityPromptDialogPromise = null;
+      }
+    });
+  }
+
+  private async showActivityPromptDialog(): Promise<void> {
+    // 最小化解除直後は renderer の描画再開より先に Modal.open() が走ることがある。
+    // 少し待ってから再度 show/focus し、表示可能になったウィンドウで開く。
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
+    restoreAndFocusElectronWindow();
+
+    await showInputModal(this.app, {
+      title: ACTIVITY_PROMPT_TEXT,
+      placeholder: "いまやっていることを入力",
+      submitLabel: "保存",
+      onSubmit: async (input) => {
+        if (!input.trim()) {
+          new Notice("活動内容を入力してください");
+          return false;
+        }
+
+        try {
+          const result = await saveActivityPromptResponse({
+            shell: this.shell,
+            settings: this.settings,
+            input,
+          });
+          if (result.indexError) {
+            console.error(
+              "Failed to index saved activity prompt response:",
+              result.indexError,
+            );
+            new Notice(
+              "日次ノートには保存しましたが、一覧の更新に失敗しました",
+            );
+          } else {
+            new Notice("活動記録を保存しました");
+          }
+          return true;
+        } catch (error) {
+          console.error("Failed to save activity prompt response:", error);
+          new Notice("保存に失敗しました。入力内容はそのまま残っています");
+          return false;
+        }
+      },
+    });
+  }
+
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
     setConsolaLevel(this.settings.debugMode ? 4 : 0);
+    if (this.activityPromptNotificationsReady) {
+      this.restartActivityPromptNotifications();
+    }
   }
 
   async loadSettings(): Promise<void> {
@@ -194,6 +292,7 @@ export default class MFDIPlugin extends Plugin {
   }
 
   onunload(): void {
+    this.stopActivityPromptNotifications();
     unpatchToggleSourceCommand();
   }
 }
