@@ -29,7 +29,7 @@ export interface Settings {
   activeTopic: string;
   files: { path: string }[];
   fullScanIntervalHours?: number;
-  // 「今なにやってる？」通知の間隔（分）。0 以下で無効。
+  // 「今何してる？」通知の間隔（分）。0 以下で無効。
   activityPromptIntervalMinutes?: number;
   editorExpansionMode: "full" | "default";
   // 投稿の編集をポップアウトウィンドウで開くタイミング
@@ -239,7 +239,7 @@ export class MFDISettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("活動確認通知")
       .setDesc(
-        "指定した間隔で「今なにやってる？」と通知します。通知をクリックすると入力ダイアログを開きます。",
+        "指定した間隔で「今何してる？」と通知します。通知をクリックするとコンポーザを開きます。",
       )
       .addDropdown((tc) =>
         tc

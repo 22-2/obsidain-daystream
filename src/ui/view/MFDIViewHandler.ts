@@ -7,6 +7,7 @@ import type {
 
 export interface MFDIActionDelegate {
   onOpenDailyNoteAction?: () => void;
+  onOpenComposer?: () => void;
   onChangeGranularity?: (g: Granularity) => void;
   onChangeAsTask?: (asTask: boolean) => void;
   onChangeThreadOnly?: (threadOnly: boolean) => void;

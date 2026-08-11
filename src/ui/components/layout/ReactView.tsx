@@ -669,6 +669,17 @@ function useViewSync(view: MFDIView | null) {
 
   useEffect(() => {
     if (!view) return;
+    view.actionDelegates.onOpenComposer = () => {
+      if (isReadOnly) return;
+      store.getState().openComposer();
+    };
+    return () => {
+      view.actionDelegates.onOpenComposer = undefined;
+    };
+  }, [view, isReadOnly, store]);
+
+  useEffect(() => {
+    if (!view) return;
     view.actionDelegates.onOpenDailyNoteAction = handleClickOpenDailyNote;
     return () => {
       view.actionDelegates.onOpenDailyNoteAction = undefined;

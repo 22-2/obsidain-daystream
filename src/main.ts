@@ -1,7 +1,6 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
 import type { WorkspaceLeaf } from "obsidian";
 import { Notice, Plugin } from "obsidian";
-import { saveActivityPromptResponse } from "src/core/activity-prompt";
 import type { BuiltinMainContext } from "src/core/builtin-registry";
 import { activateBuiltins } from "src/core/builtin-registry";
 import { setConsolaLevel } from "src/core/logger";
@@ -37,7 +36,7 @@ export default class MFDIPlugin extends Plugin {
   private activityPromptScheduler: ActivityPromptNotificationScheduler | null =
     null;
   private activityPromptNotificationsReady = false;
-  private activityPromptDialogPromise: Promise<void> | null = null;
+  private activityPromptComposerPromise: Promise<void> | null = null;
 
   private createBootstrapSettings(): Settings {
     return {
@@ -210,68 +209,39 @@ export default class MFDIPlugin extends Plugin {
 
     this.activityPromptScheduler = createActivityPromptNotificationScheduler({
       intervalMs,
-      onClick: () => this.openActivityPromptDialog(),
+      onClick: () => this.openActivityPromptComposer(),
     });
     this.activityPromptScheduler.start();
   }
 
-  private openActivityPromptDialog(): void {
+  private openActivityPromptComposer(): void {
     restoreAndFocusElectronWindow();
-    if (this.activityPromptDialogPromise) return;
+    if (this.activityPromptComposerPromise) return;
 
-    const dialogPromise = this.showActivityPromptDialog().catch((error) => {
-      console.error("Failed to open activity prompt dialog:", error);
-      new Notice("活動記録の入力ダイアログを開けませんでした");
+    new Notice(ACTIVITY_PROMPT_TEXT);
+    const composerPromise = this.showActivityPromptComposer().catch((error) => {
+      console.error("Failed to open activity prompt composer:", error);
+      new Notice("コンポーザを開けませんでした");
     });
-    this.activityPromptDialogPromise = dialogPromise;
-    void dialogPromise.finally(() => {
-      if (this.activityPromptDialogPromise === dialogPromise) {
-        this.activityPromptDialogPromise = null;
+    this.activityPromptComposerPromise = composerPromise;
+    void composerPromise.finally(() => {
+      if (this.activityPromptComposerPromise === composerPromise) {
+        this.activityPromptComposerPromise = null;
       }
     });
   }
 
-  private async showActivityPromptDialog(): Promise<void> {
-    // 最小化解除直後は renderer の描画再開より先に Modal.open() が走ることがある。
-    // 少し待ってから再度 show/focus し、表示可能になったウィンドウで開く。
+  private async showActivityPromptComposer(): Promise<void> {
+    const leaf = await this.attachMFDIView({});
+    if (!leaf) return;
+
+    this.app.workspace.revealLeaf(leaf);
+
+    // 最小化解除直後は renderer の描画再開より先に React 側の delegate が
+    // 登録されていないことがある。少し待ってからコンポーザを開く。
     await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
     restoreAndFocusElectronWindow();
-
-    await showInputModal(this.app, {
-      title: ACTIVITY_PROMPT_TEXT,
-      placeholder: "いまやっていることを入力",
-      submitLabel: "保存",
-      onSubmit: async (input) => {
-        if (!input.trim()) {
-          new Notice("活動内容を入力してください");
-          return false;
-        }
-
-        try {
-          const result = await saveActivityPromptResponse({
-            shell: this.shell,
-            settings: this.settings,
-            input,
-          });
-          if (result.indexError) {
-            console.error(
-              "Failed to index saved activity prompt response:",
-              result.indexError,
-            );
-            new Notice(
-              "日次ノートには保存しましたが、一覧の更新に失敗しました",
-            );
-          } else {
-            new Notice("活動記録を保存しました");
-          }
-          return true;
-        } catch (error) {
-          console.error("Failed to save activity prompt response:", error);
-          new Notice("保存に失敗しました。入力内容はそのまま残っています");
-          return false;
-        }
-      },
-    });
+    (leaf.view as MFDIView).actionDelegates.onOpenComposer?.();
   }
 
   async saveSettings(): Promise<void> {

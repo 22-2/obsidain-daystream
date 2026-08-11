@@ -3,7 +3,7 @@ import {
   setInterval as setWorkerInterval,
 } from "worker-timers";
 
-export const ACTIVITY_PROMPT_TEXT = "今なにやってる？";
+export const ACTIVITY_PROMPT_TEXT = "今何してる？";
 export const DEFAULT_ACTIVITY_PROMPT_INTERVAL_MINUTES = 60;
 
 type NotificationPermissionState = "default" | "denied" | "granted";
