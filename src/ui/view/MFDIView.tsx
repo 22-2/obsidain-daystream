@@ -4,12 +4,12 @@ import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { ensureExtension } from "src/core/path";
 import type { Settings } from "src/settings";
-import { EditableTitleBar } from "src/ui/components/common/EditableTitleBar";
 import { ReactView } from "src/ui/components/layout/ReactView";
-import { addPeriodMenuItems } from "src/ui/menus/periodMenu";
+import { addMFDIPaneMenuItems } from "src/ui/menus/mfdiPaneMenu";
 import "src/ui/styles/global.css";
 import "src/ui/styles/mfdi.css";
 import type { MFDIActionDelegate } from "src/ui/view/MFDIViewHandler";
+import { MFDIFixedNoteTitle } from "src/ui/view/MFDIFixedNoteTitle";
 import type { MFDIViewState } from "src/ui/view/state";
 import {
   DEFAULT_MFDI_VIEW_STATE,
@@ -20,11 +20,11 @@ import {
 export const VIEW_TYPE_MFDI = "mfdi-view";
 
 export class MFDIView extends ItemView {
-  private editableTitleBar: EditableTitleBar | null = null;
   private root: Root | null = null;
   private settings: Settings;
   private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
   private externalStateRevision = 0;
+  private readonly fixedNoteTitle: MFDIFixedNoteTitle;
 
   public navigation = false;
   public readonly actionDelegates: MFDIActionDelegate = {};
@@ -32,6 +32,11 @@ export class MFDIView extends ItemView {
   constructor(leaf: WorkspaceLeaf, settings: Settings) {
     super(leaf);
     this.settings = settings;
+    this.fixedNoteTitle = new MFDIFixedNoteTitle(
+      this,
+      () => this.state,
+      (newTitle) => this.renameFixedNote(newTitle),
+    );
   }
 
   // -----------------------------------------------------------------------
@@ -68,10 +73,11 @@ export class MFDIView extends ItemView {
   }
 
   onPaneMenu(menu: Menu, prev: string): void {
-    this.addFixedNoteMenuItems(menu);
-    this.addViewMenuItems(menu);
-    this.addPeriodMenuItemsIfSupported(menu);
-    this.addDeleteFixedNoteMenuItem(menu);
+    addMFDIPaneMenuItems(menu, {
+      getState: () => this.state,
+      actionDelegates: this.actionDelegates,
+      onDeleteFixedNote: () => this.deleteFixedNote(),
+    });
 
     super.onPaneMenu(menu, prev);
   }
@@ -150,7 +156,7 @@ export class MFDIView extends ItemView {
     });
 
     this.scope.register([], "F2", () => {
-      this.editableTitleBar?.focus();
+      this.fixedNoteTitle.focus();
       return false;
     });
   }
@@ -172,7 +178,7 @@ export class MFDIView extends ItemView {
 
   private updateView(): void {
     this.updateActions();
-    this.updateEditableTitleBar();
+    this.fixedNoteTitle.update();
     this.renderReactView();
   }
 
@@ -197,30 +203,6 @@ export class MFDIView extends ItemView {
       .forEach((el) => el.detach());
   }
 
-  private updateEditableTitleBar(): void {
-    if (this.state.noteMode !== "fixed") return;
-
-    if (!this.editableTitleBar) {
-      this.editableTitleBar = new EditableTitleBar(this, {
-        scope: new Scope(this.app.scope),
-        getTitle: () => getFixedNoteTitle(this.state.file),
-        onSubmitTitle: async (newTitle: string) => {
-          if (!this.state.file || !newTitle.trim()) return;
-
-          const file = this.app.vault.getAbstractFileByPath(this.state.file);
-          if (!(file instanceof TFile)) return;
-
-          await this.app.fileManager.renameFile(file, ensureExtension(newTitle, ".mfdi.md"));
-
-          this.state.file = file.path;
-          this.updateView();
-        },
-      });
-    }
-
-    this.editableTitleBar.render();
-  }
-
   private renderReactView(): void {
     if (!this.root) {
       // Obsidian API: containerEl より contentEl を直接指定する方が安全
@@ -229,88 +211,24 @@ export class MFDIView extends ItemView {
     this.root.render(<ReactView app={this.app} settings={this.settings} view={this} />);
   }
 
-  // -----------------------------------------------------------------------
-  // Menu Builders
-  // -----------------------------------------------------------------------
+  private async renameFixedNote(newTitle: string): Promise<void> {
+    if (!this.state.file || !newTitle.trim()) return;
 
-  private addFixedNoteMenuItems(menu: Menu): void {
-    if (this.state.displayMode === "timeline") return;
+    const file = this.app.vault.getAbstractFileByPath(this.state.file);
+    if (!(file instanceof TFile)) return;
 
-    menu.addItem((item) =>
-      item
-        .setTitle("現在のノートを開く")
-        .setIcon("external-link")
-        .onClick(() => this.actionDelegates.onOpenDailyNoteAction?.()),
-    );
+    await this.app.fileManager.renameFile(file, ensureExtension(newTitle, ".mfdi.md"));
+
+    this.state.file = file.path;
+    this.updateView();
   }
 
-  private addViewMenuItems(menu: Menu): void {
-    const capabilities = getMFDIViewCapabilities(this.state);
+  private async deleteFixedNote(): Promise<void> {
+    if (!this.state.file) return;
 
-    menu.addItem((item) =>
-      item
-        .setTitle("すべてのメッセージをコピー")
-        .setIcon("copy")
-        .onClick(() => this.actionDelegates.onCopyAllPosts?.()),
-    );
-
-    menu.addSeparator();
-    menu.addItem((item) => item.setTitle("ビュー").setIcon("panels-top-left").setDisabled(true));
-
-    menu.addItem((item) =>
-      item
-        .setTitle("下書きを管理")
-        .setIcon("library")
-        .onClick(() => this.actionDelegates.onOpenDraftList?.()),
-    );
-
-    if (capabilities.supportsDisplayModeSwitch) {
-      const isFocus = this.state.displayMode === "focus";
-      menu.addItem((item) =>
-        item
-          .setTitle(isFocus ? "フォーカスモード" : "タイムラインモード")
-          .setIcon(isFocus ? "toggle-left" : "toggle-right")
-          .onClick(() =>
-            this.actionDelegates.onChangeDisplayMode?.(isFocus ? "timeline" : "focus"),
-          ),
-      );
+    const file = this.app.metadataCache.getFirstLinkpathDest(this.state.file, "");
+    if (file instanceof TFile) {
+      await this.app.fileManager.trashFile(file);
     }
-
-    menu.addItem((item) =>
-      item
-        .setTitle(this.state.asTask ? "タスクモード" : "メッセージモード")
-        .setIcon(this.state.asTask ? "toggle-left" : "toggle-right")
-        .onClick(() => this.actionDelegates.onChangeAsTask?.(!this.state.asTask)),
-    );
-  }
-
-  private addPeriodMenuItemsIfSupported(menu: Menu): void {
-    const capabilities = getMFDIViewCapabilities(this.state);
-    if (!capabilities.supportsPeriodMenus) return;
-    if (this.state.displayMode !== "focus") return;
-
-    addPeriodMenuItems(menu, this.state, {
-      onChangeTimeFilter: (f) => this.actionDelegates.onChangeTimeFilter?.(f),
-      onChangeDateFilter: (f) => this.actionDelegates.onChangeDateFilter?.(f),
-    });
-  }
-
-  private addDeleteFixedNoteMenuItem(menu: Menu): void {
-    if (this.state.noteMode !== "fixed") return;
-
-    menu.addSeparator();
-    menu.addItem((item) => {
-      item
-        .setTitle("削除")
-        .setIcon("trash")
-        .setWarning(true)
-        .onClick(async () => {
-          if (!this.state.file) return;
-          const file = this.app.metadataCache.getFirstLinkpathDest(this.state.file, "");
-          if (file instanceof TFile) {
-            await this.app.fileManager.trashFile(file);
-          }
-        });
-    });
   }
 }
