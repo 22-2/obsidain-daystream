@@ -6,7 +6,7 @@ import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { useCurrentAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
-import { settingsStore, useSettingsStore } from "src/ui/store/settingsStore";
+import { useSettingsStore } from "src/ui/store/settingsStore";
 import { getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { DisplayMode, Granularity } from "src/ui/types";
 import type { MFDIView } from "src/ui/view/MFDIView";
@@ -234,12 +234,11 @@ export function useMFDIViewDelegates(view: MFDIView | null): void {
   useEffect(() => {
     if (!view) return;
     view.actionDelegates.onGetDebugStateForTesting = () => {
-      const state = settingsStore.getState();
       const appState = store.getState();
       return {
-        settingsDateIso: state.date.toISOString(),
-        displayMode: state.displayMode,
-        activeTopic: state.activeTopic,
+        settingsDateIso: appState.date.toISOString(),
+        displayMode: appState.displayMode,
+        activeTopic: appState.activeTopic,
         inputSnapshot: appState.inputSnapshot,
         editingPostMessage: appState.editingPost?.message ?? null,
         persistedInput:

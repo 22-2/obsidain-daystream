@@ -1,4 +1,3 @@
-import { settingsStore } from "src/ui/store/settingsStore";
 import type { DisplayMode } from "src/ui/types";
 import { isTimelineView } from "src/ui/utils/view-mode";
 import { mutate } from "swr";
@@ -18,17 +17,6 @@ type RefreshPostsContext = {
  */
 export function isPostsKey(key: string | string[]): boolean {
   return key.includes("posts");
-}
-
-function getRefreshPostsContext(): RefreshPostsContext {
-  const { activeTopic, displayMode, date, searchQuery, threadOnly } = settingsStore.getState();
-  return {
-    activeTopic,
-    displayMode,
-    timelineDayKey: date.format("YYYY-MM-DD"),
-    searchQuery,
-    threadOnly,
-  };
 }
 
 function getTimelineInfinitePostsKey({
@@ -52,7 +40,7 @@ function getTimelineInfinitePostsKey({
 /**
  * 全ての 'posts' 関連のキャッシュを再検証する。
  */
-export async function refreshAllPosts(context = getRefreshPostsContext()) {
+export async function refreshAllPosts(context: RefreshPostsContext) {
   // 意図: global mutate(predicate) は内部で `$inf$...` の special key を走査対象から外す。
   // そのため通常の posts key 再検証だけでは useSWRInfinite の親キャッシュが更新されず、
   // タイムラインだけ「submit 後は古いまま / focus 復帰でだけ更新」に陥る。

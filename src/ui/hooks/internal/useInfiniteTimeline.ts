@@ -5,8 +5,9 @@ import {
   resolveTimelineBaseDate,
   resolveTimelineCacheBucket,
 } from "src/ui/hooks/internal/timelinePosts";
+import { useCurrentAppStore } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
-import { settingsStore, useSettingsStore } from "src/ui/store/settingsStore";
+import { useSettingsStore } from "src/ui/store/settingsStore";
 import { refreshAllPosts } from "src/ui/utils/swr-utils";
 import { memoRecordToPost } from "src/ui/utils/thread-utils";
 import { isTimelineView } from "src/ui/utils/view-mode";
@@ -20,6 +21,7 @@ const PAGE_SIZE_DAYS = 14;
  * タイムラインモード（無限スクロール）のデータ取得と管理を担当するHook。
  */
 export const useInfiniteTimeline = () => {
+  const store = useCurrentAppStore();
   const { activeTopic, displayMode, date, searchQuery, threadOnly } = useSettingsStore(
     useShallow((s) => ({
       activeTopic: s.activeTopic,
@@ -62,7 +64,7 @@ export const useInfiniteTimeline = () => {
         return;
       }
 
-      const state = settingsStore.getState();
+      const state = store.getState();
       const now = window.moment();
       if (!state.date.isSame(now, "day")) {
         state.setDate(now);
@@ -80,7 +82,7 @@ export const useInfiniteTimeline = () => {
     return () => {
       window.clearInterval(timer);
     };
-  }, [activeTopic, displayMode, shouldFetchDb, searchQuery, threadOnly, timelineDayKey]);
+  }, [activeTopic, displayMode, shouldFetchDb, searchQuery, threadOnly, timelineDayKey, store]);
 
   // ---------------------------------------------------------------------------
   // 無限クエリ
@@ -117,7 +119,7 @@ export const useInfiniteTimeline = () => {
 
       const baseDate = resolveTimelineBaseDate(
         pageParam,
-        settingsStore.getState().getEffectiveDate,
+        store.getState().getEffectiveDate,
       );
 
       const endDate = baseDate.clone().endOf("day");

@@ -56,6 +56,12 @@ vi.mock("src/ui/store/settingsStore", () => ({
   useSettingsStore: (selector: (state: typeof settingsState) => unknown) => selector(settingsState),
 }));
 
+vi.mock("src/ui/store/appStore", () => ({
+  useCurrentAppStore: () => ({
+    getState: () => settingsState,
+  }),
+}));
+
 vi.mock("src/ui/store/postsStore", () => ({
   usePostsStore: (selector: (state: { setPosts: typeof setPostsMock }) => unknown) =>
     selector({ setPosts: setPostsMock }),
