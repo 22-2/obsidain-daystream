@@ -42,7 +42,7 @@ export interface EnvironmentSlice {
   }) => void;
 }
 
-export interface SettingsSlice {
+export interface NavigationSlice {
   activeTopic: string;
   activeTag: string | null;
   fixedSessionNumber: number;
@@ -50,18 +50,11 @@ export interface SettingsSlice {
   date: MomentLike;
   timeFilter: TimeFilter;
   dateFilter: DateFilter;
-  sidebarOpen: boolean;
-  leftPanelOpen: boolean;
-  rightPanelOpen: boolean;
   displayMode: DisplayMode;
   contentView: ContentView;
   asTask: boolean;
   threadOnly: boolean;
-  searchQuery: string;
-  searchInputOpen: boolean;
   threadFocusRootId: string | null;
-  inputAreaSize: InputAreaSize;
-  setInputAreaSize: (size: InputAreaSize) => void;
   setActiveTopic: (topicId: string) => void;
   setActiveTag: (tag: string | null) => void;
   setFixedSessionNumber: (sessionNumber: number) => void;
@@ -69,14 +62,6 @@ export interface SettingsSlice {
   setDate: (d: MomentLike) => void;
   setTimeFilter: (f: TimeFilter) => void;
   setDateFilter: (f: DateFilter) => void;
-  setSearchQuery: (q: string) => void;
-  setSearchInputOpen: (open: boolean) => void;
-  setSidebarOpen: (o: boolean) => void;
-  setLeftPanelOpen: (open: boolean) => void;
-  setRightPanelOpen: (open: boolean) => void;
-  toggleSidebar: () => void;
-  toggleLeftPanel: () => void;
-  toggleRightPanel: () => void;
   setDisplayMode: (m: DisplayMode) => void;
   setContentView: (view: ContentView) => void;
   setAsTask: (asTask: boolean) => void;
@@ -92,8 +77,29 @@ export interface SettingsSlice {
   isDateReadOnly: (date: MomentLike, granularity?: Granularity) => boolean;
   getMoveStep: () => number;
   getEffectiveDate: () => MomentLike;
-  hydrateSettingsState: () => void;
+}
+
+export interface LayoutSlice {
+  sidebarOpen: boolean;
+  leftPanelOpen: boolean;
+  rightPanelOpen: boolean;
+  searchQuery: string;
+  searchInputOpen: boolean;
+  inputAreaSize: InputAreaSize;
+  setInputAreaSize: (size: InputAreaSize) => void;
   reloadInputAreaSize: () => void;
+  setSearchQuery: (q: string) => void;
+  setSearchInputOpen: (open: boolean) => void;
+  setSidebarOpen: (o: boolean) => void;
+  setLeftPanelOpen: (open: boolean) => void;
+  setRightPanelOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  toggleLeftPanel: () => void;
+  toggleRightPanel: () => void;
+}
+
+export interface SettingsSlice extends NavigationSlice, LayoutSlice {
+  hydrateSettingsState: () => void;
 }
 
 export interface PostsSlice {
