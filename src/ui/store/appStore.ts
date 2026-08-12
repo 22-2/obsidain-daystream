@@ -40,6 +40,20 @@ export function useCurrentAppStore(): AppStoreApi {
   return React.useContext(AppStoreContext) ?? appStore;
 }
 
+/**
+ * Returns the Store owned by the nearest view Provider.
+ *
+ * The fallback-backed hook above remains for legacy/test-only callers while
+ * domain hooks use this boundary so a missing Provider fails immediately.
+ */
+export function useRequiredAppStore(): AppStoreApi {
+  const store = React.useContext(AppStoreContext);
+  if (!store) {
+    throw new Error("AppStoreProvider is required for view-scoped Store access");
+  }
+  return store;
+}
+
 export function initializeAppStore(
   params: {
     shell: NonNullable<MFDIStore["shell"]>;
@@ -57,6 +71,6 @@ export function initializeAppStore(
 }
 
 export function useAppStore<T>(selector: (state: MFDIStore) => T): T {
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
   return useStore(store, selector);
 }

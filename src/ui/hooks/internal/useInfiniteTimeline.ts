@@ -5,7 +5,7 @@ import {
   resolveTimelineBaseDate,
   resolveTimelineCacheBucket,
 } from "src/ui/hooks/internal/timelinePosts";
-import { useCurrentAppStore } from "src/ui/store/appStore";
+import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { refreshAllPosts } from "src/ui/utils/swr-utils";
@@ -21,7 +21,7 @@ const PAGE_SIZE_DAYS = 14;
  * タイムラインモード（無限スクロール）のデータ取得と管理を担当するHook。
  */
 export const useInfiniteTimeline = () => {
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
   const { activeTopic, displayMode, date, searchQuery, threadOnly } = useSettingsStore(
     useShallow((s) => ({
       activeTopic: s.activeTopic,

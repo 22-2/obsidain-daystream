@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook as renderHookBase } from "@testing-library/react";
+import React from "react";
 import { TFile } from "obsidian";
 import * as dailyNotes from "src/lib/daily-notes";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
@@ -7,12 +8,18 @@ import { useAppContext } from "src/ui/context/AppContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { createRefreshPosts } from "src/ui/hooks/internal/refreshPosts";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
-import { appStore as editorStore } from "src/ui/store/appStore";
+import { AppStoreProvider, appStore as editorStore } from "src/ui/store/appStore";
 import { noteStore } from "src/ui/store/noteStore";
 import { postsStore } from "src/ui/store/postsStore";
 import { settingsStore } from "src/ui/store/settingsStore";
 import { THREAD_METADATA_KEYS } from "src/ui/utils/thread-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const StoreWrapper = ({ children }: { children: React.ReactNode }) =>
+  React.createElement(AppStoreProvider, { store: editorStore, children });
+
+const renderHook = (callback: () => ReturnType<typeof usePostActions>) =>
+  renderHookBase(callback, { wrapper: StoreWrapper });
 
 vi.mock("src/ui/context/EditorRefsContext", () => ({
   useEditorRefs: vi.fn(),

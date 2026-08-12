@@ -4,7 +4,7 @@ import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
-import { useCurrentAppStore } from "src/ui/store/appStore";
+import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { getInputStorageKey } from "src/ui/store/slices/inputStorage";
@@ -16,7 +16,7 @@ import { useShallow } from "zustand/shallow";
 export function useMFDIViewDelegates(view: MFDIView | null): void {
   const { shell, settings } = useAppContext();
   const { openDraftList } = useObsidianUi();
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
   const { inputRef } = useEditorRefs();
 
   const {

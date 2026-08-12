@@ -10,7 +10,7 @@ import {
   AppStoreProvider,
   createAppStore,
   initializeAppStore,
-  useCurrentAppStore,
+  useRequiredAppStore,
   type AppStoreApi,
 } from "src/ui/store/appStore";
 import { reconstructEditingPost } from "src/ui/store/slices/editorSlice";
@@ -58,7 +58,7 @@ const EditorOnlyAppRoot: React.FC<{
   initialState: MFDIEditorViewState | null;
 }> = ({ children, initialState }) => {
   const { settings, storage, shell } = useAppContext();
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
 
   // 意図: 子の live editor は mount 時の passive effect で初期化されるため、
   // hydration が遅れると空の初期 state が editor/localStorage へ流れて復元値を潰す。

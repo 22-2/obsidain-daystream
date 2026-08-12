@@ -1,7 +1,7 @@
 import type { MFDIStorage } from "src/core/storage";
 import type { Settings } from "src/settings";
 import type { AppStoreApi } from "src/ui/store/appStore";
-import { appStore, useCurrentAppStore } from "src/ui/store/appStore";
+import { appStore, useRequiredAppStore } from "src/ui/store/appStore";
 import type { MFDIStore, SettingsSlice } from "src/ui/store/slices/types";
 import { useStore } from "zustand";
 
@@ -19,6 +19,6 @@ export function initializeSettingsStore(
 }
 
 export function useSettingsStore<T>(selector: (state: SettingsSlice & MFDIStore) => T): T {
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
   return useStore(store, selector as (state: MFDIStore) => T);
 }

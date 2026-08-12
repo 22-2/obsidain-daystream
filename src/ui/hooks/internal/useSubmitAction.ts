@@ -8,7 +8,7 @@ import { useAppContext } from "src/ui/context/AppContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { usePostHelpers } from "src/ui/hooks/internal/usePostHelpers";
 import { usePosts } from "src/ui/hooks/usePosts";
-import { useCurrentAppStore } from "src/ui/store/appStore";
+import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -20,7 +20,7 @@ import { useShallow } from "zustand/shallow";
 /** 新規投稿・編集確定のみを担う hook。InputArea / InputAreaFooter / ReactView が利用する。 */
 export const useSubmitAction = () => {
   const { shell, settings } = useAppContext();
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
 
   const settingsState = useSettingsStore(
     useShallow((s) => ({

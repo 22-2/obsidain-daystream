@@ -3,6 +3,7 @@ import moment from "moment";
 import { DEFAULT_SETTINGS } from "src/settings";
 import { MiniCalendar } from "src/ui/components/calendar/MiniCalendar";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
+import { AppStoreProvider } from "src/ui/store/appStore";
 import { initializePostsStore } from "src/ui/store/postsStore";
 import { initializeSettingsStore, settingsStore } from "src/ui/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -45,6 +46,13 @@ vi.mock("src/core/note-source", () => ({
 }));
 
 describe("MiniCalendar", () => {
+  const renderMiniCalendar = () =>
+    render(
+      <AppStoreProvider store={settingsStore}>
+        <MiniCalendar />
+      </AppStoreProvider>,
+    );
+
   beforeEach(() => {
     vi.clearAllMocks();
     initializeSettingsStore(DEFAULT_SETTINGS, {
@@ -65,7 +73,7 @@ describe("MiniCalendar", () => {
       activeTopic: "",
     });
 
-    const { getByText } = render(<MiniCalendar />);
+    const { getByText } = renderMiniCalendar();
     expect(getByText("2026年")).toBeDefined();
     expect(getByText("3月")).toBeDefined();
   });
@@ -81,7 +89,7 @@ describe("MiniCalendar", () => {
     // In MiniCalendar, posts are just used to show dots (activityDates)
     // The range calculation is internal to calcSelectedRange and buildWeeksInMonth
 
-    const { getByText, getAllByText } = render(<MiniCalendar />);
+    const { getByText, getAllByText } = renderMiniCalendar();
     // 3/9 itself should have the selected day class (accent color)
     // 3/3 to 3/8 should be in the selected range (active hover bg)
     // We'll just ensure it renders and doesn't crash, the UI checks are handled by Chakra styles
@@ -103,7 +111,7 @@ describe("MiniCalendar", () => {
       activeTopic: "",
     });
 
-    const { container } = render(<MiniCalendar />);
+    const { container } = renderMiniCalendar();
     const dayCell = container.querySelector(".mini-calendar__day-cell");
 
     expect(dayCell).toBeTruthy();
@@ -123,7 +131,7 @@ describe("MiniCalendar", () => {
       activeTopic: "",
     });
 
-    const { getByText } = render(<MiniCalendar />);
+    const { getByText } = renderMiniCalendar();
 
     fireEvent.click(getByText("2026年"));
     expect(settingsStore.getState().granularity).toBe("day");
@@ -152,7 +160,7 @@ describe("MiniCalendar", () => {
       activeTopic: "",
     });
 
-    const { container } = render(<MiniCalendar />);
+    const { container } = renderMiniCalendar();
     const selectedWeek = moment("2026-03-09T00:00:00.000Z").isoWeek().toString();
     const weekButtons = Array.from(container.querySelectorAll(".mini-calendar__week-number"));
     const selectedWeekButton = weekButtons.find((el) => el.textContent?.trim() === selectedWeek);

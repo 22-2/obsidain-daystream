@@ -10,7 +10,7 @@ import { DraftListModal } from "src/ui/modals/DraftListModal";
 import { showInputModal } from "src/ui/modals/InputModal";
 import type { MFDIEditorModalOptions } from "src/ui/modals/MFDIEditorModal";
 import { MFDIEditorModal } from "src/ui/modals/MFDIEditorModal";
-import { useCurrentAppStore } from "src/ui/store/appStore";
+import { useRequiredAppStore } from "src/ui/store/appStore";
 import type { PersistedEditingPost } from "src/ui/store/slices/editorSlice";
 import type { Post } from "src/ui/types";
 import type { MFDIEditorViewState } from "src/ui/view/MFDIEditorView";
@@ -21,7 +21,7 @@ type InputModalArgs = Parameters<typeof showInputModal>[1];
 
 export function useObsidianUi() {
   const { shell } = useAppContext();
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
 
   const openPopoutEditorView = useCallback(
     (state: MFDIEditorViewState): boolean => {

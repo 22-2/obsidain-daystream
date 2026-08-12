@@ -16,7 +16,7 @@ import {
   createAppStore,
   initializeAppStore,
   useAppStore,
-  useCurrentAppStore,
+  useRequiredAppStore,
 } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
@@ -68,7 +68,7 @@ const MFDIAppRoot: React.FC<{
 }> = ({ children, initialViewState }) => {
   const { settings, storage, shell } = useAppContext();
   const component = useObsidianComponent() as MFDIView;
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
   const { viewNoteMode, file } = useAppStore(
     useShallow((s) => ({
       viewNoteMode: s.viewNoteMode,

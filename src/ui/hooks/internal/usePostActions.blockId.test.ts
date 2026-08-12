@@ -1,11 +1,19 @@
 // @vitest-environment jsdom
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook as renderHookBase } from "@testing-library/react";
+import React from "react";
 import { Notice, TFile } from "obsidian";
 import { useAppContext } from "src/ui/context/AppContext";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
+import { AppStoreProvider, appStore as editorStore } from "src/ui/store/appStore";
 import { postsStore } from "src/ui/store/postsStore";
 import { settingsStore } from "src/ui/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const StoreWrapper = ({ children }: { children: React.ReactNode }) =>
+  React.createElement(AppStoreProvider, { store: editorStore, children });
+
+const renderHook = (callback: () => ReturnType<typeof usePostActions>) =>
+  renderHookBase(callback, { wrapper: StoreWrapper });
 
 vi.mock("swr", () => ({
   default: (_key: unknown, _fetcher?: unknown) => ({

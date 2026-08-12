@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { useEffect } from "react";
 import { resolveNoteSource } from "src/core/note-source";
-import { useAppStore, useCurrentAppStore } from "src/ui/store/appStore";
+import { useAppStore, useRequiredAppStore } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -11,7 +11,7 @@ import { useShallow } from "zustand/shallow";
 
 export function useNoteSync() {
   const shell = useAppStore((s) => s.shell);
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
 
   const { date, granularity, activeTopic, dateFilter, displayMode, setDate } = useSettingsStore(
     useShallow((s) => ({

@@ -6,7 +6,7 @@ import { serializeMfdiTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { usePostHelpers } from "src/ui/hooks/internal/usePostHelpers";
-import { useCurrentAppStore } from "src/ui/store/appStore";
+import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
@@ -17,7 +17,7 @@ import { useShallow } from "zustand/shallow";
 /** 投稿の CRUD・タグ・ピン等、一覧上の操作を担う hook。PostListView が利用する。 */
 export const usePostMutations = () => {
   const { shell, settings } = useAppContext();
-  const store = useCurrentAppStore();
+  const store = useRequiredAppStore();
 
   const settingsState = useSettingsStore(
     useShallow((s) => ({

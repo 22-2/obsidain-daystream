@@ -57,7 +57,7 @@ vi.mock("src/ui/store/settingsStore", () => ({
 }));
 
 vi.mock("src/ui/store/appStore", () => ({
-  useCurrentAppStore: () => ({
+  useRequiredAppStore: () => ({
     getState: () => settingsState,
   }),
 }));
