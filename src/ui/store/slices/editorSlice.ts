@@ -1,5 +1,18 @@
-import { INPUT_AREA_SIZE, STORAGE_KEYS } from "src/ui/config/consntants";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
+import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import {
+  clearEditingPost,
+  persistComposerOpen,
+  persistDraftMetadata,
+  persistEditingPost,
+  persistInput as persistInputValue,
+  reconstructEditingPost,
+  restoreEditorState,
+} from "src/ui/store/slices/editorPersistence";
+import type {
+  DraftMetadata,
+  PersistedDraftMetadataState,
+  PersistedEditingPost,
+} from "src/ui/store/slices/editorPersistence";
 import type { EditorSlice, MFDIStore } from "src/ui/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
@@ -10,40 +23,16 @@ type UpdateSessionInputOptions = {
   persistMode?: PersistMode;
 };
 
-export type DraftMetadata = Record<string, string>;
-export type PersistedDraftMetadataState = {
-  draftMetadata: DraftMetadata;
-  draftMetadataBase: DraftMetadata;
-};
+export type {
+  DraftMetadata,
+  PersistedDraftMetadataState,
+  PersistedEditingPost,
+} from "src/ui/store/slices/editorPersistence";
 
 // 編集中投稿のセッション情報を1オブジェクトにまとめて永続化する
 // settingsSlice が granularity / noteDateStr を参照するため両フィールドを含む
-export type PersistedEditingPost = {
-  id: string;
-  path: string;
-  timestampStr: string;
-  metadataStr: string;
-  noteDateStr: string;
-  offset: number;
-  granularity: string;
-};
 
-// 意図: popout エディタビューが別 JS コンテキストで startEdit に渡す Post を
-// 再構築できるよう、シリアライズ済みデータから Post を復元する関数を公開する。
-export const reconstructEditingPost = (persisted: PersistedEditingPost, message: string) => ({
-  id: persisted.id,
-  path: persisted.path,
-  timestamp: window.moment(persisted.timestampStr),
-  noteDate: window.moment(persisted.noteDateStr),
-  metadata: JSON.parse(persisted.metadataStr),
-  message,
-  startOffset: persisted.offset,
-  endOffset: persisted.offset + message.length, // 近似値
-  offset: persisted.offset,
-  bodyStartOffset: persisted.offset, // 近似値
-  kind: "thino" as const,
-  threadRootId: null, // 必要に応じて解決される
-});
+export { reconstructEditingPost } from "src/ui/store/slices/editorPersistence";
 
 export function mergeDraftMetadataForSubmit(params: {
   latestMetadata: DraftMetadata;
@@ -69,7 +58,6 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
   const persistInput = (input: string, mode: PersistMode) => {
     const { viewNoteMode, file, fixedSessionNumber } = get();
-    const inputStorageKey = getInputStorageKey(viewNoteMode, file, fixedSessionNumber);
 
     if (inputPersistTimer !== null) {
       clearTimeout(inputPersistTimer);
@@ -77,19 +65,25 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
     }
 
     if (mode === "immediate") {
-      get().storage?.set(inputStorageKey, input);
+      persistInputValue(
+        { storage: get().storage, viewNoteMode, file, fixedSessionNumber },
+        input,
+      );
       return;
     }
 
     inputPersistTimer = setTimeout(() => {
-      get().storage?.set(inputStorageKey, input);
+      persistInputValue(
+        { storage: get().storage, viewNoteMode, file, fixedSessionNumber },
+        input,
+      );
       inputPersistTimer = null;
     }, 200);
   };
 
-  const persistDraftMetadata = (state: PersistedDraftMetadataState) => {
+  const saveDraftMetadata = (state: PersistedDraftMetadataState) => {
     const { storage, viewNoteMode, file, fixedSessionNumber } = get();
-    storage?.set(getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber), state);
+    persistDraftMetadata({ storage, viewNoteMode, file, fixedSessionNumber }, state);
   };
 
   const updateSessionInput = (input: string, options: UpdateSessionInputOptions = {}) => {
@@ -121,12 +115,12 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
     openComposer: () => {
       set({ composerOpen: true });
-      get().storage?.set(STORAGE_KEYS.COMPOSER_OPEN, true);
+      persistComposerOpen(get().storage, true);
     },
 
     closeComposer: () => {
       set({ composerOpen: false });
-      get().storage?.set(STORAGE_KEYS.COMPOSER_OPEN, false);
+      persistComposerOpen(get().storage, false);
     },
 
     replaceInput: (input) => {
@@ -142,12 +136,12 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         persistMode: "immediate",
       });
       set({ draftMetadata: {}, draftMetadataBase: {} });
-      persistDraftMetadata({ draftMetadata: {}, draftMetadataBase: {} });
+      saveDraftMetadata({ draftMetadata: {}, draftMetadataBase: {} });
     },
 
     setDraftMetadata: (metadata) => {
       set({ draftMetadata: metadata });
-      persistDraftMetadata({
+      saveDraftMetadata({
         draftMetadata: metadata,
         draftMetadataBase: get().draftMetadataBase,
       });
@@ -155,7 +149,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
     setDraftMetadataBase: (metadata) => {
       set({ draftMetadataBase: metadata });
-      persistDraftMetadata({
+      saveDraftMetadata({
         draftMetadata: get().draftMetadata,
         draftMetadataBase: metadata,
       });
@@ -191,7 +185,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         draftMetadata: { ...post.metadata },
         draftMetadataBase: { ...post.metadata },
       });
-      persistDraftMetadata({
+      saveDraftMetadata({
         draftMetadata: { ...post.metadata },
         draftMetadataBase: { ...post.metadata },
       });
@@ -206,7 +200,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         offset: post.startOffset,
         granularity,
       };
-      storage?.set(STORAGE_KEYS.EDITING_POST, persisted);
+      persistEditingPost(storage, persisted);
 
       replaceInput(post.message);
     },
@@ -216,7 +210,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
       set({ editingPost: null, editingPostOffset: null });
       set({ draftMetadata: {}, draftMetadataBase: {} });
-      storage?.remove(STORAGE_KEYS.EDITING_POST);
+      clearEditingPost(storage);
       clearInput();
     },
 
@@ -243,41 +237,33 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
     hydrateEditorState: () => {
       const { storage, viewNoteMode, file, fixedSessionNumber } = get();
-      if (!storage) return;
-
-      const composerOpen = storage.get<boolean>(STORAGE_KEYS.COMPOSER_OPEN, false);
-
-      const persistedInput = storage.get<string>(
-        getInputStorageKey(viewNoteMode, file, fixedSessionNumber),
-        "",
-      );
-      const persistedDraftMetadata = storage.get<PersistedDraftMetadataState>(
-        getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber),
-        {
-          draftMetadata: {},
-          draftMetadataBase: {},
-        },
-      );
-
-      const persisted = storage.get<PersistedEditingPost | null>(STORAGE_KEYS.EDITING_POST, null);
+      const persistedState = restoreEditorState({
+        storage,
+        viewNoteMode,
+        file,
+        fixedSessionNumber,
+      });
+      if (!persistedState) return;
 
       const reconstructedPost =
-        persisted !== null ? reconstructEditingPost(persisted, persistedInput) : null;
+        persistedState.editingPost !== null
+          ? reconstructEditingPost(persistedState.editingPost, persistedState.input)
+          : null;
 
       set((state) => ({
-        composerOpen,
-        inputSnapshot: state.inputSnapshot || persistedInput,
+        composerOpen: persistedState.composerOpen,
+        inputSnapshot: state.inputSnapshot || persistedState.input,
         inputSnapshotVersion: state.inputSnapshotVersion + 1,
-        editingPostOffset: state.editingPostOffset ?? persisted?.offset ?? null,
+        editingPostOffset: state.editingPostOffset ?? persistedState.editingPost?.offset ?? null,
         editingPost: state.editingPost ?? reconstructedPost,
         draftMetadata:
           Object.keys(state.draftMetadata).length > 0
             ? state.draftMetadata
-            : persistedDraftMetadata.draftMetadata,
+            : persistedState.draftMetadata.draftMetadata,
         draftMetadataBase:
           Object.keys(state.draftMetadataBase).length > 0
             ? state.draftMetadataBase
-            : persistedDraftMetadata.draftMetadataBase,
+            : persistedState.draftMetadata.draftMetadataBase,
       }));
     },
   };
