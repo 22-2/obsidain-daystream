@@ -1,3 +1,4 @@
+import type { MFDIStorage } from "src/core/storage";
 import type { Settings } from "src/settings";
 import {
   CONTENT_VIEW,
@@ -8,7 +9,9 @@ import {
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/ui/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
 import {
+  getDraftMetadataStorageKey,
   getInputAreaSizeStorageKey,
+  getInputStorageKey,
 } from "src/ui/store/slices/inputStorage";
 import type { MFDIStore } from "src/ui/store/slices/types";
 import type {
@@ -17,16 +20,145 @@ import type {
   DisplayMode,
   Granularity,
   InputAreaSize,
+  MomentLike,
   TimeFilter,
 } from "src/ui/types";
 import type { MFDINoteMode } from "src/ui/view/state";
 
-export function persistValue(
+export interface PersistedNavigationState {
+  activeTag?: string | null;
+  timeFilter?: TimeFilter;
+  dateFilter?: DateFilter;
+  granularity?: Granularity;
+  date?: MomentLike;
+  displayMode?: DisplayMode;
+  contentView?: ContentView;
+  asTask?: boolean;
+  threadFocusRootId?: string | null;
+}
+
+export function persistNavigationState(
   state: Pick<MFDIStore, "storage">,
-  key: string,
-  value: unknown,
+  patch: PersistedNavigationState,
 ): void {
-  state.storage?.set(key, value);
+  const storage = state.storage;
+  if (!storage) return;
+
+  if ("activeTag" in patch) storage.set(STORAGE_KEYS.ACTIVE_TAG, patch.activeTag);
+  if ("timeFilter" in patch) storage.set(STORAGE_KEYS.TIME_FILTER, patch.timeFilter);
+  if ("dateFilter" in patch) storage.set(STORAGE_KEYS.DATE_FILTER, patch.dateFilter);
+  if ("granularity" in patch) storage.set(STORAGE_KEYS.GRANULARITY, patch.granularity);
+  if ("date" in patch && patch.date) storage.set(STORAGE_KEYS.DATE, patch.date.toISOString());
+  if ("displayMode" in patch) storage.set(STORAGE_KEYS.DISPLAY_MODE, patch.displayMode);
+  if ("contentView" in patch) storage.set(STORAGE_KEYS.CONTENT_VIEW, patch.contentView);
+  if ("asTask" in patch) storage.set(STORAGE_KEYS.AS_TASK, patch.asTask);
+  if ("threadFocusRootId" in patch) {
+    storage.set(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, patch.threadFocusRootId);
+  }
+}
+
+export interface PersistedLayoutState {
+  sidebarOpen?: boolean;
+  leftPanelOpen?: boolean;
+  rightPanelOpen?: boolean;
+}
+
+export function persistLayoutState(
+  state: Pick<MFDIStore, "storage">,
+  patch: PersistedLayoutState,
+): void {
+  const storage = state.storage;
+  if (!storage) return;
+
+  if ("sidebarOpen" in patch) storage.set(STORAGE_KEYS.SIDEBAR_OPEN, patch.sidebarOpen);
+  if ("leftPanelOpen" in patch) storage.set(STORAGE_KEYS.PANEL_LEFT_OPEN, patch.leftPanelOpen);
+  if ("rightPanelOpen" in patch) storage.set(STORAGE_KEYS.PANEL_RIGHT_OPEN, patch.rightPanelOpen);
+}
+
+type InputAreaPersistenceState = Pick<
+  MFDIStore,
+  "storage" | "viewNoteMode" | "file" | "granularity" | "date"
+>;
+
+export function persistInputAreaSize(
+  state: InputAreaPersistenceState,
+  size: InputAreaSize,
+): void {
+  state.storage?.set(
+    getInputAreaSizeStorageKey(
+      state.viewNoteMode,
+      state.file,
+      state.granularity,
+      state.date.format("YYYY-MM-DD"),
+    ),
+    size,
+  );
+}
+
+export function restoreInputAreaSize(state: InputAreaPersistenceState): InputAreaSize {
+  return (
+    state.storage?.get<InputAreaSize>(
+      getInputAreaSizeStorageKey(
+        state.viewNoteMode,
+        state.file,
+        state.granularity,
+        state.date.format("YYYY-MM-DD"),
+      ),
+      INPUT_AREA_SIZE.DEFAULT,
+    ) ?? INPUT_AREA_SIZE.DEFAULT
+  );
+}
+
+export interface FixedSessionPersistenceState {
+  storage: MFDIStorage | null;
+  viewNoteMode: MFDINoteMode;
+  file: string | null;
+}
+
+export interface FixedSessionDraft {
+  input: string;
+  draftMetadata: Record<string, string>;
+  draftMetadataBase: Record<string, string>;
+}
+
+export function persistFixedSessionDraft(
+  state: FixedSessionPersistenceState,
+  sessionNumber: number,
+  draft: FixedSessionDraft,
+): void {
+  if (!state.storage || state.viewNoteMode !== "fixed") return;
+
+  state.storage.set(getInputStorageKey(state.viewNoteMode, state.file, sessionNumber), draft.input);
+  state.storage.set(getDraftMetadataStorageKey(state.viewNoteMode, state.file, sessionNumber), {
+    draftMetadata: draft.draftMetadata,
+    draftMetadataBase: draft.draftMetadataBase,
+  });
+}
+
+export function restoreFixedSessionDraft(
+  state: FixedSessionPersistenceState,
+  sessionNumber: number,
+): FixedSessionDraft {
+  if (!state.storage || state.viewNoteMode !== "fixed") {
+    return { input: "", draftMetadata: {}, draftMetadataBase: {} };
+  }
+
+  const draftMetadata = state.storage.get<{
+    draftMetadata: Record<string, string>;
+    draftMetadataBase: Record<string, string>;
+  }>(getDraftMetadataStorageKey(state.viewNoteMode, state.file, sessionNumber), {
+    draftMetadata: {},
+    draftMetadataBase: {},
+  });
+
+  return {
+    input: state.storage.get<string>(
+      getInputStorageKey(state.viewNoteMode, state.file, sessionNumber),
+      "",
+    ),
+    draftMetadata: draftMetadata.draftMetadata,
+    draftMetadataBase: draftMetadata.draftMetadataBase,
+  };
 }
 
 export function resolveInitialSettingsState(

@@ -1,13 +1,13 @@
 import { Notice } from "obsidian";
-import { CONTENT_VIEW, DISPLAY_MODE, MOVE_STEP, STORAGE_KEYS } from "src/ui/config/consntants";
+import { CONTENT_VIEW, DISPLAY_MODE, MOVE_STEP } from "src/ui/config/consntants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/ui/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
-import {
-  getDraftMetadataStorageKey,
-  getInputStorageKey,
-} from "src/ui/store/slices/inputStorage";
 import { DEFAULT_VIEW_STATE } from "src/ui/store/slices/settingsDefaults";
-import { persistValue } from "src/ui/store/slices/settingsPersistence";
+import {
+  persistFixedSessionDraft,
+  persistNavigationState,
+  restoreFixedSessionDraft,
+} from "src/ui/store/slices/settingsPersistence";
 import { isPastDateReadOnly, isViewReadOnly } from "src/ui/store/slices/settingsPredicates";
 import type { MFDIStore, NavigationSlice } from "src/ui/store/slices/types";
 import type {
@@ -37,12 +37,12 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
 
   setActiveTopic: (activeTopic) => {
     set({ activeTopic, threadFocusRootId: null });
-    persistValue(get(), STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(get(), { threadFocusRootId: null });
   },
 
   setActiveTag: (activeTag) => {
     set({ activeTag });
-    persistValue(get(), STORAGE_KEYS.ACTIVE_TAG, activeTag);
+    persistNavigationState(get(), { activeTag });
   },
 
   setFixedSessionNumber: (fixedSessionNumber) => {
@@ -50,7 +50,6 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       fixedSessionNumber: currentFixedSessionNumber,
       viewNoteMode,
       file,
-      storage,
       editingPost,
       getInputValue,
       replaceInput,
@@ -68,36 +67,27 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       return;
     }
 
-    if (storage && viewNoteMode === "fixed") {
-      storage.set(
-        getInputStorageKey(viewNoteMode, file, currentFixedSessionNumber),
-        getInputValue(),
-      );
-      storage.set(getDraftMetadataStorageKey(viewNoteMode, file, currentFixedSessionNumber), {
+    persistFixedSessionDraft(
+      { storage: get().storage, viewNoteMode, file },
+      currentFixedSessionNumber,
+      {
+        input: getInputValue(),
         draftMetadata,
         draftMetadataBase,
-      });
-    }
+      },
+    );
 
     set({ fixedSessionNumber, threadFocusRootId: null });
 
-    if (storage && viewNoteMode === "fixed") {
-      const restoredInput = storage.get<string>(
-        getInputStorageKey(viewNoteMode, file, fixedSessionNumber),
-        "",
-      );
-      const restoredDraftMetadata = storage.get<{
-        draftMetadata: Record<string, string>;
-        draftMetadataBase: Record<string, string>;
-      }>(getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber), {
-        draftMetadata: {},
-        draftMetadataBase: {},
-      });
-
-      replaceInput(restoredInput);
+    const restoredDraft = restoreFixedSessionDraft(
+      { storage: get().storage, viewNoteMode, file },
+      fixedSessionNumber,
+    );
+    if (get().storage && viewNoteMode === "fixed") {
+      replaceInput(restoredDraft.input);
       set({
-        draftMetadata: restoredDraftMetadata.draftMetadata,
-        draftMetadataBase: restoredDraftMetadata.draftMetadataBase,
+        draftMetadata: restoredDraft.draftMetadata,
+        draftMetadataBase: restoredDraft.draftMetadataBase,
       });
     }
   },
@@ -110,22 +100,23 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
         granularity !== GRANULARITY_CONFIG.day.unit ? DISPLAY_MODE.FOCUS : state.displayMode,
     }));
     const state = get();
-    persistValue(state, STORAGE_KEYS.GRANULARITY, granularity);
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, state.displayMode);
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(state, {
+      granularity,
+      displayMode: state.displayMode,
+      threadFocusRootId: null,
+    });
   },
 
   setDate: (date) => {
     set({ date, threadFocusRootId: null });
     const state = get();
-    persistValue(state, STORAGE_KEYS.DATE, date.toISOString());
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(state, { date, threadFocusRootId: null });
     state.reloadInputAreaSize();
   },
 
   setTimeFilter: (timeFilter: TimeFilter) => {
     set({ timeFilter });
-    persistValue(get(), STORAGE_KEYS.TIME_FILTER, timeFilter);
+    persistNavigationState(get(), { timeFilter });
   },
 
   setDateFilter: (dateFilter: DateFilter) => {
@@ -135,26 +126,26 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       threadFocusRootId: null,
     });
     const state = get();
-    persistValue(state, STORAGE_KEYS.DATE_FILTER, dateFilter);
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.FOCUS);
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(state, {
+      dateFilter,
+      displayMode: DISPLAY_MODE.FOCUS,
+      threadFocusRootId: null,
+    });
   },
 
   setDisplayMode: (displayMode: DisplayMode) => {
     set({ displayMode, threadFocusRootId: null });
-    const state = get();
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, displayMode);
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(get(), { displayMode, threadFocusRootId: null });
   },
 
   setContentView: (contentView: ContentView) => {
     set({ contentView });
-    persistValue(get(), STORAGE_KEYS.CONTENT_VIEW, contentView);
+    persistNavigationState(get(), { contentView });
   },
 
   setAsTask: (asTask: boolean) => {
     set({ asTask });
-    persistValue(get(), STORAGE_KEYS.AS_TASK, asTask);
+    persistNavigationState(get(), { asTask });
   },
 
   setThreadOnly: (threadOnly: boolean) => {
@@ -169,11 +160,11 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       displayMode: threadFocusRootId !== null ? DISPLAY_MODE.FOCUS : state.displayMode,
     }));
     const state = get();
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, threadFocusRootId);
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, state.displayMode);
-    if (threadFocusRootId !== null && focusDate != null) {
-      persistValue(state, STORAGE_KEYS.DATE, state.date.toISOString());
-    }
+    persistNavigationState(state, {
+      threadFocusRootId,
+      displayMode: state.displayMode,
+      ...(threadFocusRootId !== null && focusDate != null ? { date: state.date } : {}),
+    });
   },
 
   handleClickHome: () => {
@@ -186,15 +177,17 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       searchInputOpen: false,
     });
     const state = get();
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DEFAULT_VIEW_STATE.displayMode);
-    persistValue(state, STORAGE_KEYS.CONTENT_VIEW, DEFAULT_VIEW_STATE.contentView);
-    persistValue(state, STORAGE_KEYS.GRANULARITY, DEFAULT_VIEW_STATE.granularity);
-    persistValue(state, STORAGE_KEYS.DATE_FILTER, DEFAULT_VIEW_STATE.dateFilter);
-    persistValue(state, STORAGE_KEYS.TIME_FILTER, DEFAULT_VIEW_STATE.timeFilter);
-    persistValue(state, STORAGE_KEYS.AS_TASK, DEFAULT_VIEW_STATE.asTask);
-    persistValue(state, STORAGE_KEYS.DATE, now.toISOString());
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, DEFAULT_VIEW_STATE.threadFocusRootId);
-    persistValue(state, STORAGE_KEYS.ACTIVE_TAG, DEFAULT_VIEW_STATE.activeTag);
+    persistNavigationState(state, {
+      displayMode: DEFAULT_VIEW_STATE.displayMode,
+      contentView: DEFAULT_VIEW_STATE.contentView,
+      granularity: DEFAULT_VIEW_STATE.granularity,
+      dateFilter: DEFAULT_VIEW_STATE.dateFilter,
+      timeFilter: DEFAULT_VIEW_STATE.timeFilter,
+      asTask: DEFAULT_VIEW_STATE.asTask,
+      date: now,
+      threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
+      activeTag: DEFAULT_VIEW_STATE.activeTag,
+    });
   },
 
   handleClickToday: () => {
@@ -205,9 +198,11 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       threadFocusRootId: null,
     });
     const state = get();
-    persistValue(state, STORAGE_KEYS.DATE, now.toISOString());
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.TIMELINE);
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(state, {
+      date: now,
+      displayMode: DISPLAY_MODE.TIMELINE,
+      threadFocusRootId: null,
+    });
     state.reloadInputAreaSize();
   },
 
@@ -237,9 +232,11 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       threadFocusRootId: null,
     });
     const state = get();
-    persistValue(state, STORAGE_KEYS.DATE, nextDate.toISOString());
-    persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.FOCUS);
-    persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+    persistNavigationState(state, {
+      date: nextDate,
+      displayMode: DISPLAY_MODE.FOCUS,
+      threadFocusRootId: null,
+    });
     state.reloadInputAreaSize();
   },
 
@@ -296,8 +293,10 @@ function moveDate(
     threadFocusRootId: null,
   });
   const state = get();
-  persistValue(state, STORAGE_KEYS.DATE, nextDate.toISOString());
-  persistValue(state, STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.FOCUS);
-  persistValue(state, STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null);
+  persistNavigationState(state, {
+    date: nextDate,
+    displayMode: DISPLAY_MODE.FOCUS,
+    threadFocusRootId: null,
+  });
   state.reloadInputAreaSize();
 }

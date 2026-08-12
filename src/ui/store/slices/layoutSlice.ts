@@ -1,10 +1,12 @@
 import { Notice } from "obsidian";
-import { INPUT_AREA_SIZE, STORAGE_KEYS } from "src/ui/config/consntants";
-import { getInputAreaSizeStorageKey } from "src/ui/store/slices/inputStorage";
+import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { DEFAULT_LAYOUT_STATE } from "src/ui/store/slices/settingsDefaults";
-import { persistValue } from "src/ui/store/slices/settingsPersistence";
+import {
+  persistInputAreaSize,
+  persistLayoutState,
+  restoreInputAreaSize,
+} from "src/ui/store/slices/settingsPersistence";
 import type { LayoutSlice, MFDIStore } from "src/ui/store/slices/types";
-import type { InputAreaSize } from "src/ui/types";
 import type { StateCreator } from "zustand/vanilla";
 
 export const createLayoutSlice: StateCreator<MFDIStore, [], [], LayoutSlice> = (set, get) => ({
@@ -18,21 +20,13 @@ export const createLayoutSlice: StateCreator<MFDIStore, [], [], LayoutSlice> = (
     }
 
     set({ inputAreaSize: size });
-    const { storage, viewNoteMode, file, granularity, date } = get();
-    storage?.set(
-      getInputAreaSizeStorageKey(viewNoteMode, file, granularity, date.format("YYYY-MM-DD")),
-      size,
-    );
+    persistInputAreaSize(get(), size);
   },
 
   reloadInputAreaSize: () => {
-    const { storage, viewNoteMode, file, granularity, date } = get();
-    if (!storage) return;
-    const size = storage.get<InputAreaSize>(
-      getInputAreaSizeStorageKey(viewNoteMode, file, granularity, date.format("YYYY-MM-DD")),
-      INPUT_AREA_SIZE.DEFAULT,
-    );
-    set({ inputAreaSize: size });
+    const state = get();
+    if (!state.storage) return;
+    set({ inputAreaSize: restoreInputAreaSize(state) });
   },
 
   setSidebarOpen: (sidebarOpen) => {
@@ -41,26 +35,23 @@ export const createLayoutSlice: StateCreator<MFDIStore, [], [], LayoutSlice> = (
       leftPanelOpen: sidebarOpen,
       rightPanelOpen: sidebarOpen,
     });
-    const state = get();
-    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
-    persistValue(state, STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen);
-    persistValue(state, STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen);
+    persistLayoutState(get(), {
+      sidebarOpen,
+      leftPanelOpen: sidebarOpen,
+      rightPanelOpen: sidebarOpen,
+    });
   },
 
   setLeftPanelOpen: (leftPanelOpen) => {
     const sidebarOpen = leftPanelOpen || get().rightPanelOpen;
     set({ leftPanelOpen, sidebarOpen });
-    const state = get();
-    persistValue(state, STORAGE_KEYS.PANEL_LEFT_OPEN, leftPanelOpen);
-    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
+    persistLayoutState(get(), { leftPanelOpen, sidebarOpen });
   },
 
   setRightPanelOpen: (rightPanelOpen) => {
     const sidebarOpen = get().leftPanelOpen || rightPanelOpen;
     set({ rightPanelOpen, sidebarOpen });
-    const state = get();
-    persistValue(state, STORAGE_KEYS.PANEL_RIGHT_OPEN, rightPanelOpen);
-    persistValue(state, STORAGE_KEYS.SIDEBAR_OPEN, sidebarOpen);
+    persistLayoutState(get(), { rightPanelOpen, sidebarOpen });
   },
 
   toggleSidebar: () => {
