@@ -50,3 +50,20 @@
 
 - [x] fixedノート存在、数を確認するまでローディング
 - [x] fixedノート開いているセッション位置をviewStateに保存＆復元
+
+
+sudachipy
+常駐させるのではなく、オンデマンドで起動する
+V:\repos\projects\lib-server\
+を使う？
+リクエストがあったときだけsudachipyを起動する
+pythonはuvを使う
+
+fixedノートを削除したとき、履歴に残ってしまうので履歴からも削除するようにしたいっすな
+app.workspace.undoHistoryを使えば良いんすかね？🤔
+
+state.tsの再設計って何が考えられるっすかね
+
+宣言的設定画面にmigrateしたいっす
+タブがあるのでsub-pagesやrenderは必須っすかね？🤔
+https://docs.obsidian.md/plugins/guides/migrate-declarative-settings
