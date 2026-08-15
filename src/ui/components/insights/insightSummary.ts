@@ -8,6 +8,8 @@ const CACHE_LIMIT = 12;
 
 type CountMap = Record<string, number>;
 
+export type InsightWordTokenMap = ReadonlyMap<string, string[]>;
+
 export interface InsightWordCount {
   word: string;
   count: number;
@@ -77,7 +79,7 @@ function normalizeWord(value: string): string | null {
   return normalized;
 }
 
-function tokenize(text: string): string[] {
+function tokenizeFallback(text: string): string[] {
   const Segmenter = Intl.Segmenter;
   const words: string[] = [];
 
@@ -123,7 +125,7 @@ function isPostReference(content: string): boolean {
   return /!?\[\[[^\]]*#\^[^\]]+\]\]/u.test(content);
 }
 
-function getWordSource(content: string): string {
+export function getInsightWordSource(content: string): string {
   return content
     .replace(/!?\[\[[^\]]+\]\]/gu, " ")
     .replace(/!?(?:\[[^\]]*\])\([^)]*\)/gu, " ")
@@ -131,7 +133,7 @@ function getWordSource(content: string): string {
     .replace(/[@#][\p{L}\p{N}._-]+/gu, " ");
 }
 
-function getRecordCacheKey(record: MemoRecord): string {
+export function getInsightRecordCacheKey(record: MemoRecord): string {
   return `${record.id}:${record.updatedAt}:${record.content.length}`;
 }
 
@@ -160,20 +162,31 @@ function getDateParts(record: MemoRecord): {
   };
 }
 
-function parseRecord(record: MemoRecord): ParsedInsightRecord | null {
+function parseRecord(
+  record: MemoRecord,
+  wordTokens: InsightWordTokenMap | null,
+): ParsedInsightRecord | null {
   const dateParts = getDateParts(record);
   if (!dateParts) return null;
 
-  const cacheKey = getRecordCacheKey(record);
+  const recordCacheKey = getInsightRecordCacheKey(record);
+  const hasTokenizedWords = wordTokens?.has(recordCacheKey) ?? false;
+  const cacheKey = `${recordCacheKey}:${wordTokens ? "sudachi" : "fallback"}`;
   const cached = parsedRecordCache.get(cacheKey);
   if (cached) return cached;
+
+  const words = hasTokenizedWords
+    ? (wordTokens?.get(recordCacheKey) ?? [])
+        .map(normalizeWord)
+        .filter((word): word is string => word !== null)
+    : tokenizeFallback(getInsightWordSource(record.content));
 
   const parsed: ParsedInsightRecord = {
     ...dateParts,
     characters: Array.from(record.content.trim()).length,
     hasImage: isImageContent(record.content),
     hasReference: isPostReference(record.content),
-    words: tokenize(getWordSource(record.content)),
+    words,
     domains: extractDomains(record.content),
   };
 
@@ -223,7 +236,11 @@ function calculateStreaks(dailyCounts: CountMap): {
   return { longestStreak, currentStreak: running };
 }
 
-function buildCacheKey(records: MemoRecord[], activeTag: string | null): string {
+function buildCacheKey(
+  records: MemoRecord[],
+  activeTag: string | null,
+  wordTokens: InsightWordTokenMap | null,
+): string {
   const recordKeys = records
     .map((record) => `${record.id}:${record.updatedAt}:${record.content.length}`)
     .sort();
@@ -233,7 +250,7 @@ function buildCacheKey(records: MemoRecord[], activeTag: string | null): string 
       hash = ((hash << 5) + hash + recordKey.charCodeAt(index)) | 0;
     }
   }
-  return `${activeTag ?? ""}:${records.length}:${hash}`;
+  return `${activeTag ?? ""}:${wordTokens ? "sudachi" : "fallback"}:${records.length}:${hash}`;
 }
 
 export function filterInsightRecords(
@@ -247,9 +264,10 @@ export function filterInsightRecords(
 export function buildInsightSummary(
   inputRecords: MemoRecord[],
   activeTag: string | null = null,
+  wordTokens: InsightWordTokenMap | null = null,
 ): InsightSummary {
   const records = inputRecords.filter((record) => !record.archived && !record.deleted);
-  const cacheKey = buildCacheKey(records, activeTag);
+  const cacheKey = buildCacheKey(records, activeTag, wordTokens);
   const cached = summaryCache.get(cacheKey);
   if (cached) return cached;
 
@@ -267,7 +285,7 @@ export function buildInsightSummary(
   const linkDomains: Record<string, CountMap> = {};
 
   for (const record of filteredRecords) {
-    const parsed = parseRecord(record);
+    const parsed = parseRecord(record, wordTokens);
     if (!parsed) continue;
 
     increment(dailyCounts, parsed.date);

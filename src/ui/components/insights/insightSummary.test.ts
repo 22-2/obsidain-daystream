@@ -2,6 +2,7 @@ import type { MemoRecord } from "src/db/mfdi-db";
 import {
   buildInsightSummary,
   clearInsightCache,
+  getInsightRecordCacheKey,
   getTopCounts,
   getWordTrend,
 } from "src/ui/components/insights/insightSummary";
@@ -95,5 +96,13 @@ describe("buildInsightSummary", () => {
       { word: "2026-08", count: 2 },
       { word: "2026-09", count: 1 },
     ]);
+  });
+
+  it("Sudachiの内容語を使い、助詞を頻出語から除外する", () => {
+    const memo = record({ content: "開発 は 開発 を" });
+    const words = new Map([[getInsightRecordCacheKey(memo), ["開発", "開発"]]]);
+    const summary = buildInsightSummary([memo], null, words);
+
+    expect(summary.wordCounts["2026"]).toEqual({ 開発: 2 });
   });
 });
