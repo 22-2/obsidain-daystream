@@ -39,49 +39,6 @@
 }
 
 /* ==============================================
-   設定: セクションタブ
-   ============================================== */
-
-.mfdi-settings-tabs {
-  display: flex;
-  gap: var(--size-2-2);
-  margin-bottom: var(--size-4-4);
-  overflow-x: auto;
-  border-bottom: 1px solid var(--background-modifier-border);
-}
-
-.mfdi-settings-tabs__tab {
-  flex: 0 0 auto;
-  padding: var(--size-2-2) var(--size-4-2);
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  color: var(--text-muted);
-  background: transparent;
-  font-size: var(--font-ui-small);
-  cursor: pointer;
-}
-
-.mfdi-settings-tabs__tab:is(:hover, :focus-visible) {
-  color: var(--text-normal);
-}
-
-.mfdi-settings-tabs__tab:focus-visible {
-  outline: 2px solid var(--interactive-accent);
-  outline-offset: -2px;
-}
-
-.mfdi-settings-tabs__tab.is-active {
-  border-bottom-color: var(--interactive-accent);
-  color: var(--text-accent);
-  font-weight: var(--font-semibold);
-}
-
-.mfdi-settings-tab-panel > .setting-item-heading {
-  margin-top: 0;
-}
-
-/* ==============================================
    view-content レイアウト
    ============================================== */
 

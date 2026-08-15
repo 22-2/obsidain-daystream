@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { PluginSettingTab, Setting, debounce } from "obsidian";
+import { PluginSettingTab, debounce } from "obsidian";
 import { createLogger } from "src/core/logger";
 import type { Topic } from "src/core/topic";
 import { DEFAULT_TOPIC } from "src/core/topic";
@@ -8,13 +8,6 @@ import type MFDIPlugin from "src/main";
 const logger = createLogger("settings");
 
 export type OpenInNewWindowMode = "disabled" | "always";
-
-type BooleanSettingKey = Exclude<
-  {
-    [K in keyof Settings]-?: Settings[K] extends boolean ? K : never;
-  }[keyof Settings],
-  undefined
->;
 
 export interface Settings {
   postFormatOption: PostFormatOption;
@@ -72,246 +65,197 @@ export class MFDISettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+  // Obsidian 1.12.x typings still require the legacy abstract method.
+  // Obsidian 1.13+ renders the non-empty declarative definitions instead.
+  display(): void {}
 
-    const sections = [
-      { id: "editor", label: "✏️ エディタ", render: this.addEditorSettings },
-      { id: "display", label: "🖼️ 表示", render: this.addDisplaySettings },
-      { id: "post", label: "📝 投稿", render: this.addPostSettings },
-      { id: "scan", label: "🔍 スキャン", render: this.addScanSettings },
+  getSettingDefinitions() {
+    return [
       {
-        id: "notification",
-        label: "🔔 通知",
-        render: this.addNotificationSettings,
+        type: "page",
+        name: "✏️ エディタ",
+        items: [
+          {
+            name: "エディタの展開モード",
+            desc: "エディタの展開モードを選択します。",
+            control: {
+              type: "dropdown",
+              key: "editorExpansionMode",
+              defaultValue: "default",
+              options: {
+                full: "フル展開",
+                default: "デフォルトの展開",
+              },
+            },
+          },
+          {
+            name: "新しいウィンドウで編集",
+            desc: "投稿の編集をポップアウトウィンドウで開くタイミングを設定します。「常に」は常にポップアウトします。",
+            control: {
+              type: "dropdown",
+              key: "openInNewWindowMode",
+              defaultValue: "disabled",
+              options: {
+                disabled: "無効",
+                always: "常に",
+              },
+            },
+          },
+          {
+            name: "Ctrl+Enter で送信",
+            desc: "有効にすると Ctrl+Enter で投稿を送信します。無効のときはキーボードショートカットでの送信を行いません。",
+            control: {
+              type: "toggle",
+              key: "ctrlEnterSends",
+            },
+          },
+        ],
       },
-    ] as const;
+      {
+        type: "page",
+        name: "🖼️ 表示",
+        items: [
+          {
+            name: "デバッグモード",
+            desc: "有効にすると CodeMirror の余白補正処理の詳細ログを consola に出します。",
+            control: {
+              type: "toggle",
+              key: "debugMode",
+            },
+          },
+          {
+            name: "サイドバーの自動開閉",
+            desc: "有効にするとビュー幅に応じてサイドバーを自動で開閉します。無効にすると手動トグルだけで開閉します。",
+            control: {
+              type: "toggle",
+              key: "autoToggleSidebar",
+            },
+          },
+          {
+            name: "リンクのカード表示",
+            desc: "有効にすると投稿内のリンクをリッチなカード形式で表示します。",
+            control: {
+              type: "toggle",
+              key: "enabledCardView",
+            },
+          },
+        ],
+      },
+      {
+        type: "page",
+        name: "📝 投稿",
+        items: [
+          {
+            name: "挿入位置 (文字列の後ろ)",
+            desc: "指定した文字列がファイル内にある場合、その直後に投稿内容を挿入します。空の場合はファイルの末尾に挿入します。",
+            control: {
+              type: "text",
+              key: "insertAfter",
+              placeholder: "## MFDI",
+            },
+          },
+          {
+            name: "過去ノートの編集を許可",
+            desc: "有効にすると、過去日のノートも編集でき、過去投稿の dim 表示も無効になります。",
+            control: {
+              type: "toggle",
+              key: "allowEditingPastNotes",
+            },
+          },
+          {
+            name: "更新時の日時更新ストラテジ",
+            desc: "編集で更新したときに日時を更新する条件を選択します。（「その日の間だけ」は日付が変わった時点で更新されなくなります）",
+            control: {
+              type: "dropdown",
+              key: "updateDateStrategy",
+              defaultValue: "never",
+              options: {
+                never: "常に更新しない（デフォルト）",
+                always: "常に更新する",
+                same_day: "その日の間だけ更新する",
+              },
+            },
+          },
+        ],
+      },
+      {
+        type: "page",
+        name: "🔍 スキャン",
+        items: [
+          {
+            name: "全体フルスキャンの間隔",
+            desc: "最後の大規模スキャンから指定した時間が経過している場合、起動時にフルスキャンを実行します。",
+            control: {
+              type: "dropdown",
+              key: "fullScanIntervalHours",
+              defaultValue: "24",
+              options: {
+                "0": "毎回起動時",
+                "1": "1時間",
+                "3": "3時間",
+                "6": "6時間",
+                "12": "12時間",
+                "24": "24時間（デフォルト）",
+              },
+            },
+          },
+        ],
+      },
+      {
+        type: "page",
+        name: "🔔 通知",
+        items: [
+          {
+            name: "活動確認通知",
+            desc: "指定した間隔で「今何してる？」と通知します。通知をクリックするとコンポーザを開きます。",
+            control: {
+              type: "dropdown",
+              key: "activityPromptIntervalMinutes",
+              defaultValue: "60",
+              options: {
+                "0": "無効",
+                "15": "15分",
+                "30": "30分",
+                "60": "1時間（デフォルト）",
+                "120": "2時間",
+                "240": "4時間",
+              },
+            },
+          },
+        ],
+      },
+    ];
+  }
 
-    const tabListEl = containerEl.createDiv({ cls: "mfdi-settings-tabs" });
-    tabListEl.setAttribute("role", "tablist");
-    tabListEl.setAttribute("aria-label", "設定セクション");
-    const panelEl = containerEl.createDiv({ cls: "mfdi-settings-tab-panel" });
-    panelEl.setAttribute("role", "tabpanel");
-
-    const tabButtons = new Map<string, HTMLButtonElement>();
-    const activate = (sectionId: (typeof sections)[number]["id"]): void => {
-      const section = sections.find(({ id }) => id === sectionId);
-      if (!section) return;
-
-      for (const [id, button] of tabButtons) {
-        const isActive = id === sectionId;
-        button.toggleClass("is-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
-      }
-
-      panelEl.empty();
-      panelEl.setAttribute("aria-labelledby", `mfdi-settings-tab-${section.id}`);
-      new Setting(panelEl).setHeading().setName(section.label);
-      section.render.call(this, panelEl);
-    };
-
-    for (const section of sections) {
-      const button = tabListEl.createEl("button", {
-        cls: "mfdi-settings-tabs__tab",
-        text: section.label,
-        attr: {
-          id: `mfdi-settings-tab-${section.id}`,
-          type: "button",
-          role: "tab",
-          "aria-controls": "mfdi-settings-tab-panel",
-        },
-      });
-      button.addEventListener("click", () => activate(section.id));
-      tabButtons.set(section.id, button);
+  getControlValue(key: string): unknown {
+    if (key === "fullScanIntervalHours") {
+      return String(this.plugin.settings.fullScanIntervalHours ?? 24);
     }
 
-    panelEl.id = "mfdi-settings-tab-panel";
-    activate(sections[0].id);
+    if (key === "activityPromptIntervalMinutes") {
+      return String(this.plugin.settings.activityPromptIntervalMinutes ?? 60);
+    }
+
+    return this.plugin.settings[key as keyof Settings];
   }
 
-  // ---------------------------------------------------------------------------
-  // Helpers
-  // ---------------------------------------------------------------------------
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    let nextValue = value;
+    if (key === "fullScanIntervalHours" || key === "activityPromptIntervalMinutes") {
+      const parsedValue = Number.parseInt(String(value), 10);
+      if (!Number.isFinite(parsedValue)) return;
+      nextValue = parsedValue;
+    }
 
-  private async updateSetting<K extends keyof Settings>(key: K, value: Settings[K]): Promise<void> {
-    this.plugin.settings = { ...this.plugin.settings, [key]: value };
+    if (!(key in this.plugin.settings)) return;
+
+    this.plugin.settings = {
+      ...this.plugin.settings,
+      [key]: nextValue,
+    } as Settings;
     await this.plugin.saveSettings();
-    logger.debug("Setting updated", { key, value });
+    this.debouncedRerender();
+    logger.debug("Setting updated", { key, value: nextValue });
   }
 
-  private addToggleSetting(
-    containerEl: HTMLElement,
-    name: string,
-    desc: string,
-    key: BooleanSettingKey,
-  ): void {
-    new Setting(containerEl)
-      .setName(name)
-      .setDesc(desc)
-      .addToggle((tc) =>
-        tc.setValue(this.plugin.settings[key]).onChange(async (value) => {
-          await this.updateSetting(key, value);
-          this.debouncedRerender();
-        }),
-      );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Sections
-  // ---------------------------------------------------------------------------
-
-  private addScanSettings(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName("全体フルスキャンの間隔")
-      .setDesc(
-        "最後の大規模スキャンから指定した時間が経過している場合、起動時にフルスキャンを実行します。",
-      )
-      .addDropdown((tc) =>
-        tc
-          .addOption("0", "毎回起動時")
-          .addOption("1", "1時間")
-          .addOption("3", "3時間")
-          .addOption("6", "6時間")
-          .addOption("12", "12時間")
-          .addOption("24", "24時間（デフォルト）")
-          .setValue(String(this.plugin.settings.fullScanIntervalHours ?? 24))
-          .onChange(async (value) => {
-            await this.updateSetting("fullScanIntervalHours", parseInt(value, 10));
-            this.debouncedRerender();
-          }),
-      );
-  }
-
-  private addEditorSettings(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName("エディタの展開モード")
-      .setDesc("エディタの展開モードを選択します。")
-      .addDropdown((tc) =>
-        tc
-          .addOption("full", "フル展開")
-          .addOption("default", "デフォルトの展開")
-          .setValue(this.plugin.settings.editorExpansionMode)
-          .onChange(async (value) => {
-            await this.updateSetting(
-              "editorExpansionMode",
-              value as Settings["editorExpansionMode"],
-            );
-            this.debouncedRerender();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName("新しいウィンドウで編集")
-      .setDesc(
-        "投稿の編集をポップアウトウィンドウで開くタイミングを設定します。「常に」は常にポップアウトします。",
-      )
-      .addDropdown((tc) =>
-        tc
-          .addOption("disabled", "無効")
-          .addOption("always", "常に")
-          .setValue(this.plugin.settings.openInNewWindowMode ?? "disabled")
-          .onChange(async (value) => {
-            await this.updateSetting(
-              "openInNewWindowMode",
-              value as Settings["openInNewWindowMode"],
-            );
-            this.debouncedRerender();
-          }),
-      );
-
-    this.addToggleSetting(
-      containerEl,
-      "Ctrl+Enter で送信",
-      "有効にすると Ctrl+Enter で投稿を送信します。無効のときはキーボードショートカットでの送信を行いません。",
-      "ctrlEnterSends",
-    );
-  }
-
-  private addNotificationSettings(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName("活動確認通知")
-      .setDesc(
-        "指定した間隔で「今何してる？」と通知します。通知をクリックするとコンポーザを開きます。",
-      )
-      .addDropdown((tc) =>
-        tc
-          .addOption("0", "無効")
-          .addOption("15", "15分")
-          .addOption("30", "30分")
-          .addOption("60", "1時間（デフォルト）")
-          .addOption("120", "2時間")
-          .addOption("240", "4時間")
-          .setValue(String(this.plugin.settings.activityPromptIntervalMinutes ?? 60))
-          .onChange(async (value) => {
-            await this.updateSetting("activityPromptIntervalMinutes", parseInt(value, 10));
-            this.debouncedRerender();
-          }),
-      );
-  }
-
-  private addDisplaySettings(containerEl: HTMLElement): void {
-    this.addToggleSetting(
-      containerEl,
-      "デバッグモード",
-      "有効にすると CodeMirror の余白補正処理の詳細ログを consola に出します。",
-      "debugMode",
-    );
-
-    this.addToggleSetting(
-      containerEl,
-      "サイドバーの自動開閉",
-      "有効にするとビュー幅に応じてサイドバーを自動で開閉します。無効にすると手動トグルだけで開閉します。",
-      "autoToggleSidebar",
-    );
-
-    this.addToggleSetting(
-      containerEl,
-      "リンクのカード表示",
-      "有効にすると投稿内のリンクをリッチなカード形式で表示します。",
-      "enabledCardView",
-    );
-  }
-
-  private addPostSettings(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName("挿入位置 (文字列の後ろ)")
-      .setDesc(
-        "指定した文字列がファイル内にある場合、その直後に投稿内容を挿入します。空の場合はファイルの末尾に挿入します。",
-      )
-      .addText((tc) =>
-        tc
-          .setPlaceholder("## MFDI")
-          .setValue(this.plugin.settings.insertAfter)
-          .onChange(async (value) => {
-            await this.updateSetting("insertAfter", value);
-            this.debouncedRerender();
-          }),
-      );
-
-    this.addToggleSetting(
-      containerEl,
-      "過去ノートの編集を許可",
-      "有効にすると、過去日のノートも編集でき、過去投稿の dim 表示も無効になります。",
-      "allowEditingPastNotes",
-    );
-
-    new Setting(containerEl)
-      .setName("更新時の日時更新ストラテジ")
-      .setDesc(
-        "編集で更新したときに日時を更新する条件を選択します。（「その日の間だけ」は日付が変わった時点で更新されなくなります）",
-      )
-      .addDropdown((tc) =>
-        tc
-          .addOption("never", "常に更新しない（デフォルト）")
-          .addOption("always", "常に更新する")
-          .addOption("same_day", "その日の間だけ更新する")
-          .setValue(this.plugin.settings.updateDateStrategy)
-          .onChange(async (value) => {
-            await this.updateSetting("updateDateStrategy", value as Settings["updateDateStrategy"]);
-            this.debouncedRerender();
-          }),
-      );
-  }
 }
