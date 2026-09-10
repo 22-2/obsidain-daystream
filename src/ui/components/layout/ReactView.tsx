@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { Settings } from "src/settings";
 import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
 import { ComponentContextProvider, useObsidianComponent } from "src/ui/context/ComponentContext";
@@ -22,7 +22,7 @@ import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { MFDIView } from "src/ui/view/MFDIView";
-import type { MFDIInitialNavigationState, MFDIViewState } from "src/ui/view/state";
+import type { MFDIViewState } from "src/ui/view/state";
 import { syncStoreFromMFDIViewState } from "src/ui/view/sync-store-from-view-state";
 import { useShallow } from "zustand/shallow";
 
@@ -30,17 +30,13 @@ export const ReactView = ({
   app,
   settings,
   view,
-  layout,
 }: {
   app: App;
   settings: Settings;
   view: MFDIView;
-  /** View-specific shell; the existing dashboard remains the default. */
-  layout?: ReactNode;
 }) => {
   const storeRef = useRef<AppStoreApi | null>(null);
   const initialViewStateRef = useRef({ ...view.getState() });
-  const initialStoreNavigationRef = useRef(view.getInitialStoreNavigationState());
   if (!storeRef.current) {
     const store = createAppStore();
     // 意図: 復元直後の初回 render から fixed note / session を一致させ、
@@ -57,9 +53,8 @@ export const ReactView = ({
             <PostsProvider>
               <MFDIAppRoot
                 initialViewState={initialViewStateRef.current}
-                initialStoreNavigation={initialStoreNavigationRef.current}
               >
-                {layout ?? <MFDIWorkspaceLayout />}
+                <MFDIWorkspaceLayout />
               </MFDIAppRoot>
             </PostsProvider>
           </EditorRefsProvider>
@@ -72,8 +67,7 @@ export const ReactView = ({
 const MFDIAppRoot: React.FC<{
   children: React.ReactNode;
   initialViewState: MFDIViewState;
-  initialStoreNavigation?: MFDIInitialNavigationState;
-}> = ({ children, initialViewState, initialStoreNavigation }) => {
+}> = ({ children, initialViewState }) => {
   const { settings, storage, shell } = useAppContext();
   const component = useObsidianComponent() as MFDIView;
   const store = useRequiredAppStore();
@@ -105,12 +99,7 @@ const MFDIAppRoot: React.FC<{
       store,
     );
 
-    if (initialStoreNavigation) {
-      // 意図: Day One の archive 表示は vault 共通の直前フィルターに依存せず、
-      // この view の store だけを初期化する。既存 MFDI view の設定は変更しない。
-      store.setState(initialStoreNavigation);
-    }
-  }, [initialStoreNavigation, initialViewState, settings, storage, shell, store]);
+  }, [initialViewState, settings, storage, shell, store]);
 
   const { date, granularity, activeTopic, dateFilter, asTask, isReadOnly } = useSettingsStore(
     useShallow((state) => ({

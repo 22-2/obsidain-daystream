@@ -1,5 +1,4 @@
 import {
-  createDayOneViewState,
   createDefaultMFDIViewState,
   createFixedNoteViewState,
   getMFDIViewCapabilities,
@@ -47,15 +46,6 @@ describe("MFDI view state", () => {
       file: "Inbox.md",
       fixedSessionNumber: 1,
       dateFilter: "all",
-    });
-  });
-
-  it("Day One-inspired view state を全件タイムラインとして構築する", () => {
-    expect(createDayOneViewState()).toMatchObject({
-      noteMode: "periodic",
-      displayMode: "timeline",
-      dateFilter: "all",
-      timeFilter: "all",
     });
   });
 });

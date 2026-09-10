@@ -1,5 +1,5 @@
 import { DISPLAY_MODE } from "src/ui/config/consntants";
-import type { ContentView, DateFilter, DisplayMode, Granularity, TimeFilter } from "src/ui/types";
+import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/ui/types";
 
 export type MFDINoteMode = "periodic" | "fixed";
 
@@ -25,25 +25,6 @@ export interface MFDIViewState extends Record<string, unknown> {
   activeTopic: string;
   noteMode: MFDINoteMode;
   file: string | null;
-}
-
-/**
- * Optional per-view navigation defaults applied after store hydration.
- *
- * Vault-level persistence still supplies the normal dashboard defaults, but
- * an alternate shell may need a different presentation without mutating that
- * persisted preference just by opening a second view.
- */
-export interface MFDIInitialNavigationState {
-  displayMode: DisplayMode;
-  contentView: ContentView;
-  granularity: Granularity;
-  dateFilter: DateFilter;
-  timeFilter: TimeFilter;
-  asTask: boolean;
-  threadOnly: boolean;
-  activeTag: string | null;
-  threadFocusRootId: string | null;
 }
 
 export const DEFAULT_MFDI_VIEW_STATE: MFDIViewState = {
@@ -82,21 +63,6 @@ export function createDefaultMFDIViewState(params?: {
     ...DEFAULT_MFDI_VIEW_STATE,
     noteMode,
     file: null,
-  };
-}
-
-/**
- * Returns the initial state for the Day One-inspired view.
- *
- * The view is an archive-style journal, so it starts with the complete
- * timeline instead of the focused "today" window used by the default view.
- */
-export function createDayOneViewState(): MFDIViewState {
-  return {
-    ...DEFAULT_MFDI_VIEW_STATE,
-    displayMode: DISPLAY_MODE.TIMELINE,
-    dateFilter: "all",
-    timeFilter: "all",
   };
 }
 

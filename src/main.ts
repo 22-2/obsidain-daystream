@@ -22,15 +22,10 @@ import { restoreAndFocusElectronWindow } from "src/shell/electron-window";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { showInputModal } from "src/ui/modals/InputModal";
 import { TopicManagerModal } from "src/ui/modals/TopicManagerModal";
-import { DayOneView, VIEW_TYPE_DAY_ONE } from "src/ui/view/DayOneView";
 import { MFDIEditorView } from "src/ui/view/MFDIEditorView";
 import { MFDIView, VIEW_TYPE_MFDI } from "src/ui/view/MFDIView";
 import type { MFDIViewState } from "src/ui/view/state";
-import {
-  createDayOneViewState,
-  createFixedNoteViewState,
-  DEFAULT_MFDI_VIEW_STATE,
-} from "src/ui/view/state";
+import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/ui/view/state";
 
 export default class MFDIPlugin extends Plugin {
   shell: ObsidianAppShell;
@@ -150,17 +145,9 @@ export default class MFDIPlugin extends Plugin {
         this.setupViewCallbacks(view);
         return view;
       },
-      createDayOneView: (leaf) => {
-        const view = new DayOneView(leaf, this.settings);
-        this.views.add(view);
-        this.view = view;
-        this.setupViewCallbacks(view);
-        return view;
-      },
       createMFDIEditorView: (leaf) => new MFDIEditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
       attachMFDIView: (state, preferredLeaf) => this.attachMFDIView(state, preferredLeaf),
-      attachDayOneView: (preferredLeaf) => this.attachDayOneView(preferredLeaf),
     };
 
     activateBuiltins(context, this.shell.getAppId());
@@ -187,25 +174,12 @@ export default class MFDIPlugin extends Plugin {
     return targetLeaf;
   }
 
-  async attachDayOneView(preferredLeaf?: WorkspaceLeaf): Promise<WorkspaceLeaf | undefined> {
-    const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_DAY_ONE)[0];
-    const targetLeaf = preferredLeaf ?? existing ?? this.app.workspace.getLeaf(false);
-
-    await targetLeaf.setViewState({
-      type: VIEW_TYPE_DAY_ONE,
-      active: true,
-      state: createDayOneViewState(),
-    });
-
-    return targetLeaf;
-  }
-
   private getActiveMFDIView(): MFDIView | undefined {
     const activeView = this.app.workspace.activeLeaf?.view;
     if (!activeView) return undefined;
 
     const viewType = activeView.getViewType();
-    if (viewType !== VIEW_TYPE_MFDI && viewType !== VIEW_TYPE_DAY_ONE) return undefined;
+    if (viewType !== VIEW_TYPE_MFDI) return undefined;
     return activeView as MFDIView;
   }
 

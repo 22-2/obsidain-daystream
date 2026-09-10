@@ -9,8 +9,6 @@ import { createTagIndexExtension } from "src/extensions/tag-index-extension";
 import type { Settings } from "src/settings";
 import type { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { readLastOpenedFixedSessionNumber } from "src/ui/utils/fixed-session-storage";
-import type { DayOneView } from "src/ui/view/DayOneView";
-import { VIEW_TYPE_DAY_ONE } from "src/ui/view/DayOneView";
 import type { MFDIEditorView } from "src/ui/view/MFDIEditorView";
 import { VIEW_TYPE_MFDI_EDITOR } from "src/ui/view/MFDIEditorView";
 import type { MFDIView } from "src/ui/view/MFDIView";
@@ -33,19 +31,16 @@ export interface BuiltinMainContext {
   getMFDISubmitCallback: () => (() => Promise<void>) | undefined;
   getMFDIInputSnapshot: () => string;
   createMFDIView: (leaf: WorkspaceLeaf) => MFDIView;
-  createDayOneView: (leaf: WorkspaceLeaf) => DayOneView;
   createMFDIEditorView: (leaf: WorkspaceLeaf) => MFDIEditorView;
   createAndOpenFixedNote: () => Promise<void>;
   attachMFDIView: (
     state: Partial<MFDIViewState>,
     preferredLeaf?: WorkspaceLeaf,
   ) => Promise<WorkspaceLeaf | undefined>;
-  attachDayOneView: (preferredLeaf?: WorkspaceLeaf) => Promise<WorkspaceLeaf | undefined>;
 }
 
 function registerView(context: BuiltinMainContext): void {
   context.registerView(VIEW_TYPE_MFDI, (leaf) => context.createMFDIView(leaf));
-  context.registerView(VIEW_TYPE_DAY_ONE, (leaf) => context.createDayOneView(leaf));
   context.registerView(VIEW_TYPE_MFDI_EDITOR, (leaf) => context.createMFDIEditorView(leaf));
 }
 
@@ -73,15 +68,6 @@ function registerCommands(context: BuiltinMainContext): void {
     },
   });
 
-  context.addCommand({
-    id: "mfdi-open-dayone-view",
-    name: "Open Day One-inspired Journal",
-    callback: async () => {
-      const leaf = await context.attachDayOneView();
-      if (leaf) context.app.workspace.revealLeaf(leaf);
-    },
-  });
-
   // 意図: ctrlEnterSends=off のときでもキーボードのみで投稿できるようにする。
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({
@@ -89,10 +75,7 @@ function registerCommands(context: BuiltinMainContext): void {
     name: "MFDI: 投稿を送信",
     checkCallback: (checking) => {
       const activeView = context.app.workspace.activeLeaf?.view;
-      if (
-        activeView?.getViewType() !== VIEW_TYPE_MFDI &&
-        activeView?.getViewType() !== VIEW_TYPE_DAY_ONE
-      ) {
+      if (activeView?.getViewType() !== VIEW_TYPE_MFDI) {
         return false;
       }
 
