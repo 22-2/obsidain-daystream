@@ -292,6 +292,7 @@ function DayOneHeader({
         </HStack>
 
         <HStack className="dayone-header__actions" gap="0.25rem">
+          {/* Keep explicit labels so the controls remain understandable to keyboard and screen-reader users. */}
           <IconButton
             name="chevron-left"
             ariaLabel="前の日付"

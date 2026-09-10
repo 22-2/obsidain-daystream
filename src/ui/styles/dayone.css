@@ -104,19 +104,29 @@
 [data-type="dayone-view"] .dayone-header__icon-button {
   --icon-color: var(--dayone-header-foreground);
   --icon-color-hover: var(--dayone-header-foreground);
+  --interactive-hover: transparent;
 
   color: var(--dayone-header-foreground) !important;
   opacity: 0.72;
 }
 
 [data-type="dayone-view"] .dayone-header__icon-button:hover {
-  background: color-mix(
-    in srgb,
-    var(--dayone-header-foreground) 10%,
-    transparent
-  );
+  /* Icon utilities may mark theme hover colors as important, which can turn this light header nearly black. */
+  background: transparent !important;
   color: var(--dayone-header-foreground) !important;
   opacity: 1;
+}
+
+/* Obsidian mounts tooltips under body, so scope the light treatment through the hovered Day One control. */
+body:has([data-type="dayone-view"] .dayone-header__icon-button:hover) .tooltip {
+  border: 1px solid rgb(17 24 39 / 18%);
+  background: #eff6ff;
+  color: #111827;
+  box-shadow: 0 0.2rem 0.6rem rgb(17 24 39 / 18%);
+}
+
+body:has([data-type="dayone-view"] .dayone-header__icon-button:hover) .tooltip-arrow {
+  border-bottom-color: #eff6ff;
 }
 
 [data-type="dayone-view"]
