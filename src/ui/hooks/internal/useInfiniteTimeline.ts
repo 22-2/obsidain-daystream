@@ -8,6 +8,7 @@ import {
 import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
+import { getEffectiveSearchState } from "src/ui/utils/search-state";
 import { refreshAllPosts } from "src/ui/utils/swr-utils";
 import { memoRecordToPost } from "src/ui/utils/thread-utils";
 import { isTimelineView } from "src/ui/utils/view-mode";
@@ -27,8 +28,7 @@ export const useInfiniteTimeline = () => {
       activeTopic: s.activeTopic,
       displayMode: s.displayMode,
       date: s.date,
-      searchQuery: s.searchQuery,
-      threadOnly: s.threadOnly,
+      ...getEffectiveSearchState(s),
     })),
   );
   const timelineDayKey = date.format("YYYY-MM-DD");
@@ -117,10 +117,7 @@ export const useInfiniteTimeline = () => {
       const dbService = WorkerClient.get();
       const pageParam = key[key.length - 1];
 
-      const baseDate = resolveTimelineBaseDate(
-        pageParam,
-        store.getState().getEffectiveDate,
-      );
+      const baseDate = resolveTimelineBaseDate(pageParam, store.getState().getEffectiveDate);
 
       const endDate = baseDate.clone().endOf("day");
       const startDate = baseDate

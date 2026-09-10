@@ -10,6 +10,7 @@ import { useAppContext } from "src/ui/context/AppContext";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
 import { buildFixedSessionPosts, isThreadRootMetadata } from "src/ui/utils/fixed-session-utils";
+import { getEffectiveSearchState } from "src/ui/utils/search-state";
 import { buildPostFromEntry, memoRecordToPost } from "src/ui/utils/thread-utils";
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";
@@ -36,8 +37,7 @@ export const useFocusPosts = () => {
       date: s.date,
       granularity: s.granularity,
       dateFilter: s.dateFilter,
-      searchQuery: s.searchQuery,
-      threadOnly: s.threadOnly,
+      ...getEffectiveSearchState(s),
       viewNoteMode: s.viewNoteMode,
       // 意図: ストア側の `file` を参照して固定ノートのパスを得る（Obsidian のファイル選択値）。
       // テストではこの `file` を直接書き換えて期待のファイルを渡す。

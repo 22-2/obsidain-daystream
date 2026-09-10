@@ -92,6 +92,21 @@ describe("MFDIDatabase Search", () => {
     expect(results[0].content).toBe("Case Insensitive Search");
   });
 
+  test("searches note paths and tags in addition to content", async () => {
+    const db = createDatabase();
+    await db.memos.bulkPut([
+      createMemo({ content: "plain", path: "projects/reference.md", tags: ["research"] }),
+      createMemo({ content: "other", path: "daily/2026-03-23.md", tags: ["journal"] }),
+    ]);
+
+    expect(
+      (await db.getLatestVisibleMemos(undefined, 10, "reference")).map((r) => r.content),
+    ).toEqual(["plain"]);
+    expect(
+      (await db.getLatestVisibleMemos(undefined, 10, "#journal")).map((r) => r.content),
+    ).toEqual(["other"]);
+  });
+
   test("getLatestVisibleMemos filters by threadOnly", async () => {
     const db = createDatabase();
     await db.memos.bulkPut([

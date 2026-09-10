@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { DISPLAY_MODE } from "src/ui/config/consntants";
+import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW } from "src/ui/config/consntants";
 import { settingsStore } from "src/ui/store/settingsStore";
 import {
   createSettingsSlice,
@@ -35,6 +35,7 @@ describe("settingsSlice", () => {
       granularity: "day",
       date: today.clone(),
       displayMode: DISPLAY_MODE.FOCUS,
+      mainView: MAIN_VIEW.DATE,
       threadFocusRootId: null,
     });
   });
@@ -118,6 +119,7 @@ describe("settingsSlice", () => {
     expect(state.activeTag).toBeNull();
     expect(state.threadFocusRootId).toBeNull();
     expect(state.displayMode).toBe(DISPLAY_MODE.TIMELINE);
+    expect(state.mainView).toBe(MAIN_VIEW.TIMELINE);
   });
 
   it("初期表示モードはタイムライン", () => {
@@ -127,6 +129,38 @@ describe("settingsSlice", () => {
       {} as any,
     );
     expect(initial.displayMode).toBe(DISPLAY_MODE.TIMELINE);
+    expect(initial.mainView).toBe(MAIN_VIEW.TIMELINE);
+  });
+
+  it("メインビュー切替で互換用の表示条件も一括して同期する", () => {
+    settingsStore.setState({ searchQuery: "wanted", threadOnly: true });
+
+    settingsStore.getState().setMainView(MAIN_VIEW.SEARCH);
+    expect(settingsStore.getState()).toMatchObject({
+      mainView: MAIN_VIEW.SEARCH,
+      contentView: CONTENT_VIEW.TIMELINE,
+      displayMode: DISPLAY_MODE.TIMELINE,
+      asTask: false,
+      searchInputOpen: true,
+    });
+
+    settingsStore.getState().setMainView(MAIN_VIEW.TASKS);
+    expect(settingsStore.getState()).toMatchObject({
+      mainView: MAIN_VIEW.TASKS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      displayMode: DISPLAY_MODE.TIMELINE,
+      asTask: true,
+      searchInputOpen: false,
+      searchQuery: "wanted",
+      threadOnly: true,
+    });
+
+    settingsStore.getState().setMainView(MAIN_VIEW.INSIGHTS);
+    expect(settingsStore.getState()).toMatchObject({
+      mainView: MAIN_VIEW.INSIGHTS,
+      contentView: CONTENT_VIEW.INSIGHTS,
+      asTask: false,
+    });
   });
 
   it("左右パネルを個別に開閉し、一括状態も同期する", () => {

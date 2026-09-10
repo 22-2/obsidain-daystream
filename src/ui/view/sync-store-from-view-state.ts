@@ -1,3 +1,4 @@
+import { MAIN_VIEW } from "src/ui/config/consntants";
 import type { AppStoreApi } from "src/ui/store/appStore";
 import type { MFDIViewState } from "src/ui/view/state";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
@@ -49,6 +50,9 @@ export function syncStoreFromMFDIViewState(store: AppStoreApi, viewState: MFDIVi
   }
   if (latestState.contentView !== "timeline") {
     nextPatch.contentView = "timeline";
+  }
+  if (latestState.mainView !== MAIN_VIEW.TIMELINE) {
+    nextPatch.mainView = MAIN_VIEW.TIMELINE;
   }
   if (latestState.threadOnly !== fixedDefaults.threadOnly) {
     nextPatch.threadOnly = fixedDefaults.threadOnly;

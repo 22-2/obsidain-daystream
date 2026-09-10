@@ -3,27 +3,28 @@ import { EmptyState } from "src/ui/components/EmptyState";
 import { InViewComposer } from "src/ui/components/inputarea/InViewComposer";
 import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
 import { InsightView } from "src/ui/components/insights/InsightView";
-import { ContentViewSwitcher } from "src/ui/components/layout/ContentViewSwitcher";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
+import { MainViewTabs } from "src/ui/components/layout/MainViewTabs";
 import { PeriodicSidebar } from "src/ui/components/layout/PeriodicSidebar";
 import { SidebarContainer } from "src/ui/components/layout/SidebarContainer";
 import { getSidebarAutoToggleState } from "src/ui/components/layout/sidebarAutoToggle";
 import { PostListView } from "src/ui/components/posts/PostListView";
 import { Flex, Spinner } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
+import { SearchControls } from "src/ui/components/search/SearchControls";
 import { StatusBar } from "src/ui/components/statusbar/StatusBar";
 import { PastTodayNotice } from "src/ui/components/statusbar/parts/PastTodayNotice";
 import { TaskListView } from "src/ui/components/tasks/TaskListView";
-import { CONTENT_VIEW } from "src/ui/config/consntants";
+import { MAIN_VIEW } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useCSSLoaded } from "src/ui/hooks/useCSSLoaded";
+import { usePosts } from "src/ui/hooks/usePosts";
 import { useAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useNoteStore } from "src/ui/store/noteStore";
-import { usePosts } from "src/ui/hooks/usePosts";
 import { usePostsStore } from "src/ui/store/postsStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
@@ -58,11 +59,9 @@ export const MFDIWorkspaceLayout = () => {
       timeFilter: s.timeFilter,
       displayMode: s.displayMode,
       threadFocusRootId: s.threadFocusRootId,
-      searchQuery: s.searchQuery,
-      searchInputOpen: s.searchInputOpen,
-      inputAreaSize: s.inputAreaSize,
-      contentView: s.contentView,
-      setContentView: s.setContentView,
+      mainView: s.mainView,
+      setMainView: s.setMainView,
+      setSearchInputOpen: s.setSearchInputOpen,
       handleClickHome: s.handleClickHome,
     })),
   );
@@ -118,35 +117,49 @@ export const MFDIWorkspaceLayout = () => {
     setSidebarOpen,
     leftPanelOpen,
     rightPanelOpen,
-    contentView,
-    setContentView,
+    mainView,
+    setMainView,
+    setSearchInputOpen,
   } = settings;
 
   const [containerWidth, setContainerWidth] = useState(1000);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastWidthRef = useRef(containerWidth);
-  const contentScrollPositionsRef = useRef<Record<string, number>>({});
+  const contentScrollPositionsRef = useRef<Partial<Record<string, number>>>({});
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
 
     const savePosition = () => {
-      contentScrollPositionsRef.current[contentView] = scrollContainer.scrollTop;
+      contentScrollPositionsRef.current[mainView] = scrollContainer.scrollTop;
     };
 
     scrollContainer.addEventListener("scroll", savePosition, {
       passive: true,
     });
     scrollContainer.scrollTo({
-      top: contentScrollPositionsRef.current[contentView] ?? 0,
+      top: contentScrollPositionsRef.current[mainView] ?? 0,
     });
 
     return () => {
       savePosition();
       scrollContainer.removeEventListener("scroll", savePosition);
     };
-  }, [contentView, scrollContainerRef]);
+  }, [mainView, scrollContainerRef]);
+
+  useEffect(() => {
+    // 意図: 検索欄が未マウントの別タブでも Ctrl+F を受け、検索タブを開いてからフォーカスする。
+    component.actionDelegates.onSearchInputOpen = () => {
+      setMainView(MAIN_VIEW.SEARCH);
+      setSearchInputOpen(true);
+    };
+    component.actionDelegates.onSearchInputClose = () => setSearchInputOpen(false);
+    return () => {
+      component.actionDelegates.onSearchInputOpen = undefined;
+      component.actionDelegates.onSearchInputClose = undefined;
+    };
+  }, [component, setMainView, setSearchInputOpen]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -182,18 +195,18 @@ export const MFDIWorkspaceLayout = () => {
       return;
     }
 
-    if (contentView === CONTENT_VIEW.INSIGHTS) {
+    if (mainView === MAIN_VIEW.INSIGHTS) {
       return <InsightView />;
     }
 
     return isEmpty ? (
       <EmptyState granularity={granularity} />
-    ) : asTask ? (
+    ) : mainView === MAIN_VIEW.TASKS ? (
       <TaskListView />
     ) : (
       <PostListView />
     );
-  }, [asTask, contentView, granularity, isCSSLoaded, isEmpty]);
+  }, [granularity, isCSSLoaded, isEmpty, mainView]);
 
   if (composerOpen) {
     return <InViewComposer />;
@@ -227,16 +240,26 @@ export const MFDIWorkspaceLayout = () => {
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
           <div ref={listHeaderRef} className="mfdi-list-header">
             <div className="mfdi-main-toolbar">
-              {capabilities.supportsDisplayModeSwitch && (
-                <ContentViewSwitcher value={contentView} onChange={setContentView} />
-              )}
-              {contentView === CONTENT_VIEW.TIMELINE ? <StatusBar /> : null}
+              <MainViewTabs
+                value={mainView}
+                noteMode={viewNoteMode}
+                onChange={setMainView}
+              />
+              {mainView === MAIN_VIEW.SEARCH ? (
+                <SearchControls />
+              ) : mainView === MAIN_VIEW.DATE ? (
+                <StatusBar />
+              ) : mainView === MAIN_VIEW.TIMELINE || mainView === MAIN_VIEW.TASKS ? (
+                <StatusBar showDateNavigation={false} />
+              ) : null}
             </div>
-            {contentView === CONTENT_VIEW.INSIGHTS ? null : <PastTodayNotice />}
+            {mainView === MAIN_VIEW.DATE ? <PastTodayNotice /> : null}
           </div>
           {content}
         </Flex>
-        {contentView === CONTENT_VIEW.INSIGHTS ? null : <PostComposerButton />}
+        {mainView === MAIN_VIEW.INSIGHTS || mainView === MAIN_VIEW.SEARCH ? null : (
+          <PostComposerButton />
+        )}
       </Flex>
 
       {/* Right Sidebar: activity and archive statistics */}

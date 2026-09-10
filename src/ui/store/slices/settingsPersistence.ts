@@ -4,6 +4,7 @@ import {
   CONTENT_VIEW,
   DISPLAY_MODE,
   INPUT_AREA_SIZE,
+  MAIN_VIEW,
   STORAGE_KEYS,
 } from "src/ui/config/consntants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/ui/config/filter-config";
@@ -20,10 +21,12 @@ import type {
   DisplayMode,
   Granularity,
   InputAreaSize,
+  MainView,
   MomentLike,
   TimeFilter,
 } from "src/ui/types";
 import type { MFDINoteMode } from "src/ui/view/state";
+import { resolveMainViewCompatibilityState } from "src/ui/utils/main-view-state";
 
 export interface PersistedNavigationState {
   activeTag?: string | null;
@@ -33,6 +36,7 @@ export interface PersistedNavigationState {
   date?: MomentLike;
   displayMode?: DisplayMode;
   contentView?: ContentView;
+  mainView?: MainView;
   asTask?: boolean;
   threadFocusRootId?: string | null;
 }
@@ -51,6 +55,7 @@ export function persistNavigationState(
   if ("date" in patch && patch.date) storage.set(STORAGE_KEYS.DATE, patch.date.toISOString());
   if ("displayMode" in patch) storage.set(STORAGE_KEYS.DISPLAY_MODE, patch.displayMode);
   if ("contentView" in patch) storage.set(STORAGE_KEYS.CONTENT_VIEW, patch.contentView);
+  if ("mainView" in patch) storage.set(STORAGE_KEYS.MAIN_VIEW, patch.mainView);
   if ("asTask" in patch) storage.set(STORAGE_KEYS.AS_TASK, patch.asTask);
   if ("threadFocusRootId" in patch) {
     storage.set(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, patch.threadFocusRootId);
@@ -80,10 +85,7 @@ type InputAreaPersistenceState = Pick<
   "storage" | "viewNoteMode" | "file" | "granularity" | "date"
 >;
 
-export function persistInputAreaSize(
-  state: InputAreaPersistenceState,
-  size: InputAreaSize,
-): void {
+export function persistInputAreaSize(state: InputAreaPersistenceState, size: InputAreaSize): void {
   state.storage?.set(
     getInputAreaSizeStorageKey(
       state.viewNoteMode,
@@ -193,6 +195,25 @@ export function resolveInitialSettingsState(
     storage?.get<boolean>(STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen) ?? sidebarOpen;
   const rightPanelOpen =
     storage?.get<boolean>(STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen) ?? sidebarOpen;
+  const displayMode =
+    storage?.get<DisplayMode>(STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.TIMELINE) ??
+    (DISPLAY_MODE.TIMELINE as DisplayMode);
+  const contentView =
+    storage?.get<ContentView>(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.TIMELINE) ??
+    CONTENT_VIEW.TIMELINE;
+  const asTask = storage?.get<boolean>(STORAGE_KEYS.AS_TASK, false) ?? false;
+  const savedMainView = storage?.get<MainView | null>(STORAGE_KEYS.MAIN_VIEW, null) ?? null;
+  // 意図: 既存ユーザーの保存値から同じ画面を復元しつつ、今後の遷移は mainView に一本化する。
+  const mainView = Object.values(MAIN_VIEW).includes(savedMainView as MainView)
+    ? (savedMainView as MainView)
+    : contentView === CONTENT_VIEW.INSIGHTS
+      ? MAIN_VIEW.INSIGHTS
+      : asTask
+        ? MAIN_VIEW.TASKS
+        : displayMode === DISPLAY_MODE.FOCUS
+          ? MAIN_VIEW.DATE
+          : MAIN_VIEW.TIMELINE;
+  const mainViewCompatibility = resolveMainViewCompatibilityState(mainView, displayMode);
 
   return {
     activeTopic: settings.activeTopic ?? "",
@@ -209,13 +230,10 @@ export function resolveInitialSettingsState(
     sidebarOpen,
     leftPanelOpen,
     rightPanelOpen,
-    displayMode:
-      storage?.get<DisplayMode>(STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.TIMELINE) ??
-      (DISPLAY_MODE.TIMELINE as DisplayMode),
-    contentView:
-      storage?.get<ContentView>(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.TIMELINE) ??
-      CONTENT_VIEW.TIMELINE,
-    asTask: storage?.get<boolean>(STORAGE_KEYS.AS_TASK, false) ?? false,
+    displayMode: mainViewCompatibility.displayMode,
+    contentView: mainViewCompatibility.contentView,
+    mainView,
+    asTask: mainViewCompatibility.asTask,
     threadOnly: false,
     searchQuery: "",
     searchInputOpen: false,

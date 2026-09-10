@@ -5,7 +5,7 @@ import { useSettingsStore } from "src/ui/store/settingsStore";
 import { isDefaultViewState } from "src/ui/utils/view-state";
 import { useShallow } from "zustand/shallow";
 
-/** 表示状態を初期状態へ戻すホームボタン。 */
+/** 日付ナビゲーションの左端から表示状態を初期化するホームボタン。 */
 export const StatusBarHome: FC = () => {
   const {
     activeTag,
@@ -19,17 +19,17 @@ export const StatusBarHome: FC = () => {
     threadFocusRootId,
     timeFilter,
   } = useSettingsStore(
-    useShallow((s) => ({
-      activeTag: s.activeTag,
-      asTask: s.asTask,
-      dateFilter: s.dateFilter,
-      displayMode: s.displayMode,
-      granularity: s.granularity,
-      handleClickHome: s.handleClickHome,
-      searchInputOpen: s.searchInputOpen,
-      searchQuery: s.searchQuery,
-      threadFocusRootId: s.threadFocusRootId,
-      timeFilter: s.timeFilter,
+    useShallow((state) => ({
+      activeTag: state.activeTag,
+      asTask: state.asTask,
+      dateFilter: state.dateFilter,
+      displayMode: state.displayMode,
+      granularity: state.granularity,
+      handleClickHome: state.handleClickHome,
+      searchInputOpen: state.searchInputOpen,
+      searchQuery: state.searchQuery,
+      threadFocusRootId: state.threadFocusRootId,
+      timeFilter: state.timeFilter,
     })),
   );
 
@@ -52,7 +52,7 @@ export const StatusBarHome: FC = () => {
       size="16px"
       onActivate={handleClickHome}
       className={cn(
-        "absolute left-2 top-1 z-10 h-6 w-6 p-0",
+        "absolute left-2 top-2 z-10 h-6 w-6 shrink-0 p-0",
         !isViewDefault && "text-[var(--text-accent)] hover:text-[var(--text-normal)]",
       )}
     />
