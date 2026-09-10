@@ -1,5 +1,6 @@
 import type { WorkspaceLeaf } from "obsidian";
 import { ItemView, Menu, Scope } from "obsidian";
+import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { renameFixedNote as renameFixedNoteFile, trashFixedNote } from "src/core/fixed-note";
@@ -11,7 +12,7 @@ import "src/ui/styles/global.css";
 import "src/ui/styles/mfdi.css";
 import type { MFDIViewDelegates } from "src/ui/view/MFDIViewHandler";
 import { MFDIFixedNoteTitle } from "src/ui/view/MFDIFixedNoteTitle";
-import type { MFDIViewState } from "src/ui/view/state";
+import type { MFDIInitialNavigationState, MFDIViewState } from "src/ui/view/state";
 import {
   DEFAULT_MFDI_VIEW_STATE,
   getFixedNoteTitle,
@@ -152,6 +153,30 @@ export class MFDIView extends ItemView {
     this.updateActions();
   }
 
+  /**
+   * Alternate shells can opt into their own initial navigation without
+   * overwriting the vault-level preferences used by the classic dashboard.
+   */
+  getInitialStoreNavigationState(): MFDIInitialNavigationState | undefined {
+    return undefined;
+  }
+
+  /**
+   * Allows experimental shells to reuse the view lifecycle and store runtime
+   * while replacing only the React layout.
+   */
+  protected getReactLayout(): ReactNode | undefined {
+    return undefined;
+  }
+
+  /**
+   * The classic dashboard exposes its two panel actions. A compact journal
+   * shell can opt out so Obsidian's view header does not advertise hidden UI.
+   */
+  protected shouldRegisterPanelActions(): boolean {
+    return true;
+  }
+
   // -----------------------------------------------------------------------
   // Setup & Events
   // -----------------------------------------------------------------------
@@ -201,7 +226,7 @@ export class MFDIView extends ItemView {
     this.cleanUpActions();
     const capabilities = getMFDIViewCapabilities(this.state);
 
-    if (capabilities.supportsSidebar) {
+    if (capabilities.supportsSidebar && this.shouldRegisterPanelActions()) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
       }).setAttr("data-mfdi-actions", "true");
@@ -218,12 +243,19 @@ export class MFDIView extends ItemView {
       .forEach((el) => el.detach());
   }
 
-  private renderReactView(): void {
+  protected renderReactView(): void {
     if (!this.root) {
       // Obsidian API: containerEl より contentEl を直接指定する方が安全
       this.root = createRoot(this.contentEl);
     }
-    this.root.render(<ReactView app={this.app} settings={this.settings} view={this} />);
+    this.root.render(
+      <ReactView
+        app={this.app}
+        settings={this.settings}
+        view={this}
+        layout={this.getReactLayout()}
+      />,
+    );
   }
 
   private async renameFixedNote(newTitle: string): Promise<void> {

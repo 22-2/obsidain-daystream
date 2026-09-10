@@ -82,9 +82,11 @@ describe("builtin registry", () => {
     const getMFDISubmitCallback = vi.fn(() => undefined);
     const getMFDIInputSnapshot = vi.fn(() => "");
     const createMFDIView = vi.fn((leaf) => ({ leaf }));
+    const createDayOneView = vi.fn((leaf) => ({ leaf }));
     const createMFDIEditorView = vi.fn((leaf) => ({ leaf }));
     const createAndOpenFixedNote = vi.fn(async () => {});
     const attachMFDIView = vi.fn(async () => ({ id: "leaf" }));
+    const attachDayOneView = vi.fn(async () => ({ id: "dayone-leaf" }));
     const saveSettings = vi.fn(async () => {});
 
     const settings = {
@@ -127,15 +129,17 @@ describe("builtin registry", () => {
       getMFDISubmitCallback,
       getMFDIInputSnapshot,
       createMFDIView,
+      createDayOneView,
       createMFDIEditorView,
       createAndOpenFixedNote,
       attachMFDIView,
+      attachDayOneView,
     } as unknown as BuiltinMainContext;
 
     activateBuiltins(context, "app-1");
 
-    // VIEW_TYPE_MFDI と VIEW_TYPE_MFDI_EDITOR の2つが登録される
-    expect(registerView).toHaveBeenCalledTimes(2);
+    // MFDI / Day One-inspired / editor の3つが登録される
+    expect(registerView).toHaveBeenCalledTimes(3);
     const [viewType, viewCreator] = registerView.mock.calls[0] as [
       string,
       (leaf: unknown) => unknown,
@@ -143,7 +147,16 @@ describe("builtin registry", () => {
     expect(viewType).toBe(VIEW_TYPE_MFDI);
     expect(viewCreator({ id: "leaf-1" })).toEqual({ leaf: { id: "leaf-1" } });
 
-    const [editorViewType, editorViewCreator] = registerView.mock.calls[1] as [
+    const [dayOneViewType, dayOneViewCreator] = registerView.mock.calls[1] as [
+      string,
+      (leaf: unknown) => unknown,
+    ];
+    expect(dayOneViewType).toBe("dayone-view");
+    expect(dayOneViewCreator({ id: "leaf-2" })).toEqual({
+      leaf: { id: "leaf-2" },
+    });
+
+    const [editorViewType, editorViewCreator] = registerView.mock.calls[2] as [
       string,
       (leaf: unknown) => unknown,
     ];
@@ -157,7 +170,7 @@ describe("builtin registry", () => {
       "Mobile First Daily Interface",
       expect.any(Function),
     );
-    expect(addCommand).toHaveBeenCalledTimes(3);
+    expect(addCommand).toHaveBeenCalledTimes(4);
 
     const ribbonCallback = addRibbonIcon.mock.calls[0]?.[2] as () => void;
     ribbonCallback();
@@ -174,6 +187,12 @@ describe("builtin registry", () => {
     };
     await fixedNoteCommand.callback();
     expect(createAndOpenFixedNote).toHaveBeenCalledTimes(1);
+
+    const dayOneCommand = addCommand.mock.calls[2]?.[0] as {
+      callback: () => Promise<void>;
+    };
+    await dayOneCommand.callback();
+    expect(attachDayOneView).toHaveBeenCalledTimes(1);
 
     expect(register).toHaveBeenCalledTimes(2);
     expect(registerEvent).toHaveBeenCalledTimes(7);
