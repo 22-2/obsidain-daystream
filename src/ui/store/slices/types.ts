@@ -10,6 +10,7 @@ import type {
   Draft,
   Granularity,
   InputAreaSize,
+  MainView,
   MomentLike,
   Post,
   TimeFilter,
@@ -52,6 +53,7 @@ export interface NavigationSlice {
   dateFilter: DateFilter;
   displayMode: DisplayMode;
   contentView: ContentView;
+  mainView: MainView;
   asTask: boolean;
   threadOnly: boolean;
   threadFocusRootId: string | null;
@@ -64,6 +66,7 @@ export interface NavigationSlice {
   setDateFilter: (f: DateFilter) => void;
   setDisplayMode: (m: DisplayMode) => void;
   setContentView: (view: ContentView) => void;
+  setMainView: (view: MainView) => void;
   setAsTask: (asTask: boolean) => void;
   setThreadOnly: (threadOnly: boolean) => void;
   setThreadFocusRootId: (rootId: string | null, focusDate?: MomentLike) => void;

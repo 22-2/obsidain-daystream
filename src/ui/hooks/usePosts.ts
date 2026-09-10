@@ -7,6 +7,7 @@ import { useFilteredPosts } from "src/ui/hooks/useFilteredPosts";
 import { useUnifiedPosts } from "src/ui/hooks/useUnifiedPosts";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
+import { getEffectiveSearchState } from "src/ui/utils/search-state";
 import { isThreadView, isTimelineView } from "src/ui/utils/view-mode";
 import { useShallow } from "zustand/shallow";
 
@@ -43,7 +44,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       displayMode: s.displayMode,
       threadFocusRootId: s.threadFocusRootId,
       viewNoteMode: s.viewNoteMode,
-      searchQuery: s.searchQuery,
+      ...getEffectiveSearchState(s),
     })),
   );
 

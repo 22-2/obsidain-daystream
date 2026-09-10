@@ -10,6 +10,15 @@ export const CONTENT_VIEW = {
   INSIGHTS: "insights",
 } as const;
 
+/** ユーザーが上部タブから直接選べる、画面の第一階層。 */
+export const MAIN_VIEW = {
+  DATE: "date",
+  TIMELINE: "timeline",
+  SEARCH: "search",
+  TASKS: "tasks",
+  INSIGHTS: "insights",
+} as const;
+
 export const STORAGE_KEYS = {
   TOPICS: "topics",
   ACTIVE_TOPIC: "activeTopic",
@@ -24,6 +33,7 @@ export const STORAGE_KEYS = {
   DATE: "date",
   DISPLAY_MODE: "displayMode",
   CONTENT_VIEW: "contentView",
+  MAIN_VIEW: "mainView",
   AS_TASK: "asTask",
   INPUT: "input",
   INPUT_PERIODIC: "inputPeriodic",

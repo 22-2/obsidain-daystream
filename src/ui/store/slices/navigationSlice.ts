@@ -1,5 +1,5 @@
 import { Notice } from "obsidian";
-import { CONTENT_VIEW, DISPLAY_MODE, MOVE_STEP } from "src/ui/config/consntants";
+import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW, MOVE_STEP } from "src/ui/config/consntants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/ui/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
 import { DEFAULT_VIEW_STATE } from "src/ui/store/slices/settingsDefaults";
@@ -8,20 +8,17 @@ import {
   persistNavigationState,
   restoreFixedSessionDraft,
 } from "src/ui/store/slices/settingsPersistence";
-import { isPastDateReadOnly, isViewReadOnly } from "src/ui/store/slices/settingsPredicates";
+import { isViewReadOnly } from "src/ui/store/slices/settingsPredicates";
 import type { MFDIStore, NavigationSlice } from "src/ui/store/slices/types";
-import type {
-  ContentView,
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  MomentLike,
-  TimeFilter,
-} from "src/ui/types";
+import type { ContentView, DateFilter, DisplayMode, MainView, TimeFilter } from "src/ui/types";
+import { resolveMainViewCompatibilityState } from "src/ui/utils/main-view-state";
 import { isTimelineView } from "src/ui/utils/view-mode";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSlice> = (set, get) => ({
+export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSlice> = (
+  set,
+  get,
+) => ({
   activeTopic: "",
   activeTag: null,
   fixedSessionNumber: 1,
@@ -31,6 +28,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   dateFilter: DATE_FILTER_IDS.TODAY,
   displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
   contentView: CONTENT_VIEW.TIMELINE as ContentView,
+  mainView: MAIN_VIEW.TIMELINE as MainView,
   asTask: false,
   threadOnly: false,
   threadFocusRootId: null,
@@ -96,6 +94,13 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     set((state) => ({
       granularity,
       threadFocusRootId: null,
+      ...(granularity !== GRANULARITY_CONFIG.day.unit
+        ? {
+            mainView: MAIN_VIEW.DATE,
+            contentView: CONTENT_VIEW.TIMELINE,
+            asTask: false,
+          }
+        : {}),
       displayMode:
         granularity !== GRANULARITY_CONFIG.day.unit ? DISPLAY_MODE.FOCUS : state.displayMode,
     }));
@@ -103,6 +108,9 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     persistNavigationState(state, {
       granularity,
       displayMode: state.displayMode,
+      mainView: state.mainView,
+      contentView: state.contentView,
+      asTask: state.asTask,
       threadFocusRootId: null,
     });
   },
@@ -123,29 +131,83 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     set({
       dateFilter,
       displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
     const state = get();
     persistNavigationState(state, {
       dateFilter,
       displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
   },
 
   setDisplayMode: (displayMode: DisplayMode) => {
-    set({ displayMode, threadFocusRootId: null });
-    persistNavigationState(get(), { displayMode, threadFocusRootId: null });
+    const mainView = displayMode === DISPLAY_MODE.TIMELINE ? MAIN_VIEW.TIMELINE : MAIN_VIEW.DATE;
+    // 意図: Obsidian コマンドなど旧 API からの切替も、上部タブの選択状態と同期させる。
+    set({
+      displayMode,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView,
+      asTask: false,
+      threadFocusRootId: null,
+    });
+    persistNavigationState(get(), {
+      displayMode,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView,
+      asTask: false,
+      threadFocusRootId: null,
+    });
   },
 
   setContentView: (contentView: ContentView) => {
-    set({ contentView });
-    persistNavigationState(get(), { contentView });
+    const state = get();
+    const mainView =
+      contentView === CONTENT_VIEW.INSIGHTS
+        ? MAIN_VIEW.INSIGHTS
+        : state.asTask
+          ? MAIN_VIEW.TASKS
+          : state.displayMode === DISPLAY_MODE.FOCUS
+            ? MAIN_VIEW.DATE
+            : MAIN_VIEW.TIMELINE;
+    set({ contentView, mainView });
+    persistNavigationState(get(), { contentView, mainView });
+  },
+
+  setMainView: (mainView: MainView) => {
+    const state = get();
+    // 意図: 表示の第一階層を一度に遷移させ、複数 boolean の組み合わせによる不整合を防ぐ。
+    const patch = {
+      mainView,
+      ...resolveMainViewCompatibilityState(mainView, state.displayMode),
+      searchInputOpen: mainView === MAIN_VIEW.SEARCH,
+      threadFocusRootId: null,
+    };
+    set(patch);
+    persistNavigationState(get(), {
+      mainView,
+      contentView: patch.contentView,
+      displayMode: patch.displayMode,
+      asTask: patch.asTask,
+      threadFocusRootId: null,
+    });
   },
 
   setAsTask: (asTask: boolean) => {
-    set({ asTask });
-    persistNavigationState(get(), { asTask });
+    const state = get();
+    const mainView = asTask
+      ? MAIN_VIEW.TASKS
+      : state.displayMode === DISPLAY_MODE.FOCUS
+        ? MAIN_VIEW.DATE
+        : MAIN_VIEW.TIMELINE;
+    set({ asTask, contentView: CONTENT_VIEW.TIMELINE, mainView });
+    persistNavigationState(get(), { asTask, contentView: CONTENT_VIEW.TIMELINE, mainView });
   },
 
   setThreadOnly: (threadOnly: boolean) => {
@@ -157,7 +219,13 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     set((state) => ({
       threadFocusRootId,
       date: threadFocusRootId !== null && focusDate != null ? focusDate.clone() : state.date,
-      displayMode: threadFocusRootId !== null ? DISPLAY_MODE.FOCUS : state.displayMode,
+      // 意図: スレッドはタブではなく現在ビュー上の詳細表示なので、閉じたら親ビューの取得方式へ戻す。
+      displayMode:
+        threadFocusRootId !== null
+          ? DISPLAY_MODE.FOCUS
+          : state.mainView === MAIN_VIEW.DATE
+            ? DISPLAY_MODE.FOCUS
+            : DISPLAY_MODE.TIMELINE,
     }));
     const state = get();
     persistNavigationState(state, {
@@ -180,6 +248,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     persistNavigationState(state, {
       displayMode: DEFAULT_VIEW_STATE.displayMode,
       contentView: DEFAULT_VIEW_STATE.contentView,
+      mainView: DEFAULT_VIEW_STATE.mainView,
       granularity: DEFAULT_VIEW_STATE.granularity,
       dateFilter: DEFAULT_VIEW_STATE.dateFilter,
       timeFilter: DEFAULT_VIEW_STATE.timeFilter,
@@ -194,13 +263,19 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     const now = window.moment();
     set({
       date: now,
-      displayMode: DISPLAY_MODE.TIMELINE,
+      displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
     const state = get();
     persistNavigationState(state, {
       date: now,
-      displayMode: DISPLAY_MODE.TIMELINE,
+      displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
     state.reloadInputAreaSize();
@@ -229,12 +304,18 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     set({
       date: nextDate,
       displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
     const state = get();
     persistNavigationState(state, {
       date: nextDate,
       displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
       threadFocusRootId: null,
     });
     state.reloadInputAreaSize();

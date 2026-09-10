@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { clearInsightCache } from "src/ui/components/insights/insightSummary";
 import { clearSudachiCache } from "src/ui/components/insights/sudachi";
 import { useSettingsStore } from "src/ui/store/settingsStore";
+import { getEffectiveSearchState } from "src/ui/utils/search-state";
 import { refreshAllPosts } from "src/ui/utils/swr-utils";
 import { useShallow } from "zustand/shallow";
 
@@ -15,8 +16,7 @@ export function useDbSync() {
       activeTopic: s.activeTopic,
       displayMode: s.displayMode,
       timelineDayKey: s.date.format("YYYY-MM-DD"),
-      searchQuery: s.searchQuery,
-      threadOnly: s.threadOnly,
+      ...getEffectiveSearchState(s),
     })),
   );
 

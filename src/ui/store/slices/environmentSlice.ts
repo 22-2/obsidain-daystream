@@ -1,3 +1,4 @@
+import { MAIN_VIEW } from "src/ui/config/consntants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { EnvironmentSlice, MFDIStore } from "src/ui/store/slices/types";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
@@ -115,6 +116,7 @@ export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], Environment
         fixedSessionNumber: nextFixedSessionNumber,
         displayMode: fixedDefaults.displayMode,
         contentView: "timeline",
+        mainView: MAIN_VIEW.TIMELINE,
         granularity: fixedDefaults.granularity,
         dateFilter: fixedDefaults.dateFilter,
         timeFilter: fixedDefaults.timeFilter,

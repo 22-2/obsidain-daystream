@@ -1,5 +1,10 @@
 import type { Moment } from "moment";
-import type { CONTENT_VIEW, DISPLAY_MODE, INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import type {
+  CONTENT_VIEW,
+  DISPLAY_MODE,
+  INPUT_AREA_SIZE,
+  MAIN_VIEW,
+} from "src/ui/config/consntants";
 import type { DATE_FILTER_OPTIONS, TIME_FILTER_OPTIONS } from "src/ui/config/filter-config";
 
 export type { Granularity } from "src/ui/config/granularity-config";
@@ -15,6 +20,8 @@ export type DateFilter = (typeof DATE_FILTER_OPTIONS)[number]["id"];
 export type DisplayMode = (typeof DISPLAY_MODE)[keyof typeof DISPLAY_MODE];
 
 export type ContentView = (typeof CONTENT_VIEW)[keyof typeof CONTENT_VIEW];
+
+export type MainView = (typeof MAIN_VIEW)[keyof typeof MAIN_VIEW];
 
 export type InputAreaSize = (typeof INPUT_AREA_SIZE)[keyof typeof INPUT_AREA_SIZE];
 

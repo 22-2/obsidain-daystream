@@ -110,8 +110,17 @@ function buildMemoFilter(params: {
   }
 
   return (memo) => {
-    if (normalizedQuery && !memo.content.toLowerCase().includes(normalizedQuery)) {
-      return false;
+    if (normalizedQuery) {
+      // 意図: 検索タブの単一入力から本文・URL（本文/パス）・タグを横断して探せるようにする。
+      const searchableText = [
+        memo.content,
+        memo.path,
+        ...memo.tags,
+        ...memo.tags.map((tag) => (tag.startsWith("#") ? tag : `#${tag}`)),
+      ]
+        .join("\n")
+        .toLowerCase();
+      if (!searchableText.includes(normalizedQuery)) return false;
     }
     if (threadOnly && !isThreadRootMemo(memo)) {
       return false;
