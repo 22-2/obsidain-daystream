@@ -17,6 +17,7 @@ import {
 } from "src/notifications/activity-prompt";
 import type { Settings } from "src/settings";
 import { DEFAULT_SETTINGS, MFDISettingTab } from "src/settings";
+import { watchElectronPowerState } from "src/shell/electron-power";
 import { restoreAndFocusElectronWindow } from "src/shell/electron-window";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { showInputModal } from "src/ui/modals/InputModal";
@@ -32,6 +33,7 @@ export default class MFDIPlugin extends Plugin {
   view?: MFDIView;
   private activityPromptScheduler: ActivityPromptNotificationScheduler | null = null;
   private activityPromptNotificationsReady = false;
+  private activityPromptNotificationsPaused = false;
   private activityPromptComposerPromise: Promise<void> | null = null;
 
   private createBootstrapSettings(): Settings {
@@ -72,6 +74,19 @@ export default class MFDIPlugin extends Plugin {
 
     this.activityPromptNotificationsReady = true;
     this.register(() => this.stopActivityPromptNotifications());
+    const stopWatchingPowerState = watchElectronPowerState({
+      onInactive: () => {
+        // ロック／スリープ中に発生した通知を復帰直後へ持ち越さないため、
+        // タイマーと表示中の通知をその場で停止する。
+        this.activityPromptNotificationsPaused = true;
+        this.stopActivityPromptNotifications();
+      },
+      onActive: () => {
+        this.activityPromptNotificationsPaused = false;
+        this.restartActivityPromptNotifications();
+      },
+    });
+    this.register(stopWatchingPowerState);
     this.restartActivityPromptNotifications();
 
     this.app.workspace.onLayoutReady(() => {
@@ -191,6 +206,8 @@ export default class MFDIPlugin extends Plugin {
 
   private restartActivityPromptNotifications(): void {
     this.stopActivityPromptNotifications();
+
+    if (this.activityPromptNotificationsPaused) return;
 
     const intervalMs = resolveActivityPromptIntervalMs(this.settings.activityPromptIntervalMinutes);
     if (intervalMs === null) return;
