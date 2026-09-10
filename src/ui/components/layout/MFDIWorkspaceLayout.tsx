@@ -244,7 +244,6 @@ export const MFDIWorkspaceLayout = () => {
                 value={mainView}
                 noteMode={viewNoteMode}
                 onChange={setMainView}
-                onHome={handleClickHome}
               />
               {mainView === MAIN_VIEW.SEARCH ? (
                 <SearchControls />

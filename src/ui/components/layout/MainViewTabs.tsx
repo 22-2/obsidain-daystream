@@ -10,8 +10,8 @@ const TABS: Array<{
   icon: string;
   periodicOnly?: boolean;
 }> = [
-  { value: MAIN_VIEW.DATE, label: "日付", icon: "calendar-days", periodicOnly: true },
   { value: MAIN_VIEW.TIMELINE, label: "タイムライン", icon: "list" },
+  { value: MAIN_VIEW.DATE, label: "日付", icon: "calendar-days", periodicOnly: true },
   { value: MAIN_VIEW.SEARCH, label: "検索", icon: "search" },
   { value: MAIN_VIEW.TASKS, label: "タスク", icon: "list-checks", periodicOnly: true },
   { value: MAIN_VIEW.INSIGHTS, label: "インサイト", icon: "book-open", periodicOnly: true },
@@ -21,21 +21,11 @@ export const MainViewTabs: React.FC<{
   value: MainView;
   noteMode: MFDINoteMode;
   onChange: (value: MainView) => void;
-  onHome: () => void;
-}> = ({ value, noteMode, onChange, onHome }) => {
+}> = ({ value, noteMode, onChange }) => {
   const tabs = TABS.filter((tab) => noteMode === "periodic" || !tab.periodicOnly);
 
   return (
     <nav className="mfdi-main-view-tabs" aria-label="メインビュー" role="tablist">
-      <button
-        type="button"
-        className="mfdi-main-view-tabs__tab mfdi-main-view-tabs__home"
-        aria-label="ホーム"
-        title="ホーム"
-        onClick={onHome}
-      >
-        <ObsidianIcon name="home" size="16px" className="pointer-events-none size-4 p-0" />
-      </button>
       {tabs.map((tab) => (
         <button
           key={tab.value}

@@ -14,12 +14,12 @@ describe("MainViewTabs", () => {
         value={MAIN_VIEW.SEARCH}
         noteMode="periodic"
         onChange={onChange}
-        onHome={vi.fn()}
       />,
     );
 
     expect(screen.getAllByRole("tab")).toHaveLength(5);
     expect(screen.getByRole("tab", { name: "検索" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getAllByRole("tab")[0].getAttribute("aria-label")).toBe("タイムライン");
     fireEvent.click(screen.getByRole("tab", { name: "日付" }));
     expect(onChange).toHaveBeenCalledWith(MAIN_VIEW.DATE);
   });
@@ -30,7 +30,6 @@ describe("MainViewTabs", () => {
         value={MAIN_VIEW.TIMELINE}
         noteMode="fixed"
         onChange={vi.fn()}
-        onHome={vi.fn()}
       />,
     );
 
@@ -39,4 +38,5 @@ describe("MainViewTabs", () => {
       "検索",
     ]);
   });
+
 });
