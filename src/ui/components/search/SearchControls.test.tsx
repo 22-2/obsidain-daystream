@@ -19,7 +19,7 @@ afterEach(cleanup);
 
 describe("SearchControls", () => {
   it("検索入力だけを表示し、追加の絞り込みボタンを置かない", () => {
-    render(
+    const { container } = render(
       <AppStoreProvider store={store}>
         <SearchControls />
       </AppStoreProvider>,
@@ -27,5 +27,7 @@ describe("SearchControls", () => {
 
     expect(screen.getByRole("searchbox", { name: "本文・URL・タグを検索" })).toBeTruthy();
     expect(screen.queryAllByRole("button")).toHaveLength(0);
+    expect(screen.queryByRole("heading")).toBeNull();
+    expect(container.querySelector(".obsidian-icon")).toBeNull();
   });
 });

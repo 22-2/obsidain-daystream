@@ -1,6 +1,5 @@
 import { useEffect, useRef, type FC } from "react";
-import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
-import { HStack, Input } from "src/ui/components/primitives";
+import { Input } from "src/ui/components/primitives";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -23,32 +22,24 @@ export const SearchControls: FC = () => {
   }, [searchInputOpen]);
 
   return (
-    <section className="mfdi-search-controls" aria-labelledby="mfdi-search-heading">
-      <h2 id="mfdi-search-heading">検索</h2>
-      <HStack className="mfdi-search-controls__input-row gap-2">
-        <ObsidianIcon
-          name="search"
-          size="16px"
-          className="pointer-events-none size-4 shrink-0 p-0 text-[var(--text-muted)]"
-        />
-        <Input
-          ref={inputRef}
-          type="search"
-          value={searchQuery}
-          placeholder="本文・URL・タグを検索"
-          aria-label="本文・URL・タグを検索"
-          className="mfdi-search-controls__input"
-          onFocus={() => setSearchInputOpen(true)}
-          onBlur={() => setSearchInputOpen(false)}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key !== "Escape") return;
-            event.preventDefault();
-            setSearchInputOpen(false);
-            inputRef.current?.blur();
-          }}
-        />
-      </HStack>
+    <section className="mfdi-search-controls" aria-label="検索">
+      <Input
+        ref={inputRef}
+        type="search"
+        value={searchQuery}
+        placeholder="本文・URL・タグを検索"
+        aria-label="本文・URL・タグを検索"
+        className="mfdi-search-controls__input"
+        onFocus={() => setSearchInputOpen(true)}
+        onBlur={() => setSearchInputOpen(false)}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.preventDefault();
+          setSearchInputOpen(false);
+          inputRef.current?.blur();
+        }}
+      />
     </section>
   );
 };
