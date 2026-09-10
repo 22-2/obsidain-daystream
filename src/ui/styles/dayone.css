@@ -8,6 +8,13 @@
   --dayone-accent: color-mix(in srgb, var(--interactive-accent) 78%, #5e9cff);
   --dayone-accent-soft: color-mix(in srgb, var(--dayone-accent) 12%, transparent);
   --dayone-border: color-mix(in srgb, var(--background-modifier-border) 78%, transparent);
+  /* The journal header stays light in both themes, so theme-dependent accent text can lose contrast. */
+  --dayone-header-foreground: #111827;
+  --dayone-header-muted: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 68%,
+    transparent
+  );
   --mfdi-calendar-width: min(100%, 38rem);
   --mfdi-calendar-cell-size: 2.5rem;
   --mfdi-calendar-grid-gap: 0.3rem;
@@ -38,28 +45,39 @@
   flex: 0 0 auto;
   padding: 1.25rem max(1.25rem, calc((100% - 54rem) / 2)) 0.75rem;
   background: var(--dayone-accent);
-  color: var(--text-on-accent);
+  color: var(--dayone-header-foreground);
   box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--dayone-accent) 22%, transparent);
 }
 
 [data-type="dayone-view"] .dayone-header__top {
   min-height: 3.5rem;
+  gap: 1rem;
 }
 
 [data-type="dayone-view"] .dayone-header__identity {
   min-width: 0;
+  flex: 1 1 auto;
+  gap: 0.75rem;
 }
 
 [data-type="dayone-view"] .dayone-header__mark {
+  --icon-color: var(--dayone-header-foreground);
+
   display: flex;
   height: 2.7rem;
   width: 2.7rem;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--text-on-accent) 35%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--dayone-header-foreground) 35%, transparent);
   border-radius: 0.85rem;
-  background: color-mix(in srgb, var(--text-on-accent) 14%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 10%,
+    transparent
+  );
+  color: var(--dayone-header-foreground);
 }
 
 [data-type="dayone-view"] .dayone-header__title {
@@ -74,54 +92,80 @@
 
 [data-type="dayone-view"] .dayone-header__date {
   margin-top: 0.25rem;
-  color: color-mix(in srgb, var(--text-on-accent) 78%, transparent);
+  color: var(--dayone-header-muted);
   font-size: var(--font-ui-small);
 }
 
 [data-type="dayone-view"] .dayone-header__actions {
   flex: 0 0 auto;
+  gap: 0.3rem;
 }
 
 [data-type="dayone-view"] .dayone-header__icon-button {
-  color: var(--text-on-accent) !important;
+  --icon-color: var(--dayone-header-foreground);
+  --icon-color-hover: var(--dayone-header-foreground);
+
+  color: var(--dayone-header-foreground) !important;
+  opacity: 0.72;
 }
 
 [data-type="dayone-view"] .dayone-header__icon-button:hover {
-  background: color-mix(in srgb, var(--text-on-accent) 15%, transparent);
-  color: var(--text-on-accent) !important;
+  background: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 10%,
+    transparent
+  );
+  color: var(--dayone-header-foreground) !important;
+  opacity: 1;
+}
+
+[data-type="dayone-view"]
+  :is(.dayone-header__mark, .dayone-header__icon-button, .dayone-tabs__tab)
+  svg {
+  color: currentColor !important;
+  stroke: currentColor;
+  opacity: 1;
 }
 
 [data-type="dayone-view"] .dayone-today-button {
   min-height: 2rem;
-  border: 1px solid color-mix(in srgb, var(--text-on-accent) 35%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--dayone-header-foreground) 35%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--text-on-accent) 13%, transparent);
-  color: var(--text-on-accent);
+  background: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 88%,
+    transparent
+  );
+  color: #fff;
 }
 
 [data-type="dayone-view"] .dayone-today-button:hover {
-  background: color-mix(in srgb, var(--text-on-accent) 22%, transparent);
-  color: var(--text-on-accent);
+  background: var(--dayone-header-foreground);
+  color: #fff;
 }
 
 [data-type="dayone-view"] .dayone-search {
   margin-top: 0.75rem;
   padding: 0.35rem 0.6rem;
-  border: 1px solid color-mix(in srgb, var(--text-on-accent) 35%, transparent);
+  gap: 0.45rem;
+  border: 1px solid
+    color-mix(in srgb, var(--dayone-header-foreground) 28%, transparent);
   border-radius: 0.6rem;
-  background: color-mix(in srgb, var(--text-on-accent) 12%, transparent);
+  background: color-mix(in srgb, #fff 34%, transparent);
+  color: var(--dayone-header-foreground);
 }
 
 [data-type="dayone-view"] .dayone-search input {
   min-height: 1.7rem;
   border: 0;
   background: transparent;
-  color: var(--text-on-accent);
+  color: var(--dayone-header-foreground);
   box-shadow: none;
 }
 
 [data-type="dayone-view"] .dayone-search input::placeholder {
-  color: color-mix(in srgb, var(--text-on-accent) 65%, transparent);
+  color: var(--dayone-header-muted);
 }
 
 [data-type="dayone-view"] .dayone-search input:focus {
@@ -132,7 +176,9 @@
   min-height: 2.6rem;
   margin-top: 0.8rem;
   overflow-x: auto;
-  border-bottom: 1px solid color-mix(in srgb, var(--text-on-accent) 22%, transparent);
+  gap: 0.25rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--dayone-header-foreground) 22%, transparent);
 }
 
 [data-type="dayone-view"] .dayone-tabs__tab {
@@ -145,26 +191,52 @@
   border-bottom: 2px solid transparent;
   padding: 0 0.75rem;
   background: transparent;
-  color: color-mix(in srgb, var(--text-on-accent) 70%, transparent);
+  color: var(--dayone-header-muted);
+  box-shadow: none;
   font-size: var(--font-ui-small);
+  mix-blend-mode: normal;
   cursor: pointer;
 }
 
+[data-type="dayone-view"] .dayone-tabs__tab .obsidian-icon {
+  --icon-color: var(--dayone-header-muted);
+  --icon-color-hover: var(--dayone-header-foreground);
+
+  color: var(--dayone-header-muted) !important;
+}
+
 [data-type="dayone-view"] .dayone-tabs__tab:is(:hover, :focus-visible) {
-  color: var(--text-on-accent);
+  color: var(--dayone-header-foreground);
 }
 
 [data-type="dayone-view"] .dayone-tabs__tab.is-active {
-  border-bottom-color: var(--text-on-accent);
-  color: var(--text-on-accent);
+  border-bottom-color: var(--dayone-header-foreground);
+  /* Some Obsidian themes blend active buttons into their own accent; keep this header locally predictable. */
+  background: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 8%,
+    transparent
+  ) !important;
+  color: var(--dayone-header-foreground);
   font-weight: var(--font-semibold);
+  mix-blend-mode: normal;
+}
+
+[data-type="dayone-view"] .dayone-tabs__tab.is-active .obsidian-icon {
+  --icon-color: var(--dayone-header-foreground);
+
+  color: var(--dayone-header-foreground) !important;
 }
 
 [data-type="dayone-view"] .dayone-tabs__count {
   min-width: 1.2rem;
   border-radius: 999px;
   padding: 0.05rem 0.35rem;
-  background: color-mix(in srgb, var(--text-on-accent) 16%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--dayone-header-foreground) 14%,
+    transparent
+  );
   font-size: var(--font-ui-smaller);
   text-align: center;
 }
