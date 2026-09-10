@@ -64,7 +64,7 @@ app.workspace.undoHistoryを使えば良いんすかね？🤔
 
 state.tsの再設計って何が考えられるっすかね
 
-宣言的設定画面にmigrateしたいっす
+- [x] 宣言的設定画面にmigrateしたいっす
 タブがあるのでsub-pagesやrenderは必須っすかね？🤔
 https://docs.obsidian.md/plugins/guides/migrate-declarative-settings
 
