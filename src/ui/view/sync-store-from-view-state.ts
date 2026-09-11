@@ -2,6 +2,7 @@ import { MAIN_VIEW } from "src/ui/config/consntants";
 import type { AppStoreApi } from "src/ui/store/appStore";
 import type { MFDIViewState } from "src/ui/view/state";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
+import { resolveMainViewCompatibilityState } from "src/ui/utils/main-view-state";
 
 export function syncStoreFromMFDIViewState(store: AppStoreApi, viewState: MFDIViewState): void {
   const nextFixedSessionNumber =
@@ -21,6 +22,16 @@ export function syncStoreFromMFDIViewState(store: AppStoreApi, viewState: MFDIVi
   }
 
   if (viewState.noteMode !== "fixed") {
+    if (viewState.mainView !== undefined && currentState.mainView !== viewState.mainView) {
+      // 意図: 上部タブは view ごとに独立させ、別タブの vault 全体設定で
+      // 現在のタブが上書きされないよう、復元時は永続化せず view state を優先する。
+      store.setState({
+        mainView: viewState.mainView,
+        ...resolveMainViewCompatibilityState(viewState.mainView, currentState.displayMode),
+        searchInputOpen: viewState.mainView === MAIN_VIEW.SEARCH,
+        threadFocusRootId: null,
+      });
+    }
     return;
   }
 

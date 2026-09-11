@@ -1,6 +1,7 @@
 import { MAIN_VIEW } from "src/ui/config/consntants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { EnvironmentSlice, MFDIStore } from "src/ui/store/slices/types";
+import { resolveMainViewCompatibilityState } from "src/ui/utils/main-view-state";
 import { createDefaultMFDIViewState } from "src/ui/view/state";
 import type { StateCreator } from "zustand/vanilla";
 
@@ -127,6 +128,18 @@ export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], Environment
       });
     } else {
       set({ fixedSessionNumber: 1 });
+
+      const initialMainView = initialViewState?.mainView;
+      if (initialMainView && Object.values(MAIN_VIEW).includes(initialMainView)) {
+        // 意図: 新しい view は vault 全体に残った前回のタブではなく、
+        // Obsidian が復元した当該タブの mainView を初期値として使う。
+        set({
+          mainView: initialMainView,
+          ...resolveMainViewCompatibilityState(initialMainView, get().displayMode),
+          searchInputOpen: initialMainView === MAIN_VIEW.SEARCH,
+          threadFocusRootId: null,
+        });
+      }
     }
 
     get().hydrateEditorState();

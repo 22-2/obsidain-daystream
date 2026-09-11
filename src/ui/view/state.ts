@@ -1,5 +1,5 @@
-import { DISPLAY_MODE } from "src/ui/config/consntants";
-import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/ui/types";
+import { DISPLAY_MODE, MAIN_VIEW } from "src/ui/config/consntants";
+import type { DateFilter, DisplayMode, Granularity, MainView, TimeFilter } from "src/ui/types";
 
 export type MFDINoteMode = "periodic" | "fixed";
 
@@ -25,6 +25,8 @@ export interface MFDIViewState extends Record<string, unknown> {
   activeTopic: string;
   noteMode: MFDINoteMode;
   file: string | null;
+  // タブ選択は vault 全体ではなく、Obsidian の各 view state に保存する。
+  mainView?: MainView;
 }
 
 export const DEFAULT_MFDI_VIEW_STATE: MFDIViewState = {
@@ -39,6 +41,7 @@ export const DEFAULT_MFDI_VIEW_STATE: MFDIViewState = {
   activeTopic: "",
   noteMode: "periodic",
   file: null,
+  mainView: MAIN_VIEW.TIMELINE,
 };
 
 export function createDefaultMFDIViewState(params?: {

@@ -39,6 +39,7 @@ export interface EnvironmentSlice {
       noteMode: MFDINoteMode;
       file: string | null;
       fixedSessionNumber: number;
+      mainView?: MainView;
     };
   }) => void;
 }

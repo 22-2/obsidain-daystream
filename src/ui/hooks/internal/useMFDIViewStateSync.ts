@@ -15,6 +15,7 @@ export function useMFDIViewStateSync(view: MFDIView | null): void {
     displayMode,
     searchQuery,
     fixedSessionNumber,
+    mainView,
   } = useSettingsStore(
     useShallow((state) => ({
       granularity: state.granularity,
@@ -26,6 +27,7 @@ export function useMFDIViewStateSync(view: MFDIView | null): void {
       displayMode: state.displayMode,
       searchQuery: state.searchQuery,
       fixedSessionNumber: state.fixedSessionNumber,
+      mainView: state.mainView,
     })),
   );
 
@@ -42,6 +44,8 @@ export function useMFDIViewStateSync(view: MFDIView | null): void {
       displayMode,
       searchQuery,
       fixedSessionNumber,
+      // 意図: 上部タブは vault 全体の設定ではなく、この Obsidian view の workspace state として保存する。
+      mainView,
     });
   }, [
     view,
@@ -54,5 +58,6 @@ export function useMFDIViewStateSync(view: MFDIView | null): void {
     displayMode,
     searchQuery,
     fixedSessionNumber,
+    mainView,
   ]);
 }

@@ -63,6 +63,7 @@ export function initializeAppStore(
       noteMode: MFDIStore["viewNoteMode"];
       file: string | null;
       fixedSessionNumber: number;
+      mainView?: MFDIStore["mainView"];
     };
   },
   store: AppStoreApi = appStore,

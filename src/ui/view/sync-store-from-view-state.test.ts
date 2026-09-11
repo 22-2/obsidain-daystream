@@ -1,4 +1,5 @@
 import type { AppStoreApi } from "src/ui/store/appStore";
+import { MAIN_VIEW } from "src/ui/config/consntants";
 import type { MFDIViewState } from "src/ui/view/state";
 import { syncStoreFromMFDIViewState } from "src/ui/view/sync-store-from-view-state";
 import { describe, expect, it, vi } from "vitest";
@@ -9,6 +10,7 @@ function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState
     viewNoteMode: "periodic",
     file: null,
     displayMode: "timeline",
+    mainView: MAIN_VIEW.TIMELINE,
     granularity: "week",
     dateFilter: "today",
     timeFilter: "morning",
@@ -111,5 +113,35 @@ describe("syncStoreFromMFDIViewState", () => {
       file: null,
       fixedSessionNumber: 1,
     });
+  });
+
+  it("restores a periodic view's main tab without using the vault-wide preference", () => {
+    const { state, store } = createMockStore();
+    const viewState: MFDIViewState = {
+      displayMode: "timeline",
+      granularity: "day",
+      asTask: false,
+      threadOnly: false,
+      fixedSessionNumber: 1,
+      timeFilter: "all",
+      dateFilter: "today",
+      searchQuery: "",
+      activeTopic: "",
+      noteMode: "periodic",
+      file: null,
+      mainView: MAIN_VIEW.DATE,
+    };
+
+    syncStoreFromMFDIViewState(store, viewState);
+
+    expect(state.mainView).toBe(MAIN_VIEW.DATE);
+    expect(state.displayMode).toBe("focus");
+    expect(state.asTask).toBe(false);
+    expect(store.setState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mainView: MAIN_VIEW.DATE,
+        displayMode: "focus",
+      }),
+    );
   });
 });

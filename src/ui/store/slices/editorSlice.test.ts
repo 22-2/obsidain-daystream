@@ -1,6 +1,6 @@
 import type { MFDIStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/settings";
-import { STORAGE_KEYS } from "src/ui/config/consntants";
+import { MAIN_VIEW, STORAGE_KEYS } from "src/ui/config/consntants";
 import { createAppStore } from "src/ui/store/appStore";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { Post } from "src/ui/types";
@@ -328,5 +328,31 @@ describe("editorSlice", () => {
     expect(store.getState().inputSnapshot).toBe("draft-session-4");
     expect(store.getState().draftMetadata).toEqual({ restored: "yes" });
     expect(store.getState().draftMetadataBase).toEqual({ restored: "yes" });
+  });
+
+  it("initializeAppStore は view state の mainView を vault の保存値より優先する", () => {
+    const store = createAppStore();
+    const { storage } = createMockStorage({
+      [STORAGE_KEYS.MAIN_VIEW]: MAIN_VIEW.TIMELINE,
+    });
+
+    store.getState().initializeAppStore({
+      shell: {} as never,
+      settings: DEFAULT_SETTINGS,
+      storage,
+      initialViewState: {
+        noteMode: "periodic",
+        file: null,
+        fixedSessionNumber: 1,
+        mainView: MAIN_VIEW.DATE,
+      },
+    });
+
+    expect(store.getState()).toMatchObject({
+      mainView: MAIN_VIEW.DATE,
+      displayMode: "focus",
+      contentView: "timeline",
+      asTask: false,
+    });
   });
 });

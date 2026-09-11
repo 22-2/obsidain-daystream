@@ -94,6 +94,7 @@ const MFDIAppRoot: React.FC<{
           file: initialViewState.file,
           fixedSessionNumber:
             initialViewState.noteMode === "fixed" ? (initialViewState.fixedSessionNumber ?? 1) : 1,
+          mainView: initialViewState.mainView,
         },
       },
       store,
