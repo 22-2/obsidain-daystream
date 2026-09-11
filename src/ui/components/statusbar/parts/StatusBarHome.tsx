@@ -14,6 +14,7 @@ export const StatusBarHome: FC = () => {
     displayMode,
     granularity,
     handleClickHome,
+    mainView,
     searchInputOpen,
     searchQuery,
     threadFocusRootId,
@@ -26,6 +27,7 @@ export const StatusBarHome: FC = () => {
       displayMode: state.displayMode,
       granularity: state.granularity,
       handleClickHome: state.handleClickHome,
+      mainView: state.mainView,
       searchInputOpen: state.searchInputOpen,
       searchQuery: state.searchQuery,
       threadFocusRootId: state.threadFocusRootId,
@@ -34,6 +36,7 @@ export const StatusBarHome: FC = () => {
   );
 
   const isViewDefault = isDefaultViewState({
+    mainView,
     displayMode,
     granularity,
     dateFilter,

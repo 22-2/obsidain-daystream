@@ -101,11 +101,16 @@ describe("settingsSlice", () => {
     expect(state.date.isSame(yesterday, "day")).toBe(true);
   });
 
-  it("home で検索条件も含めて既定状態に戻る", () => {
+  it("日付ビューの home で日付状態だけを初期化し、他タブの検索条件を維持する", () => {
     settingsStore.setState((state) => ({
       ...state,
+      date: yesterday.clone(),
+      granularity: "month",
+      dateFilter: "7d",
+      timeFilter: "latest",
       searchQuery: "wanted",
-      searchInputOpen: true,
+      searchInputOpen: false,
+      threadOnly: true,
       activeTag: "IT",
       threadFocusRootId: "root-1",
       displayMode: DISPLAY_MODE.FOCUS,
@@ -114,12 +119,17 @@ describe("settingsSlice", () => {
     settingsStore.getState().handleClickHome();
 
     const state = settingsStore.getState();
-    expect(state.searchQuery).toBe("");
+    expect(state.searchQuery).toBe("wanted");
     expect(state.searchInputOpen).toBe(false);
+    expect(state.threadOnly).toBe(true);
     expect(state.activeTag).toBeNull();
     expect(state.threadFocusRootId).toBeNull();
-    expect(state.displayMode).toBe(DISPLAY_MODE.TIMELINE);
-    expect(state.mainView).toBe(MAIN_VIEW.TIMELINE);
+    expect(state.granularity).toBe("day");
+    expect(state.dateFilter).toBe("today");
+    expect(state.timeFilter).toBe("all");
+    expect(state.date.isSame(today, "day")).toBe(true);
+    expect(state.displayMode).toBe(DISPLAY_MODE.FOCUS);
+    expect(state.mainView).toBe(MAIN_VIEW.DATE);
   });
 
   it("初期表示モードはタイムライン", () => {

@@ -1,4 +1,4 @@
-import { DISPLAY_MODE } from "src/ui/config/consntants";
+import { DISPLAY_MODE, MAIN_VIEW } from "src/ui/config/consntants";
 import { DEFAULT_VIEW_STATE } from "src/ui/store/slices/settingsSlice";
 import type { SettingsSlice } from "src/ui/store/slices/types";
 
@@ -13,22 +13,30 @@ type ResettableViewState = Pick<
   | "activeTag"
   | "searchQuery"
   | "searchInputOpen"
->;
+> & {
+  // 旧呼び出し元（ポップアウトや既存テスト）は mainView を持たないため任意にする。
+  mainView?: SettingsSlice["mainView"];
+};
 
 type CenterIndicatorState = Pick<SettingsSlice, "displayMode" | "threadFocusRootId" | "activeTag">;
 
 export function isDefaultViewState(state: ResettableViewState): boolean {
+  const defaultDisplayMode =
+    state.mainView === MAIN_VIEW.DATE ? DISPLAY_MODE.FOCUS : DEFAULT_VIEW_STATE.displayMode;
+  const searchStateIsActive =
+    state.mainView == null || state.mainView === MAIN_VIEW.SEARCH || state.searchInputOpen === true;
+
   return (
-    state.displayMode === DEFAULT_VIEW_STATE.displayMode &&
+    state.displayMode === defaultDisplayMode &&
     state.granularity === DEFAULT_VIEW_STATE.granularity &&
     state.dateFilter === DEFAULT_VIEW_STATE.dateFilter &&
     state.timeFilter === DEFAULT_VIEW_STATE.timeFilter &&
     state.asTask === DEFAULT_VIEW_STATE.asTask &&
     state.activeTag === DEFAULT_VIEW_STATE.activeTag &&
     state.threadFocusRootId === DEFAULT_VIEW_STATE.threadFocusRootId &&
-    // 意図: 検索中は default 見た目に戻さず、home で検索解除する導線を明示する。
-    // 検索欄を開いてフォーカスしただけでは、まだ検索状態ではない。
-    state.searchQuery === ""
+    // 意図: 日付・タイムライン等の各タブでは検索条件を適用しないため、
+    // 別タブに保持した検索語だけで日付ビューの Home を非 default 扱いにしない。
+    (!searchStateIsActive || state.searchQuery === "")
   );
 }
 

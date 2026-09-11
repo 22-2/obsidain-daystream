@@ -237,26 +237,38 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
 
   handleClickHome: () => {
     const now = window.moment();
-    // 意図: home は表示条件だけでなく検索条件も初期化し、一覧を完全に既定状態へ戻す。
+    const currentMainView = get().mainView;
+    const mainViewCompatibility = resolveMainViewCompatibilityState(
+      currentMainView,
+      get().displayMode,
+    );
+
+    // 意図: 日付ビューの Home は日付・絞り込み状態だけを初期化し、
+    // 上部タブの選択は維持して日付タブから意図せず遷移しないようにする。
     set({
-      ...DEFAULT_VIEW_STATE,
+      ...mainViewCompatibility,
+      mainView: currentMainView,
       date: now,
-      searchQuery: "",
-      searchInputOpen: false,
-    });
-    const state = get();
-    persistNavigationState(state, {
-      displayMode: DEFAULT_VIEW_STATE.displayMode,
-      contentView: DEFAULT_VIEW_STATE.contentView,
-      mainView: DEFAULT_VIEW_STATE.mainView,
       granularity: DEFAULT_VIEW_STATE.granularity,
       dateFilter: DEFAULT_VIEW_STATE.dateFilter,
       timeFilter: DEFAULT_VIEW_STATE.timeFilter,
-      asTask: DEFAULT_VIEW_STATE.asTask,
+      activeTag: DEFAULT_VIEW_STATE.activeTag,
+      threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
+    });
+    const state = get();
+    persistNavigationState(state, {
+      displayMode: mainViewCompatibility.displayMode,
+      contentView: mainViewCompatibility.contentView,
+      mainView: currentMainView,
+      granularity: DEFAULT_VIEW_STATE.granularity,
+      dateFilter: DEFAULT_VIEW_STATE.dateFilter,
+      timeFilter: DEFAULT_VIEW_STATE.timeFilter,
+      asTask: mainViewCompatibility.asTask,
       date: now,
       threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
       activeTag: DEFAULT_VIEW_STATE.activeTag,
     });
+    state.reloadInputAreaSize();
   },
 
   handleClickToday: () => {
