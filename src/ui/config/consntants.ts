@@ -45,6 +45,7 @@ export const STORAGE_KEYS = {
   THREAD_FOCUS_ROOT_ID: "threadFocusRootId",
   COLLAPSED_POST_GROUP_KEYS: "collapsedPostGroupKeys",
   INPUT_AREA_SIZE: "inputAreaSize",
+  // 旧バージョンの値を読み込まないまま、保存済みデータとの互換性のためキー名だけ残す。
   COMPOSER_OPEN: "composerOpen",
   FIXED_SESSION_META: "fixedSessionMeta",
   FIXED_SESSION_LAST_OPENED: "fixedSessionLastOpened",

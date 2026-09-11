@@ -1,7 +1,6 @@
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import {
   clearEditingPost,
-  persistComposerOpen,
   persistDraftMetadata,
   persistEditingPost,
   persistInput as persistInputValue,
@@ -115,7 +114,6 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
 
     openComposer: () => {
       set({ composerOpen: true });
-      persistComposerOpen(get().storage, true);
     },
 
     closeComposer: () => {
@@ -126,7 +124,6 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
       get().addDraft(input);
       get().clearInput();
       set({ composerOpen: false });
-      persistComposerOpen(get().storage, false);
     },
 
     replaceInput: (input) => {
@@ -257,7 +254,6 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
           : null;
 
       set((state) => ({
-        composerOpen: persistedState.composerOpen,
         inputSnapshot: state.inputSnapshot || persistedState.input,
         inputSnapshotVersion: state.inputSnapshotVersion + 1,
         editingPostOffset: state.editingPostOffset ?? persistedState.editingPost?.offset ?? null,

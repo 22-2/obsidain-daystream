@@ -174,6 +174,21 @@ const MFDIAppRoot: React.FC<{
   useMFDIViewStateSync(component);
   useMFDIViewDelegates(component);
 
+  useEffect(() => {
+    return () => {
+      const editorState = store.getState();
+      const hasEditingState =
+        editorState.editingPost !== null || editorState.editingPostOffset !== null;
+      if (!editorState.composerOpen && !editorState.inputSnapshot.trim() && !hasEditingState) return;
+
+      // 意図: タブを閉じると composer の閉じる操作を経由しないため、
+      // ビュー破棄時にも入力を下書きへ移して次回の自動復元を防ぐ。編集中投稿の
+      // 永続情報も同時に消し、閉じたタブを再度開いたときに編集画面を再表示しない。
+      editorState.closeComposer();
+      if (hasEditingState) editorState.cancelEdit();
+    };
+  }, [store]);
+
   // Parent and child effects have both installed their delegates by this point.
   useEffect(() => {
     component.notifyReactReady();

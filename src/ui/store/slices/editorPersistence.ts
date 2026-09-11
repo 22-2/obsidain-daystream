@@ -30,14 +30,9 @@ export interface EditorPersistenceContext {
 }
 
 export interface PersistedEditorState {
-  composerOpen: boolean;
   input: string;
   draftMetadata: PersistedDraftMetadataState;
   editingPost: PersistedEditingPost | null;
-}
-
-export function persistComposerOpen(storage: MFDIStorage | null, open: boolean): void {
-  storage?.set(STORAGE_KEYS.COMPOSER_OPEN, open);
 }
 
 export function persistInput(context: EditorPersistenceContext, input: string): void {
@@ -74,7 +69,6 @@ export function restoreEditorState(
   if (!context.storage) return null;
 
   return {
-    composerOpen: context.storage.get<boolean>(STORAGE_KEYS.COMPOSER_OPEN, false),
     input: context.storage.get<string>(
       getInputStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber),
       "",

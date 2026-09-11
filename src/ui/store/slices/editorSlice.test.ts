@@ -69,20 +69,22 @@ describe("editorSlice", () => {
     vi.useRealTimers();
   });
 
-  it("コンポーザの表示状態を storage に保存し、hydrate で復元する", () => {
+  it("コンポーザの表示状態を storage に保存せず、再初期化時は閉じたままにする", () => {
     const store = createAppStore();
-    const { storage, values } = createMockStorage({
-      [STORAGE_KEYS.COMPOSER_OPEN]: true,
-    });
+    const { storage, values } = createMockStorage();
 
     store.setState({ storage });
-    store.getState().hydrateEditorState();
-    expect(store.getState().composerOpen).toBe(true);
-
-    store.getState().closeComposer();
-    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
     store.getState().openComposer();
-    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(true);
+    expect(store.getState().composerOpen).toBe(true);
+    expect(values.has(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
+
+    // 旧バージョンの値が残っていても、composer の開閉状態はタブをまたいで復元しない。
+    values.set(STORAGE_KEYS.COMPOSER_OPEN, true);
+
+    const reopenedStore = createAppStore();
+    reopenedStore.setState({ storage });
+    reopenedStore.getState().hydrateEditorState();
+    expect(reopenedStore.getState().composerOpen).toBe(false);
   });
 
   it("コンポーザを閉じると入力を下書きへ移し、次回は復元しない", () => {
@@ -102,7 +104,7 @@ describe("editorSlice", () => {
     expect(store.getState().inputSnapshot).toBe("");
     expect(store.getState().drafts).toHaveLength(1);
     expect(store.getState().drafts[0]?.content).toBe(draft);
-    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
+    expect(values.has(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
     expect(values.get(getInputStorageKey("periodic", null))).toBe("");
 
     const reopenedStore = createAppStore();
