@@ -8,7 +8,7 @@ import { useShallow } from "zustand/shallow";
 
 /**
  * タイムライン上の入力欄を常設せず、必要なときだけ投稿入力画面を開く導線。
- * 入力内容は既存の editor store と同期するため、閉じても下書きを失わない。
+ * 閉じた入力は editor store の closeComposer が下書きへ移してから消去する。
  */
 export const PostComposerButton: React.FC = () => {
   const openedEditingIdRef = useRef<string | null>(null);

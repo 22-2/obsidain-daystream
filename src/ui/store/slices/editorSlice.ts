@@ -119,6 +119,12 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
     },
 
     closeComposer: () => {
+      const input = get().inputSnapshot;
+
+      // 意図: 明示的に閉じた入力は入力セッションとして再表示せず、下書き一覧から
+      // 必要なときだけ復元できるよう、下書きへ移してから永続中の入力を消去する。
+      get().addDraft(input);
+      get().clearInput();
       set({ composerOpen: false });
       persistComposerOpen(get().storage, false);
     },

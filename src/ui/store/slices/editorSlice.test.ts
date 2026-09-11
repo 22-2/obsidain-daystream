@@ -85,6 +85,36 @@ describe("editorSlice", () => {
     expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(true);
   });
 
+  it("コンポーザを閉じると入力を下書きへ移し、次回は復元しない", () => {
+    const store = createAppStore();
+    const draft = "closed composer draft";
+    const { storage, values } = createMockStorage();
+
+    store.setState({
+      storage,
+      composerOpen: true,
+      inputSnapshot: draft,
+    });
+
+    store.getState().closeComposer();
+
+    expect(store.getState().composerOpen).toBe(false);
+    expect(store.getState().inputSnapshot).toBe("");
+    expect(store.getState().drafts).toHaveLength(1);
+    expect(store.getState().drafts[0]?.content).toBe(draft);
+    expect(values.get(STORAGE_KEYS.COMPOSER_OPEN)).toBe(false);
+    expect(values.get(getInputStorageKey("periodic", null))).toBe("");
+
+    const reopenedStore = createAppStore();
+    reopenedStore.setState({ storage });
+    reopenedStore.getState().hydrateEditorState();
+    reopenedStore.getState().hydrateDraftState();
+
+    expect(reopenedStore.getState().inputSnapshot).toBe("");
+    expect(reopenedStore.getState().composerOpen).toBe(false);
+    expect(reopenedStore.getState().drafts[0]?.content).toBe(draft);
+  });
+
   it("hydrateEditorState は保存済み入力を snapshot と editor に復元する", () => {
     const store = createAppStore();
     const persistedInput = "restored draft";
