@@ -69,7 +69,6 @@ export class MFDIView extends ItemView {
     }
     this.hasOpened = true;
     this.setupShortcuts();
-    this.setupWorkspaceEvents();
 
     // fixedノートを開いたときなど、すぐに render せずに少し待つ。
     // 状態の反映が不完全なまま描画されるのを防ぐため。
@@ -174,17 +173,6 @@ export class MFDIView extends ItemView {
       this.fixedNoteTitle.focus();
       return false;
     });
-  }
-
-  private setupWorkspaceEvents(): void {
-    // registerEvent を使用して onClose 時のメモリリークを防止
-    this.registerEvent(
-      this.app.workspace.on("active-leaf-change", (leaf) => {
-        if (leaf?.id === this.leaf.id) {
-          this.actionDelegates.onFocusRequested?.();
-        }
-      }),
-    );
   }
 
   // -----------------------------------------------------------------------

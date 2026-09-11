@@ -179,18 +179,6 @@ const MFDIAppRoot: React.FC<{
     component.notifyReactReady();
   }, [component]);
 
-  // Handle focus requested from View
-  useEffect(() => {
-    component.actionDelegates.onFocusRequested = () => {
-      // InputAreaはスクロールエリア内にあるため、フォーカス時にトップへ戻して表示する
-      scrollContainerRef.current?.scrollTo({ top: 0 });
-      inputRef.current?.focus();
-    };
-    return () => {
-      component.actionDelegates.onFocusRequested = undefined;
-    };
-  }, [component, inputRef, scrollContainerRef]);
-
   // Initial scroll position when note changes
   useEffect(() => {
     if (!currentDailyNote || !scrollContainerRef.current) return;

@@ -15,7 +15,6 @@ export interface MFDIActionDelegate {
   onChangeTopic?: (topicId: string) => void;
   onTopicSaveRequested?: (topicId: string) => Promise<void>;
   onOpenTopicManager?: () => void;
-  onFocusRequested?: () => void;
   onToggleSidebar?: () => void;
   onToggleLeftPanel?: () => void;
   onToggleRightPanel?: () => void;
