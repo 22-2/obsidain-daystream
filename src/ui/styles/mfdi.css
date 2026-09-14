@@ -175,6 +175,12 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   display: none !important;
 }
 
+/* 意図: 拡大中は本文領域を左右パネルの開閉操作から切り離し、
+   エディタの表示領域と操作対象を一つに保つ。 */
+[data-type="mfdi-view"]:has(.mod-editor-expanded) [data-mfdi-actions="true"] {
+  display: none !important;
+}
+
 /* 意図: 展開中は一覧の操作領域を隠し、常設エディタだけがメイン領域を使うようにする。 */
 [data-type="mfdi-view"]
   .mfdi-scroll-container:has(.mfdi-input-area.mod-maxmized)
