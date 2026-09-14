@@ -156,9 +156,38 @@
 [data-type="mfdi-view"] .mfdi-input-area.mod-maxmized {
   flex: 1;
   min-height: 0;
-  /* 意図: 画面下端に入力エリアが張り付くのを避ける。flex アイテムの margin は
-     配分計算に含まれるため、固定値を引く必要なく cm-scroller 側が自動で縮む */
-  margin-bottom: var(--size-4-3);
+  /* 意図: ステータスバーを隠した下端まで使うため、展開時の下余白を残さない。 */
+  margin-bottom: 0;
+}
+
+[data-type="mfdi-view"] .mfdi-dashboard-root:has(.mod-editor-expanded) {
+  /* 親の上下 padding も下側だけ解除する。ユーティリティの !important に合わせる。 */
+  padding-bottom: 0 !important;
+}
+
+/* 意図: アクティブな MFDI の展開中だけ標準ステータスバーと予約高さを取り除き、
+   その領域もエディタへ渡す。縮小・別タブへの移動時は Obsidian の表示へ戻す。 */
+body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded) {
+  --status-bar-height: 0px;
+}
+
+body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded) .status-bar {
+  display: none !important;
+}
+
+/* 意図: 展開中は一覧の操作領域を隠し、常設エディタだけがメイン領域を使うようにする。 */
+[data-type="mfdi-view"]
+  .mfdi-scroll-container:has(.mfdi-input-area.mod-maxmized)
+  :is(.mfdi-main-toolbar, .mfdi-past-today-notice) {
+  display: none;
+}
+
+/* 意図: ユーティリティに自動付与される !important に負けないようにする。
+   親の view-content も止め、スクロールを MagicalEditor 内へ限定する。 */
+[data-type="mfdi-view"] > .view-content:has(.mod-editor-expanded),
+[data-type="mfdi-view"] .mfdi-scroll-container.mod-editor-expanded {
+  overflow: hidden !important;
+  overscroll-behavior: none;
 }
 
 [data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .mfdi-editor-wrapper {
@@ -187,6 +216,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* エディタの端に達したホイール・タッチ操作を親へ伝播させない。 */
+  overscroll-behavior: contain;
 }
 
 /* ==============================================
