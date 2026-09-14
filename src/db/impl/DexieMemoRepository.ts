@@ -1,5 +1,6 @@
 import type { IMemoRepository } from "src/db/interfaces/IMemoRepository";
 import type { MemoRecord, MFDIDatabase } from "src/db/mfdi-db";
+import type { Granularity } from "src/ui/types";
 
 export class DexieMemoRepository implements IMemoRepository {
   constructor(private readonly db: MFDIDatabase) {}
@@ -13,8 +14,9 @@ export class DexieMemoRepository implements IMemoRepository {
     limit = 300,
     query?: string,
     threadOnly?: boolean,
+    noteGranularity?: Granularity,
   ): Promise<MemoRecord[]> {
-    return await this.db.getLatestVisibleMemos(topicId, limit, query, threadOnly);
+    return await this.db.getLatestVisibleMemos(topicId, limit, query, threadOnly, noteGranularity);
   }
 
   async getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]> {
@@ -26,6 +28,7 @@ export class DexieMemoRepository implements IMemoRepository {
     query?: string;
     threadOnly?: boolean;
     limit?: number;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]> {
     return await this.db.getPinnedVisibleMemos(params);
   }
@@ -41,6 +44,7 @@ export class DexieMemoRepository implements IMemoRepository {
     limit?: number;
     query?: string;
     threadOnly?: boolean;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]> {
     return await this.db.getVisibleMemosByDateRange(params);
   }

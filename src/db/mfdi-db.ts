@@ -101,15 +101,19 @@ function isThreadRootMemo(memo: MemoRecord): boolean {
 function buildMemoFilter(params: {
   query?: string;
   threadOnly?: boolean;
+  noteGranularity?: Granularity;
 }): ((m: MemoRecord) => boolean) | undefined {
-  const { query, threadOnly = false } = params;
+  const { query, threadOnly = false, noteGranularity } = params;
   const normalizedQuery = query?.trim().toLowerCase() ?? "";
 
-  if (!normalizedQuery && !threadOnly) {
+  if (!normalizedQuery && !threadOnly && noteGranularity == null) {
     return undefined;
   }
 
   return (memo) => {
+    if (noteGranularity != null && memo.noteGranularity !== noteGranularity) {
+      return false;
+    }
     if (normalizedQuery) {
       // 意図: 検索タブの単一入力から本文・URL（本文/パス）・タグを横断して探せるようにする。
       const searchableText = [
@@ -455,13 +459,9 @@ export class MFDIDatabase {
     limit = 300,
     query?: string,
     threadOnly = false,
+    noteGranularity?: Granularity,
   ): Promise<MemoRecord[]> {
-    return this.getPinnedFirstVisibleMemos({
-      topicId,
-      limit,
-      query,
-      threadOnly,
-    });
+    return this.getPinnedFirstVisibleMemos({ topicId, limit, query, threadOnly, noteGranularity });
   }
 
   async getAllVisibleMemos(topicId?: string): Promise<MemoRecord[]> {
@@ -496,8 +496,17 @@ export class MFDIDatabase {
     limit?: number;
     query?: string;
     threadOnly?: boolean;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]> {
-    const { topicId, startDate, endDate, limit, query: searchQuery, threadOnly = false } = params;
+    const {
+      topicId,
+      startDate,
+      endDate,
+      limit,
+      query: searchQuery,
+      threadOnly = false,
+      noteGranularity,
+    } = params;
 
     return this.getPinnedFirstVisibleMemos({
       topicId,
@@ -506,6 +515,7 @@ export class MFDIDatabase {
       limit,
       query: searchQuery,
       threadOnly,
+      noteGranularity,
     });
   }
 
@@ -514,9 +524,10 @@ export class MFDIDatabase {
     query?: string;
     threadOnly?: boolean;
     limit?: number;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]> {
-    const { topicId, query, threadOnly = false, limit } = params;
-    const filter = buildMemoFilter({ query, threadOnly });
+    const { topicId, query, threadOnly = false, limit, noteGranularity } = params;
+    const filter = buildMemoFilter({ query, threadOnly, noteGranularity });
     const effectiveLimit = limit || 300;
 
     return this.withStoreCallback("memos", "readonly", async (store) => {
@@ -538,9 +549,11 @@ export class MFDIDatabase {
     limit?: number;
     query?: string;
     threadOnly?: boolean;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]> {
-    const { topicId, startDate, endDate, limit, query, threadOnly = false } = params;
-    const filter = buildMemoFilter({ query, threadOnly });
+    const { topicId, startDate, endDate, limit, query, threadOnly = false, noteGranularity } =
+      params;
+    const filter = buildMemoFilter({ query, threadOnly, noteGranularity });
     const effectiveLimit = limit || 300;
 
     return this.withStoreCallback("memos", "readonly", async (store) => {

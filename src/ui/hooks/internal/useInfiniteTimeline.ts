@@ -48,6 +48,9 @@ export const useInfiniteTimeline = () => {
       topicId: activeTopic,
       query: searchQuery,
       threadOnly,
+      // 意図: タイムラインは日次ノートの流れなので、日付ビューで作られた
+      // 週次・月次などの投稿を pinned 経由でも混ぜない。
+      noteGranularity: "day",
     });
 
     return records.map(memoRecordToPost);
@@ -131,6 +134,9 @@ export const useInfiniteTimeline = () => {
         endDate: endDate.toISOString(),
         query: searchQuery,
         threadOnly,
+        // 意図: タイムラインの投稿先・表示対象を日次ノートに限定し、
+        // 別Granularityの投稿が同じ日付範囲へ流入するのを防ぐ。
+        noteGranularity: "day",
       });
 
       const posts = records.map(memoRecordToPost);
@@ -144,6 +150,7 @@ export const useInfiniteTimeline = () => {
         limit: 1,
         query: searchQuery,
         threadOnly,
+        noteGranularity: "day",
       });
 
       const result: TimelinePostsPage = {

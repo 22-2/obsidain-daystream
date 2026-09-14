@@ -1,4 +1,5 @@
 import type { MemoRecord, TagStatRecord } from "src/db/mfdi-db";
+import type { Granularity } from "src/ui/types";
 import type { ScannableNote } from "src/db/worker-api";
 
 export interface DBServiceOptions {
@@ -46,6 +47,7 @@ export interface IDBService {
     query?: string;
     threadOnly?: boolean;
     limit?: number;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]>;
 
   /**
@@ -61,6 +63,7 @@ export interface IDBService {
     query?: string;
     threadOnly?: boolean;
     limit?: number;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]>;
 
   /**

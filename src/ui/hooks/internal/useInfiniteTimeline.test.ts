@@ -187,6 +187,7 @@ describe("useInfiniteTimeline", () => {
       topicId: "topic-a",
       query: "",
       threadOnly: false,
+      noteGranularity: "day",
     });
   });
 

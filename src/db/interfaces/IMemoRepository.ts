@@ -1,4 +1,5 @@
 import type { MemoRecord } from "src/db/mfdi-db";
+import type { Granularity } from "src/ui/types";
 
 export interface IMemoRepository {
   /**
@@ -14,6 +15,7 @@ export interface IMemoRepository {
     limit?: number,
     query?: string,
     threadOnly?: boolean,
+    noteGranularity?: Granularity,
   ): Promise<MemoRecord[]>;
 
   /**
@@ -29,6 +31,7 @@ export interface IMemoRepository {
     query?: string;
     threadOnly?: boolean;
     limit?: number;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]>;
 
   /**
@@ -46,6 +49,7 @@ export interface IMemoRepository {
     limit?: number;
     query?: string;
     threadOnly?: boolean;
+    noteGranularity?: Granularity;
   }): Promise<MemoRecord[]>;
 
   /**
