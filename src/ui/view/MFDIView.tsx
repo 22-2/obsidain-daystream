@@ -2,7 +2,7 @@ import type { WorkspaceLeaf } from "obsidian";
 import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
-import { renameFixedNote as renameFixedNoteFile, trashFixedNote } from "src/core/fixed-note";
+import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { Settings } from "src/settings";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { ReactView } from "src/ui/components/layout/ReactView";
@@ -95,7 +95,6 @@ export class MFDIView extends ItemView {
     addMFDIPaneMenuItems(menu, {
       getState: () => this.state,
       actionDelegates: this.actionDelegates,
-      onDeleteFixedNote: () => this.deleteFixedNote(),
     });
 
     super.onPaneMenu(menu, prev);
@@ -230,10 +229,6 @@ export class MFDIView extends ItemView {
 
     this.state.file = path;
     this.updateView();
-  }
-
-  private async deleteFixedNote(): Promise<void> {
-    await trashFixedNote(new ObsidianAppShell(this.app), this.state.file);
   }
 
   private resetReactReady(): void {

@@ -81,7 +81,6 @@ describe("addMFDIPaneMenuItems", () => {
     addMFDIPaneMenuItems(menu as unknown as Menu, {
       getState: () => state,
       actionDelegates: { onChangeDisplayMode, onChangeAsTask } as MFDIActionDelegate,
-      onDeleteFixedNote: vi.fn(async () => undefined),
     });
 
     expect(getTitles(menu)).toEqual(
@@ -109,23 +108,16 @@ describe("addMFDIPaneMenuItems", () => {
     expect(onChangeAsTask).toHaveBeenCalledWith(false);
   });
 
-  it("shows fixed-note deletion and omits periodic display-mode switching", async () => {
-    const onDeleteFixedNote = vi.fn(async () => undefined);
+  it("keeps only fixed-note actions and omits view controls", () => {
     const menu = new TestMenu();
 
     addMFDIPaneMenuItems(menu as unknown as Menu, {
       getState: () => ({ ...baseState, noteMode: "fixed" }),
       actionDelegates: {},
-      onDeleteFixedNote,
     });
 
-    expect(getTitles(menu)).toContain("削除");
+    expect(getTitles(menu)).toEqual(["現在のノートを開く", "すべてのメッセージをコピー"]);
     expect(getTitles(menu)).not.toContain("フォーカスモード");
-
-    const deleteItem = menu.items.find(
-      (item): item is TestMenuItem => item !== "separator" && item.title === "削除",
-    );
-    await deleteItem?.callback?.();
-    expect(onDeleteFixedNote).toHaveBeenCalledOnce();
+    expect(getTitles(menu)).not.toContain("削除");
   });
 });

@@ -7,17 +7,23 @@ import { getMFDIViewCapabilities } from "src/ui/view/state";
 export interface MFDIPaneMenuOptions {
   getState: () => MFDIViewState;
   actionDelegates: MFDIActionDelegate;
-  onDeleteFixedNote: () => Promise<void>;
 }
 
 /** Builds the pane menu for an MFDI view without coupling the menu to ItemView. */
 export function addMFDIPaneMenuItems(menu: Menu, options: MFDIPaneMenuOptions): void {
   const state = options.getState();
 
+  if (state.noteMode === "fixed") {
+    // 意図: fixedノートではノート固有の操作だけを残し、表示切替や期間操作が
+    // 固定ノートのペインメニューへ混ざらないようにする。
+    addFixedNoteMenuItems(menu, state, options.actionDelegates);
+    addCopyAllMessagesMenuItem(menu, options.actionDelegates);
+    return;
+  }
+
   addFixedNoteMenuItems(menu, state, options.actionDelegates);
   addViewMenuItems(menu, options);
   addPeriodMenuItemsIfSupported(menu, state, options.actionDelegates);
-  addDeleteFixedNoteMenuItem(menu, state, options.onDeleteFixedNote);
 }
 
 function addFixedNoteMenuItems(
@@ -25,7 +31,7 @@ function addFixedNoteMenuItems(
   state: MFDIViewState,
   actionDelegates: MFDIActionDelegate,
 ): void {
-  if (state.displayMode === "timeline") return;
+  if (state.noteMode !== "fixed" && state.displayMode === "timeline") return;
 
   menu.addItem((item) =>
     item
@@ -39,12 +45,7 @@ function addViewMenuItems(menu: Menu, options: MFDIPaneMenuOptions): void {
   const state = options.getState();
   const capabilities = getMFDIViewCapabilities(state);
 
-  menu.addItem((item) =>
-    item
-      .setTitle("すべてのメッセージをコピー")
-      .setIcon("copy")
-      .onClick(() => options.actionDelegates.onCopyAllPosts?.()),
-  );
+  addCopyAllMessagesMenuItem(menu, options.actionDelegates);
 
   menu.addSeparator();
   menu.addItem((item) => item.setTitle("ビュー").setIcon("panels-top-left").setDisabled(true));
@@ -76,6 +77,15 @@ function addViewMenuItems(menu: Menu, options: MFDIPaneMenuOptions): void {
   );
 }
 
+function addCopyAllMessagesMenuItem(menu: Menu, actionDelegates: MFDIActionDelegate): void {
+  menu.addItem((item) =>
+    item
+      .setTitle("すべてのメッセージをコピー")
+      .setIcon("copy")
+      .onClick(() => actionDelegates.onCopyAllPosts?.()),
+  );
+}
+
 function addPeriodMenuItemsIfSupported(
   menu: Menu,
   state: MFDIViewState,
@@ -89,21 +99,4 @@ function addPeriodMenuItemsIfSupported(
     onChangeTimeFilter: (filter) => actionDelegates.onChangeTimeFilter?.(filter),
     onChangeDateFilter: (filter) => actionDelegates.onChangeDateFilter?.(filter),
   });
-}
-
-function addDeleteFixedNoteMenuItem(
-  menu: Menu,
-  state: MFDIViewState,
-  onDeleteFixedNote: () => Promise<void>,
-): void {
-  if (state.noteMode !== "fixed") return;
-
-  menu.addSeparator();
-  menu.addItem((item) =>
-    item
-      .setTitle("削除")
-      .setIcon("trash")
-      .setWarning(true)
-      .onClick(() => onDeleteFixedNote()),
-  );
 }
