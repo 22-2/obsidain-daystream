@@ -36,13 +36,13 @@ export default defineConfig(async ({ mode }) => {
 
       // Ensure CI/build output `dist/` contains files Obsidian expects (manifest.json, main.js)
       obsidianCopyVite({
-        targetDir: path.resolve(__dirname, "dist"),
+        targetDir: path.resolve(import.meta.dirname, "dist"),
         force: true,
       }),
     ],
     resolve: {
       alias: {
-        src: path.resolve(__dirname, "./src"),
+        src: path.resolve(import.meta.dirname, "./src"),
         react: "preact/compat",
         "react-dom": "preact/compat",
         "react-dom/client": "preact/compat/client",
@@ -52,7 +52,7 @@ export default defineConfig(async ({ mode }) => {
     },
     build: {
       lib: {
-        entry: resolve(__dirname, "src/main.ts"),
+        entry: resolve(import.meta.dirname, "src/main.ts"),
         name: "main",
         fileName: () => "main.js",
         formats: ["cjs"],
@@ -66,7 +66,7 @@ export default defineConfig(async ({ mode }) => {
       emptyOutDir: false,
       rollupOptions: {
         input: {
-          main: resolve(__dirname, "src/main.ts"),
+          main: resolve(import.meta.dirname, "src/main.ts"),
         },
         output: {
           entryFileNames: "main.js",
