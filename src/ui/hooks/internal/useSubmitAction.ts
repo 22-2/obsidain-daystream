@@ -15,6 +15,7 @@ import { useSettingsStore } from "src/ui/store/settingsStore";
 import { mergeDraftMetadataForSubmit } from "src/ui/store/slices/editorSlice";
 import { THREAD_METADATA_KEYS } from "src/ui/utils/thread-utils";
 import { isTimelineView } from "src/ui/utils/view-mode";
+import { resolveWriteDate, resolveWriteGranularity } from "src/ui/utils/write-context";
 import { useShallow } from "zustand/shallow";
 
 /** 新規投稿・編集確定のみを担う hook。InputArea / InputAreaFooter / ReactView が利用する。 */
@@ -58,6 +59,13 @@ export const useSubmitAction = () => {
 
   const { refreshPosts, getSerializedTimestamp, notifyNotFoundAndRefresh, findLatestPost } =
     usePostHelpers();
+
+  // 意図: Granularity は日付ビューの表示・投稿先を表す状態であり、
+  // 全件を横断するタイムラインでは常に日次ノートへ投稿する。
+  const writeGranularity = resolveWriteGranularity(
+    settingsState.displayMode,
+    settingsState.granularity,
+  );
 
   const ensureFixedSessionInsertMarker = useCallback(
     async (note: TFile): Promise<string | null> => {
@@ -128,7 +136,7 @@ export const useSubmitAction = () => {
         targetTs = now;
       }
 
-      const text = toText(currentInput, false, settingsState.granularity, targetTs, metadata);
+      const text = toText(currentInput, false, writeGranularity, targetTs, metadata);
 
       const newContent = await shell.replaceRange(
         latestPost.path,
@@ -149,7 +157,7 @@ export const useSubmitAction = () => {
     [
       shell,
       settings,
-      settingsState.granularity,
+      writeGranularity,
       editorState,
       findLatestPost,
       notifyNotFoundAndRefresh,
@@ -185,7 +193,7 @@ export const useSubmitAction = () => {
       const text = toText(
         currentInput,
         false,
-        settingsState.granularity,
+        writeGranularity,
         getSerializedTimestamp(now, rootPost.noteDate),
         mergedMetadata,
       );
@@ -223,6 +231,7 @@ export const useSubmitAction = () => {
       allPosts,
       editorState,
       getSerializedTimestamp,
+      writeGranularity,
       refreshPosts,
       indexSavedNote,
     ],
@@ -232,7 +241,11 @@ export const useSubmitAction = () => {
   const handleNewPostSubmit = useCallback(
     async (currentInput: string) => {
       const now = window.moment();
-      const targetDate = settingsState.getEffectiveDate();
+      const targetDate = resolveWriteDate(
+        settingsState.displayMode,
+        settingsState.getEffectiveDate(),
+        now,
+      );
       const metadata: Record<string, string> = mergeDraftMetadataForSubmit({
         latestMetadata: {},
         draftMetadataBase: editorState.draftMetadataBase,
@@ -247,7 +260,7 @@ export const useSubmitAction = () => {
       const text = toText(
         currentInput,
         settingsState.asTask,
-        settingsState.granularity,
+        writeGranularity,
         undefined,
         metadata,
       );
@@ -262,7 +275,7 @@ export const useSubmitAction = () => {
       const noteSource = resolveNoteSource({
         shell,
         date: targetDate,
-        granularity: settingsState.granularity,
+        granularity: writeGranularity,
         activeTopic: settingsState.activeTopic,
         noteMode: settingsState.viewNoteMode,
         file: store.getState().file,
@@ -340,6 +353,7 @@ export const useSubmitAction = () => {
       editorState,
       noteState,
       store,
+      writeGranularity,
       refreshPosts,
       ensureFixedSessionInsertMarker,
       indexSavedNote,
