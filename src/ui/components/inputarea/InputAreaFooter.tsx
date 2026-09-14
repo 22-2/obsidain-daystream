@@ -1,6 +1,6 @@
 import { Menu } from "obsidian";
-import { memo, useCallback, type FC } from "react";
-import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { memo, useCallback, type FC, type MouseEvent } from "react";
+import { IconButton } from "src/ui/components/common/IconButton";
 import { FULL_EXPANSION_STYLE } from "src/ui/components/inputarea/constants";
 import { InputAreaFooterBase } from "src/ui/components/inputarea/InputAreaFooterBase";
 import { InputAreaMetadataActions } from "src/ui/components/inputarea/InputAreaMetadataActions";
@@ -14,7 +14,10 @@ import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
-export const InputAreaFooter: FC = memo(() => {
+export const InputAreaFooter: FC<{
+  onToggleExpand: () => void;
+  onOpenInNewWindow: () => void;
+}> = memo(({ onToggleExpand, onOpenInNewWindow }) => {
   const { posts } = usePosts();
 
   const { isReadOnly, inputAreaSize, editorExpansionMode } = useSettingsStore(
@@ -54,21 +57,87 @@ export const InputAreaFooter: FC = memo(() => {
     inputRef.current?.focus();
   }, [inputRef]);
 
-  const submitLabel = isReadOnly ? (
-    // 閲覧モードはアイコンをグレーアウト表示
-    <ObsidianIcon
-      name="send-horizontal"
-      className="pointer-events-none cursor-default opacity-50"
+  const handleSubmitContextMenu = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      const menu = new Menu();
+      menu.addItem((item) => {
+        item
+          .setTitle("下書きに追加")
+          .setIcon("square-pen")
+          .setDisabled(!inputSnapshot.trim())
+          .onClick(() => {
+            if (!inputSnapshot.trim()) return;
+            addDraft(inputSnapshot);
+            clearInput();
+          });
+      });
+      menu.addItem((item) => {
+        item
+          .setTitle("クリア")
+          .setIcon("delete")
+          .setDisabled(!inputSnapshot)
+          .onClick(() => {
+            clearInput();
+          });
+      });
+      menu.showAtMouseEvent(event.nativeEvent);
+    },
+    [addDraft, clearInput, inputSnapshot],
+  );
+
+  // 意図: 上段の操作列を廃止し、展開操作を投稿操作の直前へまとめて
+  // 入力中の視線移動を減らす。
+  const expandAction = (
+    <IconButton
+      name="maximize"
       size="1em"
+      ariaLabel="入力欄を最大化"
+      onActivate={() => {
+        if (isReadOnly) return;
+        onToggleExpand();
+      }}
+      isDisabled={isReadOnly}
+      className={cn(
+        "h-6 w-6",
+        isReadOnly
+          ? "cursor-default opacity-30"
+          : isMaximized
+            ? "text-[var(--text-accent)] hover:text-[var(--text-normal)]"
+            : "",
+      )}
+      onContextMenu={(event) => {
+        const menu = new Menu();
+        menu.addItem((item) => {
+          item.setTitle("別ウィンドウで開く");
+          item.setIcon("picture-in-picture-2");
+          item.onClick(() => {
+            onOpenInNewWindow();
+          });
+        });
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+      }}
     />
-  ) : (
-    <ObsidianIcon
+  );
+
+  // 意図: 投稿ボタンは背景付きの四角形ではなく、フッターの幅を圧迫しない
+  // 小さなアイコン操作として表示する。
+  const submitAction = (
+    <IconButton
       name="send-horizontal"
-      className={cn("pointer-events-none cursor-default", {
-        // ObsidianIcon の base に text-[var(--icon-color)] があるため twMerge で上書き
-        "text-[var(--text-on-accent)]": canSubmit,
-      })}
       size="1em"
+      ariaLabel={editingPost ? "更新" : "投稿"}
+      onActivate={() => {
+        if (isReadOnly || !canSubmit) return;
+        void handleSubmit();
+      }}
+      isDisabled={isReadOnly || !canSubmit}
+      className={cn(
+        "h-6 w-6",
+        isReadOnly || !canSubmit
+          ? "cursor-default opacity-50"
+          : "text-[var(--text-accent)] hover:text-[var(--text-accent)]",
+      )}
+      onContextMenu={handleSubmitContextMenu}
     />
   );
 
@@ -77,35 +146,13 @@ export const InputAreaFooter: FC = memo(() => {
       className="mfdi-input-area-footer group"
       onClick={handleClick}
       canSubmit={canSubmit}
-      submitLabel={submitLabel}
+      submitAriaLabel={editingPost ? "更新" : "投稿"}
       onSubmit={handleSubmit}
       onCancel={editingPost ? cancelEdit : undefined}
       characterCount={inputSnapshot.length}
       leadingActions={<InputAreaMetadataActions isReadOnly={isReadOnly} />}
-      onSubmitContextMenu={(e) => {
-        const menu = new Menu();
-        menu.addItem((item) => {
-          item
-            .setTitle("下書きに追加")
-            .setIcon("square-pen")
-            .setDisabled(!inputSnapshot.trim())
-            .onClick(() => {
-              if (!inputSnapshot.trim()) return;
-              addDraft(inputSnapshot);
-              clearInput();
-            });
-        });
-        menu.addItem((item) => {
-          item
-            .setTitle("クリア")
-            .setIcon("delete")
-            .setDisabled(!inputSnapshot)
-            .onClick(() => {
-              clearInput();
-            });
-        });
-        menu.showAtMouseEvent(e.nativeEvent);
-      }}
+      beforeSubmitAction={expandAction}
+      submitAction={submitAction}
     >
       {isMaximized && editorExpansionMode === "full" && <style>{FULL_EXPANSION_STYLE}</style>}
     </InputAreaFooterBase>

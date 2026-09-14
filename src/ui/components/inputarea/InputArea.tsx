@@ -2,7 +2,6 @@ import type { WorkspaceLeaf } from "obsidian";
 import type { FC } from "react";
 import { memo, useCallback, useEffect } from "react";
 import { ObsidianLiveEditor } from "src/ui/components/editor/ObsidianLiveEditor";
-import { InputAreaControl } from "src/ui/components/inputarea/InputAreaControl";
 import { InputAreaFooter } from "src/ui/components/inputarea/InputAreaFooter";
 import { Flex } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
@@ -84,7 +83,9 @@ export const InputArea: FC = memo(() => {
     <Flex
       className={cn(
         // 常時適用する基本クラス
-        "mfdi-input-area flex flex-col rounded-t-[22px] p-0 bg-[var(--background-secondary)] border border-[var(--table-border-color)]",
+        // 意図: 入力エリアの上端は操作バーをなくしたため、丸いカード形状ではなく
+        // 一覧と連続する直線的な境界にする。
+        "mfdi-input-area flex flex-col rounded-t-none pt-8 bg-[var(--background-secondary)] border border-[var(--table-border-color)]",
         {
           // 条件付きクラス
           "mod-read-only": isReadOnly,
@@ -93,32 +94,26 @@ export const InputArea: FC = memo(() => {
         },
       )}
     >
-      <InputAreaControl
-        isReadOnly={isReadOnly}
-        inputAreaSize={inputAreaSize}
-        onMaximizeToMaxHeight={handleExpandToMaxHeight}
-        onMinimize={handleMinimize}
-      />
-
       {isMinimized ? null : (
-        <>
-          <ObsidianLiveEditor
-            ref={inputRef}
-            leaf={component.leaf}
-            app={shell.getRawApp()}
-            initialValue={inputSnapshot}
-            externalVersion={inputSnapshotVersion}
-            onChange={syncInputSession}
-            onSubmit={handleSubmit}
-            className="mfdi-editor-wrapper mx-[var(--size-4-4)]"
-            placeholder={PLACEHOLDER_TEXT}
-            isReadOnly={isReadOnly}
-            readonlyPlaceholder={READONLY_PLACEHOLDER_TEXT}
-            ctrlEnterSends={ctrlEnterSends}
-          />
-          <InputAreaFooter />
-        </>
+        <ObsidianLiveEditor
+          ref={inputRef}
+          leaf={component.leaf}
+          app={shell.getRawApp()}
+          initialValue={inputSnapshot}
+          externalVersion={inputSnapshotVersion}
+          onChange={syncInputSession}
+          onSubmit={handleSubmit}
+          className="mfdi-editor-wrapper mx-[var(--size-4-4)]"
+          placeholder={PLACEHOLDER_TEXT}
+          isReadOnly={isReadOnly}
+          readonlyPlaceholder={READONLY_PLACEHOLDER_TEXT}
+          ctrlEnterSends={ctrlEnterSends}
+        />
       )}
+      <InputAreaFooter
+        onToggleExpand={handleExpandToMaxHeight}
+        onOpenInNewWindow={handleMinimize}
+      />
     </Flex>
   );
 });

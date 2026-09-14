@@ -17,7 +17,7 @@ export function useMFDIViewDelegates(view: MFDIView | null): void {
   const { shell, settings } = useAppContext();
   const { openDraftList } = useObsidianUi();
   const store = useRequiredAppStore();
-  const { inputRef } = useEditorRefs();
+  const { inputRef, scrollContainerRef } = useEditorRefs();
 
   const {
     isReadOnly,
@@ -79,12 +79,15 @@ export function useMFDIViewDelegates(view: MFDIView | null): void {
     if (!view) return;
     view.actionDelegates.onOpenComposer = () => {
       if (isReadOnly) return;
-      store.getState().openComposer();
+      // 意図: 常設エディタへ戻すだけにし、投稿導線から一覧全体を
+      // 一時的な composer 画面へ置き換えない。
+      scrollContainerRef.current?.scrollTo({ top: 0 });
+      window.setTimeout(() => inputRef.current?.focus());
     };
     return () => {
       view.actionDelegates.onOpenComposer = undefined;
     };
-  }, [view, isReadOnly, store]);
+  }, [view, inputRef, isReadOnly, scrollContainerRef]);
 
   useEffect(() => {
     if (!view) return;

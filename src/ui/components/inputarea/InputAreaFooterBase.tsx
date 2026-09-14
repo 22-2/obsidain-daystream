@@ -4,10 +4,14 @@ import { cn } from "src/ui/components/primitives/utils";
 
 interface InputAreaFooterBaseProps {
   canSubmit: boolean;
-  submitLabel: ReactNode;
+  submitLabel?: ReactNode;
   submitAriaLabel?: string;
   onSubmit: () => void;
   leadingActions?: ReactNode;
+  /** 投稿ボタンの直前に置く補助アクション（入力欄の展開など）。 */
+  beforeSubmitAction?: ReactNode;
+  /** 標準のテキストボタンを置き換えるアイコンアクション。 */
+  submitAction?: ReactNode;
   /** 指定された場合のみキャンセルボタンを表示する */
   onCancel?: () => void;
   cancelLabel?: string;
@@ -30,6 +34,8 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
     submitAriaLabel,
     onSubmit,
     leadingActions,
+    beforeSubmitAction,
+    submitAction,
     onCancel,
     cancelLabel = "キャンセル",
     characterCount,
@@ -65,22 +71,26 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
             </Button>
           )}
 
-          <Button
-            aria-label={submitAriaLabel}
-            disabled={!canSubmit}
-            className={cn(
-              "h-[2.4em]",
-              {
-                "text-[var(--text-on-accent)]": canSubmit,
-              },
-              submitButtonClassName,
-            )}
-            variant="accent"
-            onClick={onSubmit}
-            onContextMenu={onSubmitContextMenu}
-          >
-            {submitLabel}
-          </Button>
+          {beforeSubmitAction}
+
+          {submitAction ?? (
+            <Button
+              aria-label={submitAriaLabel}
+              disabled={!canSubmit}
+              className={cn(
+                "h-[2.4em]",
+                {
+                  "text-[var(--text-on-accent)]": canSubmit,
+                },
+                submitButtonClassName,
+              )}
+              variant="accent"
+              onClick={onSubmit}
+              onContextMenu={onSubmitContextMenu}
+            >
+              {submitLabel}
+            </Button>
+          )}
 
           {actionsPlacement === "start" && characterCount > 0 && (
             <Box className="text-xs text-[var(--text-muted)]">{characterCount} chars</Box>

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "src/ui/components/EmptyState";
-import { InViewComposer } from "src/ui/components/inputarea/InViewComposer";
-import { PostComposerButton } from "src/ui/components/inputarea/PostComposerButton";
+import { InputArea } from "src/ui/components/inputarea/InputArea";
 import { InsightView } from "src/ui/components/insights/InsightView";
 import { FixedSessionSidebar } from "src/ui/components/layout/FixedSessionSidebar";
 import { InsightsSidebar } from "src/ui/components/layout/InsightsSidebar";
@@ -16,14 +15,13 @@ import { SearchControls } from "src/ui/components/search/SearchControls";
 import { StatusBar } from "src/ui/components/statusbar/StatusBar";
 import { PastTodayNotice } from "src/ui/components/statusbar/parts/PastTodayNotice";
 import { TaskListView } from "src/ui/components/tasks/TaskListView";
-import { MAIN_VIEW } from "src/ui/config/consntants";
+import { INPUT_AREA_SIZE, MAIN_VIEW } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useCSSLoaded } from "src/ui/hooks/useCSSLoaded";
 import { usePosts } from "src/ui/hooks/usePosts";
 import { useAppStore } from "src/ui/store/appStore";
-import { useEditorStore } from "src/ui/store/editorStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
@@ -59,6 +57,7 @@ export const MFDIWorkspaceLayout = () => {
       timeFilter: s.timeFilter,
       displayMode: s.displayMode,
       threadFocusRootId: s.threadFocusRootId,
+      inputAreaSize: s.inputAreaSize,
       mainView: s.mainView,
       setMainView: s.setMainView,
       setSearchInputOpen: s.setSearchInputOpen,
@@ -77,8 +76,6 @@ export const MFDIWorkspaceLayout = () => {
   );
 
   const { scrollContainerRef, listHeaderRef } = useEditorRefs();
-  const composerOpen = useEditorStore((s) => s.composerOpen);
-
   useEffect(() => {
     component.actionDelegates.onClickHome = handleClickHome;
 
@@ -208,10 +205,6 @@ export const MFDIWorkspaceLayout = () => {
     );
   }, [granularity, isCSSLoaded, isEmpty, mainView]);
 
-  if (composerOpen) {
-    return <InViewComposer />;
-  }
-
   return (
     <Flex
       className="root mfdi-dashboard-root h-full w-full overflow-hidden relative px-[var(--size-4-2)] py-[var(--size-4-2)]"
@@ -233,12 +226,20 @@ export const MFDIWorkspaceLayout = () => {
         <Flex
           className={cn(
             "mfdi-scroll-container flex-col flex-grow overflow-x-hidden",
-            "overflow-y-scroll",
+            // 意図: ビルドでユーティリティに !important が付くため、展開中は
+            // overflow-y-scroll 自体を外して CSS のロック指定との競合を防ぐ。
+            settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED
+              ? "mod-editor-expanded overflow-y-hidden"
+              : "overflow-y-scroll",
           )}
           ref={scrollContainerRef}
         >
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
           <div ref={listHeaderRef} className="mfdi-list-header">
+            {/* 意図: どのメインビューでも同じ投稿欄を常設し、展開アイコンを
+                押したときだけ InputArea の最大化レイアウトへ切り替える。
+                composer の開閉で一覧を置き換えない。 */}
+            <InputArea />
             <div className="mfdi-main-toolbar">
               <MainViewTabs
                 value={mainView}
@@ -249,17 +250,12 @@ export const MFDIWorkspaceLayout = () => {
                 <SearchControls />
               ) : mainView === MAIN_VIEW.DATE ? (
                 <StatusBar />
-              ) : mainView === MAIN_VIEW.TIMELINE || mainView === MAIN_VIEW.TASKS ? (
-                <StatusBar showDateNavigation={false} />
               ) : null}
             </div>
             {mainView === MAIN_VIEW.DATE ? <PastTodayNotice /> : null}
           </div>
           {content}
         </Flex>
-        {mainView === MAIN_VIEW.INSIGHTS || mainView === MAIN_VIEW.SEARCH ? null : (
-          <PostComposerButton />
-        )}
       </Flex>
 
       {/* Right Sidebar: activity and archive statistics */}

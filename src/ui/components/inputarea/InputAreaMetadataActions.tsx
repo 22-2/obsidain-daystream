@@ -65,12 +65,16 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
 
     return (
       <HStack className="gap-[0.25em] items-center invisible group-hover:visible">
+        {/* 意図: 左側のメタデータ操作も右端の投稿アイコンと同じ寸法に揃え、
+            フッター内の操作列でボタンだけが大きく見えないようにする。 */}
         <IconButton
           name="pin"
           ariaLabel={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
           title={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
           onActivate={handleTogglePin}
           isDisabled={isReadOnly}
+          size="1em"
+          className="h-6 w-6"
         />
         {capabilities.supportsTags && (
           <IconButton
@@ -78,6 +82,8 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
             ariaLabel="タグ編集"
             onActivate={handleEditTags}
             isDisabled={isReadOnly}
+            size="1em"
+            className="h-6 w-6"
           />
         )}
       </HStack>
