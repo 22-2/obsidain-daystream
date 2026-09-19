@@ -8,6 +8,7 @@ import type MFDIPlugin from "src/main";
 const logger = createLogger("settings");
 
 export type OpenInNewWindowMode = "disabled" | "always";
+export type CtrlEnterSendMode = "collapsed_only" | "disabled";
 
 export interface Settings {
   postFormatOption: PostFormatOption;
@@ -27,8 +28,8 @@ export interface Settings {
   editorExpansionMode: "full" | "default";
   // 投稿の編集をポップアウトウィンドウで開くタイミング
   openInNewWindowMode: OpenInNewWindowMode;
-  // true のとき Ctrl+Enter で投稿を送信する。false のときはキーボードショートカットでの送信を無効化する
-  ctrlEnterSends: boolean;
+  // 通常サイズの入力欄だけ Ctrl+Enter で投稿し、展開中は送信しない。
+  ctrlEnterSends: CtrlEnterSendMode;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,8 +47,17 @@ export const DEFAULT_SETTINGS: Settings = {
   activityPromptIntervalMinutes: 60,
   editorExpansionMode: "default",
   openInNewWindowMode: "disabled",
-  ctrlEnterSends: false,
+  ctrlEnterSends: "disabled",
 };
+
+/**
+ * 旧バージョンの boolean 設定を、展開状態を持つ新しい2択へ移行する。
+ * 以前の true は送信を有効にしていたため、ユーザーの意図を保つために
+ * 「展開してない時のみ有効」へ読み替える。
+ */
+export function normalizeCtrlEnterSendMode(value: unknown): CtrlEnterSendMode {
+  return value === true || value === "collapsed_only" ? "collapsed_only" : "disabled";
+}
 
 export const postFormatMap = {
   Thino: { type: "thino" },
@@ -103,10 +113,15 @@ export class MFDISettingTab extends PluginSettingTab {
           },
           {
             name: "Ctrl+Enter で送信",
-            desc: "有効にすると Ctrl+Enter で投稿を送信します。無効のときはキーボードショートカットでの送信を行いません。",
+            desc: "Ctrl+Enter での投稿送信を、通常サイズの入力欄だけ有効にするか選択します。",
             control: {
-              type: "toggle",
+              type: "dropdown",
               key: "ctrlEnterSends",
+              defaultValue: "disabled",
+              options: {
+                collapsed_only: "展開してない時のみ有効",
+                disabled: "無効",
+              },
             },
           },
         ],
@@ -236,6 +251,10 @@ export class MFDISettingTab extends PluginSettingTab {
       return String(this.plugin.settings.activityPromptIntervalMinutes ?? 60);
     }
 
+    if (key === "ctrlEnterSends") {
+      return normalizeCtrlEnterSendMode(this.plugin.settings.ctrlEnterSends);
+    }
+
     return this.plugin.settings[key as keyof Settings];
   }
 
@@ -245,6 +264,10 @@ export class MFDISettingTab extends PluginSettingTab {
       const parsedValue = Number.parseInt(String(value), 10);
       if (!Number.isFinite(parsedValue)) return;
       nextValue = parsedValue;
+    }
+
+    if (key === "ctrlEnterSends") {
+      nextValue = normalizeCtrlEnterSendMode(value);
     }
 
     if (!(key in this.plugin.settings)) return;

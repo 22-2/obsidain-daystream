@@ -1,6 +1,7 @@
 import { type FakeEditor } from "@22-2/obsidian-magical-editor";
 import type { App, WorkspaceLeaf } from "obsidian";
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import type { CtrlEnterSendMode } from "src/settings";
 import { useFakeEditor } from "src/ui/components/editor/useFakeEditor";
 import { Box } from "src/ui/components/primitives/Box";
 import { cn } from "src/ui/components/primitives/utils";
@@ -25,7 +26,8 @@ interface ObsidianLiveEditorProps {
   isReadOnly?: boolean;
   readonlyPlaceholder?: string;
   className?: string;
-  ctrlEnterSends?: boolean;
+  ctrlEnterSends?: CtrlEnterSendMode;
+  isExpanded?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -44,6 +46,7 @@ export const ObsidianLiveEditor = forwardRef<ObsidianLiveEditorRef, ObsidianLive
       readonlyPlaceholder,
       className,
       ctrlEnterSends,
+      isExpanded,
       ...boxProps
     },
     ref,
@@ -65,6 +68,7 @@ export const ObsidianLiveEditor = forwardRef<ObsidianLiveEditorRef, ObsidianLive
       onChange,
       onSubmit,
       ctrlEnterSends,
+      isExpanded,
     });
 
     // Expose imperative API to parent

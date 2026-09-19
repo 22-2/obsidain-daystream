@@ -38,7 +38,9 @@ export const InViewComposer: FC = memo(() => {
   const { posts } = usePosts();
   const canSubmit = useEditorStore((s) => s.canSubmit(posts));
   const { handleSubmit } = usePostActions();
-  const ctrlEnterSends = useSettingsStore((s) => s.pluginSettings?.ctrlEnterSends ?? false);
+  const ctrlEnterSends = useSettingsStore(
+    (s) => s.pluginSettings?.ctrlEnterSends ?? "disabled",
+  );
 
   const handleClose = useCallback(() => {
     if (editingPost) cancelEdit();
@@ -87,6 +89,7 @@ export const InViewComposer: FC = memo(() => {
 
   return (
     <Flex className="mfdi-in-view-composer h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
+      {/* 意図: 全画面の一時コンポーザも展開中と同じ扱いにして、設定の文言と挙動を揃える。 */}
       <ObsidianLiveEditor
         ref={inputRef}
         leaf={view.leaf}
@@ -99,6 +102,7 @@ export const InViewComposer: FC = memo(() => {
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}
         ctrlEnterSends={ctrlEnterSends}
+        isExpanded
       />
     </Flex>
   );

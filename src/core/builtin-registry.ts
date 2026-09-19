@@ -68,7 +68,7 @@ function registerCommands(context: BuiltinMainContext): void {
     },
   });
 
-  // 意図: ctrlEnterSends=off のときでもキーボードのみで投稿できるようにする。
+  // 意図: Ctrl+Enter 設定が無効でもキーボードのみで投稿できるようにする。
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({
     id: "mfdi-submit-post",

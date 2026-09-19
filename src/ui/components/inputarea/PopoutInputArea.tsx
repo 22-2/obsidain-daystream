@@ -42,7 +42,9 @@ export const PopoutInputArea: FC = memo(() => {
 
   const { handleSubmit } = usePostActions();
 
-  const ctrlEnterSends = useSettingsStore((s) => s.pluginSettings?.ctrlEnterSends ?? false);
+  const ctrlEnterSends = useSettingsStore(
+    (s) => s.pluginSettings?.ctrlEnterSends ?? "disabled",
+  );
 
   const closeView = useCallback(() => {
     view.leaf.detach();
@@ -111,6 +113,7 @@ export const PopoutInputArea: FC = memo(() => {
 
   return (
     <Flex className="mfdi-popout-editor h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
+      {/* 意図: ポップアウトはエディタ全体を表示するため、通常サイズ限定の送信対象から除外する。 */}
       <ObsidianLiveEditor
         ref={inputRef}
         leaf={view.leaf}
@@ -123,6 +126,7 @@ export const PopoutInputArea: FC = memo(() => {
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}
         ctrlEnterSends={ctrlEnterSends}
+        isExpanded
       />
     </Flex>
   );

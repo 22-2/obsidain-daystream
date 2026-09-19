@@ -16,7 +16,11 @@ import {
   type ActivityPromptNotificationScheduler,
 } from "src/notifications/activity-prompt";
 import type { Settings } from "src/settings";
-import { DEFAULT_SETTINGS, MFDISettingTab } from "src/settings";
+import {
+  DEFAULT_SETTINGS,
+  MFDISettingTab,
+  normalizeCtrlEnterSendMode,
+} from "src/settings";
 import { watchElectronPowerState } from "src/shell/electron-power";
 import { restoreAndFocusElectronWindow } from "src/shell/electron-window";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
@@ -270,7 +274,12 @@ export default class MFDIPlugin extends Plugin {
 
   async loadSettings(): Promise<void> {
     const currentSettings = (await this.loadData()) as Partial<Settings>;
-    this.settings = { ...DEFAULT_SETTINGS, ...currentSettings };
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...currentSettings,
+      // 旧 boolean 値が残っていても、設定 UI とエディタが常に同じ2択を扱うよう正規化する。
+      ctrlEnterSends: normalizeCtrlEnterSendMode(currentSettings.ctrlEnterSends),
+    };
   }
 
   rerenderView() {

@@ -30,7 +30,7 @@ describe("settingsSlice", () => {
         editorExpansionMode: "default",
         fullScanIntervalHours: 24,
         openInNewWindowMode: "always",
-        ctrlEnterSends: false,
+        ctrlEnterSends: "disabled",
       },
       granularity: "day",
       date: today.clone(),

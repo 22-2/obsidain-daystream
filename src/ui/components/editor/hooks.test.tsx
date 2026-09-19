@@ -21,9 +21,13 @@ type Deferred = {
 type MockFakeEditorInstance = {
   options: MockFakeEditorOptions;
   ready: Promise<void>;
-  view: { containerEl: HTMLDivElement } | null;
+  view: {
+    containerEl: HTMLDivElement;
+    toggleCtrlEnterKeyBinding: (enabled: boolean) => void;
+  } | null;
   content: string;
   setContentCalls: string[];
+  ctrlEnterBindingCalls: boolean[];
   destroyed: boolean;
   loadToDom: (parent: HTMLElement) => void;
   focus: () => void;
@@ -64,15 +68,21 @@ vi.mock("@22-2/obsidian-magical-editor", () => {
   class FakeEditorMock implements MockFakeEditorInstance {
     options: MockFakeEditorOptions;
     ready: Promise<void>;
-    view: { containerEl: HTMLDivElement } | null;
+    view: {
+      containerEl: HTMLDivElement;
+      toggleCtrlEnterKeyBinding: (enabled: boolean) => void;
+    } | null;
     content: string;
     setContentCalls: string[];
+    ctrlEnterBindingCalls: boolean[];
     destroyed: boolean;
 
     constructor(_app: unknown, options: MockFakeEditorOptions) {
       this.options = options;
       this.content = options.initialContent;
-      this.view = { containerEl: document.createElement("div") };
+      this.ctrlEnterBindingCalls = [];
+      // 実際の FakeEditor と同じく、ready 前は view が未準備になる。
+      this.view = null;
       this.setContentCalls = [];
       this.destroyed = false;
 
@@ -83,6 +93,12 @@ vi.mock("@22-2/obsidian-magical-editor", () => {
     }
 
     loadToDom(parent: HTMLElement) {
+      this.view = {
+        containerEl: document.createElement("div"),
+        toggleCtrlEnterKeyBinding: (enabled) => {
+          this.ctrlEnterBindingCalls.push(enabled);
+        },
+      };
       this.view?.containerEl.classList.add("mock-editor");
       this.view?.containerEl.remove();
       parent.appendChild(this.view!.containerEl);
@@ -126,9 +142,18 @@ vi.mock("@22-2/obsidian-magical-editor", () => {
 type HookHarnessProps = {
   initialValue: string;
   onChange: (text: string) => void;
+  onSubmit?: () => void;
+  ctrlEnterSends?: "collapsed_only" | "disabled";
+  isExpanded?: boolean;
 };
 
-function HookHarness({ initialValue, onChange }: HookHarnessProps) {
+function HookHarness({
+  initialValue,
+  onChange,
+  onSubmit,
+  ctrlEnterSends,
+  isExpanded,
+}: HookHarnessProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useFakeEditor(containerRef, {
@@ -136,6 +161,9 @@ function HookHarness({ initialValue, onChange }: HookHarnessProps) {
     leaf: { view: { scope: {} } } as never,
     initialValue,
     onChange,
+    onSubmit,
+    ctrlEnterSends,
+    isExpanded,
     placeholder: "placeholder",
     readonlyPlaceholder: "readonly",
   });
@@ -215,5 +243,65 @@ describe("useFakeEditor", () => {
     });
 
     expect(instance.setContentCalls).toEqual([]);
+  });
+
+  it("展開していないときだけ Ctrl+Enter で投稿する", async () => {
+    const onSubmit = vi.fn();
+    const view = render(
+      <HookHarness
+        initialValue="draft"
+        onChange={vi.fn()}
+        onSubmit={onSubmit}
+        ctrlEnterSends="collapsed_only"
+        isExpanded={false}
+      />,
+    );
+
+    await act(async () => {
+      fakeEditorState.deferred?.resolve();
+      await Promise.resolve();
+    });
+
+    const [instance] = fakeEditorState.instances;
+    expect(instance.ctrlEnterBindingCalls.at(-1)).toBe(true);
+    expect(instance.options.onEnter({}, true, false)).toBe(true);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    view.rerender(
+      <HookHarness
+        initialValue="draft"
+        onChange={vi.fn()}
+        onSubmit={onSubmit}
+        ctrlEnterSends="collapsed_only"
+        isExpanded
+      />,
+    );
+
+    expect(instance.ctrlEnterBindingCalls.at(-1)).toBe(false);
+    expect(instance.options.onEnter({}, true, false)).toBe(false);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("無効設定では Ctrl+Enter で投稿しない", async () => {
+    const onSubmit = vi.fn();
+
+    render(
+      <HookHarness
+        initialValue="draft"
+        onChange={vi.fn()}
+        onSubmit={onSubmit}
+        ctrlEnterSends="disabled"
+      />,
+    );
+
+    await act(async () => {
+      fakeEditorState.deferred?.resolve();
+      await Promise.resolve();
+    });
+
+    const [instance] = fakeEditorState.instances;
+    expect(instance.ctrlEnterBindingCalls.at(-1)).toBe(false);
+    expect(instance.options.onEnter({}, true, false)).toBe(false);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

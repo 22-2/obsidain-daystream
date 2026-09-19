@@ -174,7 +174,7 @@ describe("timeline note resolution", () => {
         editorExpansionMode: "default",
         fullScanIntervalHours: 24,
         openInNewWindowMode: "always",
-        ctrlEnterSends: false,
+        ctrlEnterSends: "disabled",
       },
       activeTopic: "",
       granularity: "day",

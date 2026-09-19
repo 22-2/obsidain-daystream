@@ -52,7 +52,7 @@ export const InputArea: FC = memo(() => {
       isReadOnly: s.isReadOnly(),
       inputAreaSize: s.inputAreaSize,
       setInputAreaSize: s.setInputAreaSize,
-      ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? false,
+      ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? "disabled",
     })),
   );
   const { handleSubmit } = usePostActions();
@@ -108,6 +108,7 @@ export const InputArea: FC = memo(() => {
           isReadOnly={isReadOnly}
           readonlyPlaceholder={READONLY_PLACEHOLDER_TEXT}
           ctrlEnterSends={ctrlEnterSends}
+          isExpanded={inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED}
         />
       )}
       <InputAreaFooter
