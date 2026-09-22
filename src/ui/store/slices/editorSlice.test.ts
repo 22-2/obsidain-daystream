@@ -1,6 +1,6 @@
 import type { MFDIStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/settings";
-import { MAIN_VIEW, STORAGE_KEYS } from "src/ui/config/consntants";
+import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/ui/config/consntants";
 import { createAppStore } from "src/ui/store/appStore";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { Post } from "src/ui/types";
@@ -164,6 +164,37 @@ describe("editorSlice", () => {
     expect(restoredPost?.timestamp.toISOString()).toBe(post.timestamp.toISOString());
     expect(restoredPost?.noteDate.toISOString()).toBe(post.noteDate.toISOString());
     expect(store.getState().editingPostOffset).toBe(post.startOffset);
+  });
+
+  it("maximized の入力欄は投稿の編集開始時にも維持する", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("editing post");
+    const { storage } = createMockStorage();
+
+    store.setState({
+      storage,
+      inputAreaSize: INPUT_AREA_SIZE.MAXIMIZED,
+    });
+
+    store.getState().startEdit(post);
+
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.MAXIMIZED);
+    expect(store.getState().editingPost?.id).toBe(post.id);
+  });
+
+  it("minimized の入力欄は投稿の編集開始時に表示できるサイズへ戻す", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("editing post");
+    const { storage } = createMockStorage();
+
+    store.setState({
+      storage,
+      inputAreaSize: INPUT_AREA_SIZE.MINIMIZED,
+    });
+
+    store.getState().startEdit(post);
+
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
   });
 
   it("view切替時にperiodic/fixedで入力復元を分離する", () => {
