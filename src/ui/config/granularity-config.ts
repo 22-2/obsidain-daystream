@@ -85,7 +85,8 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     parseInput: (v) => window.moment(v, "YYYY-MM"),
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
-    showCalendarRangeHighlight: false,
+    // 意図: 月粒度では選択した月全体をナビゲーター上でも範囲として示す。
+    showCalendarRangeHighlight: true,
     settings: {
       periodicity: "monthly",
       source: "periodic-notes",
