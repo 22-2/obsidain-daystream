@@ -50,7 +50,6 @@ export const MFDIWorkspaceLayout = () => {
       granularity: s.granularity,
       asTask: s.asTask,
       threadOnly: s.threadOnly,
-      dateFilter: s.dateFilter,
       setSidebarOpen: s.setSidebarOpen,
       leftPanelOpen: s.leftPanelOpen,
       rightPanelOpen: s.rightPanelOpen,
@@ -110,7 +109,6 @@ export const MFDIWorkspaceLayout = () => {
   const {
     granularity,
     asTask,
-    dateFilter,
     setSidebarOpen,
     leftPanelOpen,
     rightPanelOpen,
@@ -188,8 +186,9 @@ export const MFDIWorkspaceLayout = () => {
 
   const isEmpty =
     !isTimelineView(settings.displayMode) &&
-    ((dateFilter === "today" && !currentDailyNote) ||
-      (asTask ? tasks.length === 0 : filteredPosts.length === 0));
+    // 意図: 月表示は月次ノートがなくても日次ノートの投稿を集約するため、
+    // 投稿一覧の空判定は取得済み投稿を正とし、現在ノートの有無だけで隠さない。
+    (asTask ? !currentDailyNote || tasks.length === 0 : filteredPosts.length === 0);
 
   const content = useMemo(() => {
     if (!isCSSLoaded) {
