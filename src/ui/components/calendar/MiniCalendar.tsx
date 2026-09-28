@@ -20,6 +20,7 @@ export const MiniCalendar: React.FC<{
     rangeStart,
     rangeEnd,
     dateFilter,
+    isDateTabActive,
     activityDates,
     handlePrevMonth,
     handleNextMonth,
@@ -76,6 +77,7 @@ export const MiniCalendar: React.FC<{
             rangeEnd={rangeEnd}
             viewDate={viewDate}
             dateFilter={dateFilter as string}
+            isDateTabActive={isDateTabActive}
             activityDates={activityDates}
             onSelectDay={handleSelectDay}
             onSelectWeek={handleSelectWeek}

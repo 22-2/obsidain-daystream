@@ -22,6 +22,7 @@ export interface WeekRowProps {
   rangeEnd: moment.Moment;
   viewDate: moment.Moment;
   dateFilter: string;
+  isDateTabActive: boolean;
   activityDates: Set<string>;
   onSelectDay: (day: moment.Moment) => void;
   onSelectWeek: (weekStart: moment.Moment) => void;

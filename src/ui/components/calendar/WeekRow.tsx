@@ -18,6 +18,7 @@ export const WeekRow: React.FC<WeekRowProps> = ({
   rangeEnd,
   viewDate,
   dateFilter,
+  isDateTabActive,
   activityDates,
   onSelectDay,
   onSelectWeek,
@@ -27,8 +28,10 @@ export const WeekRow: React.FC<WeekRowProps> = ({
   const isWeekSelected = isCalendarWeekSelected(selectionState, week[0]);
   const isSingleDaySelected = isCalendarDaySelected(selectionState);
 
+  // 意図: 月全体の範囲表示は日付タブ専用にし、他タブのサイドバーでは選択日だけを示す。
   const showRangeHighlight =
-    GRANULARITY_CONFIG[granularity as Granularity].showCalendarRangeHighlight;
+    GRANULARITY_CONFIG[granularity as Granularity].showCalendarRangeHighlight &&
+    (granularity !== "month" || isDateTabActive);
 
   return (
     <>

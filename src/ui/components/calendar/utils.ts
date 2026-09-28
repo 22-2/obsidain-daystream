@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getPeriodicNoteDate, listPeriodicNotes } from "src/core/note-source";
 import type { Week } from "src/ui/components/calendar/types";
 import { applyCalendarSelection } from "src/ui/components/calendar/selection";
+import { MAIN_VIEW } from "src/ui/config/consntants";
 import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { getGranularityRange } from "src/ui/config/granularity-config";
 import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
@@ -39,6 +40,7 @@ export function useMiniCalendar() {
     date,
     granularity,
     dateFilter,
+    mainView,
     setCalendarSelection,
     activeTopic,
     handleClickHome,
@@ -47,6 +49,7 @@ export function useMiniCalendar() {
       date: s.date,
       granularity: s.granularity,
       dateFilter: s.dateFilter,
+      mainView: s.mainView,
       setCalendarSelection: s.setCalendarSelection,
       activeTopic: s.activeTopic,
       handleClickHome: s.handleClickHome,
@@ -168,6 +171,7 @@ export function useMiniCalendar() {
     rangeStart,
     rangeEnd,
     dateFilter,
+    isDateTabActive: mainView === MAIN_VIEW.DATE,
     activityDates,
     handlePrevMonth,
     handleNextMonth,
