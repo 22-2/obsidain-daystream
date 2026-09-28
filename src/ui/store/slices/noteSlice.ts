@@ -1,5 +1,6 @@
 import { Notice } from "obsidian";
 import { resolveNoteSource } from "src/core/note-source";
+import { openMarkdownNote } from "src/ui/utils/open-markdown-note";
 import type { MFDIStore, NoteSlice } from "src/ui/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
@@ -110,14 +111,8 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set,
     if (note) {
       set({ currentDailyNote: note });
 
-      // 明示的にMarkdownビューとして開きたい場合はフラグを付与して
-      // プラグイン側の setViewState パッチでの置換を回避する。
       const leaf = shell.getLeaf(true);
-      await leaf.setViewState({
-        type: "markdown",
-        active: true,
-        state: { file: note.path, __mfdi_force_markdown: true },
-      });
+      await openMarkdownNote(leaf, note.path);
     }
   },
 

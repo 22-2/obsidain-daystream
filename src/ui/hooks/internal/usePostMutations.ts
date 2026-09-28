@@ -1,7 +1,6 @@
 import type { MarkdownView } from "obsidian";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
-import { isMFDIFixedNotePath } from "src/core/fixed-note";
 import { toText } from "src/core/post-utils";
 import { serializeMfdiTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
@@ -11,6 +10,7 @@ import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { Post } from "src/ui/types";
+import { openMarkdownNote } from "src/ui/utils/open-markdown-note";
 import { PINNED_METADATA_KEY } from "src/ui/utils/post-metadata";
 import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/ui/utils/thread-utils";
 import { useShallow } from "zustand/shallow";
@@ -321,17 +321,7 @@ export const usePostMutations = () => {
 
         const leaf = shell.getLeaf(true);
         await shell.revealLeaf(leaf);
-        if (isMFDIFixedNotePath(noteFile.path)) {
-          // 意図: 固定ノートは通常の openFile だと MFDI の固定ビューへ再ルーティングされるため、
-          // 投稿のソースを確認できるよう明示的に Markdown ビューとして開く。
-          await leaf.setViewState({
-            type: "markdown",
-            active: true,
-            state: { file: noteFile.path, __mfdi_force_markdown: true },
-          });
-        } else {
-          await leaf.openFile(noteFile, { active: true });
-        }
+        await openMarkdownNote(leaf, noteFile.path);
 
         const editor = shell.getWorkspace().activeEditor as MarkdownView;
         const startPos = editor.editor!.offsetToPos(latestPost.bodyStartOffset);
