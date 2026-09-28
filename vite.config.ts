@@ -4,7 +4,6 @@ import path from "path";
 import { defineConfig, loadEnv, type UserConfig } from "vite";
 import analyzer from "vite-bundle-analyzer";
 import inspect from "vite-plugin-inspect";
-import { obsidianCopyVite } from "@22-2/obsidian-copy-bundler-plugin";
 
 export default defineConfig(async ({ mode }) => {
   const { resolve } = path;
@@ -22,23 +21,6 @@ export default defineConfig(async ({ mode }) => {
       isAnalyze && inspect({open: true, outputDir: "inspect"}),
       isAnalyze && analyzer(),
       react(),
-      // reactCompilerPreset(),
-      // Copy built files into user's local Obsidian plugins when developing on PC
-      onMyPc && obsidianCopyVite({
-        // pluginsDir: [
-        //   // "C:/Users/17890/AppData/Roaming/obsidian/Obsidian Sandbox/.obsidian/plugins",
-        //   "E:/AppData/obsidian/vaults/suizen/.obsidian/plugins",
-        //   // "G:/マイドライブ/documents/obsidian/vaults/sagyosen/.obsidian/plugins",
-        // ],
-        targetDir: "E:/AppData/obsidian/vaults/suizen/.obsidian/plugins/mobile-first-daily-interface",
-        force: true,
-      }),
-
-      // Ensure CI/build output `dist/` contains files Obsidian expects (manifest.json, main.js)
-      obsidianCopyVite({
-        targetDir: path.resolve(import.meta.dirname, "dist"),
-        force: true,
-      }),
     ],
     resolve: {
       alias: {
