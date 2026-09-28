@@ -179,8 +179,12 @@ export const MFDIWorkspaceLayout = () => {
     return () => observer.disconnect();
   }, [pluginSettings.autoToggleSidebar, setSidebarOpen]);
 
-  const effectivelyLeftOpen = leftPanelOpen && capabilities.supportsSidebar;
-  const effectivelyRightOpen = rightPanelOpen && capabilities.supportsSidebar;
+  const isEditorMaximized = settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
+  // 意図: 最大化したエディタの作業領域を確保するため、左右のサイドバーを同時に閉じる。
+  const effectivelyLeftOpen =
+    leftPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
+  const effectivelyRightOpen =
+    rightPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
 
   const isEmpty =
     !isTimelineView(settings.displayMode) &&
