@@ -3,6 +3,7 @@ import { useCallback, useMemo } from "react";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
 import { HStack, Input } from "src/ui/components/primitives";
+import { HierarchicalDateInput } from "src/ui/components/statusbar/parts/HierarchicalDateInput";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
 import { useAppStore } from "src/ui/store/appStore";
@@ -67,6 +68,9 @@ export const StatusBarDateNavigation: FC = () => {
     [handleChangeCalendarDate],
   );
 
+  const hasHierarchicalDate =
+    granularity === "day" || granularity === "month" || granularity === "year";
+
   if (!capabilities.supportsDateNavigation) return null;
 
   return (
@@ -82,14 +86,18 @@ export const StatusBarDateNavigation: FC = () => {
       ) : (
         <>
           <NavButton direction="left" onClick={handleClickMovePrevious} className="p-1" />
-          <Input
-            className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
-            type={GRANULARITY_CONFIG[granularity].inputType}
-            value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
-            onChange={handleChangeDate}
-            onClick={(event) => event.stopPropagation()}
-            aria-label="表示日"
-          />
+          {hasHierarchicalDate ? (
+            <HierarchicalDateInput />
+          ) : (
+            <Input
+              className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
+              type={GRANULARITY_CONFIG[granularity].inputType}
+              value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
+              onChange={handleChangeDate}
+              onClick={(event) => event.stopPropagation()}
+              aria-label="表示日"
+            />
+          )}
           <NavButton direction="right" onClick={handleClickMoveNext} className="p-1" />
         </>
       )}
