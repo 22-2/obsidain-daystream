@@ -3,6 +3,8 @@ allowBuilds:
   esbuild: true
   msw: true
   obsidian-typings: true
+  # 意図: GitHub から直接取得する toolkit はインストール時に必要なビルドを行うため許可する。
+  'obsidian-e2e-toolkit@https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/a0e5946e9bd54aa7d1aa69ef3dc7836302d17fef': true
 minimumReleaseAgeExclude:
   - '@22-2/obsidian-magical-editor@1.0.17'
 publicHoistPattern:

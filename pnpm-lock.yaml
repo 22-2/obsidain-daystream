@@ -218,9 +218,6 @@ importers:
         specifier: ^5.0.14
         version: 5.0.14(@types/react@19.2.18)(immer@11.1.8)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8))
     devDependencies:
-      '@22-2/obsidian-copy-bundler-plugin':
-        specifier: 1.0.2
-        version: 1.0.2(esbuild@0.28.1)(vite@8.2.1)
       '@codemirror/state':
         specifier: 6.7.1
         version: 6.7.1
@@ -285,8 +282,8 @@ importers:
         specifier: ^2.30.1
         version: 2.30.1
       obsidian-e2e-toolkit:
-        specifier: github:22-2/obsidian-e2e-toolkit#1.0.3
-        version: https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/0350d73ee4006871bcf3fe9efadb3ab1056f5a4a(@playwright/test@1.62.1)(electron@41.0.3)(playwright@1.62.1)
+        specifier: github:22-2/obsidian-e2e-toolkit#1.2.0
+        version: https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/a0e5946e9bd54aa7d1aa69ef3dc7836302d17fef(@playwright/test@1.62.1)(electron@41.0.3)(playwright@1.62.1)
       playwright:
         specifier: ^1.62.1
         version: 1.62.1
@@ -319,12 +316,6 @@ importers:
         version: 4.1.10(@types/node@26.2.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.14.5(@types/node@26.2.0)(@typescript/typescript6@6.0.2))(vite@8.2.1)
 
 packages:
-
-  '@22-2/obsidian-copy-bundler-plugin@1.0.2':
-    resolution: {integrity: sha512-C0s1qK8c1oP4SXhCT0iIfnia6Xsdmj1xhA52G5kYO8kQaX0XnQotDOE4r825lqjzSrcSBq71weU7UldVMOcIDQ==, tarball: https://npm.pkg.github.com/download/@22-2/obsidian-copy-bundler-plugin/1.0.2/05ca1fd83a5f4a3ca34e26ae5c9d28dd54df082b}
-    peerDependencies:
-      esbuild: '>=0.27.0'
-      vite: '>=8.0.0'
 
   '@22-2/obsidian-magical-editor@1.0.17':
     resolution: {integrity: sha512-SUCCs52DmExItfQ2UDxlNMTkv/KoNgXjwelVMoyJXvEEOZMS+LHp39B3RG7S0f45ysgz81yz9OJoXECLkoioMg==, tarball: https://npm.pkg.github.com/download/@22-2/obsidian-magical-editor/1.0.17/cac7bd6dd25959d4607f21d49872a8cd8781214f}
@@ -577,8 +568,8 @@ packages:
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
 
-  '@electron/asar@4.2.1':
-    resolution: {integrity: sha512-rGyEe7iy52zxiWuihV/h/AqQrFkx7YnUUJKW1bdufVDHCzIMP/XDrDI/NOzv/LLtzt3NduAzNa475WRmRnmswQ==}
+  '@electron/asar@4.3.1':
+    resolution: {integrity: sha512-6pI64z/tMSBkUTZLQFYhs2YiB7fS9sKA6gy7/2nH1Ju7GGwT32UPsj4Mxsws5NMmtR6C0zYdXVxEU/rGqJRCJA==}
     engines: {node: '>=22.12.0'}
     hasBin: true
 
@@ -1465,6 +1456,10 @@ packages:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
+  chalk@6.0.0:
+    resolution: {integrity: sha512-2uNTXIuTTxk7ciZgAU1BQcgnchcG0xXnrs6jzkQfj9SsRa9M2s5zE8WT96hS6KmG4MzWHSrvH43DF1m4XRkrFg==}
+    engines: {node: '>=22'}
+
   chownr@3.0.0:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
@@ -1792,6 +1787,9 @@ packages:
 
   es-toolkit@1.50.0:
     resolution: {integrity: sha512-OyZKhUVvEep9ITEiwHn8GKnMRQIVqoSIX7WnRbkWgJkllCujilqP2rD0u979tkl8wqyc8ICwlc1UBVv/Sl1G6w==}
+
+  es-toolkit@1.52.0:
+    resolution: {integrity: sha512-XTNEJQh1tY1ZJVcf6ayP/2n4ZPyaHlW2FWs7xvw5ddPuhUVjLD3olQVQS7kf58JbAB48iL0uL/jerTrjtV3lDA==}
 
   es6-error@4.1.1:
     resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
@@ -2641,13 +2639,13 @@ packages:
     resolution: {integrity: sha512-EFVjAYfzWqWsBMRHPMAXLCDIJnpMhdWAqR7xG6M6a2cs6PMFpl/+Z20w9zDW4vkxOFfddegBKq9Rehd0bxWE7A==}
     engines: {node: '>= 10'}
 
-  obsidian-e2e-toolkit@https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/0350d73ee4006871bcf3fe9efadb3ab1056f5a4a:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/0350d73ee4006871bcf3fe9efadb3ab1056f5a4a}
-    version: 1.0.3
+  obsidian-e2e-toolkit@https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/a0e5946e9bd54aa7d1aa69ef3dc7836302d17fef:
+    resolution: {gitHosted: true, integrity: sha512-lVtsyq0HSSC79+aa8+6b41u5fIjMvuA5D7IOJWAnM1obPYrI71aceSw7t1+Zk1hjkMqVEWrGzrOVnMajd/h+Xg==, tarball: https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/a0e5946e9bd54aa7d1aa69ef3dc7836302d17fef}
+    version: 1.2.0
     engines: {node: '>=23.0.0'}
     peerDependencies:
       '@playwright/test': ^1.56.0
-      electron: ^41.0.3
+      electron: '*'
       playwright: ^1.56.0
 
   obsidian@1.12.3:
@@ -3594,11 +3592,6 @@ packages:
 
 snapshots:
 
-  '@22-2/obsidian-copy-bundler-plugin@1.0.2(esbuild@0.28.1)(vite@8.2.1)':
-    dependencies:
-      esbuild: 0.28.1
-      vite: 8.2.1(@types/node@26.2.0)(@vitejs/devtools@0.4.12)(esbuild@0.28.1)(jiti@2.7.0)
-
   '@22-2/obsidian-magical-editor@1.0.17(obsidian@1.12.3(@codemirror/state@6.7.1)(@codemirror/view@6.43.8))':
     dependencies:
       obsidian: 1.12.3(@codemirror/state@6.7.1)(@codemirror/view@6.43.8)
@@ -3919,7 +3912,7 @@ snapshots:
 
   '@dotenvx/primitives@0.8.0': {}
 
-  '@electron/asar@4.2.1':
+  '@electron/asar@4.3.1':
     dependencies:
       glob: 13.0.6
       minimatch: 10.2.6
@@ -4730,6 +4723,8 @@ snapshots:
 
   chalk@5.6.2: {}
 
+  chalk@6.0.0: {}
+
   chownr@3.0.0: {}
 
   citty@0.2.2: {}
@@ -5001,6 +4996,8 @@ snapshots:
 
   es-toolkit@1.50.0: {}
 
+  es-toolkit@1.52.0: {}
+
   es6-error@4.1.1:
     optional: true
 
@@ -5032,6 +5029,7 @@ snapshots:
       '@esbuild/win32-arm64': 0.28.1
       '@esbuild/win32-ia32': 0.28.1
       '@esbuild/win32-x64': 0.28.1
+    optional: true
 
   escalade@3.2.0: {}
 
@@ -5806,13 +5804,13 @@ snapshots:
 
   object-treeify@1.1.33: {}
 
-  obsidian-e2e-toolkit@https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/0350d73ee4006871bcf3fe9efadb3ab1056f5a4a(@playwright/test@1.62.1)(electron@41.0.3)(playwright@1.62.1):
+  obsidian-e2e-toolkit@https://codeload.github.com/22-2/obsidian-e2e-toolkit/tar.gz/a0e5946e9bd54aa7d1aa69ef3dc7836302d17fef(@playwright/test@1.62.1)(electron@41.0.3)(playwright@1.62.1):
     dependencies:
-      '@electron/asar': 4.2.1
+      '@electron/asar': 4.3.1
       '@playwright/test': 1.62.1
-      chalk: 5.6.2
+      chalk: 6.0.0
       electron: 41.0.3
-      es-toolkit: 1.50.0
+      es-toolkit: 1.52.0
       extract-zip: 2.0.1
       find-up: 8.0.0
       loglevel: 1.9.2
