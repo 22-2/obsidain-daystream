@@ -128,7 +128,7 @@ export const useFocusPosts = () => {
 
           const normalizedContent = content.replace(/\/n/g, "\n");
 
-          return parseThinoEntries(normalizedContent)
+          const periodicPosts = parseThinoEntries(normalizedContent)
             .filter((entry) => {
               if (query && !entry.message.toLowerCase().includes(query)) {
                 return false;
@@ -141,17 +141,34 @@ export const useFocusPosts = () => {
             .map((entry) => {
               const timestamp = resolveTimestamp(entry.time, date, entry.metadata);
 
-              return buildPostFromEntry({
-                ...entry,
-                path: periodicNoteFile.path,
-                noteDate: timestamp.clone().startOf(granularity),
-                resolveTimestamp,
-              });
+              return {
+                ...buildPostFromEntry({
+                  ...entry,
+                  path: periodicNoteFile.path,
+                  noteDate: timestamp.clone().startOf(granularity),
+                  resolveTimestamp,
+                }),
+                noteGranularity: granularity,
+              };
             })
             // 意図: 月次・年次ノートに別期間の posted 日付が混在しても、選択期間外の投稿を表示しない。
             .filter(
               (post) => !post.timestamp.isBefore(startDate) && !post.timestamp.isAfter(endDate),
             );
+
+          if (granularity !== "month") return periodicPosts;
+
+          // 意図: 月の一覧には月次ノートに加えて、日次ノートにだけある投稿も含める。
+          const dailyRecords = await WorkerClient.get().getMemos({
+            topicId: effectiveTopic,
+            startDate,
+            endDate,
+            query: searchQuery,
+            threadOnly,
+            noteGranularity: "day",
+          });
+          const dailyPosts = dailyRecords.map(memoRecordToPost);
+          return [...periodicPosts, ...dailyPosts];
         } catch {
           console.error("Failed to load periodic note file:", periodicNoteFile.path);
           return [];

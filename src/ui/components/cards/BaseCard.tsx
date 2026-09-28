@@ -5,6 +5,8 @@ import type { DateFilter, Granularity, MomentLike } from "src/ui/types";
 
 interface BaseCardProps {
   timestamp: MomentLike;
+  noteGranularity?: Granularity;
+  showGranularityBadge?: boolean;
   granularity: Granularity;
   dateFilter?: DateFilter;
   isDimmed: boolean;
@@ -17,6 +19,8 @@ interface BaseCardProps {
 
 export const CardContent: React.FC<BaseCardProps> = ({
   timestamp,
+  noteGranularity,
+  showGranularityBadge = false,
   granularity,
   dateFilter,
   isDimmed,
@@ -40,6 +44,11 @@ export const CardContent: React.FC<BaseCardProps> = ({
           {/* fixedノートは複数日が混在しうるので、時刻だけだと投稿の文脈を失う。 */}
           {timestamp.format(DISPLAY_DATE_TIME_FORMAT)}
         </Tag>
+        {showGranularityBadge && (noteGranularity === "day" || noteGranularity === "month") && (
+          <Tag className="text-xs px-0 py-0.5 rounded-full bg-[var(--background-modifier-hover)] text-[var(--text-muted)]">
+            {noteGranularity === "day" ? "日" : "月"}
+          </Tag>
+        )}
       </HStack>
 
       {children}

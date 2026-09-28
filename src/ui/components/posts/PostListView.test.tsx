@@ -179,12 +179,21 @@ vi.mock("src/ui/store/editorStore", () => ({
 }));
 
 vi.mock("src/ui/components/posts/PostCardView", () => ({
-  PostCardView: ({ post, isHighlighted }: { post: Post; isHighlighted?: boolean }) =>
+  PostCardView: ({
+    post,
+    isHighlighted,
+    showGranularityBadge,
+  }: {
+    post: Post;
+    isHighlighted?: boolean;
+    showGranularityBadge?: boolean;
+  }) =>
     React.createElement(
       "div",
       {
         "data-testid": post.id,
         "data-highlighted": isHighlighted ? "true" : "false",
+        "data-granularity-badge": showGranularityBadge ? "true" : "false",
       },
       post.message,
     ),
@@ -248,6 +257,19 @@ describe("PostListView", () => {
 
     expect(screen.getByTestId("post-1")).toBeDefined();
     expect(screen.getByTestId("post-1").getAttribute("data-highlighted")).toBe("true");
+    expect(screen.getByTestId("post-1").getAttribute("data-granularity-badge")).toBe("false");
+  });
+
+  it("日次と月次の投稿が同時に表示される時だけ粒度バッジを出す", () => {
+    mocked.posts = [
+      { ...createPost(), id: "month-post", noteGranularity: "month" },
+      { ...createPost(), id: "day-post", noteGranularity: "day" },
+    ];
+
+    render(<PostListView />);
+
+    expect(screen.getByTestId("month-post").getAttribute("data-granularity-badge")).toBe("true");
+    expect(screen.getByTestId("day-post").getAttribute("data-granularity-badge")).toBe("true");
   });
 
   it("highlightedPost があると対象位置へスクロールする", () => {

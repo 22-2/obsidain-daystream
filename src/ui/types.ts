@@ -1,4 +1,5 @@
 import type { Moment } from "moment";
+import type { Granularity } from "src/ui/config/granularity-config";
 import type {
   CONTENT_VIEW,
   DISPLAY_MODE,
@@ -7,7 +8,7 @@ import type {
 } from "src/ui/config/consntants";
 import type { DATE_FILTER_OPTIONS, TIME_FILTER_OPTIONS } from "src/ui/config/filter-config";
 
-export type { Granularity } from "src/ui/config/granularity-config";
+export type { Granularity };
 
 export type MomentLike = Moment;
 
@@ -28,6 +29,8 @@ export type InputAreaSize = (typeof INPUT_AREA_SIZE)[keyof typeof INPUT_AREA_SIZ
 export interface Post {
   id: string;
   threadRootId: string | null;
+  /** 投稿元のノート粒度。複数粒度の結果が混在する場合の識別に使う。 */
+  noteGranularity?: Granularity;
   timestamp: MomentLike;
   noteDate: MomentLike;
   message: string;

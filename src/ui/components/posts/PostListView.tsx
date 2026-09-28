@@ -130,6 +130,10 @@ export const PostListView: React.FC = memo(() => {
     timelineItems,
     visibleDividerGroupKeys,
   } = usePosts();
+  const showGranularityBadges = useMemo(() => {
+    const noteGranularities = new Set(filteredPosts.map((post) => post.noteGranularity));
+    return noteGranularities.has("day") && noteGranularities.has("month");
+  }, [filteredPosts]);
 
   const { countMap: backlinkCounts, postsMap: backlinkPosts } = usePostBacklinks(filteredPosts);
 
@@ -380,6 +384,7 @@ export const PostListView: React.FC = memo(() => {
             <Box key={item.key} style={{ paddingBottom: "1px" }}>
               <PostCardView
                 post={item.post}
+                showGranularityBadge={showGranularityBadges}
                 backlinkCount={backlinkCounts.get(item.post.id) ?? 0}
                 granularity={granularity}
                 dateFilter={dateFilter}

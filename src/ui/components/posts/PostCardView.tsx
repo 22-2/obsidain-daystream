@@ -13,6 +13,7 @@ import { isThreadRoot } from "src/ui/utils/thread-utils";
 export const PostCardView = React.memo(
   ({
     post,
+    showGranularityBadge = false,
     backlinkCount = 0,
     granularity,
     dateFilter,
@@ -29,6 +30,7 @@ export const PostCardView = React.memo(
     allowEditingPastNotes,
   }: {
     post: Post;
+    showGranularityBadge?: boolean;
     backlinkCount?: number;
     granularity: Granularity;
     dateFilter?: DateFilter;
@@ -54,6 +56,8 @@ export const PostCardView = React.memo(
         message={post.message}
         sourcePath={post.path}
         timestamp={post.timestamp}
+        noteGranularity={post.noteGranularity}
+        showGranularityBadge={showGranularityBadge}
         granularity={granularity}
         dateFilter={dateFilter}
         isDimmed={isDimmed}

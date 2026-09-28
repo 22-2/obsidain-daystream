@@ -116,6 +116,7 @@ export function memoRecordToPost(record: MemoRecord): Post {
   return {
     id: resolvePostId(metadata, record.path, record.startOffset),
     threadRootId: resolveThreadRootId(metadata),
+    noteGranularity: record.noteGranularity,
     timestamp: window.moment(record.createdAt),
     noteDate: window.moment(record.createdAt).startOf("day"),
     message: record.content,

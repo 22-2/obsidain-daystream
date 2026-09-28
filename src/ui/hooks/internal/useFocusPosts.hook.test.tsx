@@ -87,6 +87,7 @@ type MemoRecordLike = {
   startOffset: number;
   endOffset: number;
   bodyStartOffset: number;
+  noteGranularity: "day" | "week" | "month" | "quarter" | "year";
 };
 
 function createMemoRecord(overrides: Partial<MemoRecordLike>): MemoRecordLike {
@@ -99,6 +100,7 @@ function createMemoRecord(overrides: Partial<MemoRecordLike>): MemoRecordLike {
     startOffset: overrides.startOffset ?? 10,
     endOffset: overrides.endOffset ?? 20,
     bodyStartOffset: overrides.bodyStartOffset ?? 12,
+    noteGranularity: overrides.noteGranularity ?? "day",
   };
 }
 
@@ -126,6 +128,7 @@ describe("useFocusPosts hook integration", () => {
     mocked.getDb.mockReturnValue({
       getMemos: mocked.getMemos,
     });
+    mocked.getMemos.mockResolvedValue([]);
     mocked.settings.activeTopic = "work";
     mocked.settings.date = window.moment("2026-04-06T12:34:56.000Z");
     mocked.settings.granularity = "day";
@@ -191,7 +194,7 @@ describe("useFocusPosts hook integration", () => {
     expect(mocked.getDb).toHaveBeenCalledTimes(1);
   });
 
-  it("month granularity は月次ノートの path の投稿だけを表示する", async () => {
+  it("month granularity は月次ノートと日次ノートの投稿を月内でまとめて表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "month";
     mocked.settings.date = window.moment("2026-04-20T09:00:00.000Z");
@@ -204,6 +207,15 @@ describe("useFocusPosts hook integration", () => {
         "- 09:01:00 another month entry",
       ].join("/n"),
     );
+    mocked.getMemos.mockResolvedValue([
+      createMemoRecord({
+        id: "daily-post",
+        path: "daily/2026-04-19.md",
+        content: "from-day-note",
+        createdAt: "2026-04-19T09:02:00.000Z",
+        noteGranularity: "day",
+      }),
+    ]);
 
     const { result } = renderHook(() => useFocusPosts(), {
       wrapper: swrWrapper,
@@ -213,10 +225,16 @@ describe("useFocusPosts hook integration", () => {
       expect(result.current.posts.map((post) => post.message)).toEqual([
         "from-month-note",
         "another month entry",
+        "from-day-note",
       ]);
     });
 
     expect(mocked.loadFile).toHaveBeenCalled();
+    expect(mocked.getMemos).toHaveBeenCalledWith(
+      expect.objectContaining({ noteGranularity: "day" }),
+    );
+    expect(result.current.posts[0].noteGranularity).toBe("month");
+    expect(result.current.posts[2].noteGranularity).toBe("day");
   });
 
   it("月次ノート内に別の月の投稿があっても選択月だけを表示する", async () => {
@@ -231,7 +249,6 @@ describe("useFocusPosts hook integration", () => {
         "- 09:01:00 from-april [posted::2026-04-19T09:01:00.000Z]",
       ].join("/n"),
     );
-
     const { result } = renderHook(() => useFocusPosts(), { wrapper: swrWrapper });
 
     await waitFor(() => {
