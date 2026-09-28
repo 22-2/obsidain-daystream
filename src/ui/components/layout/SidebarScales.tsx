@@ -4,6 +4,7 @@ import { parseThinoEntries } from "src/core/thino";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import { SidebarItemCount, SidebarTextButton } from "src/ui/components/layout/SidebarPrimitives";
+import { applyCalendarSelection, isCalendarScaleSelected } from "src/ui/components/calendar/selection";
 import { HStack, Text, VStack } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { GRANULARITY_CONFIG, type Granularity } from "src/ui/config/granularity-config";
@@ -39,19 +40,17 @@ export const SidebarScales: React.FC<{
   const shell = useAppStore((s) => s.shell);
   const {
     date,
-    setDate,
-    setGranularity,
-    setDateFilter,
+    setCalendarSelection,
     granularity,
+    dateFilter,
     activeTopic,
     handleClickHome,
   } = useSettingsStore(
     useShallow((s) => ({
       date: s.date,
-      setDate: s.setDate,
-      setGranularity: s.setGranularity,
-      setDateFilter: s.setDateFilter,
+      setCalendarSelection: s.setCalendarSelection,
       granularity: s.granularity,
+      dateFilter: s.dateFilter,
       activeTopic: s.activeTopic,
       handleClickHome: s.handleClickHome,
     })),
@@ -163,7 +162,11 @@ export const SidebarScales: React.FC<{
             const key = buildScaleKey(baseDate, scaleGranularity);
             const counts = countsMap[key];
             const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
-            const isSelected = granularity === scaleGranularity;
+            const isSelected = isCalendarScaleSelected(
+              { date, granularity, dateFilter },
+              baseDate,
+              scaleGranularity,
+            );
 
             return (
               <SidebarTextButton
@@ -178,9 +181,10 @@ export const SidebarScales: React.FC<{
                   if (isSelected) {
                     handleClickHome();
                   } else {
-                    setGranularity(scaleGranularity);
-                    setDateFilter("today");
-                    setDate(baseDate.clone());
+                    applyCalendarSelection(
+                      { setCalendarSelection },
+                      { date: baseDate, dateFilter: "today", granularity: scaleGranularity },
+                    );
                   }
                 }}
               >
@@ -193,7 +197,11 @@ export const SidebarScales: React.FC<{
           })}
 
           {weeks.map((w) => {
-            const isSelected = granularity === "week" && date.isSame(w, "isoWeek");
+            const isSelected = isCalendarScaleSelected(
+              { date, granularity, dateFilter },
+              w,
+              "week",
+            );
             const counts = countsMap[buildScaleKey(w, "week")];
             const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
 
@@ -207,10 +215,11 @@ export const SidebarScales: React.FC<{
                   if (isSelected) {
                     handleClickHome();
                   } else {
-                    setGranularity("week");
-                    setDateFilter("today");
                     const targetDay = w.isBefore(monthStart) ? monthStart.clone() : w.clone();
-                    setDate(targetDay);
+                    applyCalendarSelection(
+                      { setCalendarSelection },
+                      { date: targetDay, dateFilter: "today", granularity: "week" },
+                    );
                   }
                 }}
               >

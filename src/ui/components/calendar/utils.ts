@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getPeriodicNoteDate, listPeriodicNotes } from "src/core/note-source";
 import type { Week } from "src/ui/components/calendar/types";
-import { DISPLAY_MODE } from "src/ui/config/consntants";
+import { applyCalendarSelection } from "src/ui/components/calendar/selection";
 import { DATE_FILTER_IDS } from "src/ui/config/filter-config";
 import { getGranularityRange } from "src/ui/config/granularity-config";
 import { useMFDIDB } from "src/ui/hooks/useMFDIDB";
@@ -37,23 +37,17 @@ export function useMiniCalendar() {
   const shell = useAppStore((s) => s.shell);
   const {
     date,
-    setDate,
     granularity,
-    setGranularity,
     dateFilter,
-    setDateFilter,
-    setDisplayMode,
+    setCalendarSelection,
     activeTopic,
     handleClickHome,
   } = useSettingsStore(
     useShallow((s) => ({
       date: s.date,
-      setDate: s.setDate,
       granularity: s.granularity,
-      setGranularity: s.setGranularity,
       dateFilter: s.dateFilter,
-      setDateFilter: s.setDateFilter,
-      setDisplayMode: s.setDisplayMode,
+      setCalendarSelection: s.setCalendarSelection,
       activeTopic: s.activeTopic,
       handleClickHome: s.handleClickHome,
     })),
@@ -102,20 +96,20 @@ export function useMiniCalendar() {
     if (!day.isSame(viewDate, "month")) {
       skipNextViewUpdate.current = true;
     }
-    setDisplayMode(DISPLAY_MODE.FOCUS);
-    setGranularity("day");
-    setDateFilter("today");
-    setDate(day.clone());
+    applyCalendarSelection(
+      { setCalendarSelection },
+      { date: day, dateFilter: "today", granularity: "day" },
+    );
   };
 
   const handleSelectWeek = (weekStart: moment.Moment) => {
     if (!weekStart.isSame(viewDate, "month")) {
       skipNextViewUpdate.current = true;
     }
-    setDisplayMode(DISPLAY_MODE.FOCUS);
-    setGranularity("day");
-    setDateFilter("this_week");
-    setDate(weekStart.clone());
+    applyCalendarSelection(
+      { setCalendarSelection },
+      { date: weekStart, dateFilter: "this_week", granularity: "day" },
+    );
   };
 
   const handleSelectYear = () => {
@@ -129,9 +123,10 @@ export function useMiniCalendar() {
     }
 
     // 表示スケールは維持し、年の範囲だけを切り替える。
-    setDisplayMode(DISPLAY_MODE.FOCUS);
-    setDateFilter(DATE_FILTER_IDS.THIS_YEAR);
-    setDate(viewDate.clone());
+    applyCalendarSelection(
+      { setCalendarSelection },
+      { date: viewDate, dateFilter: DATE_FILTER_IDS.THIS_YEAR },
+    );
   };
 
   const handleSelectMonth = () => {
@@ -145,9 +140,10 @@ export function useMiniCalendar() {
     }
 
     // 表示スケールは維持し、月の範囲だけを切り替える。
-    setDisplayMode(DISPLAY_MODE.FOCUS);
-    setDateFilter(DATE_FILTER_IDS.THIS_MONTH);
-    setDate(viewDate.clone());
+    applyCalendarSelection(
+      { setCalendarSelection },
+      { date: viewDate, dateFilter: DATE_FILTER_IDS.THIS_MONTH },
+    );
   };
 
   const activityDates = useMemo(() => {
@@ -180,8 +176,5 @@ export function useMiniCalendar() {
     handleSelectYear,
     handleSelectMonth,
     handleClickHome,
-    setDate,
-    setGranularity,
-    setDateFilter,
   };
 }

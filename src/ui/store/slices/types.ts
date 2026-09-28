@@ -62,6 +62,11 @@ export interface NavigationSlice {
   setActiveTag: (tag: string | null) => void;
   setFixedSessionNumber: (sessionNumber: number) => void;
   setGranularity: (g: Granularity) => void;
+  setCalendarSelection: (selection: {
+    date: moment.Moment;
+    dateFilter: DateFilter;
+    granularity?: Granularity;
+  }) => void;
   setDate: (d: MomentLike) => void;
   setTimeFilter: (f: TimeFilter) => void;
   setDateFilter: (f: DateFilter) => void;

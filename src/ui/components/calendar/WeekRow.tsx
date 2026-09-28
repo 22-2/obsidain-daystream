@@ -1,5 +1,10 @@
 import type React from "react";
 import { DayCell } from "src/ui/components/calendar/DayCell";
+import {
+  isCalendarDateSelected,
+  isCalendarDaySelected,
+  isCalendarWeekSelected,
+} from "src/ui/components/calendar/selection";
 import type { WeekRowProps } from "src/ui/components/calendar/types";
 import { Box } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
@@ -18,10 +23,9 @@ export const WeekRow: React.FC<WeekRowProps> = ({
   onSelectWeek,
   onClickHome,
 }) => {
-  const isWeekSelected =
-    (granularity === "week" || (granularity === "day" && dateFilter === "this_week")) &&
-    week[0].isSame(date, "isoWeek");
-  const isSingleDaySelected = granularity === "day" && dateFilter === "today";
+  const selectionState = { date, granularity: granularity as Granularity, dateFilter };
+  const isWeekSelected = isCalendarWeekSelected(selectionState, week[0]);
+  const isSingleDaySelected = isCalendarDaySelected(selectionState);
 
   const showRangeHighlight =
     GRANULARITY_CONFIG[granularity as Granularity].showCalendarRangeHighlight;
@@ -52,7 +56,7 @@ export const WeekRow: React.FC<WeekRowProps> = ({
         <DayCell
           key={day.format("YYYY-MM-DD")}
           day={day}
-          isSelectedDay={day.isSame(date, "day")}
+          isSelectedDay={isCalendarDateSelected(selectionState, day)}
           isInSelectedRange={day.isBetween(rangeStart, rangeEnd, "day", "[]")}
           isCurrentMonth={day.isSame(viewDate, "month")}
           hasPost={activityDates.has(day.format("YYYY-MM-DD"))}

@@ -115,6 +115,37 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     });
   },
 
+  setCalendarSelection: ({ date, dateFilter, granularity }) => {
+    const current = get();
+    const nextGranularity = granularity ?? current.granularity;
+    const nextDate = date.clone();
+
+    // 意図: 日付ナビゲーターの選択は関連状態を一度に保存し、中間状態の表示と多重保存を避ける。
+    set({
+      date: nextDate,
+      dateFilter,
+      granularity: nextGranularity,
+      displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
+      threadFocusRootId: null,
+    });
+    const state = get();
+    persistNavigationState(state, {
+      date: nextDate,
+      dateFilter,
+      granularity: nextGranularity,
+      displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
+      threadFocusRootId: null,
+    });
+
+    state.reloadInputAreaSize();
+  },
+
   setDate: (date) => {
     set({ date, threadFocusRootId: null });
     const state = get();
