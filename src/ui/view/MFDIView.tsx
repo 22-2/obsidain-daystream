@@ -3,7 +3,7 @@ import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
-import type { Settings } from "src/settings";
+import type { EditorExpansionMode, Settings } from "src/settings";
 import { ObsidianAppShell } from "src/shell/obsidian-shell";
 import { ReactView } from "src/ui/components/layout/ReactView";
 import { addMFDIPaneMenuItems } from "src/ui/menus/mfdiPaneMenu";
@@ -33,7 +33,11 @@ export class MFDIView extends ItemView {
   public navigation = false;
   public readonly actionDelegates: MFDIViewDelegates = {};
 
-  constructor(leaf: WorkspaceLeaf, settings: Settings) {
+  constructor(
+    leaf: WorkspaceLeaf,
+    settings: Settings,
+    private readonly persistEditorExpansionMode?: (mode: EditorExpansionMode) => Promise<void>,
+  ) {
     super(leaf);
     this.settings = settings;
     this.fixedNoteTitle = new MFDIFixedNoteTitle(
@@ -143,6 +147,13 @@ export class MFDIView extends ItemView {
   updateSettings(settings: Settings): void {
     this.settings = settings;
     this.updateView();
+  }
+
+  async setEditorExpansionMode(mode: EditorExpansionMode): Promise<void> {
+    // 意図: 設定変更はビューからプラグインへ渡し、保存処理を Obsidian の Plugin API 側に集約する。
+    this.settings = { ...this.settings, editorExpansionMode: mode };
+    this.updateView();
+    await this.persistEditorExpansionMode?.(mode);
   }
 
   /** React 側で一時的にビューアクションを差し替えた後に再描画する。 */

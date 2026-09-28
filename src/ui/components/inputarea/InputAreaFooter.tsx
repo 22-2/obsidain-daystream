@@ -1,23 +1,33 @@
 import { Menu } from "obsidian";
 import { memo, useCallback, type FC, type MouseEvent } from "react";
 import { IconButton } from "src/ui/components/common/IconButton";
+import {
+  isEditorAlreadyInSeparateWindow,
+  showEditorContextMenu,
+} from "src/ui/components/inputarea/editorContextMenu";
 import { FULL_EXPANSION_STYLE } from "src/ui/components/inputarea/constants";
 import { InputAreaFooterBase } from "src/ui/components/inputarea/InputAreaFooterBase";
 import { InputAreaMetadataActions } from "src/ui/components/inputarea/InputAreaMetadataActions";
 import { cn } from "src/ui/components/primitives/utils";
 import { INPUT_AREA_SIZE } from "src/ui/config/consntants";
+import { useAppContext } from "src/ui/context/AppContext";
+import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { usePosts } from "src/ui/hooks/usePosts";
-import { useAppStore } from "src/ui/store/appStore";
+import { useAppStore, useRequiredAppStore } from "src/ui/store/appStore";
 import { useEditorStore } from "src/ui/store/editorStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
+import type { MFDIView } from "src/ui/view/MFDIView";
 import { useShallow } from "zustand/shallow";
 
 export const InputAreaFooter: FC<{
   onToggleExpand: () => void;
   onOpenInNewWindow: () => void;
 }> = memo(({ onToggleExpand, onOpenInNewWindow }) => {
+  const { settings } = useAppContext();
+  const component = useObsidianComponent() as MFDIView;
+  const store = useRequiredAppStore();
   const { posts } = usePosts();
 
   const { isReadOnly, inputAreaSize, editorExpansionMode } = useSettingsStore(
@@ -106,15 +116,16 @@ export const InputAreaFooter: FC<{
             : "",
       )}
       onContextMenu={(event) => {
-        const menu = new Menu();
-        menu.addItem((item) => {
-          item.setTitle("別ウィンドウで開く");
-          item.setIcon("picture-in-picture-2");
-          item.onClick(() => {
-            onOpenInNewWindow();
-          });
+        showEditorContextMenu(event, {
+          editorExpansionMode: settings.editorExpansionMode,
+          hasEditorPopout: isEditorAlreadyInSeparateWindow(component),
+          onOpenInNewWindow,
+          onChangeEditorExpansionMode: (mode) => {
+            // 意図: 右クリックから変更した展開モードを設定画面や次回起動にも反映する。
+            store.getState().setPluginSettings({ ...settings, editorExpansionMode: mode });
+            void component.setEditorExpansionMode(mode);
+          },
         });
-        menu.showAtPosition({ x: event.clientX, y: event.clientY });
       }}
     />
   );

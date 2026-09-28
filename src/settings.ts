@@ -8,6 +8,7 @@ import type MFDIPlugin from "src/main";
 const logger = createLogger("settings");
 
 export type OpenInNewWindowMode = "disabled" | "always";
+export type EditorExpansionMode = "full" | "default";
 export type CtrlEnterSendMode = "collapsed_only" | "disabled";
 
 export interface Settings {
@@ -25,7 +26,7 @@ export interface Settings {
   fullScanIntervalHours?: number;
   // 「今何してる？」通知の間隔（分）。0 以下で無効。
   activityPromptIntervalMinutes?: number;
-  editorExpansionMode: "full" | "default";
+  editorExpansionMode: EditorExpansionMode;
   // 投稿の編集をポップアウトウィンドウで開くタイミング
   openInNewWindowMode: OpenInNewWindowMode;
   // 通常サイズの入力欄だけ Ctrl+Enter で投稿し、展開中は送信しない。

@@ -1,17 +1,23 @@
-import { Menu } from "obsidian";
 import { memo, useCallback, useMemo, type ChangeEvent, type FC } from "react";
 import { IconButton } from "src/ui/components/common/IconButton";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
+import {
+  isEditorAlreadyInSeparateWindow,
+  showEditorContextMenu,
+} from "src/ui/components/inputarea/editorContextMenu";
 import { Box, Flex, HStack, Input } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
 import { DISPLAY_MODE, INPUT_AREA_SIZE } from "src/ui/config/consntants";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
-import { useAppStore } from "src/ui/store/appStore";
+import { useAppContext } from "src/ui/context/AppContext";
+import { useObsidianComponent } from "src/ui/context/ComponentContext";
+import { useAppStore, useRequiredAppStore } from "src/ui/store/appStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { InputAreaSize } from "src/ui/types";
 import { isDefaultViewState } from "src/ui/utils/view-state";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
+import type { MFDIView } from "src/ui/view/MFDIView";
 import { useShallow } from "zustand/shallow";
 
 export const InputAreaControl: FC<{
@@ -20,6 +26,9 @@ export const InputAreaControl: FC<{
   onMaximizeToMaxHeight: () => void;
   onMinimize: () => void;
 }> = memo(({ isReadOnly, inputAreaSize, onMaximizeToMaxHeight, onMinimize }) => {
+  const { settings } = useAppContext();
+  const component = useObsidianComponent() as MFDIView;
+  const store = useRequiredAppStore();
   const isExpanded = inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
   const { viewNoteMode } = useAppStore(
     useShallow((s) => ({
@@ -172,15 +181,16 @@ export const InputAreaControl: FC<{
                 : "",
           )}
           onContextMenu={(e) => {
-            const menu = new Menu();
-            menu.addItem((item) => {
-              item.setTitle("別ウィンドウで開く");
-              item.setIcon("picture-in-picture-2");
-              item.onClick(() => {
-                onMinimize();
-              });
+            showEditorContextMenu(e, {
+              editorExpansionMode: settings.editorExpansionMode,
+              hasEditorPopout: isEditorAlreadyInSeparateWindow(component),
+              onOpenInNewWindow: onMinimize,
+              onChangeEditorExpansionMode: (mode) => {
+                // 意図: 右クリックから変更した展開モードを設定画面や次回起動にも反映する。
+                store.getState().setPluginSettings({ ...settings, editorExpansionMode: mode });
+                void component.setEditorExpansionMode(mode);
+              },
             });
-            menu.showAtPosition({ x: e.clientX, y: e.clientY });
           }}
         />
       </Box>

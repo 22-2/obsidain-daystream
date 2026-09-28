@@ -143,7 +143,11 @@ export default class MFDIPlugin extends Plugin {
       getMFDIInputSnapshot: () =>
         this.getActiveMFDIView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
       createMFDIView: (leaf) => {
-        const view = new MFDIView(leaf, this.settings);
+        const view = new MFDIView(leaf, this.settings, async (mode) => {
+          this.settings.editorExpansionMode = mode;
+          await this.saveSettings();
+          this.rerenderView();
+        });
         this.views.add(view);
         this.view = view;
         this.setupViewCallbacks(view);
