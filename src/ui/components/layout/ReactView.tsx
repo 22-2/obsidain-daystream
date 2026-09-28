@@ -152,9 +152,17 @@ const MFDIAppRoot: React.FC<{
 
   useEffect(() => {
     if (!isReadOnly && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus());
+      setTimeout(() => {
+        const input = inputRef.current;
+        const activeElement = component.containerEl.ownerDocument.activeElement;
+
+        // 意図: 年月日のドロップダウンを連続操作している間は、日付更新後も
+        // 投稿エディタへ自動フォーカスを移さず、現在のコントロールを維持する。
+        if (activeElement?.closest(".mfdi-hierarchical-date-input")) return;
+        input?.focus();
+      });
     }
-  }, [date, granularity, activeTopic, dateFilter, asTask, isReadOnly, inputRef]);
+  }, [component, date, granularity, activeTopic, dateFilter, asTask, isReadOnly, inputRef]);
 
   useEffect(() => {
     if (!currentDailyNote) return;
