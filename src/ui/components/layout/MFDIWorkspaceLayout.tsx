@@ -34,7 +34,7 @@ import { useShallow } from "zustand/shallow";
 export const MFDIWorkspaceLayout = () => {
   const { settings: pluginSettings } = useAppContext();
   const component = useObsidianComponent() as MFDIView;
-  const isCSSLoaded = useCSSLoaded();
+  const isCSSLoaded = useCSSLoaded(component.containerEl);
   const { viewNoteMode } = useAppStore(
     useShallow((s) => ({
       viewNoteMode: s.viewNoteMode,
