@@ -26,19 +26,24 @@ export function HierarchicalDateInput() {
     yearIsDirty.current = false;
   }, [date]);
 
-  const commitYear = () => {
-    if (!yearIsDirty.current) return;
+  const applyYear = (value: string): boolean => {
+    const year = Number(value);
+    if (!Number.isInteger(year) || year < 1 || year > 9999) return false;
 
     yearIsDirty.current = false;
-    if (!hasValidYear) {
-      setYearDraft(String(store.getState().date.year()));
-      return;
-    }
-
     const state = store.getState();
     // 意図: 年を変えた直後は年月日のうち年だけを指定した状態にし、古い月日を引き継がない。
-    state.setDate(state.date.clone().year(parsedYear).startOf("year"));
+    state.setDate(state.date.clone().year(year).startOf("year"));
     state.setGranularity("year");
+    return true;
+  };
+
+  const commitYear = () => {
+    if (!yearIsDirty.current) return;
+    if (!applyYear(yearDraft)) {
+      yearIsDirty.current = false;
+      setYearDraft(String(store.getState().date.year()));
+    }
   };
 
   const changeMonth = (value: string) => {
@@ -77,11 +82,17 @@ export function HierarchicalDateInput() {
         onBlur={commitYear}
         onClick={(event) => event.stopPropagation()}
         onChange={(event) => {
+          const nextYear = event.target.value;
           yearIsDirty.current = true;
-          setYearDraft(event.target.value);
+          setYearDraft(nextYear);
+          // 意図: 入力途中の数字では検索しない。4桁の年になった時点でフォーカスアウトを待たず反映する。
+          if (/^\d{4}$/.test(nextYear)) applyYear(nextYear);
         }}
         onKeyDown={(event) => {
-          if (event.key === "Enter") event.currentTarget.blur();
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commitYear();
+          }
         }}
       />
       <select

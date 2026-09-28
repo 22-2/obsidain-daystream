@@ -219,6 +219,26 @@ describe("useFocusPosts hook integration", () => {
     expect(mocked.loadFile).toHaveBeenCalled();
   });
 
+  it("月次ノート内に別の月の投稿があっても選択月だけを表示する", async () => {
+    mocked.settings.viewNoteMode = "periodic";
+    mocked.settings.granularity = "month";
+    mocked.settings.date = window.moment("2026-04-20T09:00:00.000Z");
+    mocked.settings.activeTopic = "";
+    mocked.loadFile.mockResolvedValue(
+      [
+        "## Thino",
+        "- 09:00:00 from-march [posted::2026-03-19T09:00:00.000Z]",
+        "- 09:01:00 from-april [posted::2026-04-19T09:01:00.000Z]",
+      ].join("/n"),
+    );
+
+    const { result } = renderHook(() => useFocusPosts(), { wrapper: swrWrapper });
+
+    await waitFor(() => {
+      expect(result.current.posts.map((post) => post.message)).toEqual(["from-april"]);
+    });
+  });
+
   it("year granularity は年次ノートの path の投稿だけを表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "year";

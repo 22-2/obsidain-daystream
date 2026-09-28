@@ -147,7 +147,11 @@ export const useFocusPosts = () => {
                 noteDate: timestamp.clone().startOf(granularity),
                 resolveTimestamp,
               });
-            });
+            })
+            // 意図: 月次・年次ノートに別期間の posted 日付が混在しても、選択期間外の投稿を表示しない。
+            .filter(
+              (post) => !post.timestamp.isBefore(startDate) && !post.timestamp.isAfter(endDate),
+            );
         } catch {
           console.error("Failed to load periodic note file:", periodicNoteFile.path);
           return [];
