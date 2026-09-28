@@ -33,7 +33,7 @@ import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/ui/view/s
 
 export default class MFDIPlugin extends Plugin {
   shell: ObsidianAppShell;
-  settings: Settings;
+  declare settings: Settings;
   view?: MFDIView;
   private readonly views = new Set<MFDIView>();
   private activityPromptScheduler: ActivityPromptNotificationScheduler | null = null;
