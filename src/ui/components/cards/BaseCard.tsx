@@ -39,15 +39,18 @@ export const CardContent: React.FC<BaseCardProps> = ({
       onDoubleClick={onDoubleClick}
     >
       {/* 時刻は本文の起点として見つけやすい位置に固定する。 */}
-      <HStack className="header px-[var(--size-4-1)] pb-[var(--size-2-2)] text-[var(--text-muted)] text-[80%] items-start justify-start">
+      <HStack className="header gap-2 px-[var(--size-4-1)] pb-[var(--size-2-2)] text-[var(--text-muted)] text-[80%] items-start justify-start">
         <Tag className="text-xs px-0 py-0.5 rounded-full bg-[var(--tag-bg)] text-[var(--tag-fg)]">
           {/* fixedノートは複数日が混在しうるので、時刻だけだと投稿の文脈を失う。 */}
           {timestamp.format(DISPLAY_DATE_TIME_FORMAT)}
         </Tag>
         {showGranularityBadge && (noteGranularity === "day" || noteGranularity === "month") && (
-          <Tag className="text-xs px-0 py-0.5 rounded-full bg-[var(--background-modifier-hover)] text-[var(--text-muted)]">
-            {noteGranularity === "day" ? "日" : "月"}
-          </Tag>
+          <span
+            aria-label={noteGranularity === "day" ? "日次ノート" : "月次ノート"}
+            className="mfdi-post-granularity-badge"
+          >
+            {noteGranularity === "day" ? "日次" : "月次"}
+          </span>
         )}
       </HStack>
 

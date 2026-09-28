@@ -371,6 +371,26 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 /* ==============================================
+   投稿元の粒度バッジ
+   ============================================== */
+
+[data-type="mfdi-view"] .mfdi-post-granularity-badge {
+  /* 意図: 日付との境界と投稿元を、暗いテーマでも一目で区別できるようにする。 */
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 2px 7px;
+  border: 1px solid color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-primary));
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ==============================================
    カードハイライト
    ============================================== */
 
