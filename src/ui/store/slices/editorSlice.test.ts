@@ -2,7 +2,11 @@ import type { MFDIStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/settings";
 import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/ui/config/consntants";
 import { createAppStore } from "src/ui/store/appStore";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
+import {
+  getDraftMetadataStorageKey,
+  getInputAreaSizeStorageKey,
+  getInputStorageKey,
+} from "src/ui/store/slices/inputStorage";
 import type { Post } from "src/ui/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -196,14 +200,55 @@ describe("editorSlice", () => {
     expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
   });
 
-  it("下書きがない場合は日付更新先の展開状態を復元する", () => {
+  it("月を往復しても以前の最大化が勝手に復元されない", () => {
     const store = createAppStore();
     const { storage } = createMockStorage();
-    store.setState({ storage, inputAreaSize: INPUT_AREA_SIZE.MAXIMIZED });
+    const august = window.moment("2026-08-01");
+    store.setState({ storage, granularity: "month", date: august.clone() });
+    store.getState().setInputAreaSize(INPUT_AREA_SIZE.MAXIMIZED);
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.MAXIMIZED);
 
-    store.getState().setDate(store.getState().date.clone().add(1, "day"));
-
+    store.getState().setDate(august.clone().add(1, "month"));
     expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+
+    store.getState().setDate(august.clone());
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+  });
+
+  it.each(["periodic", "fixed"] as const)(
+    "%s の旧最大化状態は初期化時と再訪時に復元しない",
+    (noteMode) => {
+      const store = createAppStore();
+      const date = window.moment("2026-08-01");
+      const file = noteMode === "fixed" ? "MFDI/a.mfdi.md" : null;
+      const { storage } = createMockStorage({
+        [STORAGE_KEYS.GRANULARITY]: "month",
+        [STORAGE_KEYS.DATE]: date.toISOString(),
+        [getInputAreaSizeStorageKey(noteMode, file, "month", date.format("YYYY-MM-DD"))]:
+          INPUT_AREA_SIZE.MAXIMIZED,
+      });
+      store.setState({ pluginSettings: DEFAULT_SETTINGS, storage, viewNoteMode: noteMode, file });
+
+      store.getState().hydrateSettingsState();
+      expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+
+      store.getState().setDate(date.clone().add(1, "month"));
+      store.getState().setDate(date.clone());
+      expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+    },
+  );
+
+  it("最大化を一時状態にしても日付ごとの最小化は復元する", () => {
+    const store = createAppStore();
+    const { storage } = createMockStorage();
+    const date = window.moment("2026-08-01");
+    store.setState({ storage, granularity: "month", date: date.clone() });
+    store.getState().setInputAreaSize(INPUT_AREA_SIZE.MINIMIZED);
+
+    store.getState().setDate(date.clone().add(1, "month"));
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+    store.getState().setDate(date.clone());
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.MINIMIZED);
   });
 
   it("minimized の入力欄は投稿の編集開始時に表示できるサイズへ戻す", () => {

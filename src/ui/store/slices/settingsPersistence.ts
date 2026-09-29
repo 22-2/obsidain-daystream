@@ -86,6 +86,7 @@ type InputAreaPersistenceState = Pick<
 >;
 
 export function persistInputAreaSize(state: InputAreaPersistenceState, size: InputAreaSize): void {
+  // 意図: 最大化は現在の作業中だけの状態とし、日付やノートを再訪したときに勝手に展開しない。
   state.storage?.set(
     getInputAreaSizeStorageKey(
       state.viewNoteMode,
@@ -93,12 +94,12 @@ export function persistInputAreaSize(state: InputAreaPersistenceState, size: Inp
       state.granularity,
       state.date.format("YYYY-MM-DD"),
     ),
-    size,
+    size === INPUT_AREA_SIZE.MAXIMIZED ? INPUT_AREA_SIZE.DEFAULT : size,
   );
 }
 
 export function restoreInputAreaSize(state: InputAreaPersistenceState): InputAreaSize {
-  return (
+  const savedSize =
     state.storage?.get<InputAreaSize>(
       getInputAreaSizeStorageKey(
         state.viewNoteMode,
@@ -107,8 +108,9 @@ export function restoreInputAreaSize(state: InputAreaPersistenceState): InputAre
         state.date.format("YYYY-MM-DD"),
       ),
       INPUT_AREA_SIZE.DEFAULT,
-    ) ?? INPUT_AREA_SIZE.DEFAULT
-  );
+    ) ?? INPUT_AREA_SIZE.DEFAULT;
+  // 意図: 旧バージョンが保存した最大化も通常サイズとして扱い、再起動・再訪で復活させない。
+  return savedSize === INPUT_AREA_SIZE.MAXIMIZED ? INPUT_AREA_SIZE.DEFAULT : savedSize;
 }
 
 export interface FixedSessionPersistenceState {
@@ -238,10 +240,12 @@ export function resolveInitialSettingsState(
     searchQuery: "",
     searchInputOpen: false,
     threadFocusRootId: storage?.get<string | null>(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, null) ?? null,
-    inputAreaSize:
-      storage?.get<InputAreaSize>(
-        getInputAreaSizeStorageKey(viewNoteMode, file, granularity, validDate.format("YYYY-MM-DD")),
-        INPUT_AREA_SIZE.DEFAULT,
-      ) ?? INPUT_AREA_SIZE.DEFAULT,
+    inputAreaSize: restoreInputAreaSize({
+      storage,
+      viewNoteMode,
+      file,
+      granularity,
+      date: validDate,
+    }),
   };
 }
