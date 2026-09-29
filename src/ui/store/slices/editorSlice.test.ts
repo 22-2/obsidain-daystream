@@ -182,6 +182,30 @@ describe("editorSlice", () => {
     expect(store.getState().editingPost?.id).toBe(post.id);
   });
 
+  it("日付更新でも執筆中の最大化を維持し、手動では解除できる", () => {
+    const store = createAppStore();
+    const { storage } = createMockStorage();
+    store.setState({ storage, inputAreaSize: INPUT_AREA_SIZE.MAXIMIZED });
+    store.getState().replaceInput("writing a draft");
+
+    store.getState().setDate(store.getState().date.clone().add(1, "day"));
+
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.MAXIMIZED);
+    expect(store.getState().getInputValue()).toBe("writing a draft");
+    store.getState().setInputAreaSize(INPUT_AREA_SIZE.DEFAULT);
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+  });
+
+  it("下書きがない場合は日付更新先の展開状態を復元する", () => {
+    const store = createAppStore();
+    const { storage } = createMockStorage();
+    store.setState({ storage, inputAreaSize: INPUT_AREA_SIZE.MAXIMIZED });
+
+    store.getState().setDate(store.getState().date.clone().add(1, "day"));
+
+    expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.DEFAULT);
+  });
+
   it("minimized の入力欄は投稿の編集開始時に表示できるサイズへ戻す", () => {
     const store = createAppStore();
     const post = buildPostFixture("editing post");

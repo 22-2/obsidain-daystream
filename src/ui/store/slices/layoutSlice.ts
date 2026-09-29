@@ -26,6 +26,14 @@ export const createLayoutSlice: StateCreator<MFDIStore, [], [], LayoutSlice> = (
   reloadInputAreaSize: () => {
     const state = get();
     if (!state.storage) return;
+    // 意図: 日付の自動更新などで保存済みサイズを読み直しても、
+    // 執筆中・投稿編集中の最大化を解除して作業領域を縮めない。
+    if (
+      state.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED &&
+      (state.getInputValue().length > 0 || state.editingPost !== null)
+    ) {
+      return;
+    }
     set({ inputAreaSize: restoreInputAreaSize(state) });
   },
 
