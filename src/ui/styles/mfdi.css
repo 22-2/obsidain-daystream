@@ -272,6 +272,20 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   font-variant-numeric: tabular-nums;
 }
 
+/* 意図: select 本体だけでなくネイティブの選択肢にもテーマを渡し、暗い画面で明るい背景に薄い文字が出るのを防ぐ。 */
+.theme-dark [data-type="mfdi-view"] select.mfdi-date-input {
+  color-scheme: dark;
+}
+
+.theme-light [data-type="mfdi-view"] select.mfdi-date-input {
+  color-scheme: light;
+}
+
+[data-type="mfdi-view"] select.mfdi-date-input option {
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+}
+
 @media (hover: hover) {
   [data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]):hover {
     background-color: var(--background-modifier-form-field-hover);
