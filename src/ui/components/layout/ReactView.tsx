@@ -156,9 +156,11 @@ const MFDIAppRoot: React.FC<{
         const input = inputRef.current;
         const activeElement = component.containerEl.ownerDocument.activeElement;
 
-        // 意図: 年月日のドロップダウンを連続操作している間は、日付更新後も
-        // 投稿エディタへ自動フォーカスを移さず、現在のコントロールを維持する。
-        if (activeElement?.closest(".mfdi-hierarchical-date-input")) return;
+        // 意図: 日付操作中や検索を閉じて入口へ戻った直後は、状態復元に伴う
+        // 投稿エディタの自動フォーカスで、現在のコントロールから操作を奪わない。
+        if (activeElement?.closest(
+          ".mfdi-hierarchical-date-input, .mfdi-main-navigation, .mfdi-search-controls",
+        )) return;
         input?.focus();
       });
     }
