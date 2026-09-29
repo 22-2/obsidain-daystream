@@ -4,8 +4,10 @@ import { expect, test } from "obsidian-e2e-toolkit";
 test.use({ vaultOptions: { fresh: true, plugins: [{ path: path.resolve("dist") }] } });
 
 // 意図: 検索入口の常設と閉じた後の復帰を、実際の Obsidian レンダラーでも保証する。
-test("全体検索をどのタブからでも開き、元の表示へ戻せる", async ({ obsidian, page }, testInfo) => {
+test("全体検索をどのタブからでも開き、元の表示へ戻せる", async ({ obsidian }, testInfo) => {
   await obsidian.waitReady();
+  // 意図: Playwright の page fixture は別ページを指し得るため、Obsidian のレンダラーを使う。
+  const page = obsidian.page;
   await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
   await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
   await obsidian.waitForViewType("mfdi-view");
