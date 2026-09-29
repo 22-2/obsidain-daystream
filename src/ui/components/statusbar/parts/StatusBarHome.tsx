@@ -55,8 +55,8 @@ export const StatusBarHome: FC = () => {
       size="16px"
       onActivate={handleClickHome}
       className={cn(
-        "absolute left-2 top-2 z-10 h-6 w-6 shrink-0 p-0",
-        !isViewDefault && "text-[var(--text-accent)] hover:text-[var(--text-normal)]",
+        "mfdi-home-action size-6 shrink-0 p-0",
+        !isViewDefault && "mfdi-home-action--active",
       )}
     />
   );

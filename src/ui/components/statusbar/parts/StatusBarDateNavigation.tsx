@@ -4,6 +4,7 @@ import { NavButton } from "src/ui/components/common/NavButton";
 import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
 import { HStack, Input } from "src/ui/components/primitives";
 import { HierarchicalDateInput } from "src/ui/components/statusbar/parts/HierarchicalDateInput";
+import { StatusBarHome } from "src/ui/components/statusbar/parts/StatusBarHome";
 import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
 import { useAppStore } from "src/ui/store/appStore";
@@ -75,6 +76,8 @@ export const StatusBarDateNavigation: FC = () => {
 
   return (
     <HStack className="mfdi-statusbar-date-bar flex-none gap-1">
+      {/* 意図: ホームも日付操作と同じ並びに置き、背景のないバーで単独に浮いて見えるのを防ぐ。 */}
+      <StatusBarHome />
       {isStatusIndicatorVisible ? (
         <DisplayModeIndicator
           displayMode={displayMode}
