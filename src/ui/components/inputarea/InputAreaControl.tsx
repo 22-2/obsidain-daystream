@@ -15,7 +15,7 @@ import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useAppStore, useRequiredAppStore } from "src/ui/store/appStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import type { InputAreaSize } from "src/ui/types";
-import { isDefaultViewState } from "src/ui/utils/view-state";
+import { isHomeViewState } from "src/ui/utils/view-state";
 import { getMFDIViewCapabilities } from "src/ui/view/state";
 import type { MFDIView } from "src/ui/view/MFDIView";
 import { useShallow } from "zustand/shallow";
@@ -47,6 +47,7 @@ export const InputAreaControl: FC<{
     handleClickHome,
     handleChangeCalendarDateAction,
     displayMode,
+    mainView,
     activeTag,
     searchQuery,
     searchInputOpen,
@@ -62,6 +63,7 @@ export const InputAreaControl: FC<{
       handleClickHome: s.handleClickHome,
       handleChangeCalendarDateAction: s.handleChangeCalendarDate,
       displayMode: s.displayMode,
+      mainView: s.mainView,
       activeTag: s.activeTag,
       searchQuery: s.searchQuery,
       searchInputOpen: s.searchInputOpen,
@@ -80,7 +82,9 @@ export const InputAreaControl: FC<{
     })),
   );
 
-  const isViewDefault = isDefaultViewState({
+  const isViewDefault = isHomeViewState({
+    date,
+    mainView,
     displayMode,
     granularity,
     dateFilter,
@@ -125,6 +129,7 @@ export const InputAreaControl: FC<{
         <IconButton
           name="home"
           ariaLabel="ホーム"
+          title="今月に戻る"
           size="1.7em"
           onActivate={handleClickHome}
           className={cn(

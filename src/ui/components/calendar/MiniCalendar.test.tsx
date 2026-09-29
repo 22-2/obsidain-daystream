@@ -139,15 +139,15 @@ describe("MiniCalendar", () => {
 
     // 同じ年の再クリックは「絞り込み解除」の意図としてHomeへ戻す。
     fireEvent.click(getByText("2026年"));
-    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().granularity).toBe("month");
     expect(settingsStore.getState().dateFilter).toBe("today");
 
     fireEvent.click(getByText("3月"));
-    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().granularity).toBe("month");
     expect(settingsStore.getState().dateFilter).toBe("this_month");
 
     fireEvent.click(getByText("3月"));
-    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().granularity).toBe("month");
     expect(settingsStore.getState().dateFilter).toBe("today");
   });
 
@@ -168,7 +168,7 @@ describe("MiniCalendar", () => {
     expect(selectedWeekButton).toBeTruthy();
     fireEvent.click(selectedWeekButton as HTMLElement);
 
-    expect(settingsStore.getState().granularity).toBe("day");
+    expect(settingsStore.getState().granularity).toBe("month");
     expect(settingsStore.getState().dateFilter).toBe("today");
   });
 });

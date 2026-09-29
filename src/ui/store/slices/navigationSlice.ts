@@ -304,7 +304,8 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   },
 
   handleClickHome: () => {
-    const now = window.moment();
+    // 意図: Home は今日の単日表示ではなく、クリックした時点の今月全体へ戻す。月をまたいだ起動中も再計算する。
+    const homeDate = window.moment().startOf("month");
     const currentMainView = get().mainView;
     const mainViewCompatibility = resolveMainViewCompatibilityState(
       currentMainView,
@@ -316,8 +317,8 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     set({
       ...mainViewCompatibility,
       mainView: currentMainView,
-      date: now,
-      granularity: DEFAULT_VIEW_STATE.granularity,
+      date: homeDate,
+      granularity: "month",
       dateFilter: DEFAULT_VIEW_STATE.dateFilter,
       timeFilter: DEFAULT_VIEW_STATE.timeFilter,
       activeTag: DEFAULT_VIEW_STATE.activeTag,
@@ -328,11 +329,11 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       displayMode: mainViewCompatibility.displayMode,
       contentView: mainViewCompatibility.contentView,
       mainView: currentMainView,
-      granularity: DEFAULT_VIEW_STATE.granularity,
+      granularity: "month",
       dateFilter: DEFAULT_VIEW_STATE.dateFilter,
       timeFilter: DEFAULT_VIEW_STATE.timeFilter,
       asTask: mainViewCompatibility.asTask,
-      date: now,
+      date: homeDate,
       threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
       activeTag: DEFAULT_VIEW_STATE.activeTag,
     });

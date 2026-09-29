@@ -102,7 +102,7 @@ describe("settingsSlice", () => {
     expect(state.date.isSame(yesterday, "day")).toBe(true);
   });
 
-  it("日付ビューの home で日付状態だけを初期化し、他タブの検索条件を維持する", () => {
+  it("日付ビューの home で今月へ戻り、他タブの検索条件を維持する", () => {
     settingsStore.setState((state) => ({
       ...state,
       date: yesterday.clone(),
@@ -125,12 +125,24 @@ describe("settingsSlice", () => {
     expect(state.threadOnly).toBe(true);
     expect(state.activeTag).toBeNull();
     expect(state.threadFocusRootId).toBeNull();
-    expect(state.granularity).toBe("day");
+    expect(state.granularity).toBe("month");
     expect(state.dateFilter).toBe("today");
     expect(state.timeFilter).toBe("all");
-    expect(state.date.isSame(today, "day")).toBe(true);
+    expect(state.date.isSame(today.clone().startOf("month"))).toBe(true);
     expect(state.displayMode).toBe(DISPLAY_MODE.FOCUS);
     expect(state.mainView).toBe(MAIN_VIEW.DATE);
+  });
+
+  it("起動後に月が変わっても、home を押した時点の今月へ戻る", () => {
+    settingsStore.getState().handleClickHome();
+    expect(settingsStore.getState().date.format("YYYY-MM-DD")).toBe("2026-03-01");
+
+    const nextMonth = today.clone().add(1, "month");
+    vi.setSystemTime(nextMonth.toDate());
+    settingsStore.getState().handleClickHome();
+
+    expect(settingsStore.getState().date.format("YYYY-MM-DD")).toBe("2026-04-01");
+    expect(settingsStore.getState().granularity).toBe("month");
   });
 
   it("初期表示モードはタイムライン", () => {

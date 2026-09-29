@@ -20,7 +20,10 @@ type ResettableViewState = Pick<
 
 type CenterIndicatorState = Pick<SettingsSlice, "displayMode" | "threadFocusRootId" | "activeTag">;
 
-export function isDefaultViewState(state: ResettableViewState): boolean {
+export function isDefaultViewState(
+  state: ResettableViewState,
+  defaultGranularity: SettingsSlice["granularity"] = DEFAULT_VIEW_STATE.granularity,
+): boolean {
   const defaultDisplayMode =
     state.mainView === MAIN_VIEW.DATE ? DISPLAY_MODE.FOCUS : DEFAULT_VIEW_STATE.displayMode;
   const searchStateIsActive =
@@ -28,7 +31,7 @@ export function isDefaultViewState(state: ResettableViewState): boolean {
 
   return (
     state.displayMode === defaultDisplayMode &&
-    state.granularity === DEFAULT_VIEW_STATE.granularity &&
+    state.granularity === defaultGranularity &&
     state.dateFilter === DEFAULT_VIEW_STATE.dateFilter &&
     state.timeFilter === DEFAULT_VIEW_STATE.timeFilter &&
     state.asTask === DEFAULT_VIEW_STATE.asTask &&
@@ -38,6 +41,14 @@ export function isDefaultViewState(state: ResettableViewState): boolean {
     // 別タブに保持した検索語だけで日付ビューの Home を非 default 扱いにしない。
     (!searchStateIsActive || state.searchQuery === "")
   );
+}
+
+export function isHomeViewState(
+  state: ResettableViewState & Pick<SettingsSlice, "date">,
+  now = window.moment(),
+): boolean {
+  // 意図: 表示条件だけでなく日付も Home の戻り先と比較し、別の月へ移動したときに色を切り替える。
+  return isDefaultViewState(state, "month") && state.date.isSame(now, "month");
 }
 
 export function getCenterIndicatorLabel(state: CenterIndicatorState): string {

@@ -580,11 +580,9 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    ============================================== */
 
 [data-type="mfdi-view"] .mfdi-home-action--active {
-  color: var(--text-accent);
-}
-
-[data-type="mfdi-view"] .mfdi-home-action--active:hover {
-  color: var(--text-normal);
+  /* 意図: 共通アイコンの important な色指定を上書きするのではなく、参照する変数を状態に応じて切り替える。 */
+  --icon-color: var(--text-accent);
+  --icon-color-hover: var(--text-normal);
 }
 
 [data-type="mfdi-view"] .mfdi-statusbar-controls {
