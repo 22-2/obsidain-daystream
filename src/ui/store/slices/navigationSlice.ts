@@ -29,6 +29,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
   contentView: CONTENT_VIEW.TIMELINE as ContentView,
   mainView: MAIN_VIEW.TIMELINE as MainView,
+  searchReturnState: null,
   asTask: false,
   threadOnly: false,
   threadFocusRootId: null,
@@ -216,6 +217,25 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     // 意図: 表示の第一階層を一度に遷移させ、複数 boolean の組み合わせによる不整合を防ぐ。
     const patch = {
       mainView,
+      // 意図: 検索は一時的なパネルとして開き、再フォーカスしても元のタブ・スレッドを上書きしない。
+      searchReturnState:
+        mainView === MAIN_VIEW.SEARCH
+          ? state.mainView === MAIN_VIEW.SEARCH
+            ? state.searchReturnState
+            : {
+                mainView: state.mainView,
+                contentView: state.contentView,
+                displayMode: state.displayMode,
+                asTask: state.asTask,
+                threadFocusRootId: state.threadFocusRootId,
+                // 意図: 検索中の日付自動更新や絞り込み変更を、戻り先の日付表示へ持ち込まない。
+                date: state.date.clone(),
+                granularity: state.granularity,
+                dateFilter: state.dateFilter,
+                timeFilter: state.timeFilter,
+                activeTag: state.activeTag,
+              }
+          : null,
       ...resolveMainViewCompatibilityState(mainView, state.displayMode),
       searchInputOpen: mainView === MAIN_VIEW.SEARCH,
       threadFocusRootId: null,
@@ -230,6 +250,19 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     });
   },
 
+  closeSearch: () => {
+    const state = get();
+    if (state.mainView !== MAIN_VIEW.SEARCH) return;
+    // 意図: 旧保存状態から検索を復元した場合は戻り先がないため、タイムラインへ戻す。
+    const restored = state.searchReturnState ?? {
+      mainView: MAIN_VIEW.TIMELINE,
+      ...resolveMainViewCompatibilityState(MAIN_VIEW.TIMELINE),
+      threadFocusRootId: null,
+    };
+    set({ ...restored, searchInputOpen: false, searchReturnState: null });
+    persistNavigationState(get(), restored);
+  },
+
   setAsTask: (asTask: boolean) => {
     const state = get();
     const mainView = asTask
@@ -238,7 +271,11 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
         ? MAIN_VIEW.DATE
         : MAIN_VIEW.TIMELINE;
     set({ asTask, contentView: CONTENT_VIEW.TIMELINE, mainView });
-    persistNavigationState(get(), { asTask, contentView: CONTENT_VIEW.TIMELINE, mainView });
+    persistNavigationState(get(), {
+      asTask,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView,
+    });
   },
 
   setThreadOnly: (threadOnly: boolean) => {

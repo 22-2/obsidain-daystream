@@ -37,6 +37,7 @@ describe("settingsSlice", () => {
       displayMode: DISPLAY_MODE.FOCUS,
       mainView: MAIN_VIEW.DATE,
       threadFocusRootId: null,
+      searchReturnState: null,
     });
   });
 
@@ -170,6 +171,61 @@ describe("settingsSlice", () => {
       mainView: MAIN_VIEW.INSIGHTS,
       contentView: CONTENT_VIEW.INSIGHTS,
       asTask: false,
+    });
+  });
+
+  it.each([MAIN_VIEW.TIMELINE, MAIN_VIEW.DATE, MAIN_VIEW.TASKS, MAIN_VIEW.INSIGHTS])(
+    "%s から検索を開いて閉じると元の表示条件へ戻る",
+    (mainView) => {
+      settingsStore.getState().setMainView(mainView);
+      settingsStore.setState({
+        threadFocusRootId: "root-1",
+        displayMode: DISPLAY_MODE.FOCUS,
+      });
+      const before = settingsStore.getState();
+      settingsStore.getState().setMainView(MAIN_VIEW.SEARCH);
+      // Ctrl+F の再実行でも最初の戻り先を維持する。
+      settingsStore.getState().setMainView(MAIN_VIEW.SEARCH);
+      settingsStore.getState().setSearchQuery("wanted");
+      settingsStore.getState().setDate(yesterday);
+      settingsStore.getState().closeSearch();
+      expect(settingsStore.getState()).toMatchObject({
+        mainView,
+        displayMode: before.displayMode,
+        contentView: before.contentView,
+        asTask: before.asTask,
+        threadFocusRootId: "root-1",
+        searchInputOpen: false,
+        searchReturnState: null,
+        searchQuery: "wanted",
+        granularity: before.granularity,
+        dateFilter: before.dateFilter,
+        timeFilter: before.timeFilter,
+        activeTag: before.activeTag,
+      });
+      expect(settingsStore.getState().date.isSame(before.date)).toBe(true);
+    },
+  );
+
+  it("検索中に別タブを選ぶと、古い戻り先で上書きしない", () => {
+    settingsStore.getState().setMainView(MAIN_VIEW.SEARCH);
+    settingsStore.getState().setMainView(MAIN_VIEW.TASKS);
+    settingsStore.getState().closeSearch();
+    expect(settingsStore.getState()).toMatchObject({
+      mainView: MAIN_VIEW.TASKS,
+      searchReturnState: null,
+    });
+  });
+
+  it("検索の旧保存状態に戻り先がなければタイムラインへ戻る", () => {
+    settingsStore.setState({
+      mainView: MAIN_VIEW.SEARCH,
+      searchReturnState: null,
+    });
+    settingsStore.getState().closeSearch();
+    expect(settingsStore.getState()).toMatchObject({
+      mainView: MAIN_VIEW.TIMELINE,
+      searchInputOpen: false,
     });
   });
 

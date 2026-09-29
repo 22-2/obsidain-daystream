@@ -11,10 +11,24 @@ const TABS: Array<{
   periodicOnly?: boolean;
 }> = [
   { value: MAIN_VIEW.TIMELINE, label: "タイムライン", icon: "list" },
-  { value: MAIN_VIEW.DATE, label: "日付", icon: "calendar-days", periodicOnly: true },
-  { value: MAIN_VIEW.SEARCH, label: "検索", icon: "search" },
-  { value: MAIN_VIEW.TASKS, label: "タスク", icon: "list-checks", periodicOnly: true },
-  { value: MAIN_VIEW.INSIGHTS, label: "インサイト", icon: "book-open", periodicOnly: true },
+  {
+    value: MAIN_VIEW.DATE,
+    label: "日付",
+    icon: "calendar-days",
+    periodicOnly: true,
+  },
+  {
+    value: MAIN_VIEW.TASKS,
+    label: "タスク",
+    icon: "list-checks",
+    periodicOnly: true,
+  },
+  {
+    value: MAIN_VIEW.INSIGHTS,
+    label: "インサイト",
+    icon: "book-open",
+    periodicOnly: true,
+  },
 ];
 
 export const MainViewTabs: React.FC<{

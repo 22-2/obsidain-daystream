@@ -55,6 +55,19 @@ export interface NavigationSlice {
   displayMode: DisplayMode;
   contentView: ContentView;
   mainView: MainView;
+  searchReturnState: Pick<
+    NavigationSlice,
+    | "mainView"
+    | "contentView"
+    | "displayMode"
+    | "asTask"
+    | "threadFocusRootId"
+    | "date"
+    | "granularity"
+    | "dateFilter"
+    | "timeFilter"
+    | "activeTag"
+  > | null;
   asTask: boolean;
   threadOnly: boolean;
   threadFocusRootId: string | null;
@@ -73,6 +86,7 @@ export interface NavigationSlice {
   setDisplayMode: (m: DisplayMode) => void;
   setContentView: (view: ContentView) => void;
   setMainView: (view: MainView) => void;
+  closeSearch: () => void;
   setAsTask: (asTask: boolean) => void;
   setThreadOnly: (threadOnly: boolean) => void;
   setThreadFocusRootId: (rootId: string | null, focusDate?: MomentLike) => void;

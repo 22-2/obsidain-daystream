@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { EmptyState } from "src/ui/components/EmptyState";
 import { InputArea } from "src/ui/components/inputarea/InputArea";
 import { InsightView } from "src/ui/components/insights/InsightView";
@@ -58,7 +59,9 @@ export const MFDIWorkspaceLayout = () => {
       threadFocusRootId: s.threadFocusRootId,
       inputAreaSize: s.inputAreaSize,
       mainView: s.mainView,
+      searchReturnState: s.searchReturnState,
       setMainView: s.setMainView,
+      closeSearch: s.closeSearch,
       setSearchInputOpen: s.setSearchInputOpen,
       handleClickHome: s.handleClickHome,
     })),
@@ -115,7 +118,16 @@ export const MFDIWorkspaceLayout = () => {
     mainView,
     setMainView,
     setSearchInputOpen,
+    closeSearch,
   } = settings;
+  const searchPanelId = useId();
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const isSearchOpen = mainView === MAIN_VIEW.SEARCH;
+  const closeSearchPanel = useCallback(() => {
+    closeSearch();
+    // 意図: Esc と閉じるボタンで検索欄を外した後、常設の検索入口へキーボード操作を戻す。
+    searchButtonRef.current?.focus();
+  }, [closeSearch]);
 
   const [containerWidth, setContainerWidth] = useState(1000);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,17 +156,17 @@ export const MFDIWorkspaceLayout = () => {
   }, [mainView, scrollContainerRef]);
 
   useEffect(() => {
-    // 意図: 検索欄が未マウントの別タブでも Ctrl+F を受け、検索タブを開いてからフォーカスする。
+    // 意図: どのタブでも Ctrl+F から全体検索パネルを開き、入力欄へフォーカスする。
     component.actionDelegates.onSearchInputOpen = () => {
       setMainView(MAIN_VIEW.SEARCH);
       setSearchInputOpen(true);
     };
-    component.actionDelegates.onSearchInputClose = () => setSearchInputOpen(false);
+    component.actionDelegates.onSearchInputClose = closeSearchPanel;
     return () => {
       component.actionDelegates.onSearchInputOpen = undefined;
       component.actionDelegates.onSearchInputClose = undefined;
     };
-  }, [component, setMainView, setSearchInputOpen]);
+  }, [component, setMainView, setSearchInputOpen, closeSearchPanel]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -179,10 +191,8 @@ export const MFDIWorkspaceLayout = () => {
 
   const isEditorMaximized = settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
   // 意図: 最大化したエディタの作業領域を確保するため、左右のサイドバーを同時に閉じる。
-  const effectivelyLeftOpen =
-    leftPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
-  const effectivelyRightOpen =
-    rightPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
+  const effectivelyLeftOpen = leftPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
+  const effectivelyRightOpen = rightPanelOpen && capabilities.supportsSidebar && !isEditorMaximized;
 
   const isEmpty =
     !isTimelineView(settings.displayMode) &&
@@ -244,13 +254,37 @@ export const MFDIWorkspaceLayout = () => {
                 composer の開閉で一覧を置き換えない。 */}
             <InputArea />
             <div className="mfdi-main-toolbar">
-              <MainViewTabs
-                value={mainView}
-                noteMode={viewNoteMode}
-                onChange={setMainView}
-              />
-              {mainView === MAIN_VIEW.SEARCH ? (
-                <SearchControls />
+              {/* 意図: 全体検索の入口は表示切替のタブ枠から分離し、元のタブの選択を残す。 */}
+              <div className="mfdi-main-navigation">
+                <MainViewTabs
+                  value={
+                    isSearchOpen
+                      ? (settings.searchReturnState?.mainView ?? MAIN_VIEW.TIMELINE)
+                      : mainView
+                  }
+                  noteMode={viewNoteMode}
+                  onChange={setMainView}
+                />
+                <button
+                  ref={searchButtonRef}
+                  type="button"
+                  className={cn("mfdi-search-trigger", isSearchOpen && "is-active")}
+                  aria-label="全体検索"
+                  aria-expanded={isSearchOpen}
+                  aria-controls={isSearchOpen ? searchPanelId : undefined}
+                  title="全体検索 (Ctrl+F)"
+                  onClick={() =>
+                    isSearchOpen ? closeSearchPanel() : setMainView(MAIN_VIEW.SEARCH)
+                  }
+                >
+                  <ObsidianIcon name="search" size="16px" className="pointer-events-none size-4 p-0" />
+                  <span>検索</span>
+                </button>
+              </div>
+              {isSearchOpen ? (
+                <div id={searchPanelId}>
+                  <SearchControls onClose={closeSearchPanel} />
+                </div>
               ) : mainView === MAIN_VIEW.DATE ? (
                 <StatusBar />
               ) : null}
