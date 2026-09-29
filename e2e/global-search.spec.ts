@@ -4,24 +4,13 @@ import { expect, test } from "obsidian-e2e-toolkit";
 test.use({ vaultOptions: { fresh: true, plugins: [{ path: path.resolve("dist") }] } });
 
 // 意図: 検索入口の常設と閉じた後の復帰を、実際の Obsidian レンダラーでも保証する。
-test("全体検索をどのタブからでも開き、元の表示へ戻せる", async ({ obsidian }, testInfo) => {
+test("全体検索をどのタブからでも開き、元の表示へ戻せる", async ({ obsidian, page }, testInfo) => {
   await obsidian.waitReady();
-  // 意図: Playwright の page fixture は別ページを指し得るため、Obsidian のレンダラーを使う。
-  const page = obsidian.page;
   await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
   await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
   await obsidian.waitForViewType("mfdi-view");
   const view = page.locator('.workspace-leaf-content[data-type="mfdi-view"]');
-  // 意図: テスト用 vault では有効化済みでも CSS が未適用のことがあるため、
-  // Obsidian 自身のロード処理で復旧し、実際のスタイル適用を待ってから操作する。
-  await view.waitFor();
-  if (await view.evaluate((element) => getComputedStyle(element).getPropertyValue("--mfdi-css-loaded").trim() !== "1")) {
-    await page.evaluate(async () => {
-      const plugin = app.plugins.getPlugin("mobile-first-daily-interface") as unknown as { loadCSS: () => Promise<void> } | null;
-      if (!plugin) throw new Error("MFDI plugin is not loaded");
-      await plugin.loadCSS();
-    });
-  }
+  // 意図: CSS の復旧は toolkit のセットアップに任せ、利用側は適用結果だけを検証する。
   await expect(view).toHaveCSS("--mfdi-css-loaded", "1");
   const search = view.getByRole("button", { name: "全体検索", exact: true });
   const input = view.getByRole("searchbox", { name: "本文・URL・タグを検索" });
