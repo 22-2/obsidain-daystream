@@ -146,10 +146,6 @@ const MFDIAppRoot: React.FC<{
     store.getState().updateCurrentDailyNote(shell);
   }, [store, shell, date, granularity, activeTopic, viewNoteMode, file]);
 
-  // updatePostsFromDB is no longer needed here as SWR handles it
-
-  // updatePostsForWeek and updatePostsForDays are no longer needed here as SWR handles it
-
   useEffect(() => {
     if (!isReadOnly && inputRef.current) {
       setTimeout(() => {
@@ -169,17 +165,9 @@ const MFDIAppRoot: React.FC<{
   useEffect(() => {
     if (!currentDailyNote) return;
 
-    const promises: Promise<void>[] = [updateTasks(currentDailyNote)];
-    // updatePosts is no longer needed here
-    Promise.all(promises);
-  }, [
-    currentDailyNote,
-    dateFilter,
-    // updatePosts,
-    updateTasks,
-    viewNoteMode,
-    searchQuery,
-  ]);
+    // 意図: 投稿一覧の取得は SWR が担うため、この effect はタスク更新だけを開始する。
+    void updateTasks(currentDailyNote);
+  }, [currentDailyNote, dateFilter, updateTasks, viewNoteMode, searchQuery]);
 
   // Sync state/handlers with Obsidian View
   useMFDIViewStateSync(component);

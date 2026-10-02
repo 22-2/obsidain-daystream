@@ -155,8 +155,8 @@ vi.mock("src/ui/hooks/usePostBacklinkCounts", () => ({
   }),
 }));
 
-vi.mock("src/ui/hooks/internal/usePostActions", () => ({
-  usePostActions: () => ({
+vi.mock("src/ui/hooks/internal/usePostMutations", () => ({
+  usePostMutations: () => ({
     handleHighlightPost: vi.fn(),
     deletePost: vi.fn(),
     permanentlyDeletePost: vi.fn(),

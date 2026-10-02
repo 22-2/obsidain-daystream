@@ -7,6 +7,7 @@ import {
   persistFixedSessionDraft,
   persistNavigationState,
   restoreFixedSessionDraft,
+  type PersistedNavigationState,
 } from "src/ui/store/slices/settingsPersistence";
 import { isViewReadOnly } from "src/ui/store/slices/settingsPredicates";
 import type { MFDIStore, NavigationSlice } from "src/ui/store/slices/types";
@@ -40,8 +41,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   },
 
   setActiveTag: (activeTag) => {
-    set({ activeTag });
-    persistNavigationState(get(), { activeTag });
+    applyNavigationPatch(get, set, { activeTag });
   },
 
   setFixedSessionNumber: (fixedSessionNumber) => {
@@ -122,7 +122,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     const nextDate = date.clone();
 
     // 意図: 日付ナビゲーターの選択は関連状態を一度に保存し、中間状態の表示と多重保存を避ける。
-    set({
+    const state = applyNavigationPatch(get, set, {
       date: nextDate,
       dateFilter,
       granularity: nextGranularity,
@@ -132,44 +132,20 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       asTask: false,
       threadFocusRootId: null,
     });
-    const state = get();
-    persistNavigationState(state, {
-      date: nextDate,
-      dateFilter,
-      granularity: nextGranularity,
-      displayMode: DISPLAY_MODE.FOCUS,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView: MAIN_VIEW.DATE,
-      asTask: false,
-      threadFocusRootId: null,
-    });
-
     state.reloadInputAreaSize();
   },
 
   setDate: (date) => {
-    set({ date, threadFocusRootId: null });
-    const state = get();
-    persistNavigationState(state, { date, threadFocusRootId: null });
+    const state = applyNavigationPatch(get, set, { date, threadFocusRootId: null });
     state.reloadInputAreaSize();
   },
 
   setTimeFilter: (timeFilter: TimeFilter) => {
-    set({ timeFilter });
-    persistNavigationState(get(), { timeFilter });
+    applyNavigationPatch(get, set, { timeFilter });
   },
 
   setDateFilter: (dateFilter: DateFilter) => {
-    set({
-      dateFilter,
-      displayMode: DISPLAY_MODE.FOCUS,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView: MAIN_VIEW.DATE,
-      asTask: false,
-      threadFocusRootId: null,
-    });
-    const state = get();
-    persistNavigationState(state, {
+    applyNavigationPatch(get, set, {
       dateFilter,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
@@ -182,14 +158,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   setDisplayMode: (displayMode: DisplayMode) => {
     const mainView = displayMode === DISPLAY_MODE.TIMELINE ? MAIN_VIEW.TIMELINE : MAIN_VIEW.DATE;
     // 意図: Obsidian コマンドなど旧 API からの切替も、上部タブの選択状態と同期させる。
-    set({
-      displayMode,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView,
-      asTask: false,
-      threadFocusRootId: null,
-    });
-    persistNavigationState(get(), {
+    applyNavigationPatch(get, set, {
       displayMode,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView,
@@ -208,8 +177,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
           : state.displayMode === DISPLAY_MODE.FOCUS
             ? MAIN_VIEW.DATE
             : MAIN_VIEW.TIMELINE;
-    set({ contentView, mainView });
-    persistNavigationState(get(), { contentView, mainView });
+    applyNavigationPatch(get, set, { contentView, mainView });
   },
 
   setMainView: (mainView: MainView) => {
@@ -270,8 +238,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       : state.displayMode === DISPLAY_MODE.FOCUS
         ? MAIN_VIEW.DATE
         : MAIN_VIEW.TIMELINE;
-    set({ asTask, contentView: CONTENT_VIEW.TIMELINE, mainView });
-    persistNavigationState(get(), {
+    applyNavigationPatch(get, set, {
       asTask,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView,
@@ -314,7 +281,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
 
     // 意図: 日付ビューの Home は日付・絞り込み状態だけを初期化し、
     // 上部タブの選択は維持して日付タブから意図せず遷移しないようにする。
-    set({
+    const state = applyNavigationPatch(get, set, {
       ...mainViewCompatibility,
       mainView: currentMainView,
       date: homeDate,
@@ -324,34 +291,12 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
       activeTag: DEFAULT_VIEW_STATE.activeTag,
       threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
     });
-    const state = get();
-    persistNavigationState(state, {
-      displayMode: mainViewCompatibility.displayMode,
-      contentView: mainViewCompatibility.contentView,
-      mainView: currentMainView,
-      granularity: "month",
-      dateFilter: DEFAULT_VIEW_STATE.dateFilter,
-      timeFilter: DEFAULT_VIEW_STATE.timeFilter,
-      asTask: mainViewCompatibility.asTask,
-      date: homeDate,
-      threadFocusRootId: DEFAULT_VIEW_STATE.threadFocusRootId,
-      activeTag: DEFAULT_VIEW_STATE.activeTag,
-    });
     state.reloadInputAreaSize();
   },
 
   handleClickToday: () => {
     const now = window.moment();
-    set({
-      date: now,
-      displayMode: DISPLAY_MODE.FOCUS,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView: MAIN_VIEW.DATE,
-      asTask: false,
-      threadFocusRootId: null,
-    });
-    const state = get();
-    persistNavigationState(state, {
+    const state = applyNavigationPatch(get, set, {
       date: now,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
@@ -382,16 +327,7 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   handleChangeCalendarDate: (value) => {
     const { granularity } = get();
     const nextDate = GRANULARITY_CONFIG[granularity].parseInput(value);
-    set({
-      date: nextDate,
-      displayMode: DISPLAY_MODE.FOCUS,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView: MAIN_VIEW.DATE,
-      asTask: false,
-      threadFocusRootId: null,
-    });
-    const state = get();
-    persistNavigationState(state, {
+    const state = applyNavigationPatch(get, set, {
       date: nextDate,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
@@ -435,6 +371,19 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
   },
 });
 
+function applyNavigationPatch(
+  get: () => MFDIStore,
+  set: (partial: Partial<MFDIStore>) => void,
+  patch: PersistedNavigationState,
+): MFDIStore {
+  // 意図: 表示と保存に同じ差分を使い、遷移項目の追加時にも保存漏れを防ぐ。
+  // 更新後の state を返すことで、入力サイズの復元は従来どおり保存の後に実行する。
+  set(patch);
+  const state = get();
+  persistNavigationState(state, patch);
+  return state;
+}
+
 function moveDate(
   get: () => MFDIStore,
   set: (partial: Partial<MFDIStore> | ((state: MFDIStore) => Partial<MFDIStore>)) => void,
@@ -449,13 +398,7 @@ function moveDate(
         ? "year"
         : GRANULARITY_CONFIG[granularity].unit;
   const nextDate = date.clone()[direction](step, unit);
-  set({
-    date: nextDate,
-    displayMode: DISPLAY_MODE.FOCUS,
-    threadFocusRootId: null,
-  });
-  const state = get();
-  persistNavigationState(state, {
+  const state = applyNavigationPatch(get, set, {
     date: nextDate,
     displayMode: DISPLAY_MODE.FOCUS,
     threadFocusRootId: null,

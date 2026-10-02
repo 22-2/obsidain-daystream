@@ -13,6 +13,42 @@ export interface FixedSessionSummary {
   pinned: boolean;
 }
 
+function sortSessions(sessions: FixedSessionSummary[]): FixedSessionSummary[] {
+  return [...sessions].sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+
+    // 意図: セッション並びは編集時刻の揺れに影響されないよう、作成時刻を唯一の基準に固定する。
+    const aTime = a.createdAt ? window.moment(a.createdAt).valueOf() : 0;
+    const bTime = b.createdAt ? window.moment(b.createdAt).valueOf() : 0;
+    if (aTime !== bTime) return bTime - aTime;
+
+    return a.sessionNumber - b.sessionNumber;
+  });
+}
+
+export function groupSessionsByActivity(sessions: FixedSessionSummary[]): {
+  pinned: FixedSessionSummary[];
+  last7Days: FixedSessionSummary[];
+  older: FixedSessionSummary[];
+} {
+  const threshold = window.moment().subtract(7, "days");
+  const sorted = sortSessions(sessions);
+  const pinned = sorted.filter((session) => session.pinned);
+  const unpinned = sorted.filter((session) => !session.pinned);
+
+  const isRecent = (session: FixedSessionSummary): boolean => {
+    if (!session.lastActiveAt) return false;
+    const t = window.moment(session.lastActiveAt);
+    return t.isValid() && t.isSameOrAfter(threshold);
+  };
+
+  return {
+    pinned,
+    last7Days: unpinned.filter(isRecent),
+    older: unpinned.filter((session) => !isRecent(session)),
+  };
+}
+
 export function isThreadRootMetadata(metadata: Record<string, string>): boolean {
   const threadId = metadata.mfdiId;
   const parentId = metadata.parentId;

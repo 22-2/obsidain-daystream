@@ -9,7 +9,7 @@ import { DISPLAY_MODE } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useDividerContextMenu } from "src/ui/hooks/internal/useDividerContextMenu";
-import { usePostActions } from "src/ui/hooks/internal/usePostActions";
+import { usePostMutations } from "src/ui/hooks/internal/usePostMutations";
 import { usePostContextMenu } from "src/ui/hooks/internal/usePostContextMenu";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { usePostBacklinks } from "src/ui/hooks/usePostBacklinkCounts";
@@ -84,6 +84,7 @@ export const PostListView: React.FC = memo(() => {
     return () => observer.disconnect();
   }, [listHeaderRef]);
 
+  // 意図: 一覧操作だけを購読し、ここで使わない投稿確定用のエディタ状態を購読しない。
   const {
     handleHighlightPost,
     handleHighlightSource,
@@ -95,7 +96,7 @@ export const PostListView: React.FC = memo(() => {
     setPostTags,
     setPostPinned,
     copyBlockIdLink,
-  } = usePostActions();
+  } = usePostMutations();
 
   const { openDailyNoteForDate } = useNoteStore(
     useShallow((s) => ({

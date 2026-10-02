@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
+import { MFDIStorage } from "src/core/storage";
+import { DEFAULT_SETTINGS } from "src/settings";
 import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW } from "src/ui/config/consntants";
+import { createAppStore } from "src/ui/store/appStore";
+import { resolveInitialSettingsState } from "src/ui/store/slices/settingsPersistence";
 import { settingsStore } from "src/ui/store/settingsStore";
 import {
   createSettingsSlice,
@@ -153,6 +157,37 @@ describe("settingsSlice", () => {
     );
     expect(initial.displayMode).toBe(DISPLAY_MODE.TIMELINE);
     expect(initial.mainView).toBe(MAIN_VIEW.TIMELINE);
+  });
+
+  it("カレンダーで選んだ日付と表示条件を再起動後も復元できる", () => {
+    localStorage.clear();
+    const storage = new MFDIStorage("calendar-navigation-test");
+    const store = createAppStore();
+    store.setState({
+      storage,
+      mainView: MAIN_VIEW.TASKS,
+      asTask: true,
+      threadFocusRootId: "root-1",
+    });
+    store.getState().setCalendarSelection({
+      date: yesterday,
+      dateFilter: "7d",
+      granularity: "day",
+    });
+
+    // 意図: state の更新だけでなく保存・復元まで通し、共通化による保存漏れを検出する。
+    const restored = resolveInitialSettingsState(DEFAULT_SETTINGS, storage, "periodic", null);
+    expect(restored).toMatchObject({
+      mainView: MAIN_VIEW.DATE,
+      contentView: CONTENT_VIEW.TIMELINE,
+      displayMode: DISPLAY_MODE.FOCUS,
+      asTask: false,
+      threadFocusRootId: null,
+      dateFilter: "7d",
+      granularity: "day",
+    });
+    expect(restored.date.isSame(yesterday)).toBe(true);
+    expect(store.getState().date).not.toBe(yesterday);
   });
 
   it("メインビュー切替で互換用の表示条件も一括して同期する", () => {
