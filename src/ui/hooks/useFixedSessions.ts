@@ -269,7 +269,10 @@ export const useFixedSessions = () => {
     try {
       content = await shell.loadFile(note.path);
     } catch {
-      content = "";
+      // 意図: 読み込み失敗を空ノートとして扱うと、既存本文を見出しだけで上書きしてしまう。
+      // 新規ノートも作成後には読み込めるため、失敗時は選択と下書きを保持して作成を止める。
+      new Notice("ノートを読み込めなかったため、セッションを作成できませんでした");
+      return;
     }
 
     const existingSessions = buildFixedSessionSummaries({

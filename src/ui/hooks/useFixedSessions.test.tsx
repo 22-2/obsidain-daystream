@@ -9,6 +9,7 @@ import {
   getInputStorageKey,
 } from "src/ui/store/slices/inputStorage";
 import { readLastOpenedFixedSessionNumber } from "src/ui/utils/fixed-session-storage";
+import type { Post } from "src/ui/types";
 import { SWRConfig } from "swr";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -89,6 +90,14 @@ describe("useFixedSessions", () => {
     });
   }
 
+  function getSession(sessions: ReturnType<typeof useFixedSessions>, sessionNumber: number) {
+    const session = Object.values(sessions.groupedSessions)
+      .flat()
+      .find((item) => item.sessionNumber === sessionNumber);
+    if (!session) throw new Error(`Session ${sessionNumber} not found`);
+    return session;
+  }
+
   it("保存したセッション名とピン留めを読み込み、最後の選択を記録する", async () => {
     const { result } = renderSessions();
     await waitFor(() => expect(result.current.shouldShowLoading).toBe(false));
@@ -160,5 +169,242 @@ describe("useFixedSessions", () => {
     expect(store.getState().getInputValue()).toBe("");
     expect(storage.get(getInputStorageKey("fixed", path, 2), "")).toBe("元の下書き");
     expect(result.current.sessionCount).toBe(4);
+  });
+
+  it("作成時に本文を読み込めなければノートと下書きを保持する", async () => {
+    store.getState().replaceInput("保持する下書き");
+    store.getState().setDraftMetadata({ tags: "keep" });
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+    const originalFiles = new Map(files);
+    // 意図: 一覧取得は成功した後に読み込みが失敗する状況を再現し、
+    // 空ノートとして上書きして既存の投稿を失う退行を検出する。
+    mocked.shell.loadFile.mockRejectedValueOnce(new Error("Read failed"));
+
+    await act(async () => {
+      await result.current.handleCreateSession();
+    });
+
+    expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
+    expect(mocked.shell.writeFile).not.toHaveBeenCalled();
+    expect(files).toEqual(originalFiles);
+    expect(store.getState().fixedSessionNumber).toBe(2);
+    expect(store.getState().getInputValue()).toBe("保持する下書き");
+    expect(store.getState().draftMetadata).toEqual({ tags: "keep" });
+    expect(storage.get(getInputStorageKey("fixed", path, 2), "")).toBe("保持する下書き");
+    expect(result.current.sessionCount).toBe(3);
+  });
+
+  it.each(["作成", "削除"] as const)(
+    "%sの本文保存に失敗してもメタデータと選択中の下書きを保持する",
+    async (action) => {
+      store.getState().replaceInput("保持する下書き");
+      store.getState().setDraftMetadata({ tags: "keep" });
+      const { result } = renderSessions();
+      await waitFor(() => expect(result.current.sessionCount).toBe(3));
+      const originalFiles = new Map(files);
+      const error = new Error("Write failed");
+      mocked.shell.modifyVaultFile.mockRejectedValueOnce(error);
+
+      await act(async () => {
+        const operation =
+          action === "作成"
+            ? result.current.handleCreateSession()
+            : result.current.handleDeleteSession(getSession(result.current, 2));
+        await expect(operation).rejects.toBe(error);
+      });
+
+      expect(files).toEqual(originalFiles);
+      expect(mocked.shell.writeFile).not.toHaveBeenCalled();
+      expect(store.getState().fixedSessionNumber).toBe(2);
+      expect(store.getState().getInputValue()).toBe("保持する下書き");
+      expect(store.getState().draftMetadata).toEqual({ tags: "keep" });
+      expect(storage.get(getInputStorageKey("fixed", path, 2), "")).toBe("保持する下書き");
+      expect(result.current.sessionCount).toBe(3);
+    },
+  );
+
+  it("Session 1 は確認ダイアログを出さず削除を拒否する", async () => {
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+    const originalFiles = new Map(files);
+
+    await act(async () => {
+      await result.current.handleDeleteSession(getSession(result.current, 1));
+    });
+
+    expect(mocked.confirmDelete).not.toHaveBeenCalled();
+    expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
+    expect(mocked.shell.writeFile).not.toHaveBeenCalled();
+    expect(files).toEqual(originalFiles);
+    expect(result.current.sessionCount).toBe(3);
+  });
+
+  it.each(["作成", "削除"] as const)(
+    "編集中は%sを拒否して編集状態を保持する",
+    async (action) => {
+      const editingPost: Post = {
+        id: "editing-post",
+        threadRootId: null,
+        path,
+        timestamp: window.moment(),
+        noteDate: window.moment(),
+        message: "編集中の投稿",
+        metadata: {},
+        offset: 0,
+        startOffset: 0,
+        endOffset: 10,
+        bodyStartOffset: 0,
+        kind: "thino",
+      };
+      store.getState().setEditingPost(editingPost);
+      store.getState().replaceInput("編集中の入力");
+      const { result } = renderSessions();
+      await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+      await act(async () => {
+        if (action === "作成") await result.current.handleCreateSession();
+        else await result.current.handleDeleteSession(getSession(result.current, 2));
+      });
+
+      expect(mocked.confirmDelete).not.toHaveBeenCalled();
+      expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
+      expect(mocked.shell.writeFile).not.toHaveBeenCalled();
+      expect(store.getState().editingPost).toBe(editingPost);
+      expect(store.getState().getInputValue()).toBe("編集中の入力");
+      expect(store.getState().fixedSessionNumber).toBe(2);
+      expect(result.current.sessionCount).toBe(3);
+    },
+  );
+
+  it("最後のセッションを削除すると前のセッションの下書きへ戻る", async () => {
+    storage.set(getInputStorageKey("fixed", path, 2), "前の下書き");
+    store.setState({ fixedSessionNumber: 3 });
+    store.getState().replaceInput("削除する下書き");
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+    await act(async () => {
+      await result.current.handleDeleteSession(getSession(result.current, 3));
+    });
+
+    expect(store.getState().fixedSessionNumber).toBe(2);
+    expect(store.getState().getInputValue()).toBe("前の下書き");
+    expect(storage.get(getInputStorageKey("fixed", path, 3), null)).toBeNull();
+    expect(files.get(path)).not.toContain("third");
+    expect(files.get(path)).toContain("second");
+    expect(result.current.sessionCount).toBe(2);
+  });
+
+  it("別のセッションを削除しても現在の入力とメタデータを維持する", async () => {
+    store.getState().replaceInput("現在の入力");
+    store.getState().setDraftMetadata({ tags: "keep" });
+    storage.set(getInputStorageKey("fixed", path, 3), "削除する下書き");
+    storage.set(getDraftMetadataStorageKey("fixed", path, 3), {
+      draftMetadata: { tags: "remove" },
+      draftMetadataBase: {},
+    });
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+    await act(async () => {
+      await result.current.handleDeleteSession(getSession(result.current, 3));
+    });
+
+    expect(store.getState().fixedSessionNumber).toBe(2);
+    expect(store.getState().getInputValue()).toBe("現在の入力");
+    expect(store.getState().draftMetadata).toEqual({ tags: "keep" });
+    expect(storage.get(getInputStorageKey("fixed", path, 2), "")).toBe("現在の入力");
+    expect(storage.get(getInputStorageKey("fixed", path, 3), null)).toBeNull();
+    expect(storage.get(getDraftMetadataStorageKey("fixed", path, 3), null)).toBeNull();
+    expect(getSession(result.current, 2).title).toBe("作業中");
+    expect(result.current.sessionCount).toBe(2);
+  });
+
+  it("名前変更を保存して一覧へ反映し、他のメタデータを維持する", async () => {
+    const meta = {
+      2: { name: "作業中", pinned: true, createdAt: "2026-03-01T00:00:00.000Z" },
+      3: { name: "別のセッション", pinned: false },
+    };
+    files.set(metaPath, JSON.stringify(meta));
+    mocked.showTextInput.mockResolvedValue("  新しい名前  ");
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+    await act(async () => {
+      await result.current.handleRenameSession(getSession(result.current, 2));
+    });
+
+    expect(getSession(result.current, 2)).toMatchObject({
+      title: "新しい名前",
+      pinned: true,
+      createdAt: meta[2].createdAt,
+    });
+    expect(JSON.parse(files.get(metaPath)!)).toEqual({
+      ...meta,
+      2: { ...meta[2], name: "新しい名前" },
+    });
+    expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
+  });
+
+  it.each(["   ", "Session 2"])("名前を %j にすると既定名へ戻る", async (name) => {
+    mocked.showTextInput.mockResolvedValue(name);
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+    await act(async () => {
+      await result.current.handleRenameSession(getSession(result.current, 2));
+    });
+
+    expect(getSession(result.current, 2)).toMatchObject({ title: "Session 2", pinned: true });
+    expect(JSON.parse(files.get(metaPath)!)[2]).not.toHaveProperty("name");
+  });
+
+  it("名前変更をキャンセルしたら保存も再取得も行わない", async () => {
+    mocked.showTextInput.mockResolvedValue(null);
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+    const readCount = mocked.shell.loadFile.mock.calls.length;
+
+    await act(async () => {
+      await result.current.handleRenameSession(getSession(result.current, 2));
+    });
+
+    expect(mocked.shell.writeFile).not.toHaveBeenCalled();
+    expect(mocked.shell.loadFile).toHaveBeenCalledTimes(readCount);
+    expect(getSession(result.current, 2).title).toBe("作業中");
+  });
+
+  it("ピン留めを解除して再設定しても名前と作成日時と他セッションを維持する", async () => {
+    const meta = {
+      2: { name: "作業中", pinned: true, createdAt: "2026-03-01T00:00:00.000Z" },
+      3: { name: "別のセッション", pinned: false },
+    };
+    files.set(metaPath, JSON.stringify(meta));
+    const { result } = renderSessions();
+    await waitFor(() => expect(result.current.sessionCount).toBe(3));
+
+    await act(async () => {
+      await result.current.handleTogglePin(2);
+    });
+
+    expect(result.current.groupedSessions.pinned).toHaveLength(0);
+    expect(getSession(result.current, 2)).toMatchObject({
+      title: "作業中",
+      pinned: false,
+      createdAt: meta[2].createdAt,
+    });
+    expect(JSON.parse(files.get(metaPath)!)).toEqual({
+      ...meta,
+      2: { ...meta[2], pinned: false },
+    });
+
+    await act(async () => {
+      await result.current.handleTogglePin(2);
+    });
+
+    expect(result.current.groupedSessions.pinned).toMatchObject([{ sessionNumber: 2 }]);
+    expect(JSON.parse(files.get(metaPath)!)).toEqual(meta);
+    expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
   });
 });
