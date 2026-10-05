@@ -167,8 +167,8 @@ importers:
   .:
     dependencies:
       '@22-2/obsidian-magical-editor':
-        specifier: 1.0.17
-        version: 1.0.17(obsidian@1.13.1(@codemirror/state@6.7.6)(@codemirror/view@6.43.13))
+        specifier: 1.0.19
+        version: 1.0.19(obsidian@1.13.1(@codemirror/state@6.7.6)(@codemirror/view@6.43.13))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -317,8 +317,8 @@ importers:
 
 packages:
 
-  '@22-2/obsidian-magical-editor@1.0.17':
-    resolution: {integrity: sha512-SUCCs52DmExItfQ2UDxlNMTkv/KoNgXjwelVMoyJXvEEOZMS+LHp39B3RG7S0f45ysgz81yz9OJoXECLkoioMg==, tarball: https://npm.pkg.github.com/download/@22-2/obsidian-magical-editor/1.0.17/cac7bd6dd25959d4607f21d49872a8cd8781214f}
+  '@22-2/obsidian-magical-editor@1.0.19':
+    resolution: {integrity: sha512-hW8KU5tnju5UNx+GXCJKIKK4k1Rn92ntNzKxheiCmHnCxdU8HADhRwRG/obtZUiNDMTfj1OjTCQ2frBqJF3azg==, tarball: https://npm.pkg.github.com/download/@22-2/obsidian-magical-editor/1.0.19/feae9cdcf43021cc62fae506e75b8ba9b4a5ce1a}
     peerDependencies:
       obsidian: '>=1.12.0'
 
@@ -3253,7 +3253,7 @@ packages:
 
 snapshots:
 
-  '@22-2/obsidian-magical-editor@1.0.17(obsidian@1.13.1(@codemirror/state@6.7.6)(@codemirror/view@6.43.13))':
+  '@22-2/obsidian-magical-editor@1.0.19(obsidian@1.13.1(@codemirror/state@6.7.6)(@codemirror/view@6.43.13))':
     dependencies:
       obsidian: 1.13.1(@codemirror/state@6.7.6)(@codemirror/view@6.43.13)
 

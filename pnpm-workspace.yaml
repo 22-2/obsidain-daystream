@@ -4,6 +4,6 @@ allowBuilds:
   msw: true
   obsidian-typings: true
 minimumReleaseAgeExclude:
-  - '@22-2/obsidian-magical-editor@1.0.17'
+  - '@22-2/obsidian-magical-editor@1.0.17 || 1.0.19'
 publicHoistPattern:
   - 'obsidian'
