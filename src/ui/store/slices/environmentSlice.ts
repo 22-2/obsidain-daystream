@@ -1,3 +1,4 @@
+import { createTimelineNavigationState } from "src/ui/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/ui/config/consntants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/ui/store/slices/inputStorage";
 import type { EnvironmentSlice, MFDIStore } from "src/ui/store/slices/types";
@@ -140,6 +141,10 @@ export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], Environment
           threadFocusRootId: null,
         });
       }
+    }
+
+    if (nextNoteMode === "periodic" && get().mainView === MAIN_VIEW.TIMELINE) {
+      set(createTimelineNavigationState());
     }
 
     get().hydrateEditorState();

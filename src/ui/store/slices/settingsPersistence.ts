@@ -42,7 +42,7 @@ export interface PersistedNavigationState {
 }
 
 export function persistNavigationState(
-  state: Pick<MFDIStore, "storage">,
+  state: Pick<MFDIStore, "storage" | "mainView">,
   patch: PersistedNavigationState,
 ): void {
   const storage = state.storage;
@@ -51,8 +51,11 @@ export function persistNavigationState(
   if ("activeTag" in patch) storage.set(STORAGE_KEYS.ACTIVE_TAG, patch.activeTag);
   if ("timeFilter" in patch) storage.set(STORAGE_KEYS.TIME_FILTER, patch.timeFilter);
   if ("dateFilter" in patch) storage.set(STORAGE_KEYS.DATE_FILTER, patch.dateFilter);
-  if ("granularity" in patch) storage.set(STORAGE_KEYS.GRANULARITY, patch.granularity);
-  if ("date" in patch && patch.date) storage.set(STORAGE_KEYS.DATE, patch.date.toISOString());
+  // 意図: タイムライン内の一時的な日付・粒度は保存せず、日付タブの保存先も上書きしない。
+  if (state.mainView !== MAIN_VIEW.TIMELINE) {
+    if ("granularity" in patch) storage.set(STORAGE_KEYS.GRANULARITY, patch.granularity);
+    if ("date" in patch && patch.date) storage.set(STORAGE_KEYS.DATE, patch.date.toISOString());
+  }
   if ("displayMode" in patch) storage.set(STORAGE_KEYS.DISPLAY_MODE, patch.displayMode);
   if ("contentView" in patch) storage.set(STORAGE_KEYS.CONTENT_VIEW, patch.contentView);
   if ("mainView" in patch) storage.set(STORAGE_KEYS.MAIN_VIEW, patch.mainView);

@@ -23,3 +23,8 @@ export const DEFAULT_LAYOUT_STATE = {
   searchInputOpen: false,
   inputAreaSize: INPUT_AREA_SIZE.DEFAULT,
 } as const;
+
+export function createTimelineNavigationState() {
+  // 意図: タイムラインの投稿先は今日の日次ノートとし、日付タブや別 view の保存状態を持ち込まない。
+  return { ...DEFAULT_VIEW_STATE, date: window.moment() };
+}

@@ -455,4 +455,51 @@ describe("editorSlice", () => {
       asTask: false,
     });
   });
+
+  it("タイムラインの初期化は別タブの過去日・月粒度を引き継がず、今日の日次へ戻る", () => {
+    vi.setSystemTime(new Date("2026-03-16T09:00:00Z"));
+    const savedDate = "2026-02-01T00:00:00Z";
+    const { storage, values } = createMockStorage({
+      [STORAGE_KEYS.MAIN_VIEW]: MAIN_VIEW.DATE,
+      [STORAGE_KEYS.DATE]: savedDate,
+      [STORAGE_KEYS.GRANULARITY]: "month",
+      [STORAGE_KEYS.THREAD_FOCUS_ROOT_ID]: "old-thread",
+    });
+    const initializeTimeline = () => {
+      const store = createAppStore();
+      store.getState().initializeAppStore({
+        shell: {} as never,
+        settings: DEFAULT_SETTINGS,
+        storage,
+        initialViewState: {
+          noteMode: "periodic",
+          file: null,
+          fixedSessionNumber: 1,
+          mainView: MAIN_VIEW.TIMELINE,
+        },
+      });
+      return store;
+    };
+    const firstTab = initializeTimeline();
+    expect(firstTab.getState()).toMatchObject({
+      mainView: MAIN_VIEW.TIMELINE,
+      displayMode: "timeline",
+      granularity: "day",
+      threadFocusRootId: null,
+    });
+    expect(firstTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+
+    firstTab.getState().setDate(window.moment("2026-03-10"));
+    expect(values.get(STORAGE_KEYS.DATE)).toBe(savedDate);
+    const secondTab = initializeTimeline();
+    expect(secondTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+    expect(firstTab.getState().date.format("YYYY-MM-DD")).toBe("2026-03-10");
+
+    firstTab.getState().setMainView(MAIN_VIEW.DATE);
+    firstTab.getState().setGranularity("month");
+    firstTab.getState().setMainView(MAIN_VIEW.TIMELINE);
+    expect(firstTab.getState().granularity).toBe("day");
+    expect(firstTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+    expect(values.get(STORAGE_KEYS.GRANULARITY)).toBe("month");
+  });
 });

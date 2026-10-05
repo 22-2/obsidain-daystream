@@ -1,3 +1,4 @@
+import { createTimelineNavigationState } from "src/ui/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/ui/config/consntants";
 import type { AppStoreApi } from "src/ui/store/appStore";
 import type { MFDIViewState } from "src/ui/view/state";
@@ -28,6 +29,7 @@ export function syncStoreFromMFDIViewState(store: AppStoreApi, viewState: MFDIVi
       store.setState({
         mainView: viewState.mainView,
         ...resolveMainViewCompatibilityState(viewState.mainView, currentState.displayMode),
+        ...(viewState.mainView === MAIN_VIEW.TIMELINE ? createTimelineNavigationState() : {}),
         searchInputOpen: viewState.mainView === MAIN_VIEW.SEARCH,
         threadFocusRootId: null,
       });

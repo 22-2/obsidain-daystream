@@ -2,7 +2,7 @@ import { Notice } from "obsidian";
 import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW, MOVE_STEP } from "src/ui/config/consntants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/ui/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/ui/config/granularity-config";
-import { DEFAULT_VIEW_STATE } from "src/ui/store/slices/settingsDefaults";
+import { createTimelineNavigationState, DEFAULT_VIEW_STATE } from "src/ui/store/slices/settingsDefaults";
 import {
   persistFixedSessionDraft,
   persistNavigationState,
@@ -159,6 +159,9 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
     const mainView = displayMode === DISPLAY_MODE.TIMELINE ? MAIN_VIEW.TIMELINE : MAIN_VIEW.DATE;
     // 意図: Obsidian コマンドなど旧 API からの切替も、上部タブの選択状態と同期させる。
     applyNavigationPatch(get, set, {
+      ...(mainView === MAIN_VIEW.TIMELINE && get().viewNoteMode === "periodic"
+        ? createTimelineNavigationState()
+        : {}),
       displayMode,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView,
@@ -205,6 +208,9 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
               }
           : null,
       ...resolveMainViewCompatibilityState(mainView, state.displayMode),
+      ...(mainView === MAIN_VIEW.TIMELINE && state.viewNoteMode === "periodic"
+        ? createTimelineNavigationState()
+        : {}),
       searchInputOpen: mainView === MAIN_VIEW.SEARCH,
       threadFocusRootId: null,
     };

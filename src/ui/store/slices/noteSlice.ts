@@ -1,3 +1,4 @@
+import { resolveWriteGranularity } from "src/ui/utils/write-context";
 import { Notice } from "obsidian";
 import { resolveNoteSource } from "src/core/note-source";
 import { openMarkdownNote } from "src/ui/utils/open-markdown-note";
@@ -24,7 +25,8 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set,
     const noteSource = resolveNoteSource({
       shell,
       date: getEffectiveDate(),
-      granularity,
+      // 意図: タイムラインの参照先を投稿先の日次ノートと一致させる。
+      granularity: resolveWriteGranularity(get().displayMode, granularity),
       activeTopic,
       noteMode: viewNoteMode,
       file: file,
@@ -57,7 +59,8 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set,
     const noteSource = resolveNoteSource({
       shell,
       date,
-      granularity,
+      // 意図: 日付ビューの粒度が残っていても、タイムラインの投稿先は必ず日次にする。
+      granularity: resolveWriteGranularity(get().displayMode, granularity),
       activeTopic,
       noteMode: viewNoteMode,
       file: file,
@@ -96,7 +99,8 @@ export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set,
     const noteSource = resolveNoteSource({
       shell,
       date: targetDate,
-      granularity,
+      // 意図: ソースを開く操作も、タイムラインの投稿先と同じ日次ノートを使う。
+      granularity: resolveWriteGranularity(get().displayMode, granularity),
       activeTopic,
       noteMode: viewNoteMode,
       file: file,
