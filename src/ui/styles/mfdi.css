@@ -696,8 +696,8 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   cursor: pointer;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger) .obsidian-icon,
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger) .obsidian-icon svg {
+[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close) .obsidian-icon,
+[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close) .obsidian-icon svg {
   /* 意図: テーマが選択タブをアクセント背景にしても、アイコンをラベルと同じ前景色にする。
      共通アイコンの important な色指定とテーマの SVG 色指定を上書きして継承させる。 */
   color: inherit !important;
@@ -724,44 +724,38 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 [data-type="mfdi-view"] .mfdi-search-close {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: auto;
-  min-width: 36px;
-  height: 36px;
-  min-height: 36px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--text-muted);
-  background: transparent;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-[data-type="mfdi-view"] .mfdi-search-close:is(:hover, :focus-visible) {
-  color: var(--text-normal);
-  background: var(--background-modifier-hover);
-}
-
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close):focus-visible {
-  outline: 2px solid var(--interactive-accent);
-  outline-offset: 2px;
-}
-
-[data-type="mfdi-view"] .mfdi-search-close {
+  /* 意図: 入力欄内の補助操作はタブと同じフラットな見た目にし、
+     テーマのアクセント背景・影・大きな余白で主操作のように目立つのを防ぐ。 */
   position: absolute;
   right: 5px;
   top: 50%;
   transform: translateY(-50%);
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  min-height: 28px;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  color: var(--text-normal) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+[data-type="mfdi-view"] .mfdi-search-close:is(:hover, :focus-visible) {
+  /* 意図: 薄いホバー背景には通常の前景色を使い、アクセント背景用の暗い文字色を避ける。 */
+  color: var(--text-normal) !important;
+  background: var(--background-modifier-hover) !important;
+  box-shadow: none !important;
+}
+
+[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close):focus-visible {
+  outline: 2px solid var(--interactive-accent) !important;
+  outline-offset: 2px !important;
 }
 
 [data-type="mfdi-view"] .mfdi-search-controls__input {
