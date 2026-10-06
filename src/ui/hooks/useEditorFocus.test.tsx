@@ -48,4 +48,33 @@ describe("useEditorFocus", () => {
     act(() => vi.runAllTimers());
     expect(focus).not.toHaveBeenCalled();
   });
+
+  it("編集開始時に一覧を先頭へ戻し、通常の再描画ではスクロールしない", () => {
+    const focus = vi.fn();
+    const scrollTo = vi.fn();
+    const inputRef = { current: { focus } };
+    const container = document.createElement("div");
+    container.scrollTo = scrollTo;
+    const scrollContainerRef = { current: container };
+    const target = { id: "post" };
+    const { rerender, unmount } = renderHook(
+      ({ enabled }) =>
+        useEditorFocus(inputRef, target, enabled, scrollContainerRef),
+      { initialProps: { enabled: false } },
+    );
+    act(() => vi.runAllTimers());
+    expect(scrollTo).not.toHaveBeenCalled();
+    rerender({ enabled: true });
+    act(() => vi.runAllTimers());
+    expect(focus).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "instant" });
+    rerender({ enabled: true });
+    act(() => vi.runAllTimers());
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    rerender({ enabled: false });
+    rerender({ enabled: true });
+    unmount();
+    act(() => vi.runAllTimers());
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  });
 });

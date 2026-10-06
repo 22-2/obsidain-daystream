@@ -27,7 +27,7 @@ export const InputArea: FC = memo(() => {
     leaf: WorkspaceLeaf;
   };
   const { shell } = useAppContext();
-  const { inputRef } = useEditorRefs();
+  const { inputRef, scrollContainerRef } = useEditorRefs();
   const {
     inputSnapshot,
     inputSnapshotVersion,
@@ -88,6 +88,7 @@ export const InputArea: FC = memo(() => {
     inputRef,
     editingPost,
     editingPost !== null && !isMinimized && !isReadOnly,
+    scrollContainerRef,
   );
 
   return (
