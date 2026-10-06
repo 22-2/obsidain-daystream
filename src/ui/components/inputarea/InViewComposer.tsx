@@ -6,6 +6,7 @@ import { PLACEHOLDER_TEXT } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
+import { useEditorFocus } from "src/ui/hooks/useEditorFocus";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { usePosts } from "src/ui/hooks/usePosts";
 import { useEditorStore } from "src/ui/store/editorStore";
@@ -53,9 +54,7 @@ export const InViewComposer: FC = memo(() => {
     closeComposer();
   }, [canSubmit, closeComposer, handleSubmit]);
 
-  useEffect(() => {
-    window.setTimeout(() => inputRef.current?.focus());
-  }, [inputRef]);
+  useEditorFocus(inputRef, editingPost);
 
   useEffect(() => {
     Array.from(view.actionsEl.children)

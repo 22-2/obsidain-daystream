@@ -1,6 +1,6 @@
 import type { WorkspaceLeaf } from "obsidian";
 import type { FC } from "react";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback } from "react";
 import { ObsidianLiveEditor } from "src/ui/components/editor/ObsidianLiveEditor";
 import { InputAreaFooter } from "src/ui/components/inputarea/InputAreaFooter";
 import { Flex } from "src/ui/components/primitives";
@@ -13,6 +13,7 @@ import {
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
+import { useEditorFocus } from "src/ui/hooks/useEditorFocus";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { useObsidianUi } from "src/ui/hooks/useObsidianUi";
 import { useEditorStore } from "src/ui/store/editorStore";
@@ -44,17 +45,16 @@ export const InputArea: FC = memo(() => {
       draftMetadataBase: s.draftMetadataBase,
     })),
   );
-  // startEdit 後にエディタへフォーカスを移す
-  const editingPostId = editingPost?.id ?? null;
 
-  const { isReadOnly, inputAreaSize, setInputAreaSize, ctrlEnterSends } = useSettingsStore(
-    useShallow((s) => ({
-      isReadOnly: s.isReadOnly(),
-      inputAreaSize: s.inputAreaSize,
-      setInputAreaSize: s.setInputAreaSize,
-      ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? "disabled",
-    })),
-  );
+  const { isReadOnly, inputAreaSize, setInputAreaSize, ctrlEnterSends } =
+    useSettingsStore(
+      useShallow((s) => ({
+        isReadOnly: s.isReadOnly(),
+        inputAreaSize: s.inputAreaSize,
+        setInputAreaSize: s.setInputAreaSize,
+        ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? "disabled",
+      })),
+    );
   const { handleSubmit } = usePostActions();
   const { openInputInNewWindow } = useObsidianUi();
   const isMinimized = inputAreaSize === INPUT_AREA_SIZE.MINIMIZED;
@@ -70,14 +70,25 @@ export const InputArea: FC = memo(() => {
 
   const handleMinimize = useCallback(() => {
     // 意図: minimize ボタンは既存の popout 配線へ寄せ、編集・新規どちらも別ウィンドウで継続できるようにする。
-    openInputInNewWindow(inputSnapshot, editingPost, draftMetadata, draftMetadataBase);
-  }, [openInputInNewWindow, inputSnapshot, editingPost, draftMetadata, draftMetadataBase]);
+    openInputInNewWindow(
+      inputSnapshot,
+      editingPost,
+      draftMetadata,
+      draftMetadataBase,
+    );
+  }, [
+    openInputInNewWindow,
+    inputSnapshot,
+    editingPost,
+    draftMetadata,
+    draftMetadataBase,
+  ]);
 
-  useEffect(() => {
-    if (editingPostId !== null) {
-      setTimeout(() => inputRef.current?.focus());
-    }
-  }, [editingPostId]);
+  useEditorFocus(
+    inputRef,
+    editingPost,
+    editingPost !== null && !isMinimized && !isReadOnly,
+  );
 
   return (
     <Flex

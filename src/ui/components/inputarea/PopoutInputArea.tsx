@@ -6,6 +6,7 @@ import { PLACEHOLDER_TEXT, STORAGE_KEYS } from "src/ui/config/consntants";
 import { useAppContext } from "src/ui/context/AppContext";
 import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
+import { useEditorFocus } from "src/ui/hooks/useEditorFocus";
 import { usePostActions } from "src/ui/hooks/internal/usePostActions";
 import { usePosts } from "src/ui/hooks/usePosts";
 import { DiscardConfirmModal } from "src/ui/modals/DiscardConfirmModal";
@@ -26,16 +27,19 @@ export const PopoutInputArea: FC = memo(() => {
   const { shell, storage } = useAppContext();
   const { inputRef } = useEditorRefs();
 
-  const { inputSnapshot, inputSnapshotVersion, syncInputSession, editingPost } = useEditorStore(
-    useShallow((s) => ({
-      inputSnapshot: s.inputSnapshot,
-      inputSnapshotVersion: s.inputSnapshotVersion,
-      syncInputSession: s.syncInputSession,
-      editingPost: s.editingPost,
-    })),
-  );
+  const { inputSnapshot, inputSnapshotVersion, syncInputSession, editingPost } =
+    useEditorStore(
+      useShallow((s) => ({
+        inputSnapshot: s.inputSnapshot,
+        inputSnapshotVersion: s.inputSnapshotVersion,
+        syncInputSession: s.syncInputSession,
+        editingPost: s.editingPost,
+      })),
+    );
 
-  const { clearInput } = useEditorStore(useShallow((s) => ({ clearInput: s.clearInput })));
+  const { clearInput } = useEditorStore(
+    useShallow((s) => ({ clearInput: s.clearInput })),
+  );
 
   const { posts } = usePosts();
   const canSubmit = useEditorStore((s) => s.canSubmit(posts));
@@ -62,7 +66,10 @@ export const PopoutInputArea: FC = memo(() => {
     }
 
     // 意図: 「二度と表示しない」が保存済みの場合は確認をスキップして破棄する。
-    const skipConfirm = storage.get<boolean>(STORAGE_KEYS.SKIP_POPOUT_DISCARD_CONFIRM, false);
+    const skipConfirm = storage.get<boolean>(
+      STORAGE_KEYS.SKIP_POPOUT_DISCARD_CONFIRM,
+      false,
+    );
     if (skipConfirm) {
       clearInput();
       closeView();
@@ -90,9 +97,7 @@ export const PopoutInputArea: FC = memo(() => {
   }, [canSubmit, handleSubmit, closeView]);
 
   // 意図: popout が開いた直後にエディタへフォーカスを移し、すぐに入力できるようにする。
-  useEffect(() => {
-    window.setTimeout(() => inputRef.current?.focus());
-  }, [inputRef]);
+  useEditorFocus(inputRef, editingPost);
 
   useEffect(() => {
     const closeAction = view.addAction("x", "閉じる", () => {
