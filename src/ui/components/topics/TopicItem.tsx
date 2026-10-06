@@ -4,6 +4,7 @@ import type { Topic } from "src/core/topic";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { Box, HStack, Text } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 
 interface TopicItemProps {
   topic: Topic;
@@ -32,6 +33,7 @@ export const TopicItem = ({
   onCommitEdit,
   onCancelEdit,
 }: TopicItemProps) => {
+  const menuTooltipRef = useObsidianTooltip("メニュー");
   const handleOpenMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     const menu = new Menu();
@@ -88,6 +90,7 @@ export const TopicItem = ({
     >
       {/* Indicator Bar */}
       <Box
+        ref={menuTooltipRef}
         className={cn(
           "w-[3px] h-[2.5em] rounded-[2px] mr-[var(--size-4-3)] shrink-0 transition-[background] duration-150",
           isActive ? "bg-[var(--color-accent)]" : "bg-[var(--background-secondary)]",
@@ -153,7 +156,6 @@ export const TopicItem = ({
       </Box>
 
       <Box
-        aria-label="メニュー"
         className={cn("h-6 w-6 flex items-center justify-center shrink-0 cursor-pointer")}
         onClick={handleOpenMenu}
       >

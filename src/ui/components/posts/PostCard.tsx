@@ -74,7 +74,6 @@ export const PostCard = React.memo(
         <HStack className="items-center gap-[var(--size-2-2)]">
           {backlinkCount > 0 && (
             <Box
-              aria-label={backlinkButtonLabel}
               className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[85%] transition-colors hover:bg-[var(--background-modifier-hover)]"
               ref={(ref: HTMLElement | null) => {
                 // 意図: footer の数字だけでは意味が伝わりにくいので、
@@ -104,7 +103,6 @@ export const PostCard = React.memo(
                 ref && setTooltip(ref, threadToggleLabel);
               }}
               name="spool"
-              aria-label={threadToggleLabel}
               onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                 e.stopPropagation();
                 onToggleThreadFocus?.();

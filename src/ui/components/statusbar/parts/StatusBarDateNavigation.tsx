@@ -1,5 +1,6 @@
 import type { ChangeEvent, FC } from "react";
 import { useCallback, useMemo } from "react";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 import { NavButton } from "src/ui/components/common/NavButton";
 import { DisplayModeIndicator } from "src/ui/components/inputarea/DisplayModeIndicator";
 import { HStack, Input } from "src/ui/components/primitives";
@@ -13,6 +14,7 @@ import { getMFDIViewCapabilities } from "src/ui/view/state";
 import { useShallow } from "zustand/shallow";
 
 export const StatusBarDateNavigation: FC = () => {
+  const dateTooltipRef = useObsidianTooltip("表示日");
   const { viewNoteMode } = useAppStore(useShallow((s) => ({ viewNoteMode: s.viewNoteMode })));
   const capabilities = useMemo(
     () => getMFDIViewCapabilities({ noteMode: viewNoteMode }),
@@ -93,12 +95,12 @@ export const StatusBarDateNavigation: FC = () => {
             <HierarchicalDateInput />
           ) : (
             <Input
+              ref={dateTooltipRef}
               className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
               type={GRANULARITY_CONFIG[granularity].inputType}
               value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
               onChange={handleChangeDate}
               onClick={(event) => event.stopPropagation()}
-              aria-label="表示日"
             />
           )}
           <NavButton direction="right" onClick={handleClickMoveNext} className="p-1" />

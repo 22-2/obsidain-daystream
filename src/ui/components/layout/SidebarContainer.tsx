@@ -4,12 +4,10 @@ import { cn } from "src/ui/components/primitives/utils";
 export const SidebarContainer: React.FC<{
   isOpen: boolean;
   side?: "left" | "right";
-  ariaLabel?: string;
   children: React.ReactNode;
-}> = ({ isOpen, side = "right", ariaLabel, children }) => {
+}> = ({ isOpen, side = "right", children }) => {
   return (
     <Box
-      aria-label={ariaLabel}
       role="region"
       className={cn(
         isOpen

@@ -39,15 +39,13 @@ export const MainViewTabs: React.FC<{
   const tabs = TABS.filter((tab) => noteMode === "periodic" || !tab.periodicOnly);
 
   return (
-    <nav className="mfdi-main-view-tabs" aria-label="メインビュー" role="tablist">
+    <nav className="mfdi-main-view-tabs" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.value}
           type="button"
           role="tab"
           aria-selected={value === tab.value}
-          aria-label={tab.label}
-          title={tab.label}
           className={cn("mfdi-main-view-tabs__tab", value === tab.value && "is-active")}
           onClick={() => onChange(tab.value)}
         >

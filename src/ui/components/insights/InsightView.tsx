@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { setTooltip } from "obsidian";
 import {
   getTopCounts,
   getWordTrend,
@@ -68,7 +69,7 @@ function YearTabs({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="mfdi-insight-years" role="tablist" aria-label="対象年">
+    <div className="mfdi-insight-years" role="tablist">
       <button
         type="button"
         role="tab"
@@ -155,11 +156,18 @@ function AnnualActivity({
         <strong>{displayYear ?? "—"}</strong>
         <YearTabs summary={summary} value={year} onChange={onYearChange} />
       </div>
-      <div className="mfdi-activity-grid" aria-label={`${displayYear ?? ""}年の活動量`}>
+      <div
+        className="mfdi-activity-grid"
+        ref={(element) => {
+          if (element) setTooltip(element, `${displayYear ?? ""}年の活動量`);
+        }}
+      >
         {cells.map((cell) => (
           <span
             key={cell.key}
-            title={`${cell.key}: ${cell.count}件`}
+            ref={(element) => {
+              if (element) setTooltip(element, `${cell.key}: ${cell.count}件`);
+            }}
             style={{
               opacity: cell.count ? 0.35 + (cell.count / max) * 0.65 : 0.12,
             }}
@@ -177,7 +185,12 @@ function WeekdayHourHeatmap({ summary, year }: { summary: InsightSummary; year: 
 
   return (
     <InsightCard title="時間帯×曜日">
-      <div className="mfdi-time-heatmap" aria-label="時間帯と曜日ごとの投稿数">
+      <div
+        className="mfdi-time-heatmap"
+        ref={(element) => {
+          if (element) setTooltip(element, "時間帯と曜日ごとの投稿数");
+        }}
+      >
         <div className="mfdi-time-heatmap__axis" />
         {Array.from({ length: 24 }, (_, hour) => (
           <span key={hour} className="mfdi-time-heatmap__hour">
@@ -201,7 +214,9 @@ function FragmentRow({ label, values, max }: { label: string; values: number[]; 
         return (
           <span
             key={`${label}-${hour}`}
-            title={`${label} ${hour}時: ${count}件`}
+            ref={(element) => {
+              if (element) setTooltip(element, `${label} ${hour}時: ${count}件`);
+            }}
             style={{ opacity: count ? 0.25 + (count / max) * 0.75 : 0.1 }}
           />
         );
@@ -305,7 +320,6 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
             value={input}
             onChange={(event) => setInput(event.currentTarget.value)}
             placeholder="語を入力すると月別の使用回数を表示"
-            aria-label="語トレンド検索"
           />
           <Button type="submit" variant="accent" size="sm">
             表示
@@ -314,7 +328,12 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
         {query ? (
           <div className="mfdi-word-trend">
             {trend.map((item) => (
-              <div key={item.word} title={`${item.word}: ${item.count}回`}>
+              <div
+                key={item.word}
+                ref={(element) => {
+                  if (element) setTooltip(element, `${item.word}: ${item.count}回`);
+                }}
+              >
                 <span
                   style={{
                     height: `${item.count ? Math.max(6, (item.count / Math.max(1, ...trend.map((value) => value.count))) * 100) : 2}%`,
@@ -387,7 +406,7 @@ export const InsightView: React.FC = () => {
           <h1>インサイト</h1>
           <small>{selectedLabel}</small>
         </div>
-        <div className="mfdi-insight-tabs" role="tablist" aria-label="インサイトの種類">
+        <div className="mfdi-insight-tabs" role="tablist">
           <button
             type="button"
             role="tab"

@@ -69,8 +69,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
             フッター内の操作列でボタンだけが大きく見えないようにする。 */}
         <IconButton
           name="pin"
-          ariaLabel={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
-          title={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
+          tooltip={isPinned(draftMetadata) ? "ピン留め解除" : "ピン留め"}
           onActivate={handleTogglePin}
           isDisabled={isReadOnly}
           size="1em"
@@ -79,7 +78,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
         {capabilities.supportsTags && (
           <IconButton
             name="tag"
-            ariaLabel="タグ編集"
+            tooltip="タグ編集"
             onActivate={handleEditTags}
             isDisabled={isReadOnly}
             size="1em"

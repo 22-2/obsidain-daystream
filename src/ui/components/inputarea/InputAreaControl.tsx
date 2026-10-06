@@ -128,8 +128,7 @@ export const InputAreaControl: FC<{
       {capabilities.supportsDateNavigation && (
         <IconButton
           name="home"
-          ariaLabel="ホーム"
-          title="今月に戻る"
+          tooltip="ホーム"
           size="1.7em"
           onActivate={handleClickHome}
           className={cn(
@@ -171,8 +170,8 @@ export const InputAreaControl: FC<{
       <Box className="flex-1 flex justify-end gap-[0.5em]">
         <IconButton
           name="maximize"
+          tooltip="入力欄を最大化"
           size="1.7em"
-          ariaLabel="入力欄を最大化"
           onActivate={() => {
             if (isReadOnly) return;
             onMaximizeToMaxHeight();

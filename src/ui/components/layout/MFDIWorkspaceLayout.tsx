@@ -22,6 +22,7 @@ import { useObsidianComponent } from "src/ui/context/ComponentContext";
 import { useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useCSSLoaded } from "src/ui/hooks/useCSSLoaded";
 import { usePosts } from "src/ui/hooks/usePosts";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 import { useAppStore } from "src/ui/store/appStore";
 import { useNoteStore } from "src/ui/store/noteStore";
 import { usePostsStore } from "src/ui/store/postsStore";
@@ -122,6 +123,7 @@ export const MFDIWorkspaceLayout = () => {
   } = settings;
   const searchPanelId = useId();
   const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchTooltipRef = useObsidianTooltip("全体検索 (Ctrl+F)");
   const isSearchOpen = mainView === MAIN_VIEW.SEARCH;
   const closeSearchPanel = useCallback(() => {
     closeSearch();
@@ -266,13 +268,14 @@ export const MFDIWorkspaceLayout = () => {
                   onChange={setMainView}
                 />
                 <button
-                  ref={searchButtonRef}
+                  ref={(element) => {
+                    searchButtonRef.current = element;
+                    searchTooltipRef(element);
+                  }}
                   type="button"
                   className={cn("mfdi-search-trigger", isSearchOpen && "is-active")}
-                  aria-label="全体検索"
                   aria-expanded={isSearchOpen}
                   aria-controls={isSearchOpen ? searchPanelId : undefined}
-                  title="全体検索 (Ctrl+F)"
                   onClick={() =>
                     isSearchOpen ? closeSearchPanel() : setMainView(MAIN_VIEW.SEARCH)
                   }

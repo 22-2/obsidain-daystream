@@ -1,11 +1,12 @@
 import { type FC, type ReactNode, memo } from "react";
 import { Box, Button, HStack } from "src/ui/components/primitives";
 import { cn } from "src/ui/components/primitives/utils";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 
 interface InputAreaFooterBaseProps {
   canSubmit: boolean;
   submitLabel?: ReactNode;
-  submitAriaLabel?: string;
+  submitTooltip?: string;
   onSubmit: () => void;
   leadingActions?: ReactNode;
   /** 投稿ボタンの直前に置く補助アクション（入力欄の展開など）。 */
@@ -31,7 +32,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
   ({
     canSubmit,
     submitLabel,
-    submitAriaLabel,
+    submitTooltip,
     onSubmit,
     leadingActions,
     beforeSubmitAction,
@@ -46,6 +47,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
     actionsPlacement = "end",
     children,
   }) => {
+    const submitTooltipRef = useObsidianTooltip(submitTooltip ?? "");
     return (
       <HStack
         className={cn(
@@ -75,7 +77,7 @@ export const InputAreaFooterBase: FC<InputAreaFooterBaseProps> = memo(
 
           {submitAction ?? (
             <Button
-              aria-label={submitAriaLabel}
+              ref={submitTooltip ? submitTooltipRef : undefined}
               disabled={!canSubmit}
               className={cn(
                 "h-[2.4em]",

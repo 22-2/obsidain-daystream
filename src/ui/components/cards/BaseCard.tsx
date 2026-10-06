@@ -46,7 +46,6 @@ export const CardContent: React.FC<BaseCardProps> = ({
         </Tag>
         {showGranularityBadge && (noteGranularity === "day" || noteGranularity === "month") && (
           <span
-            aria-label={noteGranularity === "day" ? "日次ノート" : "月次ノート"}
             className="mfdi-post-granularity-badge"
           >
             {noteGranularity === "day" ? "日次" : "月次"}

@@ -54,8 +54,7 @@ export const StatusBarHome: FC = () => {
   return (
     <IconButton
       name="home"
-      ariaLabel="ホーム"
-      title="今月に戻る"
+      tooltip="ホーム"
       size="16px"
       onActivate={handleClickHome}
       className={cn(

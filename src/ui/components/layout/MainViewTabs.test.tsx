@@ -14,7 +14,7 @@ describe("MainViewTabs", () => {
     expect(screen.getAllByRole("tab")).toHaveLength(4);
     expect(screen.queryByRole("tab", { name: "検索" })).toBeNull();
     expect(screen.getByRole("tab", { name: "日付" }).getAttribute("aria-selected")).toBe("true");
-    expect(screen.getAllByRole("tab")[0].getAttribute("aria-label")).toBe("タイムライン");
+    expect(screen.getAllByRole("tab")[0].textContent).toBe("タイムライン");
     fireEvent.click(screen.getByRole("tab", { name: "日付" }));
     expect(onChange).toHaveBeenCalledWith(MAIN_VIEW.DATE);
   });
@@ -22,8 +22,6 @@ describe("MainViewTabs", () => {
   it("fixed view ではタイムラインだけを表示する", () => {
     render(<MainViewTabs value={MAIN_VIEW.TIMELINE} noteMode="fixed" onChange={vi.fn()} />);
 
-    expect(screen.getAllByRole("tab").map((tab) => tab.getAttribute("aria-label"))).toEqual([
-      "タイムライン",
-    ]);
+    expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["タイムライン"]);
   });
 });

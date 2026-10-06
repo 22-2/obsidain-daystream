@@ -100,7 +100,7 @@ export class MFDIEditorModal extends ModalEditor {
         submitButtonClassName:
           "h-8 w-12 border-0 bg-transparent p-1 shadow-none hover:bg-transparent disabled:bg-transparent",
         canSubmit,
-        submitAriaLabel: this.modalOptions.submitLabel ?? "投稿",
+        submitTooltip: this.modalOptions.submitLabel ?? "投稿",
         submitLabel: createElement(ObsidianIcon, {
           name: "send-horizontal",
           size: "1.2em",

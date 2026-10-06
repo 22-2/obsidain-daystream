@@ -1,4 +1,5 @@
 import { differenceInCalendarDays, isValid, parseISO } from "date-fns";
+import { setTooltip } from "obsidian";
 import { useEffect, useMemo, useState } from "react";
 import { PanelDivider, PanelSection } from "src/ui/components/layout/PanelPrimitives";
 import {
@@ -101,16 +102,20 @@ export const InsightsSidebar: React.FC = () => {
       <PanelSection title="アクティビティ" storageKey="insights-activity" className="pt-2">
         <div
           className="mfdi-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
-          aria-label="投稿アクティビティ"
+          ref={(element) => {
+            if (element) setTooltip(element, "投稿アクティビティ");
+          }}
         >
           {bars.map((count, index) => (
             <div
               key={index}
               className="mfdi-activity-chart__bar min-w-0 flex-1 rounded-t-[2px] bg-[var(--color-accent)] transition-[height] duration-200"
+              ref={(element) => {
+                if (element) setTooltip(element, `${count}件`);
+              }}
               style={{
                 height: `${count === 0 ? 3 : Math.max(8, (count / maxBar) * 100)}%`,
               }}
-              title={`${count}件`}
             />
           ))}
         </div>

@@ -3,11 +3,11 @@ import { memo, useCallback } from "react";
 import type { IconSize } from "src/ui/components/common/icon-size";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
 import { cn } from "src/ui/components/primitives/utils";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 
 export type IconButtonProps = {
   name: string;
-  ariaLabel: string;
-  title?: string;
+  tooltip?: string;
   onActivate?: () => void;
   onContextMenu?: MouseEventHandler<HTMLDivElement>;
   isDisabled?: boolean;
@@ -19,14 +19,14 @@ export type IconButtonProps = {
 export const IconButton = memo(
   ({
     name,
-    ariaLabel,
-    title,
+    tooltip,
     onActivate,
     onContextMenu,
     isDisabled = false,
     className,
     size = "1.25em",
   }: IconButtonProps) => {
+    const tooltipRef = useObsidianTooltip(tooltip ?? "");
     const handleKeyDown = useCallback(
       (event: KeyboardEvent<HTMLDivElement>) => {
         if (isDisabled || !onActivate) return;
@@ -40,12 +40,11 @@ export const IconButton = memo(
 
     return (
       <ObsidianIcon
+        ref={tooltip ? tooltipRef : undefined}
         name={name}
         size={size}
         role="button"
         tabIndex={isDisabled ? -1 : 0}
-        aria-label={ariaLabel}
-        title={title ?? ariaLabel}
         className={cn(
           "h-[1.7em] w-[1.7em] rounded-[var(--corner-shape)] p-0 hover:bg-[var(--interactive-hover)]",
           className,

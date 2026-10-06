@@ -2,9 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { HStack, Input } from "src/ui/components/primitives";
 import { useRequiredAppStore } from "src/ui/store/appStore";
 import { useSettingsStore } from "src/ui/store/settingsStore";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 import { useShallow } from "zustand/shallow";
 
 export function HierarchicalDateInput() {
+  const yearTooltipRef = useObsidianTooltip("年");
+  const monthTooltipRef = useObsidianTooltip("月");
+  const dayTooltipRef = useObsidianTooltip("日");
   const store = useRequiredAppStore();
   const { date, granularity } = useSettingsStore(
     useShallow((state) => ({ date: state.date, granularity: state.granularity })),
@@ -73,7 +77,7 @@ export function HierarchicalDateInput() {
   return (
     <HStack className="mfdi-hierarchical-date-input gap-1">
       <Input
-        aria-label="年"
+        ref={yearTooltipRef}
         className="mfdi-date-input h-8 w-[5em] px-1 text-[length:var(--font-ui-smaller)]"
         max={9999}
         min={1}
@@ -96,7 +100,7 @@ export function HierarchicalDateInput() {
         }}
       />
       <select
-        aria-label="月"
+        ref={monthTooltipRef}
         className="mfdi-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
         disabled={!hasValidYear}
         value={monthValue}
@@ -111,7 +115,7 @@ export function HierarchicalDateInput() {
         ))}
       </select>
       <select
-        aria-label="日"
+        ref={dayTooltipRef}
         className="mfdi-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
         disabled={!hasValidYear || !monthValue}
         value={dayValue}

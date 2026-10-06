@@ -32,7 +32,7 @@ export const PostComposerButton: React.FC = () => {
 
   return (
     <FloatingButton
-      ariaLabel="新しい投稿"
+      tooltip="新しい投稿"
       className={cn(
         "mfdi-compose-button fixed bottom-8",
         rightPanelOpen ? "right-[calc(276px+2rem)]" : "right-8",

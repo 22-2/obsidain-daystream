@@ -10,7 +10,7 @@ export const NavButton: FC<{
   return (
     <IconButton
       name={`chevron-${direction}`}
-      ariaLabel={direction === "left" ? "前へ" : "次へ"}
+      tooltip={direction === "left" ? "前へ" : "次へ"}
       onActivate={onClick}
       className={cn(`mfdi-nav-button mfdi-nav-button-${direction} size-6 p-1`, className)}
     />

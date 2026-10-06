@@ -100,8 +100,8 @@ export const InputAreaFooter: FC<{
   const expandAction = (
     <IconButton
       name="maximize"
+      tooltip="入力欄を最大化"
       size="1em"
-      ariaLabel="入力欄を最大化"
       onActivate={() => {
         if (isReadOnly) return;
         onToggleExpand();
@@ -137,8 +137,8 @@ export const InputAreaFooter: FC<{
   const submitAction = (
     <IconButton
       name="send-horizontal"
+      tooltip={editingPost ? "更新" : "投稿"}
       size="1em"
-      ariaLabel={editingPost ? "更新" : "投稿"}
       onActivate={() => {
         if (isReadOnly || !canSubmit) return;
         void handleSubmit();
@@ -159,7 +159,6 @@ export const InputAreaFooter: FC<{
       className="mfdi-input-area-footer group"
       onClick={handleClick}
       canSubmit={canSubmit}
-      submitAriaLabel={editingPost ? "更新" : "投稿"}
       onSubmit={handleSubmit}
       onCancel={editingPost ? cancelEdit : undefined}
       characterCount={inputSnapshot.length}

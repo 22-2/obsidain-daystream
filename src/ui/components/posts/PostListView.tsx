@@ -412,6 +412,7 @@ export const PostListView: React.FC = memo(() => {
         <Box key="bottom-spacer" className="h-[24rem]" />
       </Virtualizer>
       <FloatingButton
+        tooltip="先頭へ戻る"
         className={cn(
           "up-button fixed bottom-[calc(2rem+34px+8px)]",
           settings.rightPanelOpen && capabilities.supportsSidebar

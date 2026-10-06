@@ -1,10 +1,12 @@
 import { useEffect, useRef, type FC } from "react";
 import { Input } from "src/ui/components/primitives";
 import { ObsidianIcon } from "src/ui/components/common/ObsidianIcon";
+import { useObsidianTooltip } from "src/ui/hooks/useObsidianTooltip";
 import { useSettingsStore } from "src/ui/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
 export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
+  const closeTooltipRef = useObsidianTooltip("検索を閉じる");
   const inputRef = useRef<HTMLInputElement>(null);
   const { searchInputOpen, searchQuery, setSearchInputOpen, setSearchQuery } = useSettingsStore(
     useShallow((state) => ({
@@ -23,13 +25,12 @@ export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
   }, [searchInputOpen]);
 
   return (
-    <section className="mfdi-search-controls" aria-label="検索">
+    <section className="mfdi-search-controls">
       <Input
         ref={inputRef}
         type="search"
         value={searchQuery}
         placeholder="本文・URL・タグを検索"
-        aria-label="本文・URL・タグを検索"
         className="mfdi-search-controls__input"
         onFocus={() => setSearchInputOpen(true)}
         onBlur={() => setSearchInputOpen(false)}
@@ -42,10 +43,9 @@ export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
         }}
       />
       <button
+        ref={closeTooltipRef}
         type="button"
         className="mfdi-search-close"
-        aria-label="検索を閉じる"
-        title="検索を閉じる (Esc)"
         onClick={onClose}
       >
         <ObsidianIcon name="x" size="16px" className="pointer-events-none size-4 p-0" />
