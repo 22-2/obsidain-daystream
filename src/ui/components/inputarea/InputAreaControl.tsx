@@ -186,6 +186,8 @@ export const InputAreaControl: FC<{
                 : "",
           )}
           onContextMenu={(e) => {
+            // 意図: 展開方法のメニューは最大化中だけに限定し、通常表示では開かない。
+            if (!isExpanded) return;
             showEditorContextMenu(e, {
               editorExpansionMode: settings.editorExpansionMode,
               hasEditorPopout: isEditorAlreadyInSeparateWindow(component),
