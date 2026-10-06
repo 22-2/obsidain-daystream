@@ -667,9 +667,6 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   margin: 0;
   padding: 4px;
   overflow-x: auto;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 999px;
-  background: var(--background-secondary);
 }
 
 [data-type="mfdi-view"] .mfdi-main-view-tabs__tab {
