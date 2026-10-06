@@ -1,10 +1,11 @@
 import type { App } from "obsidian";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Settings } from "src/settings";
 import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
 import { ComponentContextProvider, useObsidianComponent } from "src/ui/context/ComponentContext";
 import { EditorRefsProvider, useEditorRefs } from "src/ui/context/EditorRefsContext";
 import { useDbSync } from "src/ui/hooks/useDbSync";
+import { useAppStoreInitialization } from "src/ui/hooks/internal/useAppStoreInitialization";
 import { useMFDIViewDelegates } from "src/ui/hooks/internal/useMFDIViewDelegates";
 import { useMFDIViewStateSync } from "src/ui/hooks/internal/useMFDIViewStateSync";
 import { useNoteSync } from "src/ui/hooks/useNoteSync";
@@ -14,7 +15,6 @@ import type { AppStoreApi } from "src/ui/store/appStore";
 import {
   AppStoreProvider,
   createAppStore,
-  initializeAppStore,
   useAppStore,
   useRequiredAppStore,
 } from "src/ui/store/appStore";
@@ -81,26 +81,21 @@ const MFDIAppRoot: React.FC<{
   const componentViewState = component.getState();
   const externalStateRevision = component.getExternalStateRevision();
 
-  useLayoutEffect(() => {
-    // 意図: 子の live editor は mount 時の passive effect で初期化される。
-    // ここで hydration が遅れると、空の初期 state が先に editor/localStorage へ流れて復元値を潰す。
-    initializeAppStore(
-      {
-        shell,
-        settings,
-        storage,
-        initialViewState: {
-          noteMode: initialViewState.noteMode,
-          file: initialViewState.file,
-          fixedSessionNumber:
-            initialViewState.noteMode === "fixed" ? (initialViewState.fixedSessionNumber ?? 1) : 1,
-          mainView: initialViewState.mainView,
-        },
+  useAppStoreInitialization(
+    {
+      shell,
+      settings,
+      storage,
+      initialViewState: {
+        noteMode: initialViewState.noteMode,
+        file: initialViewState.file,
+        fixedSessionNumber:
+          initialViewState.noteMode === "fixed" ? (initialViewState.fixedSessionNumber ?? 1) : 1,
+        mainView: initialViewState.mainView,
       },
-      store,
-    );
-
-  }, [initialViewState, settings, storage, shell, store]);
+    },
+    store,
+  );
 
   const { date, granularity, activeTopic, dateFilter, asTask, isReadOnly } = useSettingsStore(
     useShallow((state) => ({

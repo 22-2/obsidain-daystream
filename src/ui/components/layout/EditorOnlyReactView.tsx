@@ -6,10 +6,10 @@ import { AppContextProvider, useAppContext } from "src/ui/context/AppContext";
 import { ComponentContextProvider } from "src/ui/context/ComponentContext";
 import { EditorRefsProvider } from "src/ui/context/EditorRefsContext";
 import { PostsProvider } from "src/ui/hooks/usePosts";
+import { useAppStoreInitialization } from "src/ui/hooks/internal/useAppStoreInitialization";
 import {
   AppStoreProvider,
   createAppStore,
-  initializeAppStore,
   useRequiredAppStore,
   type AppStoreApi,
 } from "src/ui/store/appStore";
@@ -60,11 +60,7 @@ const EditorOnlyAppRoot: React.FC<{
   const { settings, storage, shell } = useAppContext();
   const store = useRequiredAppStore();
 
-  // 意図: 子の live editor は mount 時の passive effect で初期化されるため、
-  // hydration が遅れると空の初期 state が editor/localStorage へ流れて復元値を潰す。
-  useLayoutEffect(() => {
-    initializeAppStore({ shell, settings, storage }, store);
-  }, [settings, storage, shell, store]);
+  useAppStoreInitialization({ shell, settings, storage }, store);
 
   // 意図: 編集対象ポストをストアへ反映する。
   // initialState は setViewState 経由で渡されるため、mount 後に一度だけ実行する。
