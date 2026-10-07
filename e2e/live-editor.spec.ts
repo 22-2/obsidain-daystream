@@ -454,8 +454,10 @@ test.describe("MFDI live editor e2e", () => {
     await expect.poll(() => getStoredDrafts(obsidian)).not.toContain(unsavedEdit);
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
+    // 意図: 復元した編集状態は未保存の入力を本文として持つため、編集中であることだけを確かめ、
+    // 元の投稿が置き換わることは更新後の一覧で検証する。
     await expectLiveEditorRestoreState(obsidian, unsavedEdit, {
-      expectedEditingPostMessage: message,
+      expectedEditingPostMessage: unsavedEdit,
     });
 
     // 編集を確定する
