@@ -434,7 +434,7 @@ test.describe("MFDI live editor e2e", () => {
     await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(editedMessage);
   });
 
-  test("既存投稿の編集中にタブを閉じると編集は解除され、投稿は変更されない", async ({ obsidian }) => {
+  test("既存投稿の編集中にタブを閉じても、再表示で編集を続けられる", async ({ obsidian }) => {
     const message = `Close tab while editing ${Date.now()}`;
 
     // 投稿
@@ -450,16 +450,20 @@ test.describe("MFDI live editor e2e", () => {
 
     // タブを閉じて再度開く
     await obsidian.closeTab();
-    await expect.poll(() => getStoredDrafts(obsidian)).toContain(unsavedEdit);
+    // 意図: 既存投稿の編集は新規入力と違い、下書きへ移さずに編集状態ごと復元する。
+    await expect.poll(() => getStoredDrafts(obsidian)).not.toContain(unsavedEdit);
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
-
-    // 意図: 閉じたタブを開き直しても編集画面は再表示せず、元の投稿はそのまま残る。
-    await expectLiveEditorRestoreState(obsidian, "", {
-      expectedEditingPostMessage: null,
+    await expectLiveEditorRestoreState(obsidian, unsavedEdit, {
+      expectedEditingPostMessage: message,
     });
-    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(message);
-    await expect(obsidian.page.locator(".list .base-card", { hasText: unsavedEdit })).toHaveCount(0);
+
+    // 編集を確定する
+    await obsidian.page.waitForTimeout(WAIT.LONG);
+    await obsidian.page.getByRole("button", { name: "更新" }).click();
+    await expectLiveEditorContent(obsidian, "");
+    await expect.poll(() => obsidian.page.locator(".list .base-card").all()).toHaveLength(1);
+    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(unsavedEdit);
   });
 
   // ── ドラフト復元 ─────────────────────────────────────────────
