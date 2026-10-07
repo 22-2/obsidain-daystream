@@ -111,7 +111,8 @@ export async function replaceLatestPostsMetadata(params: {
   const sortedPosts = [...latestPosts].sort((a, b) => b.startOffset - a.startOffset);
 
   for (const post of sortedPosts) {
-    const text = toText(post.message, false, params.granularity, post.noteDate, {
+    // 意図: 単体更新と同じく投稿自身の日時で書き戻し、時刻を日付だけに丸めない。
+    const text = toText(post.message, false, params.granularity, post.timestamp, {
       ...post.metadata,
       ...params.buildMetadata(post),
     });
