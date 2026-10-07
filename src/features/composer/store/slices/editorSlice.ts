@@ -206,6 +206,7 @@ export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (
         noteDateStr: date.toISOString(),
         offset: post.startOffset,
         granularity,
+        message: post.message,
       };
       persistEditingPost(storage, persisted);
 

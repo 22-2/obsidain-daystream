@@ -20,6 +20,8 @@ export type PersistedEditingPost = {
   noteDateStr: string;
   offset: number;
   granularity: string;
+  /** 編集開始時の本文。旧バージョンの保存値には存在しない。 */
+  message?: string;
 };
 
 export interface EditorPersistenceContext {
@@ -89,7 +91,12 @@ export function restoreEditorState(
 
 // 意図: popoutエディタビューが別JSコンテキストでstartEditに渡すPostを
 // 再構築できるよう、シリアライズ済みデータからPostを復元する。
-export const reconstructEditingPost = (persisted: PersistedEditingPost, message: string) => ({
+// 意図: 復元後も「元の本文と入力が違うか」で更新可否を判定するため、保存済みの元本文を優先する。
+export const reconstructEditingPost = (
+  persisted: PersistedEditingPost,
+  input: string,
+  message = persisted.message ?? input,
+) => ({
   id: persisted.id,
   path: persisted.path,
   timestamp: window.moment(persisted.timestampStr),
