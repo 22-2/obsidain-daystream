@@ -1,7 +1,8 @@
 name: E2E Tests
 
 on:
-    push: {}
+    push:
+        branches: [main]
     pull_request: {}
     workflow_dispatch:
         inputs:
@@ -9,6 +10,10 @@ on:
                 description: "Obsidian release version (e.g. 1.12.4). Use latest for latest release."
                 required: false
                 default: "latest"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
 
 defaults:
     run:
@@ -87,6 +92,10 @@ jobs:
               run: |
                   git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
                   pnpm install --no-frozen-lockfile
+
+            - name: Install Electron binaries
+              # 意図: pnpm 12 では electron の postinstall が実行されず dist/ が空になるため明示的に取得する。
+              run: node node_modules/electron/install.js
 
             - name: Install Playwright chromium
               # macOS runner では cdn.playwright.dev からの DL が 100% 表示後に

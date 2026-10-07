@@ -21,7 +21,7 @@ describe("SearchControls", () => {
       </AppStoreProvider>,
     );
 
-    expect(screen.getByRole("searchbox", { name: "本文・URL・タグを検索" })).toBeTruthy();
+    expect(screen.getByPlaceholderText("本文・URL・タグを検索")).toBeTruthy();
     expect(screen.getByRole("button", { name: "検索を閉じる" })).toBeTruthy();
     expect(screen.queryByRole("heading")).toBeNull();
   });

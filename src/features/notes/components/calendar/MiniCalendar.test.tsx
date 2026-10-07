@@ -9,6 +9,8 @@ import { initializeSettingsStore, settingsStore } from "src/features/workspace/s
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({
+  setTooltip: (el: HTMLElement, tooltip: string) =>
+    el.setAttribute("aria-label", tooltip),
   setIcon: vi.fn(),
   Menu: vi.fn(),
   Notice: vi.fn(),

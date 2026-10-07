@@ -7,7 +7,8 @@ import type { Post } from "src/features/workspace/types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({
-  setTooltip: vi.fn(),
+  setTooltip: (el: HTMLElement, tooltip: string) =>
+    el.setAttribute("aria-label", tooltip),
 }));
 
 vi.mock("src/features/workspace/store/appStore", () => ({

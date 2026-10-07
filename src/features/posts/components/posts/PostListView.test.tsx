@@ -91,6 +91,8 @@ function createPost(): Post {
 }
 
 vi.mock("obsidian", () => ({
+  setTooltip: (el: HTMLElement, tooltip: string) =>
+    el.setAttribute("aria-label", tooltip),
   Menu: class {
     addItem() {
       return this;
