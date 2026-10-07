@@ -277,7 +277,8 @@ export default class MFDIPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    const currentSettings = (await this.loadData()) as Partial<Settings>;
+    // 意図: 初回起動では data.json がなく loadData() が null を返すため、空の設定として扱う。
+    const currentSettings = ((await this.loadData()) ?? {}) as Partial<Settings>;
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...currentSettings,
