@@ -122,11 +122,29 @@ async function reloadObsidianWindow(obsidian: ObsidianAPI) {
 
   // 意図: 再読込後の Obsidian は前面にないタブのビューを遅延読み込みにするため、
   // ユーザーがタブを開くのと同じく MFDI タブを前面に出して描画させる。
+  // 意図: 再読込直後は固定ノートの leaf 復元（markdown から mfdi-view への変換）が
+  // 終わっていないことがあるため、leaf が現れるまで待ってから前面に出す。
+  await expect
+    .poll(
+      () => obsidian.page.evaluate(() => app.workspace.getLeavesOfType("mfdi-view").length),
+      { timeout: 15000 },
+    )
+    .toBeGreaterThan(0);
   await obsidian.page.evaluate(async () => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
-    if (!leaf) return;
     await app.workspace.revealLeaf(leaf);
     await (leaf as { loadIfDeferred?: () => Promise<void> }).loadIfDeferred?.();
+  });
+}
+
+async function describeWorkspaceLeaves(obsidian: ObsidianAPI) {
+  return obsidian.page.evaluate(() => {
+    const leaves: string[] = [];
+    app.workspace.iterateAllLeaves((leaf) => {
+      const state = leaf.getViewState();
+      leaves.push(`${leaf.view.getViewType()} (state=${state.type}, file=${String(state.state?.file ?? "")})`);
+    });
+    return leaves.join("\n");
   });
 }
 
@@ -235,7 +253,10 @@ test.describe("fixed note restore", () => {
     await obsidian.page.waitForTimeout(500); // wait for layout save to complete
     await reloadObsidianWindow(obsidian);
 
-    await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({
+    await expect(
+      obsidian.page.locator(".mfdi-input-area .cm-content"),
+      await describeWorkspaceLeaves(obsidian),
+    ).toBeVisible({
       timeout: 15000,
     });
     await expect.poll(async () => {
