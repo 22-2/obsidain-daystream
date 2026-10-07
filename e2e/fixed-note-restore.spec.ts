@@ -119,6 +119,15 @@ async function reloadObsidianWindow(obsidian: ObsidianAPI) {
   await obsidian.page.reload();
   await obsidian.waitReady();
   await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
+
+  // 意図: 再読込後の Obsidian は前面にないタブのビューを遅延読み込みにするため、
+  // ユーザーがタブを開くのと同じく MFDI タブを前面に出して描画させる。
+  await obsidian.page.evaluate(async () => {
+    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    if (!leaf) return;
+    await app.workspace.revealLeaf(leaf);
+    await (leaf as { loadIfDeferred?: () => Promise<void> }).loadIfDeferred?.();
+  });
 }
 
 async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
