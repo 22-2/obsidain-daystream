@@ -13,10 +13,11 @@ import {
   getDateUID,
   getTopicNote,
   resolveTopicNotePath,
-} from "src/lib/daily-notes";
-import type { ObsidianAppShell } from "src/shell/obsidian-shell";
-import type { Granularity, MomentLike } from "src/ui/types";
-import type { MFDINoteMode } from "src/ui/view/state";
+} from "src/core/platform/daily-notes";
+import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
+import type { MFDINoteMode } from "src/core/domain/note-mode";
 
 interface NoteSourceContext {
   shell: ObsidianAppShell;

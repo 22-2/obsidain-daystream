@@ -1,4 +1,4 @@
-import type { MomentLike } from "src/ui/types";
+import type { MomentLike } from "src/core/domain/post";
 
 export function formatTaskText(input: string, time?: string): string {
   const normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();

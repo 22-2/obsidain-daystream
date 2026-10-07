@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import path from "node:path";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import type { MFDIView } from "src/ui/view/MFDIView";
+import type { MFDIView } from "src/features/workspace/views/MFDIView";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

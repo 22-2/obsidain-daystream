@@ -1,7 +1,8 @@
 import { parseTimeWithDate, toLocalDateOnly, toLocalDateString } from "src/core/date-utils";
 import { formatTaskText } from "src/core/task-text";
-import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from "src/ui/config/date-formats";
-import type { Granularity, MomentLike } from "src/ui/types";
+import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from "src/core/domain/date-formats";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
 
 function isFencedCodeBlockStart(line: string): boolean {
   return /^[ \t]*(```|~~~)/.test(line);

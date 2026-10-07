@@ -1,6 +1,6 @@
 import { normalizePath, TFile } from "obsidian";
 import { ensureExtension } from "src/core/path";
-import type { ObsidianAppShell } from "src/shell/obsidian-shell";
+import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 
 export const FILENAME_SUFFIX = ".mfdi.md";
 export const UNTITLED_FILENAME = `Untitled`;
