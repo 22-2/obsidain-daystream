@@ -124,12 +124,18 @@ async function reloadObsidianWindow(obsidian: ObsidianAPI) {
   // ユーザーがタブを開くのと同じく MFDI タブを前面に出して描画させる。
   // 意図: 再読込直後は固定ノートの leaf 復元（markdown から mfdi-view への変換）が
   // 終わっていないことがあるため、leaf が現れるまで待ってから前面に出す。
-  await expect
-    .poll(
-      () => obsidian.page.evaluate(() => app.workspace.getLeavesOfType("mfdi-view").length),
-      { timeout: 15000 },
-    )
-    .toBeGreaterThan(0);
+  try {
+    await expect
+      .poll(
+        () => obsidian.page.evaluate(() => app.workspace.getLeavesOfType("mfdi-view").length),
+        { timeout: 15000 },
+      )
+      .toBeGreaterThan(0);
+  } catch (error) {
+    throw new Error(`mfdi-view leaf was not restored. Leaves:\n${await describeWorkspaceLeaves(obsidian)}`, {
+      cause: error,
+    });
+  }
   await obsidian.page.evaluate(async () => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     await app.workspace.revealLeaf(leaf);
