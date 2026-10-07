@@ -110,4 +110,22 @@ describe("fixed note view extension", () => {
       leaves[0],
     );
   });
+
+  it("遅延読み込み中で view.file がない leaf も view state のパスから置き換える", async () => {
+    const extension = createFixedNoteViewExtension();
+    const attachMFDIView = vi.fn(async () => undefined);
+    const leaves = [
+      {
+        view: {},
+        getViewState: () => ({ type: "markdown", state: { file: "MFDI/Inbox.mfdi.md" } }),
+      } as any,
+    ];
+
+    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachMFDIView });
+
+    expect(attachMFDIView).toHaveBeenCalledWith(
+      expect.objectContaining({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }),
+      leaves[0],
+    );
+  });
 });

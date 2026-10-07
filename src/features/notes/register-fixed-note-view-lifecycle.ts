@@ -31,8 +31,12 @@ export function registerFixedNoteViewLifecycle(
     }),
   );
 
-  void fixedNoteViewExtension.replaceOpenFixedMarkdownLeaves({
-    leaves: context.app.workspace.getLeavesOfType("markdown"),
-    attachMFDIView: context.attachMFDIView,
+  // 意図: 起動時の workspace 復元より前に走ると復元前の leaf しか見えないため、
+  // レイアウト確定後に開いている固定ノートの markdown leaf を置き換える。
+  context.app.workspace.onLayoutReady(() => {
+    void fixedNoteViewExtension.replaceOpenFixedMarkdownLeaves({
+      leaves: context.app.workspace.getLeavesOfType("markdown"),
+      attachMFDIView: context.attachMFDIView,
+    });
   });
 }

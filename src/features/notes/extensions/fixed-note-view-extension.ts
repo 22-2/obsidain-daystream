@@ -19,6 +19,15 @@ function isViewStatefulLeaf(leaf: WorkspaceLeaf): leaf is LeafWithState {
   return !!view && typeof view.getState === "function";
 }
 
+// 意図: 再読込直後の前面にない leaf は遅延読み込みで view.file を持たないため、
+// leaf の view state に保存されたパスも見て固定ノートを判定する。
+function resolveLeafFilePath(leaf: WorkspaceLeaf): string {
+  const viewFilePath = isViewStatefulLeaf(leaf) ? leaf.view.file?.path : undefined;
+  if (viewFilePath) return viewFilePath;
+  const stateFile = (leaf.getViewState?.() as { state?: { file?: unknown } } | undefined)?.state?.file;
+  return typeof stateFile === "string" ? stateFile : "";
+}
+
 export interface FixedNoteViewExtension {
   convertMarkdownViewState: (viewState: unknown) => MFDIViewStateWrapper;
   replaceOpenFixedMarkdownLeaves: (params: {
@@ -111,7 +120,7 @@ export function createFixedNoteViewExtension(
 
     replaceOpenFixedMarkdownLeaves: async ({ leaves, attachMFDIView }) => {
       for (const leaf of leaves) {
-        const filePath = isViewStatefulLeaf(leaf) ? (leaf.view.file?.path ?? "") : "";
+        const filePath = resolveLeafFilePath(leaf);
         if (!isMFDIFixedNotePath(filePath)) continue;
         await attachMFDIView(
           {

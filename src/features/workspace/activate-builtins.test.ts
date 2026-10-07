@@ -192,11 +192,13 @@ describe("builtin registry", () => {
     expect(registerEvent).toHaveBeenCalledTimes(7);
     expect(mocks.createTagIndexExtension).toHaveBeenCalledWith("app-1");
     expect(mocks.createFixedNoteViewExtension).toHaveBeenCalledTimes(1);
-    expect(getLeavesOfType).toHaveBeenCalledWith("markdown");
+    // 意図: 開いている固定ノートの置き換えは workspace 復元後に行う。
+    expect(getLeavesOfType).not.toHaveBeenCalledWith("markdown");
 
     const layoutReadyCallback = layoutReadyCallbacks[0];
     expect(layoutReadyCallback).toBeDefined();
-    await layoutReadyCallback?.();
+    for (const callback of layoutReadyCallbacks) await callback();
+    expect(getLeavesOfType).toHaveBeenCalledWith("markdown");
     expect(mocks.tagIndexExtension.fullScan).toHaveBeenCalledWith(context.shell, settings);
     expect(mocks.storageSet).toHaveBeenCalledWith("lastFullScanAt", expect.any(String));
 
