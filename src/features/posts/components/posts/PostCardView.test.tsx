@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import moment from "moment";
 import React from "react";
 import { PostCardView } from "src/features/posts/components/posts/PostCardView";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({

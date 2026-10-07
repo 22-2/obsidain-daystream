@@ -1,4 +1,5 @@
-import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { DateFilter, DisplayMode, TimeFilter } from "src/features/workspace/types";
 
 export interface MFDIActionDelegate {
   onOpenDailyNoteAction?: () => void;

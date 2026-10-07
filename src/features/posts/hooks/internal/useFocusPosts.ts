@@ -8,7 +8,7 @@ import { DATE_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import { getGranularityRange, GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { buildFixedSessionPosts, isThreadRootMetadata } from "src/features/notes/utils/fixed-session-utils";
 import { getEffectiveSearchState } from "src/features/workspace/utils/search-state";
 import { buildPostFromEntry, memoRecordToPost } from "src/features/posts/utils/thread-utils";

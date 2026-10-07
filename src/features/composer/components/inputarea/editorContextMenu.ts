@@ -1,8 +1,8 @@
 import { Menu, WorkspaceWindow } from "obsidian";
 import type { EditorExpansionMode } from "src/core/domain/settings";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { ComposerHostView } from "src/features/composer/types/composer-host";
 
-export function isEditorAlreadyInSeparateWindow(view: MFDIView): boolean {
+export function isEditorAlreadyInSeparateWindow(view: ComposerHostView): boolean {
   // 意図: MFDI ビュー自体をポップアウトした場合も二重の別ウィンドウ操作を出さない。
   return (
     view.leaf.getContainer() instanceof WorkspaceWindow ||

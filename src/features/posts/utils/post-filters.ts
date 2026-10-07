@@ -1,4 +1,6 @@
-import type { DateFilter, Granularity, Post, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { Post } from "src/core/domain/post";
+import type { DateFilter, TimeFilter } from "src/features/workspace/types";
 
 export function filterPostsByRelativeWindow(
   posts: Post[],

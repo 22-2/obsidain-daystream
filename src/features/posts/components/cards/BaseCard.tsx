@@ -1,7 +1,9 @@
 import React from "react";
 import { Flex, HStack, Tag } from "src/core/ui/components/primitives";
 import { DISPLAY_DATE_TIME_FORMAT } from "src/features/workspace/config/date-formats";
-import type { DateFilter, Granularity, MomentLike } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
+import type { DateFilter } from "src/features/workspace/types";
 
 interface BaseCardProps {
   timestamp: MomentLike;

@@ -1,4 +1,4 @@
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { isVisible } from "src/core/domain/post-metadata";
 import { countVisibleRootPosts } from "src/features/posts/utils/thread-utils";
 

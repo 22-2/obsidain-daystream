@@ -11,12 +11,12 @@ import { usePostActions } from "src/features/posts/hooks/internal/usePostActions
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { ComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 /** メインビュー全体を使う一時的な投稿エディタ。 */
 export const InViewComposer: FC = memo(() => {
-  const view = useObsidianComponent() as MFDIView;
+  const view = useObsidianComponent() as ComposerHostView;
   const { shell } = useAppContext();
   const { inputRef } = useEditorRefs();
   const {

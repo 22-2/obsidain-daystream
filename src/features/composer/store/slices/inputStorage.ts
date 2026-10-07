@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import type { MFDINoteMode } from "src/core/domain/note-mode";
-import type { Granularity } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
 
 function getFixedInputStorageKey(file: string | null, fixedSessionNumber: number): string {
   if (!file) return STORAGE_KEYS.INPUT_FIXED;

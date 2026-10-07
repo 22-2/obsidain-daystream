@@ -7,7 +7,8 @@ import { ReadMoreContent } from "src/features/posts/components/cards/ReadMoreCon
 import { ObsidianMarkdown } from "src/core/ui/components/common/ObsidianMarkdown";
 import { Box, Checkbox, HStack } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
-import type { Granularity, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { TimeFilter } from "src/features/workspace/types";
 
 export const TaskView = memo(
   ({

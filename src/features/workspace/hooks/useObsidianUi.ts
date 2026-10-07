@@ -12,7 +12,7 @@ import type { MFDIEditorModalOptions } from "src/features/composer/modals/MFDIEd
 import { MFDIEditorModal } from "src/features/composer/modals/MFDIEditorModal";
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import type { MFDIEditorViewState } from "src/features/composer/views/MFDIEditorView";
 import { VIEW_TYPE_MFDI_EDITOR } from "src/features/composer/views/MFDIEditorView";
 

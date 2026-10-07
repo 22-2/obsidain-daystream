@@ -7,7 +7,7 @@ import {
   getInputAreaSizeStorageKey,
   getInputStorageKey,
 } from "src/features/composer/store/slices/inputStorage";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type MockStorageHandle = {

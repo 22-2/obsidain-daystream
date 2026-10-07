@@ -1,7 +1,9 @@
 import React from "react";
 import { PostCard } from "src/features/posts/components/posts/PostCard";
 import { isPastDateReadOnly } from "src/features/workspace/store/slices/settingsSlice";
-import type { DateFilter, Granularity, Post } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { Post } from "src/core/domain/post";
+import type { DateFilter } from "src/features/workspace/types";
 import { getPostTags } from "src/core/domain/post-metadata";
 import { isThreadRoot } from "src/features/posts/utils/thread-utils";
 

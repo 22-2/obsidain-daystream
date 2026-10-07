@@ -1,5 +1,5 @@
 import type { MemoRecord } from "src/core/db/mfdi-db";
-import type { MomentLike, Post } from "src/features/workspace/types";
+import type { MomentLike, Post } from "src/core/domain/post";
 
 export const THREAD_METADATA_KEYS = {
   ID: "mfdiId",

@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import {
   buildPostBacklinkCountMap,
   buildTargetPostBacklinkPostsMap,

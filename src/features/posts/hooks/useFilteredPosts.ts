@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import type { DateFilter, DisplayMode, Granularity, Post, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { Post } from "src/core/domain/post";
+import type { DateFilter, DisplayMode, TimeFilter } from "src/features/workspace/types";
 import { filterPostsByRelativeWindow } from "src/features/posts/utils/post-filters";
 import { getPostTags, isPinned, isVisible } from "src/core/domain/post-metadata";
 import { getThreadPosts, isVisibleRootPost, sortThreadPosts } from "src/features/posts/utils/thread-utils";

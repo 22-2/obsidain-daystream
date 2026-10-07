@@ -17,7 +17,7 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { InputAreaSize } from "src/features/workspace/types";
 import { isHomeViewState } from "src/features/workspace/utils/view-state";
 import { getMFDIViewCapabilities } from "src/features/workspace/views/state";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { ComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 export const InputAreaControl: FC<{
@@ -27,7 +27,7 @@ export const InputAreaControl: FC<{
   onMinimize: () => void;
 }> = memo(({ isReadOnly, inputAreaSize, onMaximizeToMaxHeight, onMinimize }) => {
   const { settings } = useAppContext();
-  const component = useObsidianComponent() as MFDIView;
+  const component = useObsidianComponent() as ComposerHostView;
   const store = useRequiredAppStore();
   const isExpanded = inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
   const { viewNoteMode } = useAppStore(

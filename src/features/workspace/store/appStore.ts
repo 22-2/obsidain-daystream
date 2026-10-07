@@ -36,15 +36,10 @@ export function AppStoreProvider({
   return React.createElement(AppStoreContext.Provider, { value: store }, children);
 }
 
-export function useCurrentAppStore(): AppStoreApi {
-  return React.useContext(AppStoreContext) ?? appStore;
-}
-
 /**
  * Returns the Store owned by the nearest view Provider.
  *
- * The fallback-backed hook above remains for legacy/test-only callers while
- * domain hooks use this boundary so a missing Provider fails immediately.
+ * 意図: Provider がない場合に共有 Store へ黙って切り替えると view 間で状態が漏れるため、即座に失敗させる。
  */
 export function useRequiredAppStore(): AppStoreApi {
   const store = React.useContext(AppStoreContext);

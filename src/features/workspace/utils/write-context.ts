@@ -1,4 +1,6 @@
-import type { DisplayMode, Granularity, MomentLike } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
+import type { DisplayMode } from "src/features/workspace/types";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 
 /**

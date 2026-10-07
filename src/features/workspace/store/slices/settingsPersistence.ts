@@ -10,16 +10,9 @@ import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/features/workspace/config/
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
 import { getInputAreaSizeStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { MFDIStore } from "src/features/workspace/store/slices/types";
-import type {
-  ContentView,
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  InputAreaSize,
-  MainView,
-  MomentLike,
-  TimeFilter,
-} from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
+import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, TimeFilter } from "src/features/workspace/types";
 import type { MFDINoteMode } from "src/features/workspace/views/state";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
 

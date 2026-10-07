@@ -1,7 +1,8 @@
 import { Menu, Notice } from "obsidian";
 import { useCallback } from "react";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
-import type { DisplayMode, MomentLike, Post } from "src/features/workspace/types";
+import type { MomentLike, Post } from "src/core/domain/post";
+import type { DisplayMode } from "src/features/workspace/types";
 import { getRawTagMetadata, isPinned } from "src/core/domain/post-metadata";
 import { isThreadReply, isThreadRoot } from "src/features/posts/utils/thread-utils";
 

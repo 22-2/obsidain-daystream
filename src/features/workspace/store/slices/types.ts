@@ -1,16 +1,9 @@
 import type { MFDIStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
-import type {
-  ContentView,
-  DateFilter,
-  DisplayMode,
-  Granularity,
-  InputAreaSize,
-  MainView,
-  MomentLike,
-  TimeFilter,
-} from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike } from "src/core/domain/post";
+import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, TimeFilter } from "src/features/workspace/types";
 import type { MFDINoteMode } from "src/features/workspace/views/state";
 import type { DraftSlice, EditorSlice } from "src/features/composer/store/types";
 import type { NoteSlice } from "src/features/notes/store/types";

@@ -4,7 +4,7 @@ import moment from "moment";
 import React from "react";
 import type { MemoRecord } from "src/core/db/mfdi-db";
 import { usePostBacklinkCounts, usePostBacklinks } from "src/features/posts/hooks/usePostBacklinkCounts";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { SWRConfig } from "swr";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

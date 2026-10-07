@@ -9,7 +9,7 @@ import { usePostHelpers } from "src/features/posts/hooks/internal/usePostHelpers
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { openMarkdownNote } from "src/features/notes/utils/open-markdown-note";
 import { PINNED_METADATA_KEY } from "src/core/domain/post-metadata";
 import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";

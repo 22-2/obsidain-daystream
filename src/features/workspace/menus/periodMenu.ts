@@ -1,6 +1,7 @@
 import type { Menu } from "obsidian";
 import { DATE_FILTER_OPTIONS, TIME_FILTER_OPTIONS } from "src/features/workspace/config/filter-config";
-import type { DateFilter, DisplayMode, Granularity, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { DateFilter, DisplayMode, TimeFilter } from "src/features/workspace/types";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 
 export function addPeriodMenuItems(

@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import type { DateFilter, DisplayMode, Granularity, MomentLike, Post } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike, Post } from "src/core/domain/post";
+import type { DateFilter, DisplayMode } from "src/features/workspace/types";
 import { isPinned } from "src/core/domain/post-metadata";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import type { MFDINoteMode } from "src/features/workspace/views/state";

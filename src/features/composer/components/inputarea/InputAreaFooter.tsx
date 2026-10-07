@@ -18,7 +18,7 @@ import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useAppStore, useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { ComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 export const InputAreaFooter: FC<{
@@ -26,7 +26,7 @@ export const InputAreaFooter: FC<{
   onOpenInNewWindow: () => void;
 }> = memo(({ onToggleExpand, onOpenInNewWindow }) => {
   const { settings } = useAppContext();
-  const component = useObsidianComponent() as MFDIView;
+  const component = useObsidianComponent() as ComposerHostView;
   const store = useRequiredAppStore();
   const { posts } = usePosts();
 

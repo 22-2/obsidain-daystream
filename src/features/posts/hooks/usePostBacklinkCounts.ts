@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import {
   buildTargetPostBacklinkCountMap,
   buildTargetPostBacklinkPostsMap,

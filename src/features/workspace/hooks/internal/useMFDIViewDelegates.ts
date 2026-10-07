@@ -8,7 +8,8 @@ import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
-import type { DisplayMode, Granularity } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { DisplayMode } from "src/features/workspace/types";
 import type { MFDIView } from "src/features/workspace/views/MFDIView";
 import { useShallow } from "zustand/shallow";
 

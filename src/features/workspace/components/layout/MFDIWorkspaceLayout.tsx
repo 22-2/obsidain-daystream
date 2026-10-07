@@ -27,7 +27,7 @@ import { useAppStore } from "src/features/workspace/store/appStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import type { MFDIView } from "src/features/workspace/views/MFDIView";
 import { getMFDIViewCapabilities } from "src/features/workspace/views/state";

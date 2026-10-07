@@ -1,7 +1,7 @@
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { Box, Flex } from "src/core/ui/components/primitives";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
-import type { Granularity } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
 
 interface EmptyStateProps {
   granularity: Granularity;

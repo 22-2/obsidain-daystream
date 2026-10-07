@@ -1,6 +1,6 @@
 import { Menu } from "obsidian";
 import { useCallback } from "react";
-import type { MomentLike } from "src/features/workspace/types";
+import type { MomentLike } from "src/core/domain/post";
 
 type DividerContextMenuCapabilities = {
   supportsDateNavigation: boolean;

@@ -17,7 +17,7 @@ import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MomentLike, Post } from "src/features/workspace/types";
+import type { MomentLike, Post } from "src/core/domain/post";
 import { getMFDIViewCapabilities } from "src/features/workspace/views/state";
 import { Virtualizer, type VirtualizerHandle } from "virtua";
 import { useShallow } from "zustand/shallow";

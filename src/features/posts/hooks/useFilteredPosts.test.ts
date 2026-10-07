@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 import moment from "moment";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useFilteredPosts } from "src/features/posts/hooks/useFilteredPosts";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 function createPost(overrides: Partial<Post>): Post {

@@ -5,7 +5,7 @@ import {
   buildBacklinkPreviewText,
   openBacklinkPreviewModal,
 } from "src/features/posts/modals/BacklinkPreviewModal";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 type TestHTMLElement = HTMLElement & {

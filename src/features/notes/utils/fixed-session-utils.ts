@@ -1,6 +1,6 @@
 import { parseFixedSessionSections } from "src/core/fixed-sessions";
 import { resolveTimestamp } from "src/core/post-utils";
-import type { MomentLike, Post } from "src/features/workspace/types";
+import type { MomentLike, Post } from "src/core/domain/post";
 import type { FixedSessionMetaMap } from "src/features/notes/utils/fixed-session-storage";
 import { buildPostFromEntry, resolvePostId, resolveThreadRootId } from "src/features/posts/utils/thread-utils";
 

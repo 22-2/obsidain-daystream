@@ -5,7 +5,7 @@ import React from "react";
 import { PostListView } from "src/features/posts/components/posts/PostListView";
 import type { TimelineItem } from "src/features/posts/hooks/internal/useTimelineItems";
 import type { UsePostsOutput } from "src/features/posts/hooks/usePosts";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocked = vi.hoisted(() => {

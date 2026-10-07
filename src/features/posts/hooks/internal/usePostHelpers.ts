@@ -4,7 +4,7 @@ import { useAppContext } from "src/core/ui/context/AppContext";
 import { createRefreshPosts } from "src/features/posts/hooks/internal/refreshPosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import {
   findLatestPostInNote,
   findLatestThreadPostsInNote,

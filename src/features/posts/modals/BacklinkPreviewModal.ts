@@ -1,7 +1,7 @@
 import type { App } from "obsidian";
 import { DISPLAY_DATE_TIME_FORMAT } from "src/features/workspace/config/date-formats";
 import { MFDIBaseModal } from "src/features/composer/modals/MFDIBaseModal";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { isPinned } from "src/core/domain/post-metadata";
 
 export interface BacklinkPreviewModalOptions {

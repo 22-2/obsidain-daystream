@@ -3,7 +3,7 @@ import { subscribeToDBUpdates } from "src/core/db/updates";
 import type { IDBService } from "src/core/db/interfaces/IDBService";
 import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MomentLike } from "src/features/workspace/types";
+import type { MomentLike } from "src/core/domain/post";
 import { isVisibleRootPost, memoRecordToPost } from "src/features/posts/utils/thread-utils";
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";

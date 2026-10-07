@@ -6,7 +6,7 @@ import { useTimelineItems, type TimelineItem } from "src/features/posts/hooks/in
 import { useFilteredPosts } from "src/features/posts/hooks/useFilteredPosts";
 import { useUnifiedPosts } from "src/features/posts/hooks/useUnifiedPosts";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { Post } from "src/features/workspace/types";
+import type { Post } from "src/core/domain/post";
 import { getEffectiveSearchState } from "src/features/workspace/utils/search-state";
 import { isThreadView, isTimelineView } from "src/features/workspace/utils/view-mode";
 import { useShallow } from "zustand/shallow";

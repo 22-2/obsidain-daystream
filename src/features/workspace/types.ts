@@ -6,8 +6,6 @@ import type {
 } from "src/features/workspace/config/constants";
 import type { DATE_FILTER_OPTIONS, TIME_FILTER_OPTIONS } from "src/features/workspace/config/filter-config";
 
-export type { Granularity } from "src/core/domain/granularity";
-export type { MomentLike, Post } from "src/core/domain/post";
 
 /** 時間単位のフィルター型を config から自動推論 */
 export type TimeFilter = (typeof TIME_FILTER_OPTIONS)[number]["id"];

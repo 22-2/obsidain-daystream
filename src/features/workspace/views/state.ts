@@ -1,5 +1,6 @@
 import { DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants";
-import type { DateFilter, DisplayMode, Granularity, MainView, TimeFilter } from "src/features/workspace/types";
+import type { Granularity } from "src/core/domain/granularity";
+import type { DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
 import type { MFDINoteMode } from "src/core/domain/note-mode";
 
 export type { MFDINoteMode } from "src/core/domain/note-mode";

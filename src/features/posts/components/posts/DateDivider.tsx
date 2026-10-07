@@ -3,7 +3,7 @@ import { replaceDayToJa } from "src/core/strings";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { Box, Flex, Text } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
-import type { MomentLike } from "src/features/workspace/types";
+import type { MomentLike } from "src/core/domain/post";
 
 interface DateDividerProps {
   date?: MomentLike;
