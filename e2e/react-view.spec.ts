@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import path from "node:path";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import type { MFDIView } from "src/ui/view/MFDIView";
+import type { MFDIView } from "src/features/workspace/views/MFDIView";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +33,9 @@ async function waitForMFDIReady(obsidian: ObsidianAPI, page: Page) {
   await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
   await obsidian.waitForViewType("mfdi-view");
 
-  await expect(page.getByText("タイムライン表示中")).toBeVisible({ timeout: 15000 });
+  await expect(
+    page.locator('.workspace-leaf-content[data-type="mfdi-view"]').getByRole("tab", { name: "タイムライン", exact: true }),
+  ).toHaveAttribute("aria-selected", "true", { timeout: 15000 });
 
   const liveEditor = page.locator(".mfdi-input-area .cm-content");
   await expect(liveEditor).toBeVisible({ timeout: 15000 });

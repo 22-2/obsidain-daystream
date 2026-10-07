@@ -71,3 +71,7 @@ export class ItemView {
   }
 }
 export const setIcon = () => {};
+// 意図: 実際の Obsidian と同様に aria-label を付与し、ラベルで要素を探すテストを成立させる。
+export const setTooltip = (el: HTMLElement, tooltip: string) => {
+  el.setAttribute("aria-label", tooltip);
+};

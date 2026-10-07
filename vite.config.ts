@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import { copyFileSync } from "fs";
 import { builtinModules } from "module";
 import path from "path";
 import { defineConfig, loadEnv, type UserConfig } from "vite";
@@ -21,6 +22,14 @@ export default defineConfig(async ({ mode }) => {
       isAnalyze && inspect({open: true, outputDir: "inspect"}),
       isAnalyze && analyzer(),
       react(),
+      // 意図: Obsidian が読み込む dist/ に manifest.json を置き、E2E がそのまま plugin として使えるようにする。
+      {
+        name: "copy-obsidian-manifest",
+        writeBundle(options) {
+          const outDir = options.dir ?? resolve(import.meta.dirname, "dist");
+          copyFileSync(resolve(import.meta.dirname, "manifest.json"), resolve(outDir, "manifest.json"));
+        },
+      },
     ],
     resolve: {
       alias: {

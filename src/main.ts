@@ -1,35 +1,35 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
 import type { WorkspaceLeaf } from "obsidian";
 import { Notice, Plugin } from "obsidian";
-import type { BuiltinMainContext } from "src/core/builtin-registry";
-import { activateBuiltins } from "src/core/builtin-registry";
+import { activateBuiltins } from "src/features/workspace/activate-builtins";
+import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { setConsolaLevel } from "src/core/logger";
 import { createFixedNoteFromInput } from "src/core/note-source";
 import type { Topic } from "src/core/topic";
-import { WorkerClient } from "src/db/worker-client";
-import { extension as mfdiBottomPaddingExtension } from "src/extension";
-import { findExistingMFDILeaf } from "src/extensions/fixed-note-view-extension";
+import { WorkerClient } from "src/core/db/worker-client";
+import { extension as mfdiBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
+import { findExistingMFDILeaf } from "src/features/notes/extensions/fixed-note-view-extension";
 import {
   ACTIVITY_PROMPT_TEXT,
   createActivityPromptNotificationScheduler,
   resolveActivityPromptIntervalMs,
   type ActivityPromptNotificationScheduler,
-} from "src/notifications/activity-prompt";
-import type { Settings } from "src/settings";
+} from "src/features/activity-prompt/notification";
+import type { Settings } from "src/core/domain/settings";
 import {
   DEFAULT_SETTINGS,
-  MFDISettingTab,
   normalizeCtrlEnterSendMode,
-} from "src/settings";
-import { watchElectronPowerState } from "src/shell/electron-power";
-import { restoreAndFocusElectronWindow } from "src/shell/electron-window";
-import { ObsidianAppShell } from "src/shell/obsidian-shell";
-import { showInputModal } from "src/ui/modals/InputModal";
-import { TopicManagerModal } from "src/ui/modals/TopicManagerModal";
-import { MFDIEditorView } from "src/ui/view/MFDIEditorView";
-import { MFDIView, VIEW_TYPE_MFDI } from "src/ui/view/MFDIView";
-import type { MFDIViewState } from "src/ui/view/state";
-import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/ui/view/state";
+} from "src/core/domain/settings";
+import { MFDISettingTab } from "src/features/settings/MFDISettingTab";
+import { watchElectronPowerState } from "src/core/platform/electron-power";
+import { restoreAndFocusElectronWindow } from "src/core/platform/electron-window";
+import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { showInputModal } from "src/features/composer/modals/InputModal";
+import { TopicManagerModal } from "src/features/notes/modals/TopicManagerModal";
+import { MFDIEditorView } from "src/features/composer/views/MFDIEditorView";
+import { MFDIView, VIEW_TYPE_MFDI } from "src/features/workspace/views/MFDIView";
+import type { MFDIViewState } from "src/features/workspace/views/state";
+import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/features/workspace/views/state";
 
 export default class MFDIPlugin extends Plugin {
   shell: ObsidianAppShell;
@@ -277,7 +277,8 @@ export default class MFDIPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    const currentSettings = (await this.loadData()) as Partial<Settings>;
+    // 意図: 初回起動では data.json がなく loadData() が null を返すため、空の設定として扱う。
+    const currentSettings = ((await this.loadData()) ?? {}) as Partial<Settings>;
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...currentSettings,

@@ -13,8 +13,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  maxFailures: 1,
-  workers: 1,
+  // 意図: 1件目で止めず全失敗を一度に把握する。各テストは独立した一時vaultで起動するため並列化できる。
+  workers: 2,
   reporter: "html",
   use: {
     trace: "on-first-retry",

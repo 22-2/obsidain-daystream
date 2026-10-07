@@ -1,4 +1,4 @@
-import type { MomentLike } from "src/ui/types";
+import type { MomentLike } from "src/core/domain/post";
 
 interface ParsedTask {
   displayName: string;

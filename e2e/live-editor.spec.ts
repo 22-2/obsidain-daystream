@@ -3,9 +3,9 @@ import path from "node:path";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
 import { createStorageKey, getStorageKeyPrefix } from "src/core/storage";
-import { STORAGE_KEYS } from "src/ui/config/consntants";
-import { getInputStorageKey } from "src/ui/store/slices/inputStorage";
-import type { MFDIView } from "src/ui/view/MFDIView";
+import { STORAGE_KEYS } from "src/features/workspace/config/constants";
+import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
+import type { MFDIView } from "src/features/workspace/views/MFDIView";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +26,14 @@ test.use({
     ],
   },
 });
+
+// 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
+async function getMFDIDisplayMode(obsidian: ObsidianAPI) {
+  return obsidian.page.evaluate(() => {
+    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
+  });
+}
 
 async function waitForMFDIReady(obsidian: ObsidianAPI, page: Page) {
   await obsidian.waitReady();
@@ -143,7 +151,12 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
       throw new Error("mfdi-view leaf not found");
     }
 
-    return leaf.view.containerEl.querySelector(".mfdi-input-area .cm-content")?.textContent ?? null;
+    const content = leaf.view.containerEl.querySelector(".mfdi-input-area .cm-content");
+    if (!content) return null;
+    // 意図: 空の入力欄に出るプレースホルダーは入力内容ではないため除外して読む。
+    const clone = content.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll(".cm-placeholder").forEach((el) => el.remove());
+    return clone.textContent;
   });
 }
 
@@ -273,6 +286,15 @@ async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
     .toBe(true);
 }
 
+/** 下書き一覧に保存された本文を返す */
+async function getStoredDrafts(obsidian: ObsidianAPI): Promise<string[]> {
+  return obsidian.page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    return (JSON.parse(raw) as { content: string }[]).map((draft) => draft.content);
+  }, createStorageKey(await obsidian.page.evaluate(() => app.appId), "drafts"));
+}
+
 /** ライブエディタの状態（state / DOM）を一括検証する */
 async function expectLiveEditorContent(
   obsidian: ObsidianAPI,
@@ -314,13 +336,11 @@ test.describe("MFDI live editor e2e", () => {
   // ── カレンダー ───────────────────────────────────────────────
 
   test("タイムライン中にカレンダー日付を押すとフォーカス表示へ戻る", async ({ obsidian }) => {
-    await expect(obsidian.page.getByText("タイムライン表示中")).toBeVisible();
+    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("timeline");
 
-    await obsidian.page.getByTitle("サイドバーを切り替え").click();
     await obsidian.page.locator(".mini-calendar__day-cell").first().click();
 
-    await expect(obsidian.page.locator(".mfdi-date-input")).toBeVisible();
-    await expect(obsidian.page.getByText("タイムライン表示中")).toHaveCount(0);
+    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("focus");
   });
 
   // ── ライブエディタ ───────────────────────────────────────────
@@ -353,6 +373,13 @@ test.describe("MFDI live editor e2e", () => {
   test("Ctrl+Enter では MFDIView の Scope のみが呼ばれる", async ({ obsidian }) => {
     const message = `Scope submit ${Date.now()}`;
     await registerAppScopeHotkeyCounter(obsidian, "submit-parent", ["Ctrl"], "Enter");
+    // 意図: Ctrl+Enter 送信は既定で無効なので、通常サイズでの送信を明示的に有効にする。
+    await obsidian.page.evaluate(async () => {
+      const plugin = (app as any).plugins.plugins["mobile-first-daily-interface"];
+      plugin.settings.ctrlEnterSends = "collapsed_only";
+      await plugin.saveSettings();
+      plugin.rerenderView();
+    });
 
     await setLiveEditorContent(obsidian, message);
     await liveEditor.click();
@@ -407,59 +434,55 @@ test.describe("MFDI live editor e2e", () => {
     await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(editedMessage);
   });
 
-  test("編集中タブを閉じても、編集中の状態が維持される", async ({ obsidian }) => {
+  test("既存投稿の編集中にタブを閉じても、再表示で編集を続けられる", async ({ obsidian }) => {
     const message = `Close tab while editing ${Date.now()}`;
 
     // 投稿
     await setLiveEditorContent(obsidian, message);
     await obsidian.page.getByRole("button", { name: "投稿" }).click();
 
-    // 編集モードに入る
+    // 編集モードに入り、未保存の変更を入れる
     await obsidian.page.locator(".list .base-card").first().dblclick();
-    // ハイライト状態は `.base-card` の親要素に付与されるため、親側のクラスで検証する。
     await expect(obsidian.page.locator(".list .mfdi-card--highlighted .base-card").first()).toBeVisible();
     await expectLiveEditorContent(obsidian, message);
+    const unsavedEdit = `${message} - unsaved`;
+    await setLiveEditorContent(obsidian, unsavedEdit);
 
     // タブを閉じて再度開く
     await obsidian.closeTab();
+    // 意図: 既存投稿の編集は新規入力と違い、下書きへ移さずに編集状態ごと復元する。
+    await expect.poll(() => getStoredDrafts(obsidian)).not.toContain(unsavedEdit);
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
-    await expectLiveEditorRestoreState(obsidian, message, {
+    await expectLiveEditorRestoreState(obsidian, unsavedEdit, {
       expectedEditingPostMessage: message,
     });
-    await expectLiveEditorContent(obsidian, message);
 
-
-    // 編集して更新
-    const editedMessage = `${message} - edited`;
-    await setLiveEditorContent(obsidian, editedMessage);
+    // 編集を確定する
     await obsidian.page.waitForTimeout(WAIT.LONG);
     await obsidian.page.getByRole("button", { name: "更新" }).click();
-
-    // 更新後の検証
     await expectLiveEditorContent(obsidian, "");
     await expect.poll(() => obsidian.page.locator(".list .base-card").all()).toHaveLength(1);
-    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(editedMessage);
+    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(unsavedEdit);
   });
 
   // ── ドラフト復元 ─────────────────────────────────────────────
 
-  test("タブを閉じたあとライブエディタの内容が復元される", async ({ obsidian }) => {
+  test("タブを閉じると入力中の内容は下書きへ移り、再表示では復元しない", async ({ obsidian }) => {
     const draft = `draft-${Date.now()}`;
 
     await setLiveEditorContent(obsidian, draft);
-    await obsidian.page.waitForTimeout(WAIT.DRAFT_SAVE);
+    await expectLocalStorage(obsidian, draft);
 
     await obsidian.closeTab();
-    await expectLocalStorage(obsidian, draft);
+    // 意図: タブを閉じる操作は composer を閉じる操作と同じ扱いで、入力は下書き一覧へ移る。
+    await expect.poll(() => getStoredDrafts(obsidian)).toContain(draft);
+
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
-
-    const reopenedEditor = obsidian.page.locator(".mfdi-input-area .cm-content");
-    await expect(reopenedEditor).toBeVisible({ timeout: 15000 });
-    await expectLiveEditorRestoreState(obsidian, draft, {
+    await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({ timeout: 15000 });
+    await expectLiveEditorRestoreState(obsidian, "", {
       expectedEditingPostMessage: null,
     });
-    await expectLiveEditorContent(obsidian, draft);
   });
 });
