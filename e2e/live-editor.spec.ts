@@ -286,6 +286,15 @@ async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
     .toBe(true);
 }
 
+/** 下書き一覧に保存された本文を返す */
+async function getStoredDrafts(obsidian: ObsidianAPI): Promise<string[]> {
+  return obsidian.page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    return (JSON.parse(raw) as { content: string }[]).map((draft) => draft.content);
+  }, createStorageKey(await obsidian.page.evaluate(() => app.appId), "drafts"));
+}
+
 /** ライブエディタの状態（state / DOM）を一括検証する */
 async function expectLiveEditorContent(
   obsidian: ObsidianAPI,
@@ -425,59 +434,51 @@ test.describe("MFDI live editor e2e", () => {
     await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(editedMessage);
   });
 
-  test("編集中タブを閉じても、編集中の状態が維持される", async ({ obsidian }) => {
+  test("既存投稿の編集中にタブを閉じると編集は解除され、投稿は変更されない", async ({ obsidian }) => {
     const message = `Close tab while editing ${Date.now()}`;
 
     // 投稿
     await setLiveEditorContent(obsidian, message);
     await obsidian.page.getByRole("button", { name: "投稿" }).click();
 
-    // 編集モードに入る
+    // 編集モードに入り、未保存の変更を入れる
     await obsidian.page.locator(".list .base-card").first().dblclick();
-    // ハイライト状態は `.base-card` の親要素に付与されるため、親側のクラスで検証する。
     await expect(obsidian.page.locator(".list .mfdi-card--highlighted .base-card").first()).toBeVisible();
     await expectLiveEditorContent(obsidian, message);
+    const unsavedEdit = `${message} - unsaved`;
+    await setLiveEditorContent(obsidian, unsavedEdit);
 
     // タブを閉じて再度開く
     await obsidian.closeTab();
+    await expect.poll(() => getStoredDrafts(obsidian)).toContain(unsavedEdit);
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
-    await expectLiveEditorRestoreState(obsidian, message, {
-      expectedEditingPostMessage: message,
+
+    // 意図: 閉じたタブを開き直しても編集画面は再表示せず、元の投稿はそのまま残る。
+    await expectLiveEditorRestoreState(obsidian, "", {
+      expectedEditingPostMessage: null,
     });
-    await expectLiveEditorContent(obsidian, message);
-
-
-    // 編集して更新
-    const editedMessage = `${message} - edited`;
-    await setLiveEditorContent(obsidian, editedMessage);
-    await obsidian.page.waitForTimeout(WAIT.LONG);
-    await obsidian.page.getByRole("button", { name: "更新" }).click();
-
-    // 更新後の検証
-    await expectLiveEditorContent(obsidian, "");
-    await expect.poll(() => obsidian.page.locator(".list .base-card").all()).toHaveLength(1);
-    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(editedMessage);
+    await expect.poll(() => obsidian.page.locator(".list .base-card").first().textContent()).toContain(message);
+    await expect(obsidian.page.locator(".list .base-card", { hasText: unsavedEdit })).toHaveCount(0);
   });
 
   // ── ドラフト復元 ─────────────────────────────────────────────
 
-  test("タブを閉じたあとライブエディタの内容が復元される", async ({ obsidian }) => {
+  test("タブを閉じると入力中の内容は下書きへ移り、再表示では復元しない", async ({ obsidian }) => {
     const draft = `draft-${Date.now()}`;
 
     await setLiveEditorContent(obsidian, draft);
-    await obsidian.page.waitForTimeout(WAIT.DRAFT_SAVE);
+    await expectLocalStorage(obsidian, draft);
 
     await obsidian.closeTab();
-    await expectLocalStorage(obsidian, draft);
+    // 意図: タブを閉じる操作は composer を閉じる操作と同じ扱いで、入力は下書き一覧へ移る。
+    await expect.poll(() => getStoredDrafts(obsidian)).toContain(draft);
+
     await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
     await obsidian.waitForViewType("mfdi-view");
-
-    const reopenedEditor = obsidian.page.locator(".mfdi-input-area .cm-content");
-    await expect(reopenedEditor).toBeVisible({ timeout: 15000 });
-    await expectLiveEditorRestoreState(obsidian, draft, {
+    await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({ timeout: 15000 });
+    await expectLiveEditorRestoreState(obsidian, "", {
       expectedEditingPostMessage: null,
     });
-    await expectLiveEditorContent(obsidian, draft);
   });
 });
