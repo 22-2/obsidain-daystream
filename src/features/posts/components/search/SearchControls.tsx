@@ -29,6 +29,7 @@ export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
       <Input
         ref={inputRef}
         type="search"
+        data-testid="mfdi-search-input"
         value={searchQuery}
         placeholder="本文・URL・タグを検索"
         className="mfdi-search-controls__input"

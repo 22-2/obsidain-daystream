@@ -12,8 +12,8 @@ test("全体検索をどのタブからでも開き、元の表示へ戻せる",
   const view = page.locator('.workspace-leaf-content[data-type="mfdi-view"]');
   // 意図: CSS の復旧は toolkit のセットアップに任せ、利用側は適用結果だけを検証する。
   await expect(view).toHaveCSS("--mfdi-css-loaded", "1");
-  const search = view.getByRole("button", { name: "全体検索", exact: true });
-  const input = view.getByRole("searchbox", { name: "本文・URL・タグを検索" });
+  const search = view.getByTestId("mfdi-global-search");
+  const input = view.getByTestId("mfdi-search-input");
   await expect(search).toBeVisible();
   await expect(view.getByRole("tab", { name: "検索", exact: true })).toHaveCount(0);
   for (const name of ["タイムライン", "日付", "タスク", "インサイト"]) {

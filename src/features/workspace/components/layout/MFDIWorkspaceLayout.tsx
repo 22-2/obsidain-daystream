@@ -268,6 +268,7 @@ export const MFDIWorkspaceLayout = () => {
                   onChange={setMainView}
                 />
                 <button
+                  data-testid="mfdi-global-search"
                   ref={(element) => {
                     searchButtonRef.current = element;
                     searchTooltipRef(element);

@@ -40,6 +40,19 @@ export class WorkerClient {
   private static initializeOptions: DBServiceOptions | null = null;
   private static generation = 0;
   private static recoveryPromise: Promise<void> | null = null;
+  private static initialized: Promise<void> | null = null;
+  private static resolveInitialized: (() => void) | null = null;
+
+  // 意図: 起動直後のインデックス要求は initialize より先に届き得る。初期化待ちの時間を
+  // 応答なしと誤判定して Worker を作り直すと、待機中の読み取りが終了済み Worker に取り残される。
+  private static whenInitialized(): Promise<void> {
+    if (!this.initialized) {
+      this.initialized = new Promise<void>((resolve) => {
+        this.resolveInitialized = resolve;
+      });
+    }
+    return this.initialized;
+  }
 
   static get(): Remote<IDBService> {
     if (!this.instance) {
@@ -53,6 +66,8 @@ export class WorkerClient {
   static async initialize(options: DBServiceOptions): Promise<void> {
     this.initializeOptions = options;
     await this.get().initialize(options);
+    void this.whenInitialized();
+    this.resolveInitialized?.();
   }
 
   /**
@@ -64,6 +79,7 @@ export class WorkerClient {
     operation: (db: Remote<IDBService>) => Promise<T>,
     timeoutMs = DEFAULT_WORKER_REQUEST_TIMEOUT_MS,
   ): Promise<T> {
+    await this.whenInitialized();
     const db = this.get();
     const failedGeneration = this.generation;
 
@@ -121,6 +137,8 @@ export class WorkerClient {
       this.worker = null;
       this.initializeOptions = null;
       this.recoveryPromise = null;
+      this.initialized = null;
+      this.resolveInitialized = null;
     }
   }
 }

@@ -27,6 +27,14 @@ test.use({
   },
 });
 
+// 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
+async function getMFDIDisplayMode(obsidian: ObsidianAPI) {
+  return obsidian.page.evaluate(() => {
+    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
+  });
+}
+
 async function waitForMFDIReady(obsidian: ObsidianAPI, page: Page) {
   await obsidian.waitReady();
   await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
@@ -314,13 +322,11 @@ test.describe("MFDI live editor e2e", () => {
   // ── カレンダー ───────────────────────────────────────────────
 
   test("タイムライン中にカレンダー日付を押すとフォーカス表示へ戻る", async ({ obsidian }) => {
-    await expect(obsidian.page.getByText("タイムライン表示中")).toBeVisible();
+    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("timeline");
 
-    await obsidian.page.getByTitle("サイドバーを切り替え").click();
     await obsidian.page.locator(".mini-calendar__day-cell").first().click();
 
-    await expect(obsidian.page.locator(".mfdi-date-input")).toBeVisible();
-    await expect(obsidian.page.getByText("タイムライン表示中")).toHaveCount(0);
+    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("focus");
   });
 
   // ── ライブエディタ ───────────────────────────────────────────

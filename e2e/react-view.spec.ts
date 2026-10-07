@@ -33,7 +33,9 @@ async function waitForMFDIReady(obsidian: ObsidianAPI, page: Page) {
   await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
   await obsidian.waitForViewType("mfdi-view");
 
-  await expect(page.getByText("タイムライン表示中")).toBeVisible({ timeout: 15000 });
+  await expect(
+    page.locator('.workspace-leaf-content[data-type="mfdi-view"]').getByRole("tab", { name: "タイムライン", exact: true }),
+  ).toHaveAttribute("aria-selected", "true", { timeout: 15000 });
 
   const liveEditor = page.locator(".mfdi-input-area .cm-content");
   await expect(liveEditor).toBeVisible({ timeout: 15000 });

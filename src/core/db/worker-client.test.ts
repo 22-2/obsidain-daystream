@@ -13,6 +13,8 @@ describe("withWorkerTimeout", () => {
       initializeOptions: null,
       generation: 0,
       recoveryPromise: null,
+      initialized: null,
+      resolveInitialized: null,
     });
   });
 
@@ -48,6 +50,7 @@ describe("withWorkerTimeout", () => {
       worker: { terminate },
       initializeOptions: { appId: "vault-1" },
       generation: 1,
+      initialized: Promise.resolve(),
     });
     vi.spyOn(WorkerClient, "get")
       .mockReturnValueOnce(firstDb as unknown as Remote<IDBService>)
@@ -58,5 +61,27 @@ describe("withWorkerTimeout", () => {
     expect(terminate).toHaveBeenCalledOnce();
     expect(recoveredDb.initialize).toHaveBeenCalledWith({ appId: "vault-1" });
     expect(recoveredDb.onFileDeleted).toHaveBeenCalledOnce();
+  });
+
+  it("初期化前に届いた要求は初期化完了まで待ち、Worker を作り直さない", async () => {
+    vi.useFakeTimers();
+    const db = {
+      initialize: vi.fn(async () => {}),
+      onFileDeleted: vi.fn(async () => {}),
+    };
+    const terminate = vi.fn();
+    Object.assign(WorkerClient, { worker: { terminate }, generation: 1 });
+    vi.spyOn(WorkerClient, "get").mockReturnValue(db as unknown as Remote<IDBService>);
+
+    const request = WorkerClient.runWithRecovery((d) => d.onFileDeleted("a.md"), 1_000);
+    // 意図: タイムアウトを超えて初期化が遅れても、その待ち時間は応答なしと扱わない。
+    await vi.advanceTimersByTimeAsync(5_000);
+    expect(db.onFileDeleted).not.toHaveBeenCalled();
+
+    await WorkerClient.initialize({ appId: "vault-1" });
+    await request;
+
+    expect(db.onFileDeleted).toHaveBeenCalledOnce();
+    expect(terminate).not.toHaveBeenCalled();
   });
 });
