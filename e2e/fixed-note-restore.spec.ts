@@ -109,11 +109,10 @@ async function reopenCurrentMFDILeaf(obsidian: ObsidianAPI) {
 }
 
 async function reloadObsidianWindow(obsidian: ObsidianAPI) {
-  await obsidian.page.evaluate(() => {
-    const workspace = app.workspace as {
-      requestSaveLayout?: () => void;
-    };
-    workspace.requestSaveLayout?.();
+  // 意図: requestSaveLayout は遅延保存のため、直後に再読込すると配置が保存されないことがある。
+  // 保存完了を待ってから再読込する。
+  await obsidian.page.evaluate(async () => {
+    await (app.workspace as unknown as { saveLayout: () => Promise<void> }).saveLayout();
   });
 
   await obsidian.page.reload();
