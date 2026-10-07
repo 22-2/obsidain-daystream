@@ -151,7 +151,12 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
       throw new Error("mfdi-view leaf not found");
     }
 
-    return leaf.view.containerEl.querySelector(".mfdi-input-area .cm-content")?.textContent ?? null;
+    const content = leaf.view.containerEl.querySelector(".mfdi-input-area .cm-content");
+    if (!content) return null;
+    // 意図: 空の入力欄に出るプレースホルダーは入力内容ではないため除外して読む。
+    const clone = content.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll(".cm-placeholder").forEach((el) => el.remove());
+    return clone.textContent;
   });
 }
 
@@ -359,6 +364,13 @@ test.describe("MFDI live editor e2e", () => {
   test("Ctrl+Enter では MFDIView の Scope のみが呼ばれる", async ({ obsidian }) => {
     const message = `Scope submit ${Date.now()}`;
     await registerAppScopeHotkeyCounter(obsidian, "submit-parent", ["Ctrl"], "Enter");
+    // 意図: Ctrl+Enter 送信は既定で無効なので、通常サイズでの送信を明示的に有効にする。
+    await obsidian.page.evaluate(async () => {
+      const plugin = (app as any).plugins.plugins["mobile-first-daily-interface"];
+      plugin.settings.ctrlEnterSends = "collapsed_only";
+      await plugin.saveSettings();
+      plugin.rerenderView();
+    });
 
     await setLiveEditorContent(obsidian, message);
     await liveEditor.click();
