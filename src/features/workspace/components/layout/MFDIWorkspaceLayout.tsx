@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef } from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { EmptyState } from "src/features/workspace/components/EmptyState";
 import { InputArea } from "src/features/composer/components/inputarea/InputArea";
@@ -8,7 +8,7 @@ import { InsightsSidebar } from "src/features/insights/components/InsightsSideba
 import { MainViewTabs } from "src/features/workspace/components/layout/MainViewTabs";
 import { PeriodicSidebar } from "src/features/notes/components/PeriodicSidebar";
 import { SidebarContainer } from "src/features/workspace/components/layout/SidebarContainer";
-import { getSidebarAutoToggleState } from "src/features/workspace/utils/sidebarAutoToggle";
+import { useSidebarAutoToggle } from "src/features/workspace/hooks/internal/useSidebarAutoToggle";
 import { PostListView } from "src/features/posts/components/posts/PostListView";
 import { Flex, Spinner } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
@@ -131,9 +131,8 @@ export const MFDIWorkspaceLayout = () => {
     searchButtonRef.current?.focus();
   }, [closeSearch]);
 
-  const [containerWidth, setContainerWidth] = useState(1000);
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastWidthRef = useRef(containerWidth);
+  useSidebarAutoToggle(containerRef, pluginSettings.autoToggleSidebar, setSidebarOpen);
   const contentScrollPositionsRef = useRef<Partial<Record<string, number>>>({});
 
   useEffect(() => {
@@ -169,27 +168,6 @@ export const MFDIWorkspaceLayout = () => {
       component.actionDelegates.onSearchInputClose = undefined;
     };
   }, [component, setMainView, setSearchInputOpen, closeSearchPanel]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      if (entries[0]) {
-        const newWidth = entries[0].contentRect.width;
-        const nextSidebarOpen = getSidebarAutoToggleState({
-          enabled: pluginSettings.autoToggleSidebar,
-          previousWidth: lastWidthRef.current,
-          nextWidth: newWidth,
-        });
-        if (nextSidebarOpen !== null) {
-          setSidebarOpen(nextSidebarOpen);
-        }
-        setContainerWidth(newWidth);
-        lastWidthRef.current = newWidth;
-      }
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [pluginSettings.autoToggleSidebar, setSidebarOpen]);
 
   const isEditorMaximized = settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED;
   // 意図: 最大化したエディタの作業領域を確保するため、左右のサイドバーを同時に閉じる。
