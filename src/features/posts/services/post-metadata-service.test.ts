@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 describe("replaceLatestPostsMetadata", () => {
   it("投稿自身の時刻で書き戻し、ノート日付の 00:00 に丸めない", async () => {
     (window as unknown as { moment: typeof moment }).moment = moment;
-    const replaceRange = vi.fn(async () => "");
+    const replaceRange = vi.fn<ObsidianAppShell["replaceRange"]>(async () => "");
     const post = {
       id: "p1",
       path: "2026-10-07.md",

@@ -1,4 +1,5 @@
-import { defineConfig, devices } from "@playwright/test";
+import { devices } from "@playwright/test";
+import { defineObsidianConfig } from "obsidian-e2e-toolkit";
 
 // macOS (darwin) の実行環境ではタイムアウトが短すぎてテストが不安定になる
 //（特に CI の仮想 macOS 環境で外部要因により遅延が発生しやすい）ため、
@@ -6,7 +7,7 @@ import { defineConfig, devices } from "@playwright/test";
 // 変更理由をここに残しておくことで将来の見直しがしやすくなります。
 const isMac = process.platform === "darwin";
 
-export default defineConfig({
+export default defineObsidianConfig({
   // テスト単位タイムアウト（ミリ秒）
   timeout: isMac ? 90_000 : undefined,
   testDir: "./e2e",

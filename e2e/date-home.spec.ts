@@ -1,32 +1,23 @@
-import path from "node:path";
 import { expect, test } from "obsidian-e2e-toolkit";
+import { collapseMfdiSidebars, mfdiVaultOptions, openMfdiView } from "./support";
 
-test.use({
-  vaultOptions: { fresh: true, plugins: [{ path: path.resolve("dist") }] },
-});
+test.use({ vaultOptions: mfdiVaultOptions() });
 
 // 意図: クラスの切替だけでなく実際のテーマ下の色と、日付入力から Home へ戻る操作を確認する。
 test("ホームは今月へ戻り、別の月では色が変わる", async ({
   obsidian,
   page,
 }, testInfo) => {
-  await obsidian.waitReady();
-  await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
-  const view = page.locator('.workspace-leaf-content[data-type="mfdi-view"]');
+  const view = await openMfdiView(obsidian);
   // 意図: Obsidian と MFDI のサイドバーで中央が潰れないよう、日付操作の検証に必要な幅を確保する。
-  await page.getByLabel("ナビゲーターを切り替え", { exact: true }).click();
-  await page.getByLabel("インサイトを切り替え", { exact: true }).click();
-  await page.evaluate(() => {
-    app.workspace.leftSplit.collapse();
-    app.workspace.rightSplit.collapse();
-  });
+  await collapseMfdiSidebars(obsidian);
   await view.getByRole("tab", { name: "日付", exact: true }).click();
   const navigation = view.locator(".mfdi-statusbar-date-bar");
   const home = navigation.getByRole("button", { name: "ホーム", exact: true });
   const year = navigation.getByRole("spinbutton", { name: "年", exact: true });
   const month = navigation.getByRole("combobox", { name: "月", exact: true });
   const day = navigation.getByRole("combobox", { name: "日", exact: true });
-  const now = await page.evaluate(() => ({
+  const now = await obsidian.evaluateApp(() => ({
     year: window.moment().year(),
     month: window.moment().month() + 1,
   }));

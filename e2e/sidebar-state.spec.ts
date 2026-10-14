@@ -1,22 +1,15 @@
-import path from "node:path";
 import { expect, test } from "obsidian-e2e-toolkit";
+import { MFDI_VIEW_TYPE, mfdiVaultOptions, openMfdiView } from "./support";
 
-test.use({
-  vaultOptions: { fresh: true, plugins: [{ path: path.resolve("dist") }] },
-});
+test.use({ vaultOptions: mfdiVaultOptions() });
 
 test("タブ復帰とビューの開き直しで左右の開閉状態を維持する", async ({
   obsidian,
   page,
 }) => {
-  await obsidian.waitReady();
   await page.setViewportSize({ width: 1800, height: 1000 });
-  await page.evaluate(() => {
-    app.workspace.leftSplit.collapse();
-    app.workspace.rightSplit.collapse();
-  });
-  await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
-  const view = page.locator('.workspace-leaf-content[data-type="mfdi-view"]');
+  await obsidian.collapseSidebars();
+  const view = await openMfdiView(obsidian);
   const root = view.locator(".mfdi-dashboard-root");
   const leftPanel = view.locator(".mfdi-dashboard-sidebar--left");
   const rightPanel = view.locator(".mfdi-dashboard-sidebar--right");
@@ -32,7 +25,7 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   await expect(leftPanel).toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
 
   // 意図: 実際に別タブへ移り、ネイティブ ResizeObserver に非表示時の幅 0 を通知させる。
-  await page.evaluate(async () => {
+  await obsidian.evaluateApp(async () => {
     await app.workspace
       .getLeaf(true)
       .setViewState({ type: "empty", active: true });
@@ -44,18 +37,16 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   await expect(leftPanel).toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
   await expect(rightPanel).not.toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
 
-  await page.evaluate(() =>
-    app.workspace.revealLeaf(app.workspace.getLeavesOfType("mfdi-view")[0]),
-  );
+  await obsidian.revealView(MFDI_VIEW_TYPE);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();
 
   // 意図: store の再作成と保存状態の復元まで通し、初回の幅測定でも上書きしないことを確認する。
-  await page.evaluate(() =>
+  await obsidian.evaluateApp(() =>
     app.workspace.getLeavesOfType("mfdi-view")[0].detach(),
   );
-  await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
+  await openMfdiView(obsidian);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();

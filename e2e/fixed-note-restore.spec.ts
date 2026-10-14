@@ -1,43 +1,26 @@
-import type { Page } from "@playwright/test";
-import path from "node:path";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import { fileURLToPath } from "url";
+import {
+  LIVE_EDITOR,
+  MFDI_VIEW_TYPE,
+  mfdiVaultOptions,
+  openHostNote,
+} from "./support";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PLUGIN_PATH = path.join(__dirname, "../dist");
 const HOST_FILE_PATH = "mfdi-e2e-fixed-restore-host.md";
 const FIXED_NOTE_PATH = "MFDI/RestoreTarget.mfdi.md";
 
-test.use({
-  vaultOptions: {
-    fresh: true,
-    logLevel: "debug",
-    plugins: [
-      {
-        path: PLUGIN_PATH,
-      },
-    ],
-  },
-});
+test.use({ vaultOptions: mfdiVaultOptions({ logLevel: "debug" }) });
 
-async function waitForPluginReady(obsidian: ObsidianAPI, page: Page) {
-  await obsidian.waitReady();
-  await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
-
-  await obsidian.save(HOST_FILE_PATH, "");
-  await obsidian.open(HOST_FILE_PATH);
-  await obsidian.waitReady();
-
-  await expect(page.locator(".workspace-tabs.mod-active").first()).toBeVisible({
+async function waitForPluginReady(obsidian: ObsidianAPI) {
+  await openHostNote(obsidian, HOST_FILE_PATH);
+  await expect(obsidian.page.locator(".workspace-tabs.mod-active").first()).toBeVisible({
     timeout: 15000,
   });
 }
 
 async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
-  await obsidian.page.evaluate(async () => {
+  await obsidian.evaluateApp(async () => {
     if (!app.vault.getAbstractFileByPath("MFDI")) {
       await app.vault.createFolder("MFDI");
     }
@@ -57,39 +40,32 @@ async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
 }
 
 async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
-  await obsidian.page.evaluate(
-    async ({ path, sessionNumber }) => {
-      const leaf = app.workspace.getLeaf(true);
-      await leaf.setViewState({
-        type: "mfdi-view",
-        active: true,
-        state: {
-          displayMode: "focus",
-          granularity: "day",
-          asTask: false,
-          threadOnly: false,
-          fixedSessionNumber: sessionNumber,
-          timeFilter: "all",
-          dateFilter: "all",
-          searchQuery: "",
-          activeTopic: "",
-          noteMode: "fixed",
-          file: path,
-        },
-      });
-      app.workspace.revealLeaf(leaf);
+  await obsidian.openView(
+    MFDI_VIEW_TYPE,
+    {
+      displayMode: "focus",
+      granularity: "day",
+      asTask: false,
+      threadOnly: false,
+      fixedSessionNumber: sessionNumber,
+      timeFilter: "all",
+      dateFilter: "all",
+      searchQuery: "",
+      activeTopic: "",
+      noteMode: "fixed",
+      file: FIXED_NOTE_PATH,
     },
-    { path: FIXED_NOTE_PATH, sessionNumber },
+    { newLeaf: true },
   );
 
-  await obsidian.waitForViewType("mfdi-view");
-  await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({
+  await obsidian.waitForViewType(MFDI_VIEW_TYPE);
+  await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({
     timeout: 15000,
   });
 }
 
 async function reopenCurrentMFDILeaf(obsidian: ObsidianAPI) {
-  await obsidian.page.evaluate(async () => {
+  await obsidian.evaluateApp(async () => {
     const currentLeaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     if (!currentLeaf) {
       throw new Error("mfdi-view leaf not found");
@@ -108,59 +84,39 @@ async function reopenCurrentMFDILeaf(obsidian: ObsidianAPI) {
   });
 }
 
-async function reloadObsidianWindow(obsidian: ObsidianAPI) {
-  // 意図: requestSaveLayout は遅延保存のため、直後に再読込すると配置が保存されないことがある。
-  // 保存完了を待ってから再読込する。
-  await obsidian.page.evaluate(async () => {
-    await (app.workspace as unknown as { saveLayout: () => Promise<void> }).saveLayout();
-  });
+/** Reloads the window, then shows the restored MFDI view as a user opening its tab would. */
+async function reloadAndRevealMFDIView(obsidian: ObsidianAPI) {
+  // 意図: reload は既定で saveLayout の完了を待つため、遅延保存で配置を失わない。
+  await obsidian.reload({ saveLayout: true });
 
-  await obsidian.page.reload();
-  await obsidian.waitReady();
-  await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
+  // 意図: 再読込直後は固定ノートの leaf 復元（markdown から mfdi-view への変換）が
+  // 終わっていないことがあるため、leaf が現れるまで待つ。
+  await expect
+    .poll(() => obsidian.evaluateApp(() => app.workspace.getLeavesOfType("mfdi-view").length), {
+      timeout: 15000,
+    })
+    .toBeGreaterThan(0)
+    .catch(async (error: unknown) => {
+      throw new Error(
+        `mfdi-view leaf was not restored. Leaves:\n${await obsidian.describeLeaves()}`,
+        { cause: error },
+      );
+    });
 
   // 意図: 再読込後の Obsidian は前面にないタブのビューを遅延読み込みにするため、
   // ユーザーがタブを開くのと同じく MFDI タブを前面に出して描画させる。
-  // 意図: 再読込直後は固定ノートの leaf 復元（markdown から mfdi-view への変換）が
-  // 終わっていないことがあるため、leaf が現れるまで待ってから前面に出す。
-  try {
-    await expect
-      .poll(
-        () => obsidian.page.evaluate(() => app.workspace.getLeavesOfType("mfdi-view").length),
-        { timeout: 15000 },
-      )
-      .toBeGreaterThan(0);
-  } catch (error) {
-    throw new Error(`mfdi-view leaf was not restored. Leaves:\n${await describeWorkspaceLeaves(obsidian)}`, {
-      cause: error,
-    });
-  }
-  await obsidian.page.evaluate(async () => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
-    await app.workspace.revealLeaf(leaf);
-    await (leaf as { loadIfDeferred?: () => Promise<void> }).loadIfDeferred?.();
-  });
-}
-
-async function describeWorkspaceLeaves(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
-    const leaves: string[] = [];
-    app.workspace.iterateAllLeaves((leaf) => {
-      const state = leaf.getViewState();
-      leaves.push(`${leaf.view.getViewType()} (state=${state.type}, file=${String(state.state?.file ?? "")})`);
-    });
-    return leaves.join("\n");
-  });
+  await obsidian.revealView(MFDI_VIEW_TYPE);
 }
 
 async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
+  // One evaluation reads the view state and the list text together, so both describe the same moment.
+  return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     if (!leaf) {
       throw new Error("mfdi-view leaf not found");
     }
 
-    const state = leaf.view.getState() as {
+    const viewState = leaf.view.getState() as {
       fixedSessionNumber?: number;
       noteMode?: string;
       file?: string | null;
@@ -168,9 +124,9 @@ async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
     const listText = document.querySelector(".list")?.textContent ?? "";
 
     return {
-      fixedSessionNumber: state.fixedSessionNumber ?? null,
-      noteMode: state.noteMode ?? null,
-      file: state.file ?? null,
+      fixedSessionNumber: viewState.fixedSessionNumber ?? null,
+      noteMode: viewState.noteMode ?? null,
+      file: viewState.file ?? null,
       listText,
     };
   });
@@ -180,7 +136,7 @@ test.describe("fixed note restore", () => {
   test("repeated session switching does not bounce between stale states", async ({
     obsidian,
   }) => {
-    await waitForPluginReady(obsidian, obsidian.page);
+    await waitForPluginReady(obsidian);
     await ensureFixedNoteFixture(obsidian);
     await openFixedNoteView(obsidian, 1);
 
@@ -206,7 +162,7 @@ test.describe("fixed note restore", () => {
       return (await getFixedSessionSnapshot(obsidian)).listText;
     }).toContain("session-two");
 
-    // 競合が継続していないことを、状態を少し観測した後の安定値でも確認する。
+    // 観測期間: 競合が一度収まった後も再発しないことを、少し時間を置いて確認する。
     await obsidian.page.waitForTimeout(300);
     expect((await getFixedSessionSnapshot(obsidian)).fixedSessionNumber).toBe(2);
   });
@@ -214,7 +170,7 @@ test.describe("fixed note restore", () => {
   test("restored fixed leaf keeps session selection and stays responsive", async ({
     obsidian,
   }) => {
-    await waitForPluginReady(obsidian, obsidian.page);
+    await waitForPluginReady(obsidian);
     await ensureFixedNoteFixture(obsidian);
     await openFixedNoteView(obsidian, 2);
 
@@ -228,7 +184,7 @@ test.describe("fixed note restore", () => {
 
     await reopenCurrentMFDILeaf(obsidian);
 
-    await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({
+    await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({
       timeout: 15000,
     });
     await expect.poll(async () => {
@@ -247,7 +203,7 @@ test.describe("fixed note restore", () => {
   test("reloading the window keeps the restored fixed session responsive", async ({
     obsidian,
   }) => {
-    await waitForPluginReady(obsidian, obsidian.page);
+    await waitForPluginReady(obsidian);
     await ensureFixedNoteFixture(obsidian);
     await openFixedNoteView(obsidian, 2);
 
@@ -255,12 +211,11 @@ test.describe("fixed note restore", () => {
       return (await getFixedSessionSnapshot(obsidian)).fixedSessionNumber;
     }).toBe(2);
 
-    await obsidian.page.waitForTimeout(500); // wait for layout save to complete
-    await reloadObsidianWindow(obsidian);
+    await reloadAndRevealMFDIView(obsidian);
 
     await expect(
-      obsidian.page.locator(".mfdi-input-area .cm-content"),
-      await describeWorkspaceLeaves(obsidian),
+      obsidian.page.locator(LIVE_EDITOR),
+      await obsidian.describeLeaves(),
     ).toBeVisible({
       timeout: 15000,
     });

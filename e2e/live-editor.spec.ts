@@ -1,62 +1,43 @@
-import type { Locator, Page } from "@playwright/test";
-import path from "node:path";
+import type { Locator } from "@playwright/test";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
 import { createStorageKey, getStorageKeyPrefix } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { MFDIView } from "src/features/workspace/views/MFDIView";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  LIVE_EDITOR,
+  PLUGIN_ID,
+  getLiveEditorDelegateContent,
+  mfdiVaultOptions,
+  openHostNote,
+  openMfdiView,
+  setLiveEditorDelegateContent,
+} from "./support";
 
-// CI/build places plugin output at repository root `dist/`.
-// Use parent path so e2e tests find the built plugin in CI.
-const PLUGIN_PATH = path.join(__dirname, "../dist");
 const HOST_FILE_PATH = "mfdi-e2e-host.md";
 
-test.use({
-  vaultOptions: {
-    fresh: true,
-    logLevel: "debug",
-    plugins: [
-      {
-        path: PLUGIN_PATH,
-      },
-    ],
-  },
-});
+/** Observation window for errors that show up after the view has mounted. */
+const OBSERVATION_MS = 500;
+
+test.use({ vaultOptions: mfdiVaultOptions({ logLevel: "debug" }) });
 
 // 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
 async function getMFDIDisplayMode(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
+  return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
   });
 }
 
-async function waitForMFDIReady(obsidian: ObsidianAPI, page: Page) {
-  await obsidian.waitReady();
-  await obsidian.waitForPluginEnabled("mobile-first-daily-interface");
+async function waitForMFDIReady(obsidian: ObsidianAPI) {
+  await openHostNote(obsidian, HOST_FILE_PATH);
+  await openMfdiView(obsidian);
 
-  await obsidian.save(HOST_FILE_PATH, "");
-  await obsidian.open(HOST_FILE_PATH);
-  await obsidian.waitReady();
-
-  await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
-  await obsidian.waitForViewType("mfdi-view");
-
-  const liveEditor = page.locator(".mfdi-input-area .cm-content");
+  const liveEditor = obsidian.page.locator(LIVE_EDITOR);
 
   await expect(liveEditor).toBeVisible({ timeout: 15000 });
   return liveEditor;
-}
-
-async function openModalFromKeyboard(page: Page) {
-  await page.keyboard.press("Control+Shift+Alt+O");
-  const modalEditor = page.locator(".mfdi-modal-editor .cm-content");
-  await expect(modalEditor).toBeVisible({ timeout: 10000 });
-  return modalEditor;
 }
 
 async function registerAppScopeHotkeyCounter(
@@ -65,13 +46,11 @@ async function registerAppScopeHotkeyCounter(
   modifiers: string[],
   key: string,
 ) {
-  await obsidian.page.evaluate(
+  await obsidian.evaluateApp(
     ({ counterKey, modifiers, key }) => {
-      const globalState = (
-        window as Window & {
-          __mfdiE2EHotkeys?: Record<string, { count: number; handler: unknown }>;
-        }
-      );
+      const globalState = window as Window & {
+        __mfdiE2EHotkeys?: Record<string, { count: number; handler: unknown }>;
+      };
       globalState.__mfdiE2EHotkeys ??= {};
 
       const existing = globalState.__mfdiE2EHotkeys[counterKey];
@@ -94,58 +73,27 @@ async function registerAppScopeHotkeyCounter(
 }
 
 async function getAppScopeHotkeyCount(obsidian: ObsidianAPI, counterKey: string) {
-  return obsidian.page.evaluate((key) => {
-    const globalState = (
-      window as Window & {
-        __mfdiE2EHotkeys?: Record<string, { count: number }>;
-      }
-    );
+  return obsidian.evaluateApp((key) => {
+    const globalState = window as Window & {
+      __mfdiE2EHotkeys?: Record<string, { count: number }>;
+    };
     return globalState.__mfdiE2EHotkeys?.[key]?.count ?? 0;
   }, counterKey);
 }
 
-async function setLiveEditorContent(obsidian: ObsidianAPI, text: string) {
-  await obsidian.page.evaluate((content) => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
-    if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
-    }
-
-    if (!(leaf.view as MFDIView).actionDelegates.onSetLiveEditorContentForTesting) {
-      throw new Error("onSetLiveEditorContentForTesting is not ready");
-    }
-
-    (leaf.view as MFDIView).actionDelegates.onSetLiveEditorContentForTesting!(content);
-  }, text);
-
-  const liveEditor = obsidian.page.locator(".mfdi-input-area .cm-content");
-  await liveEditor.click();
-
-  await expect.poll(() => getLiveEditorContent(obsidian)).toBe(text);
-  await expect.poll(async () => {
-    return obsidian.page.evaluate(() => {
-      return app.workspace.activeEditor?.editor?.getValue() ?? null;
-    });
-  }).toBe(text);
+function getActiveEditorValue(obsidian: ObsidianAPI): Promise<string | null> {
+  return obsidian.evaluateApp(() => app.workspace.activeEditor?.editor?.getValue() ?? null);
 }
 
-async function getLiveEditorContent(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
-    if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
-    }
-
-    if (!(leaf.view as MFDIView).actionDelegates.onGetLiveEditorContentForTesting) {
-      throw new Error("onGetLiveEditorContentForTesting is not ready");
-    }
-
-    return (leaf.view as MFDIView).actionDelegates.onGetLiveEditorContentForTesting!();
-  });
+/** Sets the text through the view's delegate, then focuses the editor and checks Obsidian's active editor. */
+async function setLiveEditorContent(obsidian: ObsidianAPI, text: string) {
+  await setLiveEditorDelegateContent(obsidian, text);
+  await obsidian.page.locator(LIVE_EDITOR).click();
+  await expect.poll(() => getActiveEditorValue(obsidian)).toBe(text);
 }
 
 async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
+  return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     if (!leaf) {
       throw new Error("mfdi-view leaf not found");
@@ -161,7 +109,7 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
 }
 
 async function getLiveEditorDebugState(obsidian: ObsidianAPI) {
-  return obsidian.page.evaluate(() => {
+  return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     if (!leaf) {
       throw new Error("mfdi-view leaf not found");
@@ -202,7 +150,7 @@ async function expectLiveEditorRestoreState(
 // DO NOT EDIT: This is a helper function for the test "ライブエディタで Escape キーでマルチカーソルが解除される" to create a multi-cursor selection in the live editor. It simulates the user action of adding a new cursor on the next line. The implementation uses Obsidian's API to manipulate the editor's selections directly.
 // copy from obsidian-advanced-cursor plugin:
 async function getLiveEditorSelectionCount(obsidian: ObsidianAPI): Promise<number> {
-  return obsidian.page.evaluate(() => {
+  return obsidian.evaluateApp(() => {
     const editor = app.workspace.activeEditor?.editor;
     if (!editor) {
       throw new Error("active editor not found");
@@ -215,7 +163,7 @@ async function getLiveEditorSelectionCount(obsidian: ObsidianAPI): Promise<numbe
 // DO NOT EDIT: This is a helper function for the test "ライブエディタで Escape キーでマルチカーソルが解除される" to create a multi-cursor selection in the live editor. It simulates the user action of adding a new cursor on the next line. The implementation uses Obsidian's API to manipulate the editor's selections directly.
 // copy from obsidian-advanced-cursor plugin:
 async function createLiveEditorMulticursor(obsidian: ObsidianAPI): Promise<void> {
-  await obsidian.page.evaluate(() => {
+  await obsidian.evaluateApp(() => {
     const editor = app.workspace.activeEditor?.editor;
     if (!editor) {
       throw new Error("active editor not found");
@@ -238,19 +186,12 @@ async function createLiveEditorMulticursor(obsidian: ObsidianAPI): Promise<void>
     editor.setSelections(selections);
   });
 }
-// ─── 待機時間定数 ───────────────────────────────────────────
-const WAIT = {
-  SHORT: 200,
-  MEDIUM: 300,
-  LONG: 500,
-  DRAFT_SAVE: 3000,
-} as const;
 
 // ─── ヘルパー ────────────────────────────────────────────────
 
 /** localStorage の mfdi 入力値を検証する */
 async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
-  const appId = await obsidian.page.evaluate(() => app.appId);
+  const appId = await obsidian.evaluateApp(() => app.appId);
   const periodicKey = createStorageKey(
     appId,
     getInputStorageKey("periodic", null),
@@ -288,11 +229,12 @@ async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
 
 /** 下書き一覧に保存された本文を返す */
 async function getStoredDrafts(obsidian: ObsidianAPI): Promise<string[]> {
+  const appId = await obsidian.evaluateApp(() => app.appId);
   return obsidian.page.evaluate((key) => {
     const raw = localStorage.getItem(key);
     if (!raw) return [];
     return (JSON.parse(raw) as { content: string }[]).map((draft) => draft.content);
-  }, createStorageKey(await obsidian.page.evaluate(() => app.appId), "drafts"));
+  }, createStorageKey(appId, "drafts"));
 }
 
 /** ライブエディタの状態（state / DOM）を一括検証する */
@@ -300,7 +242,7 @@ async function expectLiveEditorContent(
   obsidian: ObsidianAPI,
   expected: string,
 ) {
-  await expect.poll(() => getLiveEditorContent(obsidian)).toBe(expected);
+  await expect.poll(() => getLiveEditorDelegateContent(obsidian)).toBe(expected);
   await expect.poll(() => getLiveEditorDOMContent(obsidian)).toBe(expected);
   await expectLocalStorage(obsidian, expected);
 }
@@ -312,7 +254,7 @@ test.describe("MFDI live editor e2e", () => {
 
   // ほぼ全テストで必要な共通セットアップ
   test.beforeEach(async ({ obsidian }) => {
-    liveEditor = await waitForMFDIReady(obsidian, obsidian.page);
+    liveEditor = await waitForMFDIReady(obsidian);
   });
 
   // ── 起動 ────────────────────────────────────────────────────
@@ -326,7 +268,8 @@ test.describe("MFDI live editor e2e", () => {
       if (msg.type() === "error") consoleErrors.push(msg.text());
     });
 
-    await obsidian.page.waitForTimeout(WAIT.LONG);
+    // 観測期間: 起動直後に遅れて出るエラーを拾うため、一定時間エラーを集める。
+    await obsidian.page.waitForTimeout(OBSERVATION_MS);
 
     expect([...pageErrors, ...consoleErrors].join("\n")).not.toContain(
       "Cannot read properties of undefined (reading 'view')",
@@ -348,18 +291,15 @@ test.describe("MFDI live editor e2e", () => {
   test("ライブエディタで Playwright fill が使える", async ({ obsidian }) => {
     await liveEditor.click();
     await liveEditor.fill("Playwright live typing");
-    await obsidian.page.waitForTimeout(WAIT.SHORT);
 
     await expect(liveEditor).toContainText("Playwright live typing");
   });
 
   test("ライブエディタで Escape キーでマルチカーソルが解除される", async ({ obsidian }) => {
     await liveEditor.click();
-    await obsidian.page.waitForTimeout(WAIT.MEDIUM);
 
     // 2 つ目の選択範囲のため最低 15 文字必要
     await setLiveEditorContent(obsidian, "h\ne\nl\nlo\n w\no\nr\nl\nd\n t\ne\ns\nt");
-    await obsidian.page.waitForTimeout(WAIT.MEDIUM);
 
     await createLiveEditorMulticursor(obsidian);
     await expect.poll(() => getLiveEditorSelectionCount(obsidian)).toBe(2);
@@ -371,20 +311,17 @@ test.describe("MFDI live editor e2e", () => {
   // ── 投稿・スコープ ───────────────────────────────────────────
 
   test("Ctrl+Enter では MFDIView の Scope のみが呼ばれる", async ({ obsidian }) => {
-    const message = `Scope submit ${Date.now()}`;
+    const message = "Scope submit " + Date.now();
     await registerAppScopeHotkeyCounter(obsidian, "submit-parent", ["Ctrl"], "Enter");
     // 意図: Ctrl+Enter 送信は既定で無効なので、通常サイズでの送信を明示的に有効にする。
-    await obsidian.page.evaluate(async () => {
-      const plugin = (app as any).plugins.plugins["mobile-first-daily-interface"];
-      plugin.settings.ctrlEnterSends = "collapsed_only";
-      await plugin.saveSettings();
-      plugin.rerenderView();
-    });
+    await obsidian.updatePluginSettings(PLUGIN_ID, { ctrlEnterSends: "collapsed_only" });
+    await obsidian.evaluatePlugin<void, { rerenderView(): void }>(PLUGIN_ID, (plugin) =>
+      plugin.rerenderView(),
+    );
 
     await setLiveEditorContent(obsidian, message);
     await liveEditor.click();
     await obsidian.page.keyboard.press("Control+Enter");
-    await obsidian.page.waitForTimeout(WAIT.LONG);
 
     await expect(
       obsidian.page.locator(".list .markdown-rendered", { hasText: message }),
@@ -395,22 +332,16 @@ test.describe("MFDI live editor e2e", () => {
   });
 
   test("入力したテキストが投稿される", async ({ obsidian }) => {
-    const message = `E2E post ${Date.now()}`;
+    const message = "E2E post " + Date.now();
 
     await setLiveEditorContent(obsidian, message);
     await obsidian.page.getByRole("button", { name: "投稿" }).click();
-    await obsidian.page.waitForTimeout(WAIT.LONG);
 
-    const content = await obsidian.page
-      .locator(".list .markdown-rendered")
-      .first()
-      .innerText();
-
-    expect(content).toContain(message);
+    await expect(obsidian.page.locator(".list .markdown-rendered").first()).toContainText(message);
   });
 
   test("投稿したポストを編集できて、変更がすぐに反映される", async ({ obsidian }) => {
-    const message = `Editable post ${Date.now()}`;
+    const message = "Editable post " + Date.now();
 
     // 投稿
     await setLiveEditorContent(obsidian, message);
@@ -423,9 +354,8 @@ test.describe("MFDI live editor e2e", () => {
     await expectLiveEditorContent(obsidian, message);
 
     // 編集して更新
-    const editedMessage = `${message} - edited`;
+    const editedMessage = message + " - edited";
     await setLiveEditorContent(obsidian, editedMessage);
-    await obsidian.page.waitForTimeout(WAIT.LONG);
     await obsidian.page.getByRole("button", { name: "更新" }).click();
 
     // 更新後の検証
@@ -435,7 +365,7 @@ test.describe("MFDI live editor e2e", () => {
   });
 
   test("既存投稿の編集中にタブを閉じても、再表示で編集を続けられる", async ({ obsidian }) => {
-    const message = `Close tab while editing ${Date.now()}`;
+    const message = "Close tab while editing " + Date.now();
 
     // 投稿
     await setLiveEditorContent(obsidian, message);
@@ -445,21 +375,19 @@ test.describe("MFDI live editor e2e", () => {
     await obsidian.page.locator(".list .base-card").first().dblclick();
     await expect(obsidian.page.locator(".list .mfdi-card--highlighted .base-card").first()).toBeVisible();
     await expectLiveEditorContent(obsidian, message);
-    const unsavedEdit = `${message} - unsaved`;
+    const unsavedEdit = message + " - unsaved";
     await setLiveEditorContent(obsidian, unsavedEdit);
 
     // タブを閉じて再度開く
     await obsidian.closeTab();
     // 意図: 既存投稿の編集は新規入力と違い、下書きへ移さずに編集状態ごと復元する。
     await expect.poll(() => getStoredDrafts(obsidian)).not.toContain(unsavedEdit);
-    await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
-    await obsidian.waitForViewType("mfdi-view");
+    await openMfdiView(obsidian);
     await expectLiveEditorRestoreState(obsidian, unsavedEdit, {
       expectedEditingPostMessage: message,
     });
 
     // 編集を確定する
-    await obsidian.page.waitForTimeout(WAIT.LONG);
     await obsidian.page.getByRole("button", { name: "更新" }).click();
     await expectLiveEditorContent(obsidian, "");
     await expect.poll(() => obsidian.page.locator(".list .base-card").all()).toHaveLength(1);
@@ -469,7 +397,7 @@ test.describe("MFDI live editor e2e", () => {
   // ── ドラフト復元 ─────────────────────────────────────────────
 
   test("タブを閉じると入力中の内容は下書きへ移り、再表示では復元しない", async ({ obsidian }) => {
-    const draft = `draft-${Date.now()}`;
+    const draft = "draft-" + Date.now();
 
     await setLiveEditorContent(obsidian, draft);
     await expectLocalStorage(obsidian, draft);
@@ -478,9 +406,8 @@ test.describe("MFDI live editor e2e", () => {
     // 意図: タブを閉じる操作は composer を閉じる操作と同じ扱いで、入力は下書き一覧へ移る。
     await expect.poll(() => getStoredDrafts(obsidian)).toContain(draft);
 
-    await obsidian.command("mobile-first-daily-interface:mfdi-open-view");
-    await obsidian.waitForViewType("mfdi-view");
-    await expect(obsidian.page.locator(".mfdi-input-area .cm-content")).toBeVisible({ timeout: 15000 });
+    await openMfdiView(obsidian);
+    await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({ timeout: 15000 });
     await expectLiveEditorRestoreState(obsidian, "", {
       expectedEditingPostMessage: null,
     });
