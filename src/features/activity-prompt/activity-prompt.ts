@@ -70,6 +70,6 @@ export async function saveActivityPromptResponse({
     indexError = error;
   }
 
-  shell.trigger("mfdi:scroll-to-top");
+  shell.trigger("daystream:scroll-to-top");
   return { notePath: note.path, indexError };
 }

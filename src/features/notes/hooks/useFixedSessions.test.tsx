@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { TFile } from "obsidian";
 import React from "react";
-import { MFDIStorage } from "src/core/storage";
+import { DaystreamStorage } from "src/core/storage";
 import { useFixedSessions } from "src/features/notes/hooks/useFixedSessions";
 import { AppStoreProvider, createAppStore } from "src/features/workspace/store/appStore";
 import {
@@ -40,7 +40,7 @@ describe("useFixedSessions", () => {
   const metaPath = "MFDI/fixed.fixed-session-meta.json";
   let files: Map<string, string>;
   let store: ReturnType<typeof createAppStore>;
-  let storage: MFDIStorage;
+  let storage: DaystreamStorage;
 
   beforeEach(() => {
     vi.useRealTimers();
@@ -69,7 +69,7 @@ describe("useFixedSessions", () => {
       files.set(filePath, content);
     });
     mocked.confirmDelete.mockResolvedValue(true);
-    storage = new MFDIStorage("fixed-sessions-test");
+    storage = new DaystreamStorage("fixed-sessions-test");
     store = createAppStore();
     store.setState({ storage, viewNoteMode: "fixed", file: path, fixedSessionNumber: 2 });
   });

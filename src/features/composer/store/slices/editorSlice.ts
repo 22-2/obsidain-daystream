@@ -12,7 +12,7 @@ import type {
   PersistedDraftMetadataState,
   PersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
-import type { MFDIStore } from "src/features/workspace/store/slices/types";
+import type { DaystreamStore } from "src/features/workspace/store/slices/types";
 import type { EditorSlice } from "src/features/composer/store/types";
 import type { StateCreator } from "zustand/vanilla";
 
@@ -53,7 +53,7 @@ export function mergeDraftMetadataForSubmit(params: {
   return { ...merged, ...draftMetadata };
 }
 
-export const createEditorSlice: StateCreator<MFDIStore, [], [], EditorSlice> = (set, get) => {
+export const createEditorSlice: StateCreator<DaystreamStore, [], [], EditorSlice> = (set, get) => {
   let inputPersistTimer: ReturnType<typeof setTimeout> | null = null;
 
   const persistInput = (input: string, mode: PersistMode) => {

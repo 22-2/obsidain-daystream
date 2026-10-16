@@ -2,11 +2,11 @@ import { resolveWriteGranularity } from "src/features/workspace/utils/write-cont
 import { Notice } from "obsidian";
 import { resolveNoteSource } from "src/core/note-source";
 import { openMarkdownNote } from "src/features/notes/utils/open-markdown-note";
-import type { MFDIStore } from "src/features/workspace/store/slices/types";
+import type { DaystreamStore } from "src/features/workspace/store/slices/types";
 import type { NoteSlice } from "src/features/notes/store/types";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createNoteSlice: StateCreator<MFDIStore, [], [], NoteSlice> = (set, get) => ({
+export const createNoteSlice: StateCreator<DaystreamStore, [], [], NoteSlice> = (set, get) => ({
   currentDailyNote: null,
   weekNotePaths: new Set(),
 

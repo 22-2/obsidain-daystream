@@ -22,11 +22,11 @@ export const CalendarHeader: React.FC<{
     viewDate,
   );
   const periodLabelClass =
-    "mini-calendar__period-label inline-flex min-h-[var(--mfdi-calendar-header-height)] items-center rounded-[4px] px-[4px] text-[length:var(--mfdi-calendar-header-font-size)] font-bold leading-[var(--mfdi-calendar-header-height)] cursor-pointer hover:bg-[var(--background-modifier-hover)]";
+    "mini-calendar__period-label inline-flex min-h-[var(--daystream-calendar-header-height)] items-center rounded-[4px] px-[4px] text-[length:var(--daystream-calendar-header-font-size)] font-bold leading-[var(--daystream-calendar-header-height)] cursor-pointer hover:bg-[var(--background-modifier-hover)]";
 
   return (
     <div className="mini-calendar__header flex w-full justify-between items-center px-0 pb-2">
-      <div className="mini-calendar__month-label flex items-center gap-[var(--mfdi-calendar-header-gap)] ml-[var(--mfdi-calendar-header-margin-left)]">
+      <div className="mini-calendar__month-label flex items-center gap-[var(--daystream-calendar-header-gap)] ml-[var(--daystream-calendar-header-margin-left)]">
         <span
           className={cn(
             periodLabelClass,
@@ -48,13 +48,13 @@ export const CalendarHeader: React.FC<{
           {viewDate.format("M月")}
         </span>
       </div>
-      <div className="mini-calendar__nav flex items-center gap-[var(--mfdi-calendar-nav-gap)]">
+      <div className="mini-calendar__nav flex items-center gap-[var(--daystream-calendar-nav-gap)]">
         {(["left", "right"] as const).map((direction) => (
           <NavButton
             key={direction}
             direction={direction}
             onClick={direction === "left" ? onPrev : onNext}
-            className="mini-calendar__nav-button size-[var(--mfdi-calendar-header-height)] p-[var(--mfdi-calendar-nav-padding)]"
+            className="mini-calendar__nav-button size-[var(--daystream-calendar-header-height)] p-[var(--daystream-calendar-nav-padding)]"
           />
         ))}
       </div>

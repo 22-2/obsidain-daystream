@@ -1,7 +1,7 @@
-import { MFDIDatabase, type MemoRecord } from "src/core/db/mfdi-db";
+import { DaystreamDatabase, type MemoRecord } from "src/core/db/daystream-db";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const databases: MFDIDatabase[] = [];
+const databases: DaystreamDatabase[] = [];
 
 beforeEach(() => {
   vi.useRealTimers();
@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 function createDatabase() {
-  const db = new MFDIDatabase(`test-${crypto.randomUUID()}`);
+  const db = new DaystreamDatabase(`test-${crypto.randomUUID()}`);
   databases.push(db);
   return db;
 }
@@ -48,7 +48,7 @@ function createMemo(overrides: Partial<MemoRecord> = {}): MemoRecord {
   };
 }
 
-describe("MFDIDatabase Search", () => {
+describe("DaystreamDatabase Search", () => {
   test("getLatestVisibleMemos filters by query", async () => {
     const db = createDatabase();
     await db.memos.bulkPut([

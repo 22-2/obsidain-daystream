@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import type { MFDIStorage } from "src/core/storage";
+import type { DaystreamStorage } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 
 type UseCollapsedGroupsInput = {
-  storage: MFDIStorage;
+  storage: DaystreamStorage;
   canCollapseDividers: boolean;
 };
 

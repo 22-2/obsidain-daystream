@@ -10,11 +10,11 @@ export const SidebarSectionHeader: React.FC<{
     <HStack
       className={cn(
         "sidebar-section-header",
-        "justify-between px-[var(--mfdi-panel-section-padding-inline)]",
+        "justify-between px-[var(--daystream-panel-section-padding-inline)]",
         className,
       )}
     >
-      <Text className="text-[length:var(--mfdi-panel-heading-font-size)] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+      <Text className="text-[length:var(--daystream-panel-heading-font-size)] text-[var(--text-muted)] font-bold uppercase tracking-wider">
         {children}
       </Text>
       {rightAddon}
@@ -34,8 +34,8 @@ export const SidebarTextButton: React.FC<{
     <Box
       className={cn(
         "sidebar-text-button",
-        "flex items-center px-[var(--mfdi-panel-item-padding-inline)] h-[var(--mfdi-panel-item-height)]",
-        "rounded-[var(--radius-s)] text-[length:var(--mfdi-panel-label-font-size)]",
+        "flex items-center px-[var(--daystream-panel-item-padding-inline)] h-[var(--daystream-panel-item-height)]",
+        "rounded-[var(--radius-s)] text-[length:var(--daystream-panel-label-font-size)]",
         "leading-[1.2] whitespace-nowrap",
         "transition-colors duration-100 ease-in-out",
         isSelected
@@ -58,7 +58,7 @@ export const SidebarTextButton: React.FC<{
 
 export const SidebarItemCount: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <Text className="sidebar-item-count text-[length:var(--mfdi-panel-meta-font-size)] text-[var(--text-muted)] ml-1 flex-shrink-0 leading-none">
+    <Text className="sidebar-item-count text-[length:var(--daystream-panel-meta-font-size)] text-[var(--text-muted)] ml-1 flex-shrink-0 leading-none">
       {children}
     </Text>
   );

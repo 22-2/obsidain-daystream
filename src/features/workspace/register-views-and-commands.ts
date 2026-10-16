@@ -1,32 +1,32 @@
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
-import { VIEW_TYPE_MFDI_EDITOR } from "src/features/composer/views/MFDIEditorView";
+import { VIEW_TYPE_DAYSTREAM_EDITOR } from "src/features/composer/views/DaystreamEditorView";
 
-const VIEW_TYPE_MFDI = "mfdi-view";
+const VIEW_TYPE_DAYSTREAM = "mfdi-view";
 
 export function registerWorkspaceViews(context: BuiltinMainContext): void {
-  context.registerView(VIEW_TYPE_MFDI, (leaf) => context.createMFDIView(leaf));
-  context.registerView(VIEW_TYPE_MFDI_EDITOR, (leaf) => context.createMFDIEditorView(leaf));
+  context.registerView(VIEW_TYPE_DAYSTREAM, (leaf) => context.createDaystreamView(leaf));
+  context.registerView(VIEW_TYPE_DAYSTREAM_EDITOR, (leaf) => context.createDaystreamEditorView(leaf));
 }
 
 export function registerWorkspaceRibbon(context: BuiltinMainContext): void {
-  context.addRibbonIcon("pencil", "Mobile First Daily Interface", () => {
-    void context.attachMFDIView({});
+  context.addRibbonIcon("pencil", "Daystream", () => {
+    void context.attachDaystreamView({});
   });
 }
 
 export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   context.addCommand({
-    id: "mfdi-open-view",
-    name: "Open Mobile First Daily Interface",
+    id: "daystream-open-view",
+    name: "Open Daystream",
     callback: async () => {
-      const leaf = await context.attachMFDIView({});
+      const leaf = await context.attachDaystreamView({});
       if (leaf) context.app.workspace.revealLeaf(leaf);
     },
   });
 
   context.addCommand({
-    id: "mfdi-open-fixed-note-view",
-    name: "Create New MFDI Fixed Note",
+    id: "daystream-open-fixed-note-view",
+    name: "Create New Daystream Fixed Note",
     callback: () => {
       void context.createAndOpenFixedNote();
     },
@@ -35,8 +35,8 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   // 意図: Ctrl+Enter 設定が無効でもキーボードのみで投稿できるようにする。
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({
-    id: "mfdi-submit-post",
-    name: "MFDI: 投稿を送信",
+    id: "daystream-submit-post",
+    name: "Daystream: 投稿を送信",
     checkCallback: (checking) => {
       const activeView = context.app.workspace.activeLeaf?.view;
       if (activeView?.getViewType() !== "mfdi-view") {
@@ -44,11 +44,11 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
       }
 
       if (checking) {
-        const inputSnapshot = context.getMFDIInputSnapshot();
+        const inputSnapshot = context.getDaystreamInputSnapshot();
         return inputSnapshot.trim().length > 0;
       }
 
-      const submitFn = context.getMFDISubmitCallback();
+      const submitFn = context.getDaystreamSubmitCallback();
       void submitFn?.();
     },
   });

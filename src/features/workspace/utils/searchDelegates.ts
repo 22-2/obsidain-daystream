@@ -1,7 +1,7 @@
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
 
 export function bindSearchDelegates(
-  view: MFDIView,
+  view: DaystreamView,
   actionDelegates: {
     setSearchQuery: (query: string) => void;
     setSearchInputOpen: (open: boolean) => void;

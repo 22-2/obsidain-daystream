@@ -4,35 +4,35 @@ import { expect, test } from "obsidian-e2e-toolkit";
 import { createStorageKey, getStorageKeyPrefix } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
 import {
   LIVE_EDITOR,
   PLUGIN_ID,
   getLiveEditorDelegateContent,
-  mfdiVaultOptions,
+  daystreamVaultOptions,
   openHostNote,
-  openMfdiView,
+  openDaystreamView,
   setLiveEditorDelegateContent,
 } from "./support";
 
-const HOST_FILE_PATH = "mfdi-e2e-host.md";
+const HOST_FILE_PATH = "daystream-e2e-host.md";
 
 /** Observation window for errors that show up after the view has mounted. */
 const OBSERVATION_MS = 500;
 
-test.use({ vaultOptions: mfdiVaultOptions({ logLevel: "debug" }) });
+test.use({ vaultOptions: daystreamVaultOptions({ logLevel: "debug" }) });
 
 // 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
-async function getMFDIDisplayMode(obsidian: ObsidianAPI) {
+async function getDaystreamDisplayMode(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
   });
 }
 
-async function waitForMFDIReady(obsidian: ObsidianAPI) {
+async function waitForDaystreamReady(obsidian: ObsidianAPI) {
   await openHostNote(obsidian, HOST_FILE_PATH);
-  await openMfdiView(obsidian);
+  await openDaystreamView(obsidian);
 
   const liveEditor = obsidian.page.locator(LIVE_EDITOR);
 
@@ -49,21 +49,21 @@ async function registerAppScopeHotkeyCounter(
   await obsidian.evaluateApp(
     ({ counterKey, modifiers, key }) => {
       const globalState = window as Window & {
-        __mfdiE2EHotkeys?: Record<string, { count: number; handler: unknown }>;
+        __daystreamE2EHotkeys?: Record<string, { count: number; handler: unknown }>;
       };
-      globalState.__mfdiE2EHotkeys ??= {};
+      globalState.__daystreamE2EHotkeys ??= {};
 
-      const existing = globalState.__mfdiE2EHotkeys[counterKey];
+      const existing = globalState.__daystreamE2EHotkeys[counterKey];
       if (existing?.handler) {
         app.scope.unregister(existing.handler as never);
       }
 
       const handler = app.scope.register(modifiers as never, key, () => {
-        globalState.__mfdiE2EHotkeys![counterKey].count += 1;
+        globalState.__daystreamE2EHotkeys![counterKey].count += 1;
         return false;
       });
 
-      globalState.__mfdiE2EHotkeys[counterKey] = {
+      globalState.__daystreamE2EHotkeys[counterKey] = {
         count: 0,
         handler,
       };
@@ -75,9 +75,9 @@ async function registerAppScopeHotkeyCounter(
 async function getAppScopeHotkeyCount(obsidian: ObsidianAPI, counterKey: string) {
   return obsidian.evaluateApp((key) => {
     const globalState = window as Window & {
-      __mfdiE2EHotkeys?: Record<string, { count: number }>;
+      __daystreamE2EHotkeys?: Record<string, { count: number }>;
     };
-    return globalState.__mfdiE2EHotkeys?.[key]?.count ?? 0;
+    return globalState.__daystreamE2EHotkeys?.[key]?.count ?? 0;
   }, counterKey);
 }
 
@@ -99,7 +99,7 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
       throw new Error("mfdi-view leaf not found");
     }
 
-    const content = leaf.view.containerEl.querySelector(".mfdi-input-area .cm-content");
+    const content = leaf.view.containerEl.querySelector(".daystream-input-area .cm-content");
     if (!content) return null;
     // 意図: 空の入力欄に出るプレースホルダーは入力内容ではないため除外して読む。
     const clone = content.cloneNode(true) as HTMLElement;
@@ -115,11 +115,11 @@ async function getLiveEditorDebugState(obsidian: ObsidianAPI) {
       throw new Error("mfdi-view leaf not found");
     }
 
-    if (!(leaf.view as MFDIView).actionDelegates.onGetDebugStateForTesting) {
+    if (!(leaf.view as DaystreamView).actionDelegates.onGetDebugStateForTesting) {
       throw new Error("onGetDebugStateForTesting is not ready");
     }
 
-    return (leaf.view as MFDIView).actionDelegates.onGetDebugStateForTesting!();
+    return (leaf.view as DaystreamView).actionDelegates.onGetDebugStateForTesting!();
   });
 }
 
@@ -189,7 +189,7 @@ async function createLiveEditorMulticursor(obsidian: ObsidianAPI): Promise<void>
 
 // ─── ヘルパー ────────────────────────────────────────────────
 
-/** localStorage の mfdi 入力値を検証する */
+/** localStorage の daystream 入力値を検証する */
 async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
   const appId = await obsidian.evaluateApp(() => app.appId);
   const periodicKey = createStorageKey(
@@ -249,17 +249,17 @@ async function expectLiveEditorContent(
 
 // ─── テストスイート ──────────────────────────────────────────
 
-test.describe("MFDI live editor e2e", () => {
+test.describe("Daystream live editor e2e", () => {
   let liveEditor: Locator;
 
   // ほぼ全テストで必要な共通セットアップ
   test.beforeEach(async ({ obsidian }) => {
-    liveEditor = await waitForMFDIReady(obsidian);
+    liveEditor = await waitForDaystreamReady(obsidian);
   });
 
   // ── 起動 ────────────────────────────────────────────────────
 
-  test("mfdiビュー起動時に view 未初期化エラーを出さない", async ({ obsidian }) => {
+  test("daystreamビュー起動時に view 未初期化エラーを出さない", async ({ obsidian }) => {
     const pageErrors: string[] = [];
     const consoleErrors: string[] = [];
 
@@ -279,11 +279,11 @@ test.describe("MFDI live editor e2e", () => {
   // ── カレンダー ───────────────────────────────────────────────
 
   test("タイムライン中にカレンダー日付を押すとフォーカス表示へ戻る", async ({ obsidian }) => {
-    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("timeline");
+    await expect.poll(() => getDaystreamDisplayMode(obsidian)).toBe("timeline");
 
     await obsidian.page.locator(".mini-calendar__day-cell").first().click();
 
-    await expect.poll(() => getMFDIDisplayMode(obsidian)).toBe("focus");
+    await expect.poll(() => getDaystreamDisplayMode(obsidian)).toBe("focus");
   });
 
   // ── ライブエディタ ───────────────────────────────────────────
@@ -310,7 +310,7 @@ test.describe("MFDI live editor e2e", () => {
 
   // ── 投稿・スコープ ───────────────────────────────────────────
 
-  test("Ctrl+Enter では MFDIView の Scope のみが呼ばれる", async ({ obsidian }) => {
+  test("Ctrl+Enter では DaystreamView の Scope のみが呼ばれる", async ({ obsidian }) => {
     const message = "Scope submit " + Date.now();
     await registerAppScopeHotkeyCounter(obsidian, "submit-parent", ["Ctrl"], "Enter");
     // 意図: Ctrl+Enter 送信は既定で無効なので、通常サイズでの送信を明示的に有効にする。
@@ -350,7 +350,7 @@ test.describe("MFDI live editor e2e", () => {
     // 編集モードに入る
     await obsidian.page.locator(".list .base-card").first().dblclick();
     // ハイライト状態は `.base-card` の親要素に付与されるため、親側のクラスで検証する。
-    await expect(obsidian.page.locator(".list .mfdi-card--highlighted .base-card").first()).toBeVisible();
+    await expect(obsidian.page.locator(".list .daystream-card--highlighted .base-card").first()).toBeVisible();
     await expectLiveEditorContent(obsidian, message);
 
     // 編集して更新
@@ -373,7 +373,7 @@ test.describe("MFDI live editor e2e", () => {
 
     // 編集モードに入り、未保存の変更を入れる
     await obsidian.page.locator(".list .base-card").first().dblclick();
-    await expect(obsidian.page.locator(".list .mfdi-card--highlighted .base-card").first()).toBeVisible();
+    await expect(obsidian.page.locator(".list .daystream-card--highlighted .base-card").first()).toBeVisible();
     await expectLiveEditorContent(obsidian, message);
     const unsavedEdit = message + " - unsaved";
     await setLiveEditorContent(obsidian, unsavedEdit);
@@ -382,7 +382,7 @@ test.describe("MFDI live editor e2e", () => {
     await obsidian.closeTab();
     // 意図: 既存投稿の編集は新規入力と違い、下書きへ移さずに編集状態ごと復元する。
     await expect.poll(() => getStoredDrafts(obsidian)).not.toContain(unsavedEdit);
-    await openMfdiView(obsidian);
+    await openDaystreamView(obsidian);
     await expectLiveEditorRestoreState(obsidian, unsavedEdit, {
       expectedEditingPostMessage: message,
     });
@@ -406,7 +406,7 @@ test.describe("MFDI live editor e2e", () => {
     // 意図: タブを閉じる操作は composer を閉じる操作と同じ扱いで、入力は下書き一覧へ移る。
     await expect.poll(() => getStoredDrafts(obsidian)).toContain(draft);
 
-    await openMfdiView(obsidian);
+    await openDaystreamView(obsidian);
     await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({ timeout: 15000 });
     await expectLiveEditorRestoreState(obsidian, "", {
       expectedEditingPostMessage: null,

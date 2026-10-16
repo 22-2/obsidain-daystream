@@ -1,7 +1,7 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DaystreamStorage } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DaystreamNoteMode } from "src/features/workspace/views/state";
 
 export type DraftMetadata = Record<string, string>;
 
@@ -25,8 +25,8 @@ export type PersistedEditingPost = {
 };
 
 export interface EditorPersistenceContext {
-  storage: MFDIStorage | null;
-  viewNoteMode: MFDINoteMode;
+  storage: DaystreamStorage | null;
+  viewNoteMode: DaystreamNoteMode;
   file: string | null;
   fixedSessionNumber: number;
 }
@@ -55,13 +55,13 @@ export function persistDraftMetadata(
 }
 
 export function persistEditingPost(
-  storage: MFDIStorage | null,
+  storage: DaystreamStorage | null,
   persisted: PersistedEditingPost,
 ): void {
   storage?.set(STORAGE_KEYS.EDITING_POST, persisted);
 }
 
-export function clearEditingPost(storage: MFDIStorage | null): void {
+export function clearEditingPost(storage: DaystreamStorage | null): void {
   storage?.remove(STORAGE_KEYS.EDITING_POST);
 }
 

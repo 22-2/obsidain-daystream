@@ -1,19 +1,19 @@
 import {
   isValidTagName,
   normalizeTags,
-  parseMfdiTags,
-  serializeMfdiTags,
+  parseDaystreamTags,
+  serializeDaystreamTags,
   TAG_METADATA_KEY,
 } from "src/core/tags";
 import { describe, expect, test } from "vitest";
 
 describe("tags helpers", () => {
-  test("parseMfdiTags parses comma-separated tags", () => {
-    expect(parseMfdiTags({ [TAG_METADATA_KEY]: "IT, Later" })).toEqual(["IT", "Later"]);
+  test("parseDaystreamTags parses comma-separated tags", () => {
+    expect(parseDaystreamTags({ [TAG_METADATA_KEY]: "IT, Later" })).toEqual(["IT", "Later"]);
   });
 
-  test("parseMfdiTags returns empty for missing metadata", () => {
-    expect(parseMfdiTags({})).toEqual([]);
+  test("parseDaystreamTags returns empty for missing metadata", () => {
+    expect(parseDaystreamTags({})).toEqual([]);
   });
 
   test("normalizeTags trims, deduplicates, and drops invalid tags", () => {
@@ -23,8 +23,8 @@ describe("tags helpers", () => {
     ]);
   });
 
-  test("serializeMfdiTags writes normalized comma-separated tags", () => {
-    expect(serializeMfdiTags([" IT ", "Later", "IT"])).toBe("IT, Later");
+  test("serializeDaystreamTags writes normalized comma-separated tags", () => {
+    expect(serializeDaystreamTags([" IT ", "Later", "IT"])).toBe("IT, Later");
   });
 
   test("isValidTagName rejects commas, closing brackets, and newlines", () => {

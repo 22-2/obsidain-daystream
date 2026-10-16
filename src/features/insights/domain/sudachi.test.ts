@@ -1,4 +1,4 @@
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/daystream-db";
 import { getInsightRecordCacheKey } from "src/features/insights/domain/insightSummary";
 import {
   clearSudachiCache,

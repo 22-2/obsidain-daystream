@@ -1,4 +1,4 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DaystreamStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { createAppStore } from "src/features/workspace/store/appStore";
@@ -11,7 +11,7 @@ import type { Post } from "src/core/domain/post";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type MockStorageHandle = {
-  storage: MFDIStorage;
+  storage: DaystreamStorage;
   values: Map<string, unknown>;
   set: ReturnType<typeof vi.fn>;
   get: ReturnType<typeof vi.fn>;
@@ -36,7 +36,7 @@ function createMockStorage(initialValues: Record<string, unknown> = {}): MockSto
       set,
       get,
       remove,
-    } as unknown as MFDIStorage,
+    } as unknown as DaystreamStorage,
     values,
     set,
     get,

@@ -3,7 +3,7 @@ import type { BuiltinMainContext } from "src/features/workspace/registration-con
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import { describe, expect, it, vi } from "vitest";
 
-const VIEW_TYPE_MFDI = "mfdi-view";
+const VIEW_TYPE_DAYSTREAM = "mfdi-view";
 
 // 意図: server.deps.inline で @22-2/obsidian-magical-editor が Vite 経由で処理されると
 // obsidian モックの全エクスポートが解決される必要がある。importOriginal でグローバルモックを
@@ -55,7 +55,7 @@ vi.mock("src/features/notes/extensions/fixed-note-view-extension", () => ({
 }));
 
 vi.mock("src/core/storage", () => ({
-  MFDIStorage: class {
+  DaystreamStorage: class {
     get = mocks.storageGet;
     set = mocks.storageSet;
   },
@@ -79,12 +79,12 @@ describe("builtin registry", () => {
     const registerView = vi.fn();
     const addRibbonIcon = vi.fn();
     const addCommand = vi.fn((command) => command);
-    const getMFDISubmitCallback = vi.fn(() => undefined);
-    const getMFDIInputSnapshot = vi.fn(() => "");
-    const createMFDIView = vi.fn((leaf) => ({ leaf }));
-    const createMFDIEditorView = vi.fn((leaf) => ({ leaf }));
+    const getDaystreamSubmitCallback = vi.fn(() => undefined);
+    const getDaystreamInputSnapshot = vi.fn(() => "");
+    const createDaystreamView = vi.fn((leaf) => ({ leaf }));
+    const createDaystreamEditorView = vi.fn((leaf) => ({ leaf }));
     const createAndOpenFixedNote = vi.fn(async () => {});
-    const attachMFDIView = vi.fn(async () => ({ id: "leaf" }));
+    const attachDaystreamView = vi.fn(async () => ({ id: "leaf" }));
     const saveSettings = vi.fn(async () => {});
 
     const settings = {
@@ -124,12 +124,12 @@ describe("builtin registry", () => {
       registerView,
       addRibbonIcon,
       addCommand,
-      getMFDISubmitCallback,
-      getMFDIInputSnapshot,
-      createMFDIView,
-      createMFDIEditorView,
+      getDaystreamSubmitCallback,
+      getDaystreamInputSnapshot,
+      createDaystreamView,
+      createDaystreamEditorView,
       createAndOpenFixedNote,
-      attachMFDIView,
+      attachDaystreamView,
     } as unknown as BuiltinMainContext;
 
     activateBuiltins(context, "app-1");
@@ -147,13 +147,13 @@ describe("builtin registry", () => {
       registerEvent.mock.invocationCallOrder[0]!,
     );
 
-    // MFDI / editor の2つが登録される
+    // Daystream / editor の2つが登録される
     expect(registerView).toHaveBeenCalledTimes(2);
     const [viewType, viewCreator] = registerView.mock.calls[0] as [
       string,
       (leaf: unknown) => unknown,
     ];
-    expect(viewType).toBe(VIEW_TYPE_MFDI);
+    expect(viewType).toBe(VIEW_TYPE_DAYSTREAM);
     expect(viewCreator({ id: "leaf-1" })).toEqual({ leaf: { id: "leaf-1" } });
 
     const [editorViewType, editorViewCreator] = registerView.mock.calls[1] as [
@@ -167,14 +167,14 @@ describe("builtin registry", () => {
 
     expect(addRibbonIcon).toHaveBeenCalledWith(
       "pencil",
-      "Mobile First Daily Interface",
+      "Daystream",
       expect.any(Function),
     );
     expect(addCommand).toHaveBeenCalledTimes(3);
 
     const ribbonCallback = addRibbonIcon.mock.calls[0]?.[2] as () => void;
     ribbonCallback();
-    expect(attachMFDIView).toHaveBeenCalledWith({});
+    expect(attachDaystreamView).toHaveBeenCalledWith({});
 
     const openViewCommand = addCommand.mock.calls[0]?.[0] as {
       callback: () => Promise<void>;

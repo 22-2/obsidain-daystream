@@ -13,7 +13,7 @@ export const normalizeFixedNotePath = (p: string) => {
   return s && !s.toLowerCase().endsWith(".md") ? `${s}.md` : s;
 };
 
-export const isMFDIFixedNotePath = (p: string) =>
+export const isDaystreamFixedNotePath = (p: string) =>
   normalizePath(p).toLowerCase().endsWith(FILENAME_SUFFIX);
 
 // --- 取得・作成 ---

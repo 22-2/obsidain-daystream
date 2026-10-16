@@ -1,6 +1,6 @@
 import { around } from "monkey-around";
 import { TFile, WorkspaceLeaf } from "obsidian";
-import { MFDIStorage } from "src/core/storage";
+import { DaystreamStorage } from "src/core/storage";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { createFixedNoteViewExtension } from "src/features/notes/extensions/fixed-note-view-extension";
 import { readLastOpenedFixedSessionNumber } from "src/features/notes/utils/fixed-session-storage";
@@ -8,7 +8,7 @@ import { readLastOpenedFixedSessionNumber } from "src/features/notes/utils/fixed
 // 意図: Markdown leafを固定ノートviewへ置き換える登録はnotes featureが所有する。
 export function registerFixedNoteViewLifecycle(
   context: BuiltinMainContext,
-  storage: MFDIStorage,
+  storage: DaystreamStorage,
 ): void {
   const fixedNoteViewExtension = createFixedNoteViewExtension({
     // 意図: setViewState の同期経路で await できないため、存在確認は同期 API で完了させる。
@@ -36,7 +36,7 @@ export function registerFixedNoteViewLifecycle(
   context.app.workspace.onLayoutReady(() => {
     void fixedNoteViewExtension.replaceOpenFixedMarkdownLeaves({
       leaves: context.app.workspace.getLeavesOfType("markdown"),
-      attachMFDIView: context.attachMFDIView,
+      attachDaystreamView: context.attachDaystreamView,
     });
   });
 }

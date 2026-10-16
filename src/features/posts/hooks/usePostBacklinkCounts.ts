@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
+import { useDaystreamDB } from "src/core/db/hooks/useDaystreamDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import {
@@ -13,7 +13,7 @@ export function usePostBacklinks(targetPosts: Post[]): {
   countMap: Map<string, number>;
   postsMap: Map<string, Post[]>;
 } {
-  const db = useMFDIDB();
+  const db = useDaystreamDB();
   const activeTopic = useSettingsStore((state) => state.activeTopic);
   const topicId = activeTopic || undefined;
 

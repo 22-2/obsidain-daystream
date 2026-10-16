@@ -7,8 +7,8 @@ import { setConsolaLevel } from "src/core/logger";
 import { createFixedNoteFromInput } from "src/core/note-source";
 import type { Topic } from "src/core/topic";
 import { WorkerClient } from "src/core/db/worker-client";
-import { extension as mfdiBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
-import { findExistingMFDILeaf } from "src/features/notes/extensions/fixed-note-view-extension";
+import { extension as daystreamBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
+import { findExistingDaystreamLeaf } from "src/features/notes/extensions/fixed-note-view-extension";
 import {
   ACTIVITY_PROMPT_TEXT,
   createActivityPromptNotificationScheduler,
@@ -20,22 +20,22 @@ import {
   DEFAULT_SETTINGS,
   normalizeCtrlEnterSendMode,
 } from "src/core/domain/settings";
-import { MFDISettingTab } from "src/features/settings/MFDISettingTab";
+import { DaystreamSettingTab } from "src/features/settings/DaystreamSettingTab";
 import { watchElectronPowerState } from "src/core/platform/electron-power";
 import { restoreAndFocusElectronWindow } from "src/core/platform/electron-window";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { showInputModal } from "src/features/composer/modals/InputModal";
 import { TopicManagerModal } from "src/features/notes/modals/TopicManagerModal";
-import { MFDIEditorView } from "src/features/composer/views/MFDIEditorView";
-import { MFDIView, VIEW_TYPE_MFDI } from "src/features/workspace/views/MFDIView";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/features/workspace/views/state";
+import { DaystreamEditorView } from "src/features/composer/views/DaystreamEditorView";
+import { DaystreamView, VIEW_TYPE_DAYSTREAM } from "src/features/workspace/views/DaystreamView";
+import type { DaystreamViewState } from "src/features/workspace/views/state";
+import { createFixedNoteViewState, DEFAULT_DAYSTREAM_VIEW_STATE } from "src/features/workspace/views/state";
 
-export default class MFDIPlugin extends Plugin {
+export default class DaystreamPlugin extends Plugin {
   shell: ObsidianAppShell;
   declare settings: Settings;
-  view?: MFDIView;
-  private readonly views = new Set<MFDIView>();
+  view?: DaystreamView;
+  private readonly views = new Set<DaystreamView>();
   private activityPromptScheduler: ActivityPromptNotificationScheduler | null = null;
   private activityPromptNotificationsReady = false;
   private activityPromptNotificationsPaused = false;
@@ -65,9 +65,9 @@ export default class MFDIPlugin extends Plugin {
     // custom view の登録に必要な settings はまず default で即時に立てる。
     this.settings = this.createBootstrapSettings();
 
-    this.registerEditorExtension(mfdiBottomPaddingExtension);
+    this.registerEditorExtension(daystreamBottomPaddingExtension);
 
-    this.addSettingTab(new MFDISettingTab(this.app, this));
+    this.addSettingTab(new DaystreamSettingTab(this.app, this));
 
     // 意図: workspace 復元時に custom view/type 変換が既に登録済みでないと、
     // 起動直後の leaf 復元で mfdi-view を解決できず、固定ノートタブを取りこぼす。
@@ -118,7 +118,7 @@ export default class MFDIPlugin extends Plugin {
     this.settings.files = [...this.settings.files, { path: fixedNote.path }];
     await this.saveSettings();
 
-    const leaf = await this.attachMFDIView(createFixedNoteViewState(fixedNote.path));
+    const leaf = await this.attachDaystreamView(createFixedNoteViewState(fixedNote.path));
     if (leaf) this.app.workspace.revealLeaf(leaf);
   }
 
@@ -139,11 +139,11 @@ export default class MFDIPlugin extends Plugin {
       registerView: (type, viewCreator) => this.registerView(type, viewCreator),
       addRibbonIcon: (icon, title, callback) => this.addRibbonIcon(icon, title, callback),
       addCommand: (command) => this.addCommand(command),
-      getMFDISubmitCallback: () => this.getActiveMFDIView()?.actionDelegates.onSubmit,
-      getMFDIInputSnapshot: () =>
-        this.getActiveMFDIView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
-      createMFDIView: (leaf) => {
-        const view = new MFDIView(leaf, this.settings, async (mode) => {
+      getDaystreamSubmitCallback: () => this.getActiveDaystreamView()?.actionDelegates.onSubmit,
+      getDaystreamInputSnapshot: () =>
+        this.getActiveDaystreamView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
+      createDaystreamView: (leaf) => {
+        const view = new DaystreamView(leaf, this.settings, async (mode) => {
           this.settings.editorExpansionMode = mode;
           await this.saveSettings();
           this.rerenderView();
@@ -153,28 +153,28 @@ export default class MFDIPlugin extends Plugin {
         this.setupViewCallbacks(view);
         return view;
       },
-      createMFDIEditorView: (leaf) => new MFDIEditorView(leaf, this.settings),
+      createDaystreamEditorView: (leaf) => new DaystreamEditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
-      attachMFDIView: (state, preferredLeaf) => this.attachMFDIView(state, preferredLeaf),
+      attachDaystreamView: (state, preferredLeaf) => this.attachDaystreamView(state, preferredLeaf),
     };
 
     activateBuiltins(context, this.shell.getAppId());
   }
 
   // leaf 探索込みの setViewState ラッパー。同一条件の leaf が既に存在する場合は再利用する。
-  async attachMFDIView(
-    state: Partial<MFDIViewState> = DEFAULT_MFDI_VIEW_STATE,
+  async attachDaystreamView(
+    state: Partial<DaystreamViewState> = DEFAULT_DAYSTREAM_VIEW_STATE,
     preferredLeaf?: WorkspaceLeaf,
   ): Promise<WorkspaceLeaf | undefined> {
-    const mergedState = { ...DEFAULT_MFDI_VIEW_STATE, ...state };
-    const existing = findExistingMFDILeaf(
-      this.app.workspace.getLeavesOfType(VIEW_TYPE_MFDI),
+    const mergedState = { ...DEFAULT_DAYSTREAM_VIEW_STATE, ...state };
+    const existing = findExistingDaystreamLeaf(
+      this.app.workspace.getLeavesOfType(VIEW_TYPE_DAYSTREAM),
       state,
     );
     const targetLeaf = preferredLeaf ?? existing ?? this.app.workspace.getLeaf(false);
 
     await targetLeaf.setViewState({
-      type: VIEW_TYPE_MFDI,
+      type: VIEW_TYPE_DAYSTREAM,
       active: true,
       state: mergedState,
     });
@@ -182,19 +182,19 @@ export default class MFDIPlugin extends Plugin {
     return targetLeaf;
   }
 
-  private getActiveMFDIView(): MFDIView | undefined {
+  private getActiveDaystreamView(): DaystreamView | undefined {
     const activeView = this.app.workspace.activeLeaf?.view;
     if (!activeView) return undefined;
 
     const viewType = activeView.getViewType();
-    if (viewType !== VIEW_TYPE_MFDI) return undefined;
-    return activeView as MFDIView;
+    if (viewType !== VIEW_TYPE_DAYSTREAM) return undefined;
+    return activeView as DaystreamView;
   }
 
   /**
-   * MFDIView のコールバックを設定する
+   * DaystreamView のコールバックを設定する
    */
-  private setupViewCallbacks(view: MFDIView) {
+  private setupViewCallbacks(view: DaystreamView) {
     view.actionDelegates.onTopicSaveRequested = async (topicId: string) => {
       this.settings.activeTopic = topicId;
       await this.saveSettings();
@@ -258,14 +258,14 @@ export default class MFDIPlugin extends Plugin {
   }
 
   private async showActivityPromptComposer(): Promise<void> {
-    const leaf = await this.attachMFDIView({});
+    const leaf = await this.attachDaystreamView({});
     if (!leaf) return;
 
     this.app.workspace.revealLeaf(leaf);
 
-    await (leaf.view as MFDIView).waitForReactReady();
+    await (leaf.view as DaystreamView).waitForReactReady();
     restoreAndFocusElectronWindow();
-    (leaf.view as MFDIView).actionDelegates.onOpenComposer?.();
+    (leaf.view as DaystreamView).actionDelegates.onOpenComposer?.();
   }
 
   async saveSettings(): Promise<void> {

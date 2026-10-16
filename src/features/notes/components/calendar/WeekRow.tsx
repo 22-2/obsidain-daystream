@@ -37,7 +37,7 @@ export const WeekRow: React.FC<WeekRowProps> = ({
     <>
       <Box
         className={cn(
-          "mini-calendar__week-number cursor-pointer h-[var(--mfdi-calendar-cell-size)] py-0 text-[length:var(--mfdi-calendar-cell-font-size)] flex items-center justify-center border rounded-[4px] transition-colors",
+          "mini-calendar__week-number cursor-pointer h-[var(--daystream-calendar-cell-size)] py-0 text-[length:var(--daystream-calendar-cell-font-size)] flex items-center justify-center border rounded-[4px] transition-colors",
           "hover:bg-[color-mix(in_srgb,var(--color-accent),transparent_75%)]",
           isWeekSelected
             ? "text-[var(--color-accent)] border-[var(--color-accent)]"

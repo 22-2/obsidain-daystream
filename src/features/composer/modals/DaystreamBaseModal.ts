@@ -1,7 +1,7 @@
 import type { App } from "obsidian";
 import { Modal } from "obsidian";
 
-export abstract class MFDIBaseModal<T = void> extends Modal {
+export abstract class DaystreamBaseModal<T = void> extends Modal {
   protected resolvePromise!: (value: T) => void;
 
   constructor(
@@ -19,18 +19,18 @@ export abstract class MFDIBaseModal<T = void> extends Modal {
   }
 
   onOpen(): void {
-    this.modalEl.addClass("mfdi-modal");
+    this.modalEl.addClass("daystream-modal");
     this.contentEl.empty();
     this.titleEl.setText(this.titleText);
 
-    const bodyEl = this.contentEl.createDiv({ cls: "mfdi-modal__body" });
+    const bodyEl = this.contentEl.createDiv({ cls: "daystream-modal__body" });
     this.renderBody(bodyEl);
   }
 
   abstract renderBody(bodyEl: HTMLElement): void;
 
   protected createActions(bodyEl: HTMLElement): HTMLElement {
-    return bodyEl.createDiv({ cls: "mfdi-modal__actions" });
+    return bodyEl.createDiv({ cls: "daystream-modal__actions" });
   }
 
   protected createButton(
@@ -39,7 +39,7 @@ export abstract class MFDIBaseModal<T = void> extends Modal {
     onClick: () => void,
     options: { cta?: boolean; warning?: boolean } = {},
   ): HTMLButtonElement {
-    let cls = "mfdi-modal__button";
+    let cls = "daystream-modal__button";
     if (options.cta) cls += " mod-cta";
     if (options.warning) cls += " mod-warning";
 
@@ -53,7 +53,7 @@ export abstract class MFDIBaseModal<T = void> extends Modal {
   }
 
   onClose(): void {
-    this.modalEl.removeClass("mfdi-modal");
+    this.modalEl.removeClass("daystream-modal");
     super.onClose();
   }
 }

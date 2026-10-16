@@ -28,7 +28,7 @@ export function normalizeTags(tags: string[]): string[] {
   return normalized;
 }
 
-export function parseMfdiTags(metadata: Record<string, string>): string[] {
+export function parseDaystreamTags(metadata: Record<string, string>): string[] {
   const raw = metadata[TAG_METADATA_KEY];
   if (!raw) {
     return [];
@@ -37,7 +37,7 @@ export function parseMfdiTags(metadata: Record<string, string>): string[] {
   return normalizeTags(raw.split(","));
 }
 
-export function serializeMfdiTags(tags: string[]): string {
+export function serializeDaystreamTags(tags: string[]): string {
   return normalizeTags(tags).join(", ");
 }
 

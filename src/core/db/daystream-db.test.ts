@@ -1,12 +1,12 @@
-import { MFDIDatabase, type MemoRecord } from "src/core/db/mfdi-db";
+import { DaystreamDatabase, type MemoRecord } from "src/core/db/daystream-db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("MFDIDatabase", () => {
-  let db: MFDIDatabase;
+describe("DaystreamDatabase", () => {
+  let db: DaystreamDatabase;
 
   beforeEach(async () => {
     vi.useRealTimers();
-    db = new MFDIDatabase("test-app");
+    db = new DaystreamDatabase("test-app");
     await db.open();
   });
 

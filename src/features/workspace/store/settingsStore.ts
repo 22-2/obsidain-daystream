@@ -1,15 +1,15 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DaystreamStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import { appStore, useRequiredAppStore } from "src/features/workspace/store/appStore";
-import type { MFDIStore, SettingsSlice } from "src/features/workspace/store/slices/types";
+import type { DaystreamStore, SettingsSlice } from "src/features/workspace/store/slices/types";
 import { useStore } from "zustand";
 
 export const settingsStore = appStore;
 
 export function initializeSettingsStore(
   settings: Settings,
-  storage: MFDIStorage,
+  storage: DaystreamStorage,
   store: AppStoreApi = appStore,
 ) {
   const state = store.getState();
@@ -18,7 +18,7 @@ export function initializeSettingsStore(
   state.hydrateSettingsState();
 }
 
-export function useSettingsStore<T>(selector: (state: SettingsSlice & MFDIStore) => T): T {
+export function useSettingsStore<T>(selector: (state: SettingsSlice & DaystreamStore) => T): T {
   const store = useRequiredAppStore();
-  return useStore(store, selector as (state: MFDIStore) => T);
+  return useStore(store, selector as (state: DaystreamStore) => T);
 }

@@ -6,11 +6,11 @@ import { ComponentContextProvider, useObsidianComponent } from "src/core/ui/cont
 import { EditorRefsProvider, useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useDbSync } from "src/features/workspace/hooks/useDbSync";
 import { useAppStoreInitialization } from "src/features/workspace/hooks/internal/useAppStoreInitialization";
-import { useMFDIViewDelegates } from "src/features/workspace/hooks/internal/useMFDIViewDelegates";
-import { useMFDIViewStateSync } from "src/features/workspace/hooks/internal/useMFDIViewStateSync";
+import { useDaystreamViewDelegates } from "src/features/workspace/hooks/internal/useDaystreamViewDelegates";
+import { useDaystreamViewStateSync } from "src/features/workspace/hooks/internal/useDaystreamViewStateSync";
 import { useNoteSync } from "src/features/notes/hooks/useNoteSync";
 import { invalidateInsightsCaches } from "src/features/insights/invalidate-caches";
-import { MFDIWorkspaceLayout } from "src/features/workspace/components/layout/MFDIWorkspaceLayout";
+import { DaystreamWorkspaceLayout } from "src/features/workspace/components/layout/DaystreamWorkspaceLayout";
 import { PostsProvider } from "src/features/posts/hooks/usePosts";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import {
@@ -22,9 +22,9 @@ import {
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { syncStoreFromMFDIViewState } from "src/features/workspace/views/sync-store-from-view-state";
+import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DaystreamViewState } from "src/features/workspace/views/state";
+import { syncStoreFromDaystreamViewState } from "src/features/workspace/views/sync-store-from-view-state";
 import { useShallow } from "zustand/shallow";
 
 export const ReactView = ({
@@ -34,7 +34,7 @@ export const ReactView = ({
 }: {
   app: App;
   settings: Settings;
-  view: MFDIView;
+  view: DaystreamView;
 }) => {
   const storeRef = useRef<AppStoreApi | null>(null);
   const initialViewStateRef = useRef({ ...view.getState() });
@@ -42,7 +42,7 @@ export const ReactView = ({
     const store = createAppStore();
     // 意図: 復元直後の初回 render から fixed note / session を一致させ、
     // periodic の既定状態を一瞬でも通さないことで restore 時の過剰な再同期を避ける。
-    syncStoreFromMFDIViewState(store, initialViewStateRef.current);
+    syncStoreFromDaystreamViewState(store, initialViewStateRef.current);
     storeRef.current = store;
   }
 
@@ -52,11 +52,11 @@ export const ReactView = ({
         <AppStoreProvider store={storeRef.current}>
           <EditorRefsProvider>
             <PostsProvider>
-              <MFDIAppRoot
+              <DaystreamAppRoot
                 initialViewState={initialViewStateRef.current}
               >
-                <MFDIWorkspaceLayout />
-              </MFDIAppRoot>
+                <DaystreamWorkspaceLayout />
+              </DaystreamAppRoot>
             </PostsProvider>
           </EditorRefsProvider>
         </AppStoreProvider>
@@ -65,12 +65,12 @@ export const ReactView = ({
   );
 };
 
-const MFDIAppRoot: React.FC<{
+const DaystreamAppRoot: React.FC<{
   children: React.ReactNode;
-  initialViewState: MFDIViewState;
+  initialViewState: DaystreamViewState;
 }> = ({ children, initialViewState }) => {
   const { settings, storage, shell } = useAppContext();
-  const component = useObsidianComponent() as MFDIView;
+  const component = useObsidianComponent() as DaystreamView;
   const store = useRequiredAppStore();
   const { viewNoteMode, file } = useAppStore(
     useShallow((s) => ({
@@ -135,7 +135,7 @@ const MFDIAppRoot: React.FC<{
   useEffect(() => {
     // 通常の UI 操作では store が正となり、store同期hookから viewState へ片方向に書く。
     // Obsidian が setState で復元した場合だけ逆方向に同期し、古い session 番号との競合を防ぐ。
-    syncStoreFromMFDIViewState(store, componentViewState);
+    syncStoreFromDaystreamViewState(store, componentViewState);
   }, [store, externalStateRevision]);
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const MFDIAppRoot: React.FC<{
         // 意図: 日付操作中や検索を閉じて入口へ戻った直後は、状態復元に伴う
         // 投稿エディタの自動フォーカスで、現在のコントロールから操作を奪わない。
         if (activeElement?.closest(
-          ".mfdi-hierarchical-date-input, .mfdi-main-navigation, .mfdi-search-controls",
+          ".daystream-hierarchical-date-input, .daystream-main-navigation, .daystream-search-controls",
         )) return;
         input?.focus();
       });
@@ -166,8 +166,8 @@ const MFDIAppRoot: React.FC<{
   }, [currentDailyNote, dateFilter, updateTasks, viewNoteMode, searchQuery]);
 
   // Sync state/handlers with Obsidian View
-  useMFDIViewStateSync(component);
-  useMFDIViewDelegates(component);
+  useDaystreamViewStateSync(component);
+  useDaystreamViewDelegates(component);
 
   useEffect(() => {
     return () => {

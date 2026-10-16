@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/daystream-db";
 import type { Post } from "src/core/domain/post";
 import {
   countVisibleRootPosts,

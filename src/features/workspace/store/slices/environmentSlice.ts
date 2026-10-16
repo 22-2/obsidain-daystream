@@ -1,12 +1,12 @@
 import { createTimelineNavigationState } from "src/features/workspace/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
-import type { EnvironmentSlice, MFDIStore } from "src/features/workspace/store/slices/types";
+import type { EnvironmentSlice, DaystreamStore } from "src/features/workspace/store/slices/types";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
-import { createDefaultMFDIViewState } from "src/features/workspace/views/state";
+import { createDefaultDaystreamViewState } from "src/features/workspace/views/state";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], EnvironmentSlice> = (
+export const createEnvironmentSlice: StateCreator<DaystreamStore, [], [], EnvironmentSlice> = (
   set,
   get,
 ) => ({
@@ -105,7 +105,7 @@ export const createEnvironmentSlice: StateCreator<MFDIStore, [], [], Environment
     get().hydrateSettingsState();
 
     if (nextNoteMode === "fixed") {
-      const fixedDefaults = createDefaultMFDIViewState({
+      const fixedDefaults = createDefaultDaystreamViewState({
         noteMode: "fixed",
         file: nextFile,
       });

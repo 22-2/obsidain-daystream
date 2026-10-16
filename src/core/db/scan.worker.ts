@@ -156,7 +156,7 @@ try {
 
   // Signal that the worker is ready to receive messages
   try {
-    self.postMessage?.({ type: "mfdi-worker-ready" });
+    self.postMessage?.({ type: "daystream-worker-ready" });
   } catch {
     // ignore — non-critical
   }

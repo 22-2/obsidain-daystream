@@ -3,39 +3,39 @@
    ============================================== */
 
 :is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) {
-  --mfdi-css-loaded: 1;
-  --mfdi-icon-color: var(--text-muted);
-  --mfdi-icon-color-hover: var(--text-normal);
-  --mfdi-content-color-dark: #d1d1d1;
+  --daystream-css-loaded: 1;
+  --daystream-icon-color: var(--text-muted);
+  --daystream-icon-color-hover: var(--text-normal);
+  --daystream-content-color-dark: #d1d1d1;
 
   /* ダッシュボードのパネルとパネル内 UI はここで一括調整する */
-  --mfdi-panel-width: 230px;
-  --mfdi-panel-heading-font-size: 11px;
-  --mfdi-panel-label-font-size: 11px;
-  --mfdi-panel-meta-font-size: 10px;
-  --mfdi-panel-item-height: 22px;
-  --mfdi-panel-item-padding-inline: 8px;
-  --mfdi-panel-item-padding-block: 4px;
-  --mfdi-panel-section-gap: 6px;
-  --mfdi-panel-section-padding-inline: 8px;
-  --mfdi-panel-section-padding-bottom: 8px;
-  --mfdi-panel-heading-padding-block: 2px;
-  --mfdi-panel-heading-line-height: 1.2;
+  --daystream-panel-width: 230px;
+  --daystream-panel-heading-font-size: 11px;
+  --daystream-panel-label-font-size: 11px;
+  --daystream-panel-meta-font-size: 10px;
+  --daystream-panel-item-height: 22px;
+  --daystream-panel-item-padding-inline: 8px;
+  --daystream-panel-item-padding-block: 4px;
+  --daystream-panel-section-gap: 6px;
+  --daystream-panel-section-padding-inline: 8px;
+  --daystream-panel-section-padding-bottom: 8px;
+  --daystream-panel-heading-padding-block: 2px;
+  --daystream-panel-heading-line-height: 1.2;
 
-  --mfdi-calendar-width: 206px;
-  --mfdi-calendar-cell-size: 24px;
-  --mfdi-calendar-grid-gap: 2px;
-  --mfdi-calendar-header-font-size: 12px;
-  --mfdi-calendar-header-height: 20px;
-  --mfdi-calendar-header-gap: 2px;
-  --mfdi-calendar-header-margin-left: 4px;
-  --mfdi-calendar-nav-gap: 2px;
-  --mfdi-calendar-nav-padding: 2px;
-  --mfdi-calendar-weekday-font-size: 10px;
-  --mfdi-calendar-weekday-padding-block: 3px;
-  --mfdi-calendar-cell-font-size: 10px;
-  --mfdi-calendar-dot-size: 3px;
-  --mfdi-calendar-day-gap: 1px;
+  --daystream-calendar-width: 206px;
+  --daystream-calendar-cell-size: 24px;
+  --daystream-calendar-grid-gap: 2px;
+  --daystream-calendar-header-font-size: 12px;
+  --daystream-calendar-header-height: 20px;
+  --daystream-calendar-header-gap: 2px;
+  --daystream-calendar-header-margin-left: 4px;
+  --daystream-calendar-nav-gap: 2px;
+  --daystream-calendar-nav-padding: 2px;
+  --daystream-calendar-weekday-font-size: 10px;
+  --daystream-calendar-weekday-padding-block: 3px;
+  --daystream-calendar-cell-font-size: 10px;
+  --daystream-calendar-dot-size: 3px;
+  --daystream-calendar-day-gap: 1px;
 }
 
 /* ==============================================
@@ -103,16 +103,16 @@
    エディタ: ポップアウト (mfdi-editor-view 専用)
    ============================================== */
 
-[data-type="mfdi-editor-view"] .mfdi-popout-editor {
+[data-type="mfdi-editor-view"] .daystream-popout-editor {
   flex: 1;
   min-height: 0;
 }
 
-[data-type="mfdi-editor-view"] .mfdi-popout-editor__editor .cm-editor {
+[data-type="mfdi-editor-view"] .daystream-popout-editor__editor .cm-editor {
   height: 100%;
 }
 
-[data-type="mfdi-editor-view"] .mfdi-popout-editor__editor .cm-scroller {
+[data-type="mfdi-editor-view"] .daystream-popout-editor__editor .cm-scroller {
   height: 100% !important;
   overflow-y: hidden;
 }
@@ -121,28 +121,28 @@
    エディタ: 入力エリア
    ============================================== */
 
-.mfdi-input-area {
+.daystream-input-area {
   margin-right: var(--size-4-3);
 }
 
-[data-type="mfdi-view"] .mfdi-input-area.mod-read-only .cm-editor {
+[data-type="mfdi-view"] .daystream-input-area.mod-read-only .cm-editor {
   display: none !important;
 }
 
-[data-type="mfdi-view"] .mfdi-input-area:not(.mod-maxmized) .cm-scroller {
+[data-type="mfdi-view"] .daystream-input-area:not(.mod-maxmized) .cm-scroller {
   max-height: 50vh;
 }
 
 /* 最大化時 */
-[data-type="mfdi-view"] .mfdi-input-area:not(.mod-maxmized) .cm-content {
+[data-type="mfdi-view"] .daystream-input-area:not(.mod-maxmized) .cm-content {
   padding-bottom: 0 !important;
 }
 
 /* 意図: 100dvh からツールバー等の高さを引く固定値をやめ、flexbox に高さ配分を
    委ねることで、タブバー非表示（zen mode）などの可変な余白にも自動追従させる */
 [data-type="mfdi-view"]
-  .mfdi-scroll-container:has(.mfdi-input-area.mod-maxmized)
-  > .mfdi-list-header {
+  .daystream-scroll-container:has(.daystream-input-area.mod-maxmized)
+  > .daystream-list-header {
   display: flex;
   flex-direction: column;
   /* 意図: flex: 1 (basis 0) だと後続のポストリストに空間を奪われて潰れるため、
@@ -153,19 +153,19 @@
   min-height: 0;
 }
 
-[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized {
+[data-type="mfdi-view"] .daystream-input-area.mod-maxmized {
   flex: 1;
   min-height: 0;
   /* 意図: ステータスバーを隠した下端まで使うため、展開時の下余白を残さない。 */
   margin-bottom: 0;
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-root:has(.mod-editor-expanded) {
+[data-type="mfdi-view"] .daystream-dashboard-root:has(.mod-editor-expanded) {
   /* 親の上下 padding も下側だけ解除する。ユーティリティの !important に合わせる。 */
   padding-bottom: 0 !important;
 }
 
-/* 意図: アクティブな MFDI の展開中だけ標準ステータスバーと予約高さを取り除き、
+/* 意図: アクティブな Daystream の展開中だけ標準ステータスバーと予約高さを取り除き、
    その領域もエディタへ渡す。縮小・別タブへの移動時は Obsidian の表示へ戻す。 */
 body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded) {
   --status-bar-height: 0px;
@@ -177,26 +177,26 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 
 /* 意図: 拡大中は本文領域を左右パネルの開閉操作から切り離し、
    エディタの表示領域と操作対象を一つに保つ。 */
-[data-type="mfdi-view"]:has(.mod-editor-expanded) [data-mfdi-actions="true"] {
+[data-type="mfdi-view"]:has(.mod-editor-expanded) [data-daystream-actions="true"] {
   display: none !important;
 }
 
 /* 意図: 展開中は一覧の操作領域を隠し、常設エディタだけがメイン領域を使うようにする。 */
 [data-type="mfdi-view"]
-  .mfdi-scroll-container:has(.mfdi-input-area.mod-maxmized)
-  :is(.mfdi-main-toolbar, .mfdi-past-today-notice) {
+  .daystream-scroll-container:has(.daystream-input-area.mod-maxmized)
+  :is(.daystream-main-toolbar, .daystream-past-today-notice) {
   display: none;
 }
 
 /* 意図: ユーティリティに自動付与される !important に負けないようにする。
    親の view-content も止め、スクロールを MagicalEditor 内へ限定する。 */
 [data-type="mfdi-view"] > .view-content:has(.mod-editor-expanded),
-[data-type="mfdi-view"] .mfdi-scroll-container.mod-editor-expanded {
+[data-type="mfdi-view"] .daystream-scroll-container.mod-editor-expanded {
   overflow: hidden !important;
   overscroll-behavior: none;
 }
 
-[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .mfdi-editor-wrapper {
+[data-type="mfdi-view"] .daystream-input-area.mod-maxmized .daystream-editor-wrapper {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -206,11 +206,11 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 /* 意図: CodeMirror マウント用の中間コンテナを box tree から除去し、
    .cm-editor を直接 flex 配分の対象にする（CodeMirror 自身が
    .cm-editor { display:flex } / .cm-scroller { flex:1 } を持つため） */
-[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .mfdi-live-editor-container {
+[data-type="mfdi-view"] .daystream-input-area.mod-maxmized .daystream-live-editor-container {
   display: contents;
 }
 
-[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .cm-editor {
+[data-type="mfdi-view"] .daystream-input-area.mod-maxmized .cm-editor {
   flex: 1;
   min-height: 0;
 }
@@ -218,7 +218,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 /* 意図: .cm-scroller は .cm-editor (flex column) の flex アイテムなので、
    min-height: auto のままだと行数分の高さより縮めず親からあふれる。
    flex + overflow でエディタ内スクロールに収める */
-[data-type="mfdi-view"] .mfdi-input-area.mod-maxmized .cm-scroller {
+[data-type="mfdi-view"] .daystream-input-area.mod-maxmized .cm-scroller {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -258,7 +258,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    日付入力
    ============================================== */
 
-[data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]) {
+[data-type="mfdi-view"] :is(.daystream-date-input, input[type="month"], input[type="week"]) {
   background: var(--background-modifier-form-field);
   border: var(--input-border-width) solid var(--background-modifier-border);
   color: var(--text-normal);
@@ -273,21 +273,21 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 /* 意図: select 本体だけでなくネイティブの選択肢にもテーマを渡し、暗い画面で明るい背景に薄い文字が出るのを防ぐ。 */
-.theme-dark [data-type="mfdi-view"] select.mfdi-date-input {
+.theme-dark [data-type="mfdi-view"] select.daystream-date-input {
   color-scheme: dark;
 }
 
-.theme-light [data-type="mfdi-view"] select.mfdi-date-input {
+.theme-light [data-type="mfdi-view"] select.daystream-date-input {
   color-scheme: light;
 }
 
-[data-type="mfdi-view"] select.mfdi-date-input option {
+[data-type="mfdi-view"] select.daystream-date-input option {
   background-color: var(--background-primary);
   color: var(--text-normal);
 }
 
 @media (hover: hover) {
-  [data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]):hover {
+  [data-type="mfdi-view"] :is(.daystream-date-input, input[type="month"], input[type="week"]):hover {
     background-color: var(--background-modifier-form-field-hover);
     border-color: var(--background-modifier-border-hover);
     transition:
@@ -296,12 +296,12 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   }
 }
 
-[data-type="mfdi-view"] :is(.mfdi-date-input, input[type="month"], input[type="week"]):focus {
+[data-type="mfdi-view"] :is(.daystream-date-input, input[type="month"], input[type="week"]):focus {
   border-color: var(--background-modifier-border-focus);
 }
 
 [data-type="mfdi-view"]
-  :is(.mfdi-date-input, input[type="month"], input[type="week"])
+  :is(.daystream-date-input, input[type="month"], input[type="week"])
   ::-webkit-calendar-picker-indicator {
   position: absolute;
   left: var(--size-4-1);
@@ -311,7 +311,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 [data-type="mfdi-view"]
-  :is(.mfdi-date-input, input[type="month"], input[type="week"])
+  :is(.daystream-date-input, input[type="month"], input[type="week"])
   ::-webkit-datetime-edit-text {
   color: var(--input-date-separator);
   padding-inline-end: 0;
@@ -321,20 +321,20 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    スクロールエリア
    ============================================== */
 
-.mfdi-scroll-area {
+.daystream-scroll-area {
   overflow-y: scroll;
   scrollbar-width: thin;
 }
 
-.mfdi-scroll-area::-webkit-scrollbar {
+.daystream-scroll-area::-webkit-scrollbar {
   width: var(--size-4-1);
 }
 
-.mfdi-scroll-area::-webkit-scrollbar-thumb {
+.daystream-scroll-area::-webkit-scrollbar-thumb {
   border-radius: var(--size-2-5);
 }
 
-.mfdi-scroll-area.expanded::-webkit-scrollbar-thumb {
+.daystream-scroll-area.expanded::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb-bg, rgba(0, 0, 0, 0.1));
 }
 
@@ -342,7 +342,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    「続きを読む」ボタン
    ============================================== */
 
-.mfdi-read-more {
+.daystream-read-more {
   display: block;
   width: 100%;
   padding: var(--size-2-2) var(--size-4-1);
@@ -380,15 +380,15 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   opacity: 0 !important;
   transform: scale(0.95);
   transition:
-    opacity var(--mfdi-app-transition-ms) ease-in,
-    transform var(--mfdi-app-transition-ms) ease-in;
+    opacity var(--daystream-app-transition-ms) ease-in,
+    transform var(--daystream-app-transition-ms) ease-in;
 }
 
 /* ==============================================
    投稿元の粒度バッジ
    ============================================== */
 
-[data-type="mfdi-view"] .mfdi-post-granularity-badge {
+[data-type="mfdi-view"] .daystream-post-granularity-badge {
   /* 意図: 日付との境界と投稿元を、暗いテーマでも一目で区別できるようにする。 */
   display: inline-flex;
   align-items: center;
@@ -408,10 +408,10 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    カードハイライト
    ============================================== */
 
-:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .mfdi-card--highlighted,
-:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .mfdi-card--highlighted:hover,
-.mfdi-card--highlighted,
-.mfdi-card--highlighted:hover {
+:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .daystream-card--highlighted,
+:is([data-type="mfdi-view"], [data-type="mfdi-editor-view"]) .daystream-card--highlighted:hover,
+.daystream-card--highlighted,
+.daystream-card--highlighted:hover {
   /* :hover セレクタも列挙し、hover:bg-* による上書きを防ぐ */
   background: color-mix(
     in srgb,
@@ -428,17 +428,17 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    モーダル: 共通
    ============================================== */
 
-.mfdi-modal .modal-content {
+.daystream-modal .modal-content {
   padding-top: 0;
 }
 
-.mfdi-modal__body {
+.daystream-modal__body {
   display: grid;
   gap: var(--size-4-3);
   margin-top: var(--size-4-2);
 }
 
-.mfdi-modal__input {
+.daystream-modal__input {
   width: 100%;
   min-height: 40px;
   border: var(--input-border-width) solid var(--background-modifier-border);
@@ -453,22 +453,22 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
     background-color var(--anim-duration-fast) ease;
 }
 
-.mfdi-modal__input::placeholder {
+.daystream-modal__input::placeholder {
   color: var(--text-muted);
 }
 
-.mfdi-modal__input:hover {
+.daystream-modal__input:hover {
   border-color: var(--background-modifier-border-hover);
   background: var(--background-modifier-form-field-hover);
 }
 
-.mfdi-modal__input:focus {
+.daystream-modal__input:focus {
   outline: none;
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 24%, transparent);
 }
 
-.mfdi-modal__checkbox-row {
+.daystream-modal__checkbox-row {
   display: flex;
   align-items: center;
   gap: var(--size-4-2);
@@ -477,18 +477,18 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   cursor: pointer;
 }
 
-.mfdi-modal__checkbox-row label {
+.daystream-modal__checkbox-row label {
   cursor: pointer;
 }
 
-.mfdi-modal__actions {
+.daystream-modal__actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--size-4-2);
   margin-top: var(--size-2-2);
 }
 
-.mfdi-modal__button {
+.daystream-modal__button {
   min-width: 92px;
 }
 
@@ -496,7 +496,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    モーダル: ドラフトリスト
    ============================================== */
 
-.mfdi-draft-list-modal {
+.daystream-draft-list-modal {
   width: 100% !important;
   max-width: 90vw !important;
   height: 700px !important;
@@ -506,13 +506,13 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   overflow: hidden !important;
 }
 
-.mfdi-draft-list-modal .modal-content {
+.daystream-draft-list-modal .modal-content {
   height: 100%;
   padding: 0;
   background-color: var(--background-primary);
 }
 
-.mfdi-draft-list-modal .modal-close-button {
+.daystream-draft-list-modal .modal-close-button {
   display: none; /* We have our own Back button */
 }
 
@@ -520,21 +520,21 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    モーダル: エディタ / バックリンクプレビュー
    ============================================== */
 
-.mfdi-modal-editor {
+.daystream-modal-editor {
   width: min(820px, 94vw) !important;
   max-height: 43vh !important;
   position: relative;
   top: -16vh;
 }
 
-.mfdi-modal-editor .modal-content {
+.daystream-modal-editor .modal-content {
   display: flex;
   min-height: 0;
   flex-direction: column;
   gap: 0;
 }
 
-.mfdi-editor-modal__footer {
+.daystream-editor-modal__footer {
   position: absolute;
   top: 6px;
   left: 10px;
@@ -542,27 +542,27 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   z-index: 1;
 }
 
-.mfdi-editor-modal__footer-content {
+.daystream-editor-modal__footer-content {
   margin: 0;
   padding: 0 !important;
 }
 
-.mfdi-in-view-composer__editor {
+.daystream-in-view-composer__editor {
   display: flex;
   flex-direction: column;
 }
 
-.mfdi-in-view-composer__editor .mfdi-live-editor-container,
-.mfdi-in-view-composer__editor .mfdi-live-editor-container > div,
-.mfdi-in-view-composer__editor .markdown-source-view,
-.mfdi-in-view-composer__editor .cm-editor {
+.daystream-in-view-composer__editor .daystream-live-editor-container,
+.daystream-in-view-composer__editor .daystream-live-editor-container > div,
+.daystream-in-view-composer__editor .markdown-source-view,
+.daystream-in-view-composer__editor .cm-editor {
   display: flex;
   flex: 1;
   min-height: 0;
   flex-direction: column;
 }
 
-.mfdi-in-view-composer__editor .cm-scroller {
+.daystream-in-view-composer__editor .cm-scroller {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -571,7 +571,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 /* .cm-sizer をコンテナ全体に広げて余白クリックを可能にする。
    通常の MarkdownView は .markdown-source-view.mod-cm6 .cm-sizer で
    min-height: 100% が当たるが、バーチャルエディタにはそのクラスがない。 */
-.mfdi-in-view-composer__editor .cm-sizer {
+.daystream-in-view-composer__editor .cm-sizer {
   min-height: 100%;
 }
 
@@ -579,13 +579,13 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    ダッシュボードレイアウト
    ============================================== */
 
-[data-type="mfdi-view"] .mfdi-home-action--active {
+[data-type="mfdi-view"] .daystream-home-action--active {
   /* 意図: 共通アイコンの important な色指定を上書きするのではなく、参照する変数を状態に応じて切り替える。 */
   --icon-color: var(--text-accent);
   --icon-color-hover: var(--text-normal);
 }
 
-[data-type="mfdi-view"] .mfdi-statusbar-controls {
+[data-type="mfdi-view"] .daystream-statusbar-controls {
   align-items: center;
   gap: var(--size-4-3);
   padding: var(--size-2-2) var(--size-4-2);
@@ -595,12 +595,12 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   /* opacity: 1 !important; */
 }
 
-[data-type="mfdi-view"] .mfdi-statusbar-controls > .truncate {
+[data-type="mfdi-view"] .daystream-statusbar-controls > .truncate {
   overflow: visible !important;
   text-overflow: clip !important;
 }
 
-[data-type="mfdi-view"] .mfdi-past-today-notice {
+[data-type="mfdi-view"] .daystream-past-today-notice {
   border-color: color-mix(
     in srgb,
     var(--interactive-accent) 35%,
@@ -610,44 +610,44 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   color: var(--text-normal);
 }
 
-[data-type="mfdi-view"] .mfdi-statusbar-date-bar {
+[data-type="mfdi-view"] .daystream-statusbar-date-bar {
   padding: 2px var(--size-2-2);
   border: 1px solid var(--background-modifier-border);
   border-radius: var(--input-radius);
   background: var(--background-modifier-form-field);
 }
 
-[data-type="mfdi-view"] .mfdi-message-body {
-  --mfdi-message-font-size: 14px;
-  --font-text-size: var(--mfdi-message-font-size) !important;
-  --checkbox-size: var(--mfdi-message-font-size) !important;
-  font-size: var(--mfdi-message-font-size) !important;
+[data-type="mfdi-view"] .daystream-message-body {
+  --daystream-message-font-size: 14px;
+  --font-text-size: var(--daystream-message-font-size) !important;
+  --checkbox-size: var(--daystream-message-font-size) !important;
+  font-size: var(--daystream-message-font-size) !important;
 }
 
-[data-type="mfdi-view"] .mfdi-message-body .markdown-rendered {
-  font-size: var(--mfdi-message-font-size) !important;
+[data-type="mfdi-view"] .daystream-message-body .markdown-rendered {
+  font-size: var(--daystream-message-font-size) !important;
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-root {
+[data-type="mfdi-view"] .daystream-dashboard-root {
   gap: 0;
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-main {
+[data-type="mfdi-view"] .daystream-dashboard-main {
   min-width: 0;
 }
 
-[data-type="mfdi-view"] .mfdi-main-toolbar {
+[data-type="mfdi-view"] .daystream-main-toolbar {
   width: 90%;
   max-width: calc(100% - 1rem);
   margin: 0 auto;
 }
 
-[data-type="mfdi-view"] .mfdi-main-toolbar .mfdi-statusbar-controls {
+[data-type="mfdi-view"] .daystream-main-toolbar .daystream-statusbar-controls {
   margin: 4px 0;
 }
 
 /* 意図: 表示切替と全体検索を別の操作として見せ、狭いペインでも検索入口の幅を確保する。 */
-[data-type="mfdi-view"] .mfdi-main-navigation {
+[data-type="mfdi-view"] .daystream-main-navigation {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -655,7 +655,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   margin: 4px 0 8px;
 }
 
-[data-type="mfdi-view"] .mfdi-main-view-tabs {
+[data-type="mfdi-view"] .daystream-main-view-tabs {
   display: flex;
   flex: 0 1 auto;
   align-items: center;
@@ -669,7 +669,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   overflow-x: auto;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger) {
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger) {
   /* 意図: 投稿欄より控えめなナビゲーションにするため、テーマのボタン装飾より
      小さい寸法とフラットな見た目を優先し、表示タブと検索のサイズを揃える。 */
   display: inline-flex;
@@ -696,8 +696,8 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   cursor: pointer;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close) .obsidian-icon,
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close) .obsidian-icon svg {
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger, .daystream-search-close) .obsidian-icon,
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger, .daystream-search-close) .obsidian-icon svg {
   /* 意図: テーマが選択タブをアクセント背景にしても、アイコンをラベルと同じ前景色にする。
      共通アイコンの important な色指定とテーマの SVG 色指定を上書きして継承させる。 */
   color: inherit !important;
@@ -705,25 +705,25 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   height: 14px !important;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger):is(:hover, :focus-visible) {
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger):is(:hover, :focus-visible) {
   /* 意図: テーマのボタン hover はアクセント背景用の文字色なので、薄い背景には通常色を保つ。 */
   color: var(--text-normal) !important;
   background: var(--background-modifier-hover) !important;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger).is-active {
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger).is-active {
   background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
   font-weight: var(--font-semibold) !important;
 }
 
-[data-type="mfdi-view"] .mfdi-search-controls {
+[data-type="mfdi-view"] .daystream-search-controls {
   /* 意図: 閉じる操作は入力欄に内包し、検索 UI に独立した枠を増やさない。 */
   position: relative;
   margin: 4px 2px 10px;
   padding: 4px 0;
 }
 
-[data-type="mfdi-view"] .mfdi-search-close {
+[data-type="mfdi-view"] .daystream-search-close {
   /* 意図: 入力欄内の補助操作はタブと同じフラットな見た目にし、
      テーマのアクセント背景・影・大きな余白で主操作のように目立つのを防ぐ。 */
   position: absolute;
@@ -746,19 +746,19 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   cursor: pointer;
 }
 
-[data-type="mfdi-view"] .mfdi-search-close:is(:hover, :focus-visible) {
+[data-type="mfdi-view"] .daystream-search-close:is(:hover, :focus-visible) {
   /* 意図: 薄いホバー背景には通常の前景色を使い、アクセント背景用の暗い文字色を避ける。 */
   color: var(--text-normal) !important;
   background: var(--background-modifier-hover) !important;
   box-shadow: none !important;
 }
 
-[data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger, .mfdi-search-close):focus-visible {
+[data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger, .daystream-search-close):focus-visible {
   outline: 2px solid var(--interactive-accent) !important;
   outline-offset: 2px !important;
 }
 
-[data-type="mfdi-view"] .mfdi-search-controls__input {
+[data-type="mfdi-view"] .daystream-search-controls__input {
   width: 100%;
   height: 38px;
   min-width: 0;
@@ -770,20 +770,20 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   transition: background-color var(--anim-duration-fast) ease;
 }
 
-[data-type="mfdi-view"] .mfdi-search-controls__input:focus {
+[data-type="mfdi-view"] .daystream-search-controls__input:focus {
   border-color: color-mix(in srgb, var(--background-modifier-border) 65%, transparent);
   outline: none;
   background: color-mix(in srgb, var(--background-modifier-form-field) 68%, transparent);
   box-shadow: none !important;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-view {
+[data-type="mfdi-view"] .daystream-insight-view {
   width: min(100%, 960px);
   margin: 0 auto;
   padding: 12px 16px 48px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-header {
+[data-type="mfdi-view"] .daystream-insight-header {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -793,29 +793,29 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-header h1 {
+[data-type="mfdi-view"] .daystream-insight-header h1 {
   margin: 0;
   color: var(--text-normal);
   font-size: var(--font-ui-larger);
   font-weight: var(--font-semibold);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-header small,
-[data-type="mfdi-view"] .mfdi-insight-muted {
+[data-type="mfdi-view"] .daystream-insight-header small,
+[data-type="mfdi-view"] .daystream-insight-muted {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-tabs,
-[data-type="mfdi-view"] .mfdi-insight-years {
+[data-type="mfdi-view"] .daystream-insight-tabs,
+[data-type="mfdi-view"] .daystream-insight-years {
   display: flex;
   align-items: center;
   gap: 4px;
   overflow-x: auto;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-tabs button,
-[data-type="mfdi-view"] .mfdi-insight-years button {
+[data-type="mfdi-view"] .daystream-insight-tabs button,
+[data-type="mfdi-view"] .daystream-insight-years button {
   flex: 0 0 auto;
   border: 1px solid var(--background-modifier-border);
   border-radius: 999px;
@@ -825,22 +825,22 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   cursor: pointer;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-tabs button {
+[data-type="mfdi-view"] .daystream-insight-tabs button {
   padding: 5px 12px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-years button {
+[data-type="mfdi-view"] .daystream-insight-years button {
   padding: 4px 9px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-tabs button:is(:hover, :focus-visible),
-[data-type="mfdi-view"] .mfdi-insight-years button:is(:hover, :focus-visible) {
+[data-type="mfdi-view"] .daystream-insight-tabs button:is(:hover, :focus-visible),
+[data-type="mfdi-view"] .daystream-insight-years button:is(:hover, :focus-visible) {
   color: var(--text-normal);
   background: var(--background-modifier-hover);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-tabs button.is-active,
-[data-type="mfdi-view"] .mfdi-insight-years button.is-active {
+[data-type="mfdi-view"] .daystream-insight-tabs button.is-active,
+[data-type="mfdi-view"] .daystream-insight-years button.is-active {
   border-color: color-mix(
     in srgb,
     var(--interactive-accent) 42%,
@@ -851,19 +851,19 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   font-weight: var(--font-semibold);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-filter-row {
+[data-type="mfdi-view"] .daystream-insight-filter-row {
   display: flex;
   justify-content: flex-end;
   min-height: 28px;
   margin-bottom: 10px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-sections {
+[data-type="mfdi-view"] .daystream-insight-sections {
   display: grid;
   gap: 12px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-card {
+[data-type="mfdi-view"] .daystream-insight-card {
   min-width: 0;
   padding: 14px 16px 16px;
   border: 1px solid var(--background-modifier-border);
@@ -872,7 +872,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   box-shadow: var(--shadow-s);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-card h2 {
+[data-type="mfdi-view"] .daystream-insight-card h2 {
   margin: 0 0 12px;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
@@ -880,32 +880,32 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   letter-spacing: 0.04em;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-card__meta,
-[data-type="mfdi-view"] .mfdi-insight-trend__header {
+[data-type="mfdi-view"] .daystream-insight-card__meta,
+[data-type="mfdi-view"] .daystream-insight-trend__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-card__meta {
+[data-type="mfdi-view"] .daystream-insight-card__meta {
   margin-bottom: 10px;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-card__meta strong {
+[data-type="mfdi-view"] .daystream-insight-card__meta strong {
   color: var(--text-normal);
   font-size: var(--font-ui-medium);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-stats {
+[data-type="mfdi-view"] .daystream-insight-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-stat {
+[data-type="mfdi-view"] .daystream-insight-stat {
   min-width: 0;
   min-height: 72px;
   padding: 10px;
@@ -914,14 +914,14 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   background: var(--background-primary);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-stat span,
-[data-type="mfdi-view"] .mfdi-insight-stat small {
+[data-type="mfdi-view"] .daystream-insight-stat span,
+[data-type="mfdi-view"] .daystream-insight-stat small {
   display: block;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-stat strong {
+[data-type="mfdi-view"] .daystream-insight-stat strong {
   display: block;
   margin-top: 4px;
   overflow: hidden;
@@ -931,11 +931,11 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   white-space: nowrap;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-stat small {
+[data-type="mfdi-view"] .daystream-insight-stat small {
   margin-top: 3px;
 }
 
-[data-type="mfdi-view"] .mfdi-activity-grid {
+[data-type="mfdi-view"] .daystream-activity-grid {
   display: grid;
   grid-template-rows: repeat(7, 10px);
   grid-auto-flow: column;
@@ -945,18 +945,18 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   overflow: hidden;
 }
 
-[data-type="mfdi-view"] .mfdi-activity-grid span,
+[data-type="mfdi-view"] .daystream-activity-grid span,
 [data-type="mfdi-view"]
-  .mfdi-time-heatmap
-  > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day),
-[data-type="mfdi-view"] .mfdi-mini-bars span,
-[data-type="mfdi-view"] .mfdi-word-trend span {
+  .daystream-time-heatmap
+  > span:not(.daystream-time-heatmap__hour):not(.daystream-time-heatmap__day),
+[data-type="mfdi-view"] .daystream-mini-bars span,
+[data-type="mfdi-view"] .daystream-word-trend span {
   display: block;
   border-radius: 3px;
   background: var(--interactive-accent);
 }
 
-[data-type="mfdi-view"] .mfdi-time-heatmap {
+[data-type="mfdi-view"] .daystream-time-heatmap {
   display: grid;
   grid-template-columns: 18px repeat(24, minmax(7px, 1fr));
   grid-auto-rows: 16px;
@@ -965,36 +965,36 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   overflow-x: auto;
 }
 
-[data-type="mfdi-view"] .mfdi-time-heatmap__axis {
+[data-type="mfdi-view"] .daystream-time-heatmap__axis {
   grid-column: 1;
 }
 
-[data-type="mfdi-view"] .mfdi-time-heatmap__hour {
+[data-type="mfdi-view"] .daystream-time-heatmap__hour {
   color: var(--text-faint);
   font-size: 9px;
   text-align: center;
 }
 
-[data-type="mfdi-view"] .mfdi-time-heatmap__day {
+[data-type="mfdi-view"] .daystream-time-heatmap__day {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
 [data-type="mfdi-view"]
-  .mfdi-time-heatmap
-  > span:not(.mfdi-time-heatmap__hour):not(.mfdi-time-heatmap__day) {
+  .daystream-time-heatmap
+  > span:not(.daystream-time-heatmap__hour):not(.daystream-time-heatmap__day) {
   min-width: 7px;
   height: 100%;
   border-radius: 3px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-trend-grid {
+[data-type="mfdi-view"] .daystream-insight-trend-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-trend {
+[data-type="mfdi-view"] .daystream-insight-trend {
   min-width: 0;
   padding: 8px 10px;
   border: 1px solid var(--background-modifier-border);
@@ -1002,16 +1002,16 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   background: var(--background-primary);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-trend__header {
+[data-type="mfdi-view"] .daystream-insight-trend__header {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-trend__header strong {
+[data-type="mfdi-view"] .daystream-insight-trend__header strong {
   color: var(--text-normal);
 }
 
-[data-type="mfdi-view"] .mfdi-mini-bars {
+[data-type="mfdi-view"] .daystream-mini-bars {
   display: flex;
   align-items: end;
   gap: 2px;
@@ -1019,18 +1019,18 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   margin-top: 6px;
 }
 
-[data-type="mfdi-view"] .mfdi-mini-bars span {
+[data-type="mfdi-view"] .daystream-mini-bars span {
   min-width: 0;
   flex: 1;
   border-radius: 2px 2px 0 0;
 }
 
-[data-type="mfdi-view"] .mfdi-word-search {
+[data-type="mfdi-view"] .daystream-word-search {
   display: flex;
   gap: 8px;
 }
 
-[data-type="mfdi-view"] .mfdi-word-search input {
+[data-type="mfdi-view"] .daystream-word-search input {
   min-width: 0;
   flex: 1;
   border: 1px solid var(--background-modifier-border);
@@ -1038,7 +1038,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   background: var(--background-primary);
 }
 
-[data-type="mfdi-view"] .mfdi-word-trend {
+[data-type="mfdi-view"] .daystream-word-trend {
   display: flex;
   align-items: end;
   gap: 3px;
@@ -1050,7 +1050,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   background: var(--background-primary);
 }
 
-[data-type="mfdi-view"] .mfdi-word-trend > div {
+[data-type="mfdi-view"] .daystream-word-trend > div {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -1061,24 +1061,24 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   gap: 3px;
 }
 
-[data-type="mfdi-view"] .mfdi-word-trend span {
+[data-type="mfdi-view"] .daystream-word-trend span {
   width: 100%;
   min-height: 2px;
   border-radius: 2px 2px 0 0;
 }
 
-[data-type="mfdi-view"] .mfdi-word-trend small {
+[data-type="mfdi-view"] .daystream-word-trend small {
   color: var(--text-faint);
   font-size: 8px;
 }
 
-[data-type="mfdi-view"] .mfdi-word-list {
+[data-type="mfdi-view"] .daystream-word-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 5px 18px;
 }
 
-[data-type="mfdi-view"] .mfdi-word-list__item {
+[data-type="mfdi-view"] .daystream-word-list__item {
   display: grid;
   grid-template-columns: 22px minmax(0, auto) minmax(24px, 1fr) 28px;
   align-items: center;
@@ -1087,14 +1087,14 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   min-height: 19px;
 }
 
-[data-type="mfdi-view"] .mfdi-word-list__rank,
-[data-type="mfdi-view"] .mfdi-word-list__item small {
+[data-type="mfdi-view"] .daystream-word-list__rank,
+[data-type="mfdi-view"] .daystream-word-list__item small {
   color: var(--text-faint);
   font-size: 10px;
   text-align: right;
 }
 
-[data-type="mfdi-view"] .mfdi-word-list__item strong {
+[data-type="mfdi-view"] .daystream-word-list__item strong {
   overflow: hidden;
   color: var(--text-normal);
   font-size: var(--font-ui-small);
@@ -1103,7 +1103,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   white-space: nowrap;
 }
 
-[data-type="mfdi-view"] .mfdi-word-list__bar {
+[data-type="mfdi-view"] .daystream-word-list__bar {
   display: block;
   height: 6px;
   min-width: 3px;
@@ -1112,12 +1112,12 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   opacity: 0.8;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-ranking {
+[data-type="mfdi-view"] .daystream-insight-ranking {
   display: grid;
   gap: 7px;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-ranking > div {
+[data-type="mfdi-view"] .daystream-insight-ranking > div {
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -1125,13 +1125,13 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   font-size: var(--font-ui-small);
 }
 
-[data-type="mfdi-view"] .mfdi-insight-ranking strong {
+[data-type="mfdi-view"] .daystream-insight-ranking strong {
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
-[data-type="mfdi-view"] .mfdi-insight-loading,
-[data-type="mfdi-view"] .mfdi-insight-empty {
+[data-type="mfdi-view"] .daystream-insight-loading,
+[data-type="mfdi-view"] .daystream-insight-empty {
   display: flex;
   min-height: 240px;
   align-items: center;
@@ -1140,112 +1140,112 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   color: var(--text-muted);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar {
-  flex: 0 0 var(--mfdi-panel-width);
-  width: var(--mfdi-panel-width);
-  min-width: var(--mfdi-panel-width);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar {
+  flex: 0 0 var(--daystream-panel-width);
+  width: var(--daystream-panel-width);
+  min-width: var(--daystream-panel-width);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .mfdi-panel-section {
-  gap: var(--mfdi-panel-section-gap);
-  padding-inline: var(--mfdi-panel-section-padding-inline);
-  padding-bottom: var(--mfdi-panel-section-padding-bottom);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .daystream-panel-section {
+  gap: var(--daystream-panel-section-gap);
+  padding-inline: var(--daystream-panel-section-padding-inline);
+  padding-bottom: var(--daystream-panel-section-padding-bottom);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .mfdi-panel-section__toggle {
-  padding-block: var(--mfdi-panel-heading-padding-block);
-  font-size: var(--mfdi-panel-heading-font-size);
-  line-height: var(--mfdi-panel-heading-line-height);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .daystream-panel-section__toggle {
+  padding-block: var(--daystream-panel-heading-padding-block);
+  font-size: var(--daystream-panel-heading-font-size);
+  line-height: var(--daystream-panel-heading-line-height);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-section-header {
-  padding-inline: var(--mfdi-panel-section-padding-inline);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .sidebar-section-header {
+  padding-inline: var(--daystream-panel-section-padding-inline);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-section-header > * {
-  font-size: var(--mfdi-panel-heading-font-size);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .sidebar-section-header > * {
+  font-size: var(--daystream-panel-heading-font-size);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-text-button {
-  height: var(--mfdi-panel-item-height);
-  padding-inline: var(--mfdi-panel-item-padding-inline);
-  font-size: var(--mfdi-panel-label-font-size);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .sidebar-text-button {
+  height: var(--daystream-panel-item-height);
+  padding-inline: var(--daystream-panel-item-padding-inline);
+  font-size: var(--daystream-panel-label-font-size);
 }
 
-[data-type="mfdi-view"] .mfdi-dashboard-sidebar .sidebar-item-count {
-  font-size: var(--mfdi-panel-meta-font-size);
+[data-type="mfdi-view"] .daystream-dashboard-sidebar .sidebar-item-count {
+  font-size: var(--daystream-panel-meta-font-size);
 }
 
 /* 290px パネル内でもカレンダーはコンパクトなサイズを保つ */
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar {
-  width: min(100%, var(--mfdi-calendar-width));
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar {
+  width: min(100%, var(--daystream-calendar-width));
   max-width: 100%;
   margin-inline: auto;
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__header {
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__header {
   padding-inline: 0;
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__month-label {
-  gap: var(--mfdi-calendar-header-gap);
-  margin-left: var(--mfdi-calendar-header-margin-left);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__month-label {
+  gap: var(--daystream-calendar-header-gap);
+  margin-left: var(--daystream-calendar-header-margin-left);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__period-label {
-  min-height: var(--mfdi-calendar-header-height);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__period-label {
+  min-height: var(--daystream-calendar-header-height);
   padding-inline: 4px;
-  font-size: var(--mfdi-calendar-header-font-size);
-  line-height: var(--mfdi-calendar-header-height);
+  font-size: var(--daystream-calendar-header-font-size);
+  line-height: var(--daystream-calendar-header-height);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__nav {
-  gap: var(--mfdi-calendar-nav-gap);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__nav {
+  gap: var(--daystream-calendar-nav-gap);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__nav-button {
-  width: var(--mfdi-calendar-header-height);
-  height: var(--mfdi-calendar-header-height);
-  padding: var(--mfdi-calendar-nav-padding);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__nav-button {
+  width: var(--daystream-calendar-header-height);
+  height: var(--daystream-calendar-header-height);
+  padding: var(--daystream-calendar-nav-padding);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__grid {
-  grid-template-columns: repeat(8, var(--mfdi-calendar-cell-size));
-  gap: var(--mfdi-calendar-grid-gap);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__grid {
+  grid-template-columns: repeat(8, var(--daystream-calendar-cell-size));
+  gap: var(--daystream-calendar-grid-gap);
   width: fit-content;
   margin-inline: auto;
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__weekday-label {
-  padding-block: var(--mfdi-calendar-weekday-padding-block);
-  font-size: var(--mfdi-calendar-weekday-font-size);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__weekday-label {
+  padding-block: var(--daystream-calendar-weekday-padding-block);
+  font-size: var(--daystream-calendar-weekday-font-size);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__week-number {
-  height: var(--mfdi-calendar-cell-size);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__week-number {
+  height: var(--daystream-calendar-cell-size);
   padding-block: 0;
-  font-size: var(--mfdi-calendar-cell-font-size);
+  font-size: var(--daystream-calendar-cell-font-size);
   border-radius: 4px;
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell {
-  width: var(--mfdi-calendar-cell-size);
-  height: var(--mfdi-calendar-cell-size);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__day-cell {
+  width: var(--daystream-calendar-cell-size);
+  height: var(--daystream-calendar-cell-size);
   aspect-ratio: auto;
-  font-size: var(--mfdi-calendar-cell-font-size);
+  font-size: var(--daystream-calendar-cell-font-size);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell > div {
-  grid-template-rows: 1em var(--mfdi-calendar-dot-size);
-  gap: var(--mfdi-calendar-day-gap);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__day-cell > div {
+  grid-template-rows: 1em var(--daystream-calendar-dot-size);
+  gap: var(--daystream-calendar-day-gap);
 }
 
-[data-type="mfdi-view"] .mfdi-calendar-section .mini-calendar__day-cell > div > div {
-  width: var(--mfdi-calendar-dot-size);
-  height: var(--mfdi-calendar-dot-size);
+[data-type="mfdi-view"] .daystream-calendar-section .mini-calendar__day-cell > div > div {
+  width: var(--daystream-calendar-dot-size);
+  height: var(--daystream-calendar-dot-size);
 }
 
-[data-type="mfdi-view"] .mfdi-compose-button {
+[data-type="mfdi-view"] .daystream-compose-button {
   bottom: 2rem;
 }
 
@@ -1254,11 +1254,11 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 @media (max-width: 1200px) {
-  [data-type="mfdi-view"] .mfdi-dashboard-sidebar--right {
+  [data-type="mfdi-view"] .daystream-dashboard-sidebar--right {
     display: none !important;
   }
 
-  [data-type="mfdi-view"] .mfdi-compose-button {
+  [data-type="mfdi-view"] .daystream-compose-button {
     right: 2rem !important;
   }
 
@@ -1268,74 +1268,74 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
 }
 
 @media (max-width: 900px) {
-  [data-type="mfdi-view"] .mfdi-statusbar-controls {
+  [data-type="mfdi-view"] .daystream-statusbar-controls {
     gap: var(--size-2-2);
   }
 
-  [data-type="mfdi-view"] .mfdi-dashboard-sidebar--left {
+  [data-type="mfdi-view"] .daystream-dashboard-sidebar--left {
     display: none !important;
   }
 
-  [data-type="mfdi-view"] .mfdi-dashboard-root {
+  [data-type="mfdi-view"] .daystream-dashboard-root {
     padding: var(--size-4-2);
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-view {
+  [data-type="mfdi-view"] .daystream-insight-view {
     padding-inline: 8px;
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-header {
+  [data-type="mfdi-view"] .daystream-insight-header {
     align-items: stretch;
     flex-direction: column;
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-tabs {
+  [data-type="mfdi-view"] .daystream-insight-tabs {
     justify-content: flex-start;
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-stats,
-  [data-type="mfdi-view"] .mfdi-word-list {
+  [data-type="mfdi-view"] .daystream-insight-stats,
+  [data-type="mfdi-view"] .daystream-word-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-trend-grid {
+  [data-type="mfdi-view"] .daystream-insight-trend-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 560px) {
-  [data-type="mfdi-view"] .mfdi-main-view-tabs__tab span,
-  [data-type="mfdi-view"] .mfdi-search-trigger span {
+  [data-type="mfdi-view"] .daystream-main-view-tabs__tab span,
+  [data-type="mfdi-view"] .daystream-search-trigger span {
     display: none;
   }
 
-  [data-type="mfdi-view"] :is(.mfdi-main-view-tabs__tab, .mfdi-search-trigger) {
+  [data-type="mfdi-view"] :is(.daystream-main-view-tabs__tab, .daystream-search-trigger) {
     /* 意図: アイコンのみのモバイル表示では、コンパクトでも指で押せる面積を残す。 */
     min-width: 36px !important;
     height: 36px !important;
     min-height: 36px !important;
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-card {
+  [data-type="mfdi-view"] .daystream-insight-card {
     padding: 12px;
   }
 
-  [data-type="mfdi-view"] .mfdi-insight-stats {
+  [data-type="mfdi-view"] .daystream-insight-stats {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  [data-type="mfdi-view"] .mfdi-word-list {
+  [data-type="mfdi-view"] .daystream-word-list {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.mfdi-backlink-preview-modal {
+.daystream-backlink-preview-modal {
   width: min(820px, 92vw) !important;
   height: auto !important;
   max-height: min(78vh, 720px) !important;
 }
 
-.mfdi-backlink-preview-modal .modal-content {
+.daystream-backlink-preview-modal .modal-content {
   max-height: min(78vh, 720px);
   overflow: hidden;
 }
@@ -1344,23 +1344,23 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
    バックリンクプレビュー: コンポーネント
    ============================================== */
 
-.mfdi-backlink-preview__summary {
+.daystream-backlink-preview__summary {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
 }
 
-.mfdi-backlink-preview__section-title {
+.daystream-backlink-preview__section-title {
   color: var(--text-normal);
   font-size: var(--font-ui-medium);
   font-weight: var(--font-semibold);
 }
 
-.mfdi-backlink-preview__target {
+.daystream-backlink-preview__target {
   display: grid;
   gap: var(--size-2-3);
 }
 
-.mfdi-backlink-preview__list {
+.daystream-backlink-preview__list {
   display: grid;
   gap: var(--size-2-3);
   max-height: min(54vh, 560px);
@@ -1369,7 +1369,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   padding-right: var(--size-2-2);
 }
 
-.mfdi-backlink-preview__item {
+.daystream-backlink-preview__item {
   all: unset;
   box-sizing: border-box;
   display: grid !important;
@@ -1390,16 +1390,16 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
     transform var(--anim-duration-fast) ease;
 }
 
-.mfdi-backlink-preview__item:is(:hover, :focus-visible) {
+.daystream-backlink-preview__item:is(:hover, :focus-visible) {
   border-color: var(--interactive-accent);
   background: var(--background-secondary-alt);
 }
 
-.mfdi-backlink-preview__item:focus-visible {
+.daystream-backlink-preview__item:focus-visible {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 28%, transparent);
 }
 
-.mfdi-backlink-preview__item--target {
+.daystream-backlink-preview__item--target {
   cursor: default;
   border-color: color-mix(
     in srgb,
@@ -1409,29 +1409,29 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   background: color-mix(in srgb, var(--interactive-accent) 8%, var(--background-primary-alt));
 }
 
-.mfdi-backlink-preview__item--target:is(:hover, :focus-visible) {
+.daystream-backlink-preview__item--target:is(:hover, :focus-visible) {
   transform: none;
 }
 
-.mfdi-backlink-preview__item > * {
+.daystream-backlink-preview__item > * {
   min-width: 0;
 }
 
-.mfdi-backlink-preview__meta {
+.daystream-backlink-preview__meta {
   display: flex;
   align-items: center;
   gap: var(--size-2-2);
   flex-wrap: wrap;
 }
 
-.mfdi-backlink-preview__time {
+.daystream-backlink-preview__time {
   color: var(--text-muted);
   font-size: var(--font-ui-medium);
   font-weight: var(--font-semibold);
   line-height: 1.3;
 }
 
-.mfdi-backlink-preview__badge {
+.daystream-backlink-preview__badge {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -1441,14 +1441,14 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   padding: 0 var(--size-2-2);
 }
 
-.mfdi-backlink-preview__path {
+.daystream-backlink-preview__path {
   color: var(--text-faint);
   font-size: var(--font-ui-smaller);
   line-height: 1.35;
   word-break: break-all;
 }
 
-.mfdi-backlink-preview__preview {
+.daystream-backlink-preview__preview {
   color: var(--text-normal);
   font-size: var(--font-ui-medium);
   line-height: 1.45;
@@ -1459,7 +1459,7 @@ body:has(.workspace-leaf.mod-active [data-type="mfdi-view"] .mod-editor-expanded
   max-height: calc(1.45em * 2);
 }
 
-.mfdi-backlink-preview__empty {
+.daystream-backlink-preview__empty {
   color: var(--text-muted);
   padding: var(--size-4-3) 0;
   text-align: center;

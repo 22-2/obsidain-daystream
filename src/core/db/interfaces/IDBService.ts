@@ -1,4 +1,4 @@
-import type { MemoRecord, TagStatRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord, TagStatRecord } from "src/core/db/daystream-db";
 import type { Granularity } from "src/core/domain/granularity";
 import type { ScannableNote } from "src/core/db/worker-api";
 

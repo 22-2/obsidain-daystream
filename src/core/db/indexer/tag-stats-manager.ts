@@ -1,10 +1,10 @@
-import type { MFDIDatabase } from "src/core/db/mfdi-db";
+import type { DaystreamDatabase } from "src/core/db/daystream-db";
 
 // ---------------------------------------------------------------------------
 // TagStatsManager — encapsulates all tag-count bookkeeping
 // ---------------------------------------------------------------------------
 export class TagStatsManager {
-  constructor(private readonly db: MFDIDatabase) {}
+  constructor(private readonly db: DaystreamDatabase) {}
 
   /** Full rebuild from the current memos table. */
   async rebuild(): Promise<void> {

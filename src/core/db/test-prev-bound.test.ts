@@ -1,12 +1,12 @@
-import { MFDIDatabase } from "src/core/db/mfdi-db";
+import { DaystreamDatabase } from "src/core/db/daystream-db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("IndexedDB prev bound test", () => {
-  let db: MFDIDatabase;
+  let db: DaystreamDatabase;
 
   beforeEach(async () => {
     vi.useRealTimers();
-    db = new MFDIDatabase("test-prev-bound");
+    db = new DaystreamDatabase("test-prev-bound");
     await db.open();
     await db.memos.clear();
   });

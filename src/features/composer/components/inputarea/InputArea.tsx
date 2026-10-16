@@ -21,7 +21,7 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
 export const InputArea: FC = memo(() => {
-  // 意図: MFDIView と MFDIEditorView どちらから呼ばれても動くよう、
+  // 意図: DaystreamView と DaystreamEditorView どちらから呼ばれても動くよう、
   // leaf だけを要求する最小限の構造型にキャストする。
   const component = useObsidianComponent() as unknown as {
     leaf: WorkspaceLeaf;
@@ -97,7 +97,7 @@ export const InputArea: FC = memo(() => {
         // 常時適用する基本クラス
         // 意図: 入力エリアの上端は操作バーをなくしたため、丸いカード形状ではなく
         // 一覧と連続する直線的な境界にする。
-        "mfdi-input-area flex flex-col rounded-t-none pt-8 bg-[var(--background-secondary)] border border-[var(--table-border-color)]",
+        "daystream-input-area flex flex-col rounded-t-none pt-8 bg-[var(--background-secondary)] border border-[var(--table-border-color)]",
         {
           // 条件付きクラス
           "mod-read-only": isReadOnly,
@@ -115,7 +115,7 @@ export const InputArea: FC = memo(() => {
           externalVersion={inputSnapshotVersion}
           onChange={syncInputSession}
           onSubmit={handleSubmit}
-          className="mfdi-editor-wrapper mx-[var(--size-4-4)]"
+          className="daystream-editor-wrapper mx-[var(--size-4-4)]"
           placeholder={PLACEHOLDER_TEXT}
           isReadOnly={isReadOnly}
           readonlyPlaceholder={READONLY_PLACEHOLDER_TEXT}

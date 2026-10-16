@@ -6,23 +6,23 @@ import type { Settings } from "src/core/domain/settings";
 import { EditorOnlyReactView } from "src/features/composer/components/EditorOnlyReactView";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
 import "src/core/ui/styles/global.css";
-import "src/core/ui/styles/mfdi.css";
+import "src/core/ui/styles/daystream.css";
 
-export const VIEW_TYPE_MFDI_EDITOR = "mfdi-editor-view";
+export const VIEW_TYPE_DAYSTREAM_EDITOR = "mfdi-editor-view";
 
 // popout ウィンドウへ渡すシリアライズ済みの状態
 // Post の Moment フィールドは ISO 文字列に変換して Record 互換にする
-export interface MFDIEditorViewState extends Record<string, unknown> {
+export interface DaystreamEditorViewState extends Record<string, unknown> {
   postInfo?: PersistedEditingPost;
   message?: string;
   draftMetadata?: Record<string, string>;
   draftMetadataBase?: Record<string, string>;
 }
 
-export class MFDIEditorView extends ItemView {
+export class DaystreamEditorView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private state: MFDIEditorViewState | null = null;
+  private state: DaystreamEditorViewState | null = null;
   // popout ウィンドウでは navigation ヘッダが不要
   public navigation: boolean = false;
 
@@ -40,11 +40,11 @@ export class MFDIEditorView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_MFDI_EDITOR;
+    return VIEW_TYPE_DAYSTREAM_EDITOR;
   }
 
   getDisplayText(): string {
-    return "MFDI エディタ";
+    return "Daystream エディタ";
   }
 
   async onOpen(): Promise<void> {
@@ -63,13 +63,13 @@ export class MFDIEditorView extends ItemView {
   // State management
   // -----------------------------------------------------------------------
 
-  async setState(state: MFDIEditorViewState): Promise<void> {
+  async setState(state: DaystreamEditorViewState): Promise<void> {
     this.state = state;
     this.setupView();
   }
 
-  getState(): MFDIEditorViewState {
-    return this.state || ({} as MFDIEditorViewState);
+  getState(): DaystreamEditorViewState {
+    return this.state || ({} as DaystreamEditorViewState);
   }
 
   // -----------------------------------------------------------------------

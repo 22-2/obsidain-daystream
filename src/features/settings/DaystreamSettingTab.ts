@@ -2,17 +2,17 @@ import type { App } from "obsidian";
 import { PluginSettingTab, debounce } from "obsidian";
 import { normalizeCtrlEnterSendMode, type Settings } from "src/core/domain/settings";
 import { createLogger } from "src/core/logger";
-import type MFDIPlugin from "src/main";
+import type DaystreamPlugin from "src/main";
 
 const logger = createLogger("settings");
 
-export class MFDISettingTab extends PluginSettingTab {
-  plugin: MFDIPlugin;
+export class DaystreamSettingTab extends PluginSettingTab {
+  plugin: DaystreamPlugin;
   debouncedRerender = debounce(() => {
     this.plugin.rerenderView();
   }, 500);
 
-  constructor(app: App, plugin: MFDIPlugin) {
+  constructor(app: App, plugin: DaystreamPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -108,7 +108,7 @@ export class MFDISettingTab extends PluginSettingTab {
             control: {
               type: "text",
               key: "insertAfter",
-              placeholder: "## MFDI",
+              placeholder: "## Daystream",
             },
           },
           {

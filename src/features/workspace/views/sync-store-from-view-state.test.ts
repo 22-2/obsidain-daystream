@@ -1,7 +1,7 @@
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { syncStoreFromMFDIViewState } from "src/features/workspace/views/sync-store-from-view-state";
+import type { DaystreamViewState } from "src/features/workspace/views/state";
+import { syncStoreFromDaystreamViewState } from "src/features/workspace/views/sync-store-from-view-state";
 import { describe, expect, it, vi } from "vitest";
 
 function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState"]>>) {
@@ -46,10 +46,10 @@ function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState
   return { state, store };
 }
 
-describe("syncStoreFromMFDIViewState", () => {
+describe("syncStoreFromDaystreamViewState", () => {
   it("restores a fixed note session number without reapplying periodic UI state", () => {
     const { state, store } = createMockStore();
-    const viewState: MFDIViewState = {
+    const viewState: DaystreamViewState = {
       displayMode: "focus",
       granularity: "day",
       asTask: false,
@@ -63,7 +63,7 @@ describe("syncStoreFromMFDIViewState", () => {
       file: "MFDI/Inbox.mfdi.md",
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDaystreamViewState(store, viewState);
 
     expect(state.fixedSessionNumber).toBe(4);
     expect(state.viewNoteMode).toBe("fixed");
@@ -89,7 +89,7 @@ describe("syncStoreFromMFDIViewState", () => {
       viewNoteMode: "fixed",
       file: "MFDI/Inbox.mfdi.md",
     });
-    const viewState: MFDIViewState = {
+    const viewState: DaystreamViewState = {
       displayMode: "timeline",
       granularity: "day",
       asTask: false,
@@ -103,7 +103,7 @@ describe("syncStoreFromMFDIViewState", () => {
       file: null,
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDaystreamViewState(store, viewState);
 
     expect(state.fixedSessionNumber).toBe(1);
     expect(state.viewNoteMode).toBe("periodic");
@@ -117,7 +117,7 @@ describe("syncStoreFromMFDIViewState", () => {
 
   it("restores a periodic view's main tab without using the vault-wide preference", () => {
     const { state, store } = createMockStore();
-    const viewState: MFDIViewState = {
+    const viewState: DaystreamViewState = {
       displayMode: "timeline",
       granularity: "day",
       asTask: false,
@@ -132,7 +132,7 @@ describe("syncStoreFromMFDIViewState", () => {
       mainView: MAIN_VIEW.DATE,
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDaystreamViewState(store, viewState);
 
     expect(state.mainView).toBe(MAIN_VIEW.DATE);
     expect(state.displayMode).toBe("focus");

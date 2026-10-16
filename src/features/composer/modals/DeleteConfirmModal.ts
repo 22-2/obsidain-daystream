@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { MFDIBaseModal } from "src/features/composer/modals/MFDIBaseModal";
+import { DaystreamBaseModal } from "src/features/composer/modals/DaystreamBaseModal";
 
 export async function showDeleteConfirmModal(
   app: App,
@@ -21,7 +21,7 @@ export async function showDeleteConfirmModal(
   ).show();
 }
 
-export class DeleteConfirmModal extends MFDIBaseModal<boolean> {
+export class DeleteConfirmModal extends DaystreamBaseModal<boolean> {
   private confirmed = false;
   private message: string | (() => Promise<void>);
   private confirmText: string;

@@ -12,13 +12,13 @@ import {
   restoreFixedSessionDraft,
 } from "src/features/composer/store/fixedSessionDraftPersistence";
 import { isViewReadOnly } from "src/features/workspace/store/slices/settingsPredicates";
-import type { MFDIStore, NavigationSlice } from "src/features/workspace/store/slices/types";
+import type { DaystreamStore, NavigationSlice } from "src/features/workspace/store/slices/types";
 import type { ContentView, DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSlice> = (
+export const createNavigationSlice: StateCreator<DaystreamStore, [], [], NavigationSlice> = (
   set,
   get,
 ) => ({
@@ -380,10 +380,10 @@ export const createNavigationSlice: StateCreator<MFDIStore, [], [], NavigationSl
 });
 
 function applyNavigationPatch(
-  get: () => MFDIStore,
-  set: (partial: Partial<MFDIStore>) => void,
+  get: () => DaystreamStore,
+  set: (partial: Partial<DaystreamStore>) => void,
   patch: PersistedNavigationState,
-): MFDIStore {
+): DaystreamStore {
   // 意図: 表示と保存に同じ差分を使い、遷移項目の追加時にも保存漏れを防ぐ。
   // 更新後の state を返すことで、入力サイズの復元は従来どおり保存の後に実行する。
   set(patch);
@@ -393,8 +393,8 @@ function applyNavigationPatch(
 }
 
 function moveDate(
-  get: () => MFDIStore,
-  set: (partial: Partial<MFDIStore> | ((state: MFDIStore) => Partial<MFDIStore>)) => void,
+  get: () => DaystreamStore,
+  set: (partial: Partial<DaystreamStore> | ((state: DaystreamStore) => Partial<DaystreamStore>)) => void,
   direction: "add" | "subtract",
 ) {
   const { date, dateFilter, granularity, getMoveStep } = get();

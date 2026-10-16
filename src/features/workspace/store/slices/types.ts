@@ -1,34 +1,34 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DaystreamStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
 import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, TimeFilter } from "src/features/workspace/types";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DaystreamNoteMode } from "src/features/workspace/views/state";
 import type { DraftSlice, EditorSlice } from "src/features/composer/store/types";
 import type { NoteSlice } from "src/features/notes/store/types";
 import type { TasksSlice } from "src/features/tasks/store/types";
 
 export interface EnvironmentSlice {
   shell: ObsidianAppShell | null;
-  storage: MFDIStorage | null;
+  storage: DaystreamStorage | null;
   pluginSettings: Settings | null;
-  viewNoteMode: MFDINoteMode;
+  viewNoteMode: DaystreamNoteMode;
   file: string | null;
   setAppDependencies: (shell: ObsidianAppShell) => void;
-  setStorage: (storage: MFDIStorage) => void;
+  setStorage: (storage: DaystreamStorage) => void;
   setPluginSettings: (settings: Settings) => void;
   setViewContext: (params: {
-    noteMode: MFDINoteMode;
+    noteMode: DaystreamNoteMode;
     file: string | null;
     fixedSessionNumber?: number;
   }) => void;
   initializeAppStore: (params: {
     shell: ObsidianAppShell;
     settings: Settings;
-    storage: MFDIStorage;
+    storage: DaystreamStorage;
     initialViewState?: {
-      noteMode: MFDINoteMode;
+      noteMode: DaystreamNoteMode;
       file: string | null;
       fixedSessionNumber: number;
       mainView?: MainView;
@@ -117,7 +117,7 @@ export interface SettingsSlice extends NavigationSlice, LayoutSlice {
   hydrateSettingsState: () => void;
 }
 
-export type MFDIStore = EnvironmentSlice &
+export type DaystreamStore = EnvironmentSlice &
   SettingsSlice &
   TasksSlice &
   NoteSlice &

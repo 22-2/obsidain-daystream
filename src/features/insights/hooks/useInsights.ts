@@ -1,6 +1,6 @@
 // 意図: Insights固有の取得と集計フローを専用hookとしてfeature内にまとめる。
 import { useEffect, useMemo, useState } from "react";
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/daystream-db";
 import { subscribeToDBUpdates } from "src/core/db/updates";
 import {
   buildInsightSummary,
@@ -9,7 +9,7 @@ import {
   type InsightSummary,
 } from "src/features/insights/domain/insightSummary";
 import { clearSudachiCache, tokenizeInsightRecords } from "src/features/insights/domain/sudachi";
-import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
+import { useDaystreamDB } from "src/core/db/hooks/useDaystreamDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -20,7 +20,7 @@ interface UseInsightsResult {
 }
 
 export function useInsights(): UseInsightsResult {
-  const db = useMFDIDB();
+  const db = useDaystreamDB();
   const { activeTopic, activeTag } = useSettingsStore(
     useShallow((state) => ({
       activeTopic: state.activeTopic,

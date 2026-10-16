@@ -6,32 +6,33 @@ import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { ReactView } from "src/features/workspace/components/ReactView";
-import { addMFDIPaneMenuItems } from "src/features/workspace/menus/mfdiPaneMenu";
+import { addDaystreamPaneMenuItems } from "src/features/workspace/menus/daystreamPaneMenu";
 import "src/core/ui/styles/global.css";
-import "src/core/ui/styles/mfdi.css";
-import type { MFDIViewDelegates } from "src/features/workspace/views/MFDIViewHandler";
-import { MFDIFixedNoteTitle } from "src/features/workspace/views/MFDIFixedNoteTitle";
-import type { MFDIViewState } from "src/features/workspace/views/state";
+import "src/core/ui/styles/daystream.css";
+import type { DaystreamViewDelegates } from "src/features/workspace/views/DaystreamViewHandler";
+import { DaystreamFixedNoteTitle } from "src/features/workspace/views/DaystreamFixedNoteTitle";
+import type { DaystreamViewState } from "src/features/workspace/views/state";
 import {
-  DEFAULT_MFDI_VIEW_STATE,
+  DEFAULT_DAYSTREAM_VIEW_STATE,
   getFixedNoteTitle,
-  getMFDIViewCapabilities,
+  getDaystreamViewCapabilities,
 } from "src/features/workspace/views/state";
 
-export const VIEW_TYPE_MFDI = "mfdi-view";
+// Keep the persisted Obsidian type so saved workspace leaves still restore after the rebrand.
+export const VIEW_TYPE_DAYSTREAM = "mfdi-view";
 
-export class MFDIView extends ItemView {
+export class DaystreamView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
+  private state: DaystreamViewState = { ...DEFAULT_DAYSTREAM_VIEW_STATE };
   private externalStateRevision = 0;
-  private readonly fixedNoteTitle: MFDIFixedNoteTitle;
+  private readonly fixedNoteTitle: DaystreamFixedNoteTitle;
   private reactReadyPromise: Promise<void>;
   private resolveReactReady: (() => void) | null = null;
   private hasOpened = false;
 
   public navigation = false;
-  public readonly actionDelegates: MFDIViewDelegates = {};
+  public readonly actionDelegates: DaystreamViewDelegates = {};
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -40,7 +41,7 @@ export class MFDIView extends ItemView {
   ) {
     super(leaf);
     this.settings = settings;
-    this.fixedNoteTitle = new MFDIFixedNoteTitle(
+    this.fixedNoteTitle = new DaystreamFixedNoteTitle(
       this,
       () => this.state,
       (newTitle) => this.renameFixedNote(newTitle),
@@ -57,14 +58,14 @@ export class MFDIView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_MFDI;
+    return VIEW_TYPE_DAYSTREAM;
   }
 
   getDisplayText(): string {
     if (this.state.noteMode === "fixed") {
-      return `MFDI: ${getFixedNoteTitle(this.state.file)}`;
+      return `Daystream: ${getFixedNoteTitle(this.state.file)}`;
     }
-    return "Mobile First Daily Interface";
+    return "Daystream";
   }
 
   async onOpen(): Promise<void> {
@@ -96,7 +97,7 @@ export class MFDIView extends ItemView {
   }
 
   onPaneMenu(menu: Menu, prev: string): void {
-    addMFDIPaneMenuItems(menu, {
+    addDaystreamPaneMenuItems(menu, {
       getState: () => this.state,
       actionDelegates: this.actionDelegates,
     });
@@ -108,7 +109,7 @@ export class MFDIView extends ItemView {
   // State Management
   // -----------------------------------------------------------------------
 
-  getState(): MFDIViewState {
+  getState(): DaystreamViewState {
     return this.state;
   }
 
@@ -116,7 +117,7 @@ export class MFDIView extends ItemView {
     return this.externalStateRevision;
   }
 
-  setStatePartial(patch: Partial<MFDIViewState>): void {
+  setStatePartial(patch: Partial<DaystreamViewState>): void {
     this.state = {
       ...this.state,
       ...patch,
@@ -125,7 +126,7 @@ export class MFDIView extends ItemView {
     };
   }
 
-  async setState(state: MFDIViewState): Promise<void> {
+  async setState(state: DaystreamViewState): Promise<void> {
     this.setStatePartial(state);
     // Obsidian から復元・適用された state だけを React store への入力として扱う。
     // React 側の setStatePartial まで入力扱いすると、session 切替時に古い値が
@@ -197,22 +198,22 @@ export class MFDIView extends ItemView {
 
   private updateActions(): void {
     this.cleanUpActions();
-    const capabilities = getMFDIViewCapabilities(this.state);
+    const capabilities = getDaystreamViewCapabilities(this.state);
 
     if (capabilities.supportsSidebar) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
-      }).setAttr("data-mfdi-actions", "true");
+      }).setAttr("data-daystream-actions", "true");
 
       this.addAction("panel-left", "ナビゲーターを切り替え", () => {
         this.actionDelegates.onToggleLeftPanel?.();
-      }).setAttr("data-mfdi-actions", "true");
+      }).setAttr("data-daystream-actions", "true");
     }
   }
 
   private cleanUpActions(): void {
     Array.from(this.actionsEl.children)
-      .filter((el) => el.getAttr("data-mfdi-actions") === "true")
+      .filter((el) => el.getAttr("data-daystream-actions") === "true")
       .forEach((el) => el.detach());
   }
 

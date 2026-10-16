@@ -6,13 +6,13 @@ import { createLogger } from "src/core/logger";
 const TARGET_VIEW_SELECTOR = '[data-type="mfdi-view"], [data-type="mfdi-editor-view"]';
 const CONTENT_PADDING_PROPERTY = "padding-bottom";
 
-const logger = createLogger("mfdi:cm-bottom-padding");
+const logger = createLogger("daystream:cm-bottom-padding");
 
 /**
- * MFDI の 2 つのビューだけで .cm-content の下端余白を補正する。
+ * Daystream の 2 つのビューだけで .cm-content の下端余白を補正する。
  */
 export const extension: Extension = ViewPlugin.fromClass(
-  class MFDIBottomPaddingPlugin {
+  class DaystreamBottomPaddingPlugin {
     private readonly resizeObserver: ResizeObserver | null;
     private isTargetCache: boolean | null = null;
 

@@ -10,7 +10,7 @@ function hasExpectedScrollerStyle(viewRoot: HTMLElement): boolean {
 
   const cssLoadedMarker = viewWindow
     .getComputedStyle(viewRoot)
-    .getPropertyValue("--mfdi-css-loaded")
+    .getPropertyValue("--daystream-css-loaded")
     .trim();
 
   return cssLoadedMarker === "1";

@@ -46,7 +46,7 @@ describe("resolveNoteSource", () => {
   });
   const fixedFile = Object.assign(new TFile(), {
     path: "MFDI/Inbox.mfdi.md",
-    basename: "Inbox.mfdi",
+    basename: "Inbox.daystream",
     extension: "md",
   });
 

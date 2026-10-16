@@ -450,7 +450,7 @@ describe("timeline note resolution", () => {
     expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain("- 23:59:59 timeline post");
   });
 
-  it("handleHighlightPost は同じ MFDI タブを focused/day/all へ切り替えて対象投稿をハイライトする", async () => {
+  it("handleHighlightPost は同じ Daystream タブを focused/day/all へ切り替えて対象投稿をハイライトする", async () => {
     const targetPost = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,

@@ -13,7 +13,7 @@ export const PeriodicSidebar: React.FC = () => {
       <PanelSection
         title="ナビゲーター"
         storageKey="periodic-navigator"
-        className="mfdi-calendar-section"
+        className="daystream-calendar-section"
       >
         <MiniCalendar onViewDateChange={setSideBarViewDate} />
       </PanelSection>

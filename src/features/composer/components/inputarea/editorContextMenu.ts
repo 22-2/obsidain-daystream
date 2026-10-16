@@ -3,7 +3,7 @@ import type { EditorExpansionMode } from "src/core/domain/settings";
 import type { ComposerHostView } from "src/features/composer/types/composer-host";
 
 export function isEditorAlreadyInSeparateWindow(view: ComposerHostView): boolean {
-  // 意図: MFDI ビュー自体をポップアウトした場合も二重の別ウィンドウ操作を出さない。
+  // 意図: Daystream ビュー自体をポップアウトした場合も二重の別ウィンドウ操作を出さない。
   return (
     view.leaf.getContainer() instanceof WorkspaceWindow ||
     view.app.workspace.getLeavesOfType("mfdi-editor-view").length > 0

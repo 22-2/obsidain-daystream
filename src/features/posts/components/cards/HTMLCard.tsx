@@ -16,24 +16,24 @@ export const HTMLCard = ({ meta }: { meta: HTMLMeta }) => {
   };
 
   return (
-    <Box className="mfdi-html-card relative z-[1] border-dotted border-[#b5890077] backdrop-brightness-[101%] mb-[var(--size-4-4)] rounded-[16px] overflow-hidden transition-[backdrop-filter] duration-200 hover:cursor-pointer hover:border-[#b58900] hover:backdrop-brightness-[98%]">
+    <Box className="daystream-html-card relative z-[1] border-dotted border-[#b5890077] backdrop-brightness-[101%] mb-[var(--size-4-4)] rounded-[16px] overflow-hidden transition-[backdrop-filter] duration-200 hover:cursor-pointer hover:border-[#b58900] hover:backdrop-brightness-[98%]">
       {coverUrl && (
         <Image
           src={coverUrl}
           onError={handleCoverImageError}
-          className="mfdi-html-card-image w-full object-contain rounded-t-[16px]"
+          className="daystream-html-card-image w-full object-contain rounded-t-[16px]"
         />
       )}
-      <Box className="mfdi-html-card-content p-[var(--size-4-4)]">
-        <Box className="mfdi-html-card-header mb-[var(--size-4-2)] text-[var(--text-muted)] flex items-center">
+      <Box className="daystream-html-card-content p-[var(--size-4-4)]">
+        <Box className="daystream-html-card-header mb-[var(--size-4-2)] text-[var(--text-muted)] flex items-center">
           <Image
             src={faviconUrl}
             onError={handleFaviconImageError}
-            className="mfdi-html-card-site-icon object-contain h-[1em] mr-[var(--size-2-3)]"
+            className="daystream-html-card-site-icon object-contain h-[1em] mr-[var(--size-2-3)]"
           />
-          <Text className="mfdi-html-card-site-name h-[1em] leading-[1em]">{meta.siteName}</Text>
+          <Text className="daystream-html-card-site-name h-[1em] leading-[1em]">{meta.siteName}</Text>
         </Box>
-        <Box className="mfdi-html-card-body mb-[var(--size-4-2)] font-semibold">{meta.title}</Box>
+        <Box className="daystream-html-card-body mb-[var(--size-4-2)] font-semibold">{meta.title}</Box>
       </Box>
       <Link
         href={meta.originUrl}
