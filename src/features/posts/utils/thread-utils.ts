@@ -1,4 +1,4 @@
-import type { MemoRecord } from "src/core/db/daystream-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import type { MomentLike, Post } from "src/core/domain/post";
 
 export const THREAD_METADATA_KEYS = {

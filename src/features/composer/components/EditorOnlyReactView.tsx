@@ -14,10 +14,10 @@ import {
   type AppStoreApi,
 } from "src/features/workspace/store/appStore";
 import { reconstructEditingPost } from "src/features/composer/store/slices/editorSlice";
-import type { DaystreamEditorViewState } from "src/features/composer/views/DaystreamEditorView";
+import type { DSTREditorViewState } from "src/features/composer/views/DSTREditorView";
 
 // 意図: Paper Cut など他プラグインのエディタビューからも再利用できるよう、
-// view の型を DaystreamEditorView から ItemView に緩める。
+// view の型を DSTREditorView から ItemView に緩める。
 export const EditorOnlyReactView = ({
   app,
   settings,
@@ -27,7 +27,7 @@ export const EditorOnlyReactView = ({
   app: App;
   settings: Settings;
   view: ItemView;
-  initialState: DaystreamEditorViewState | null;
+  initialState: DSTREditorViewState | null;
 }) => {
   // 意図: popout ウィンドウは別 JS コンテキストのため、メインビューの store を共有できない。
   // ここで独立した store を生成して providers に渡す。
@@ -55,7 +55,7 @@ export const EditorOnlyReactView = ({
 
 const EditorOnlyAppRoot: React.FC<{
   children: React.ReactNode;
-  initialState: DaystreamEditorViewState | null;
+  initialState: DSTREditorViewState | null;
 }> = ({ children, initialState }) => {
   const { settings, storage, shell } = useAppContext();
   const store = useRequiredAppStore();

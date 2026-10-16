@@ -28,7 +28,7 @@ export function normalizeTags(tags: string[]): string[] {
   return normalized;
 }
 
-export function parseDaystreamTags(metadata: Record<string, string>): string[] {
+export function parseDSTRTags(metadata: Record<string, string>): string[] {
   const raw = metadata[TAG_METADATA_KEY];
   if (!raw) {
     return [];
@@ -37,7 +37,7 @@ export function parseDaystreamTags(metadata: Record<string, string>): string[] {
   return normalizeTags(raw.split(","));
 }
 
-export function serializeDaystreamTags(tags: string[]): string {
+export function serializeDSTRTags(tags: string[]): string {
   return normalizeTags(tags).join(", ");
 }
 

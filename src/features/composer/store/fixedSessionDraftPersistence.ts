@@ -1,13 +1,13 @@
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import {
   getDraftMetadataStorageKey,
   getInputStorageKey,
 } from "src/features/composer/store/slices/inputStorage";
-import type { DaystreamNoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 
 export interface FixedSessionPersistenceState {
-  storage: DaystreamStorage | null;
-  viewNoteMode: DaystreamNoteMode;
+  storage: DSTRStorage | null;
+  viewNoteMode: DSTRNoteMode;
   file: string | null;
 }
 

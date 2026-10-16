@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { DaystreamBaseModal } from "src/features/composer/modals/DaystreamBaseModal";
+import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
 
 export interface InputModalArgs {
   title: string;
@@ -20,7 +20,7 @@ export async function showInputModal(app: App, args: InputModalArgs): Promise<st
   ).show();
 }
 
-class InputModal extends DaystreamBaseModal<string | null> {
+class InputModal extends DSTRBaseModal<string | null> {
   private inputEl!: HTMLInputElement;
   private cancelButtonEl!: HTMLButtonElement;
   private submitButtonEl!: HTMLButtonElement;
@@ -40,7 +40,7 @@ class InputModal extends DaystreamBaseModal<string | null> {
 
   renderBody(bodyEl: HTMLElement): void {
     this.submitted = false;
-    this.inputEl = bodyEl.createEl("input", { cls: "daystream-modal__input" });
+    this.inputEl = bodyEl.createEl("input", { cls: "dstr-modal__input" });
     this.inputEl.type = "text";
     this.inputEl.placeholder = this.placeholder ?? "";
     if (this.defaultValue) this.inputEl.value = this.defaultValue;

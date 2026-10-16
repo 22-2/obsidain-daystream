@@ -1,6 +1,6 @@
 import { resolveMemoTimestamp } from "src/core/post-utils";
 import { parseThinoEntries } from "src/core/thino";
-import type { MemoRecord } from "src/core/db/daystream-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import type { ScannableNote } from "src/core/db/worker-api";
 import { getPostTags, isArchived, isDeleted, isPinned } from "src/core/domain/post-metadata";
 

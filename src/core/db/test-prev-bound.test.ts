@@ -1,12 +1,12 @@
-import { DaystreamDatabase } from "src/core/db/daystream-db";
+import { DSTRDatabase } from "src/core/db/dstr-db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("IndexedDB prev bound test", () => {
-  let db: DaystreamDatabase;
+  let db: DSTRDatabase;
 
   beforeEach(async () => {
     vi.useRealTimers();
-    db = new DaystreamDatabase("test-prev-bound");
+    db = new DSTRDatabase("test-prev-bound");
     await db.open();
     await db.memos.clear();
   });

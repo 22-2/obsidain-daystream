@@ -11,9 +11,9 @@ export const StatusBar: FC<{ showDateNavigation?: boolean }> = ({ showDateNaviga
   if (!showDateNavigation) return null;
 
   return (
-    <Box className="daystream-statusbar-controls my-1 w-full !px-2 !py-1.5">
+    <Box className="dstr-statusbar-controls my-1 w-full !px-2 !py-1.5">
       <VStack className="w-full !items-stretch !gap-1">
-        <HStack className="min-h-6 w-full justify-center [&_.daystream-statusbar-date-bar]:!border-0 [&_.daystream-statusbar-date-bar]:!bg-transparent [&_.daystream-statusbar-date-bar]:!p-0">
+        <HStack className="min-h-6 w-full justify-center [&_.dstr-statusbar-date-bar]:!border-0 [&_.dstr-statusbar-date-bar]:!bg-transparent [&_.dstr-statusbar-date-bar]:!p-0">
           <StatusBarDateNavigation />
         </HStack>
       </VStack>

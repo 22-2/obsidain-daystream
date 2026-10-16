@@ -2,15 +2,15 @@ import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
 import {
   LIVE_EDITOR,
-  DAYSTREAM_VIEW_TYPE,
-  daystreamVaultOptions,
+  DSTR_VIEW_TYPE,
+  dstrVaultOptions,
   openHostNote,
 } from "./support";
 
-const HOST_FILE_PATH = "daystream-e2e-fixed-restore-host.md";
+const HOST_FILE_PATH = "dstr-e2e-fixed-restore-host.md";
 const FIXED_NOTE_PATH = "MFDI/RestoreTarget.mfdi.md";
 
-test.use({ vaultOptions: daystreamVaultOptions({ logLevel: "debug" }) });
+test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 
 async function waitForPluginReady(obsidian: ObsidianAPI) {
   await openHostNote(obsidian, HOST_FILE_PATH);
@@ -41,7 +41,7 @@ async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
 
 async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
   await obsidian.openView(
-    DAYSTREAM_VIEW_TYPE,
+    DSTR_VIEW_TYPE,
     {
       displayMode: "focus",
       granularity: "day",
@@ -58,13 +58,13 @@ async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
     { newLeaf: true },
   );
 
-  await obsidian.waitForViewType(DAYSTREAM_VIEW_TYPE);
+  await obsidian.waitForViewType(DSTR_VIEW_TYPE);
   await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({
     timeout: 15000,
   });
 }
 
-async function reopenCurrentDaystreamLeaf(obsidian: ObsidianAPI) {
+async function reopenCurrentDSTRLeaf(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
     const currentLeaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     if (!currentLeaf) {
@@ -85,7 +85,7 @@ async function reopenCurrentDaystreamLeaf(obsidian: ObsidianAPI) {
 }
 
 /** Reloads the window, then shows the restored Daystream view as a user opening its tab would. */
-async function reloadAndRevealDaystreamView(obsidian: ObsidianAPI) {
+async function reloadAndRevealDSTRView(obsidian: ObsidianAPI) {
   // 意図: reload は既定で saveLayout の完了を待つため、遅延保存で配置を失わない。
   await obsidian.reload({ saveLayout: true });
 
@@ -105,7 +105,7 @@ async function reloadAndRevealDaystreamView(obsidian: ObsidianAPI) {
 
   // 意図: 再読込後の Obsidian は前面にないタブのビューを遅延読み込みにするため、
   // ユーザーがタブを開くのと同じく Daystream タブを前面に出して描画させる。
-  await obsidian.revealView(DAYSTREAM_VIEW_TYPE);
+  await obsidian.revealView(DSTR_VIEW_TYPE);
 }
 
 async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
@@ -182,7 +182,7 @@ test.describe("fixed note restore", () => {
       return (await getFixedSessionSnapshot(obsidian)).listText;
     }).toContain("session-two");
 
-    await reopenCurrentDaystreamLeaf(obsidian);
+    await reopenCurrentDSTRLeaf(obsidian);
 
     await expect(obsidian.page.locator(LIVE_EDITOR)).toBeVisible({
       timeout: 15000,
@@ -211,7 +211,7 @@ test.describe("fixed note restore", () => {
       return (await getFixedSessionSnapshot(obsidian)).fixedSessionNumber;
     }).toBe(2);
 
-    await reloadAndRevealDaystreamView(obsidian);
+    await reloadAndRevealDSTRView(obsidian);
 
     await expect(
       obsidian.page.locator(LIVE_EDITOR),

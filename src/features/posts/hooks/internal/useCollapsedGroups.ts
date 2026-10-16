@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 
 type UseCollapsedGroupsInput = {
-  storage: DaystreamStorage;
+  storage: DSTRStorage;
   canCollapseDividers: boolean;
 };
 

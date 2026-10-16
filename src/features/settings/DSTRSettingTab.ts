@@ -2,17 +2,17 @@ import type { App } from "obsidian";
 import { PluginSettingTab, debounce } from "obsidian";
 import { normalizeCtrlEnterSendMode, type Settings } from "src/core/domain/settings";
 import { createLogger } from "src/core/logger";
-import type DaystreamPlugin from "src/main";
+import type DSTRPlugin from "src/main";
 
 const logger = createLogger("settings");
 
-export class DaystreamSettingTab extends PluginSettingTab {
-  plugin: DaystreamPlugin;
+export class DSTRSettingTab extends PluginSettingTab {
+  plugin: DSTRPlugin;
   debouncedRerender = debounce(() => {
     this.plugin.rerenderView();
   }, 500);
 
-  constructor(app: App, plugin: DaystreamPlugin) {
+  constructor(app: App, plugin: DSTRPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

@@ -6,11 +6,11 @@ import { ComponentContextProvider, useObsidianComponent } from "src/core/ui/cont
 import { EditorRefsProvider, useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useDbSync } from "src/features/workspace/hooks/useDbSync";
 import { useAppStoreInitialization } from "src/features/workspace/hooks/internal/useAppStoreInitialization";
-import { useDaystreamViewDelegates } from "src/features/workspace/hooks/internal/useDaystreamViewDelegates";
-import { useDaystreamViewStateSync } from "src/features/workspace/hooks/internal/useDaystreamViewStateSync";
+import { useDSTRViewDelegates } from "src/features/workspace/hooks/internal/useDSTRViewDelegates";
+import { useDSTRViewStateSync } from "src/features/workspace/hooks/internal/useDSTRViewStateSync";
 import { useNoteSync } from "src/features/notes/hooks/useNoteSync";
 import { invalidateInsightsCaches } from "src/features/insights/invalidate-caches";
-import { DaystreamWorkspaceLayout } from "src/features/workspace/components/layout/DaystreamWorkspaceLayout";
+import { DSTRWorkspaceLayout } from "src/features/workspace/components/layout/DSTRWorkspaceLayout";
 import { PostsProvider } from "src/features/posts/hooks/usePosts";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import {
@@ -22,9 +22,9 @@ import {
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
-import { syncStoreFromDaystreamViewState } from "src/features/workspace/views/sync-store-from-view-state";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { syncStoreFromDSTRViewState } from "src/features/workspace/views/sync-store-from-view-state";
 import { useShallow } from "zustand/shallow";
 
 export const ReactView = ({
@@ -34,7 +34,7 @@ export const ReactView = ({
 }: {
   app: App;
   settings: Settings;
-  view: DaystreamView;
+  view: DSTRView;
 }) => {
   const storeRef = useRef<AppStoreApi | null>(null);
   const initialViewStateRef = useRef({ ...view.getState() });
@@ -42,7 +42,7 @@ export const ReactView = ({
     const store = createAppStore();
     // 意図: 復元直後の初回 render から fixed note / session を一致させ、
     // periodic の既定状態を一瞬でも通さないことで restore 時の過剰な再同期を避ける。
-    syncStoreFromDaystreamViewState(store, initialViewStateRef.current);
+    syncStoreFromDSTRViewState(store, initialViewStateRef.current);
     storeRef.current = store;
   }
 
@@ -52,11 +52,11 @@ export const ReactView = ({
         <AppStoreProvider store={storeRef.current}>
           <EditorRefsProvider>
             <PostsProvider>
-              <DaystreamAppRoot
+              <DSTRAppRoot
                 initialViewState={initialViewStateRef.current}
               >
-                <DaystreamWorkspaceLayout />
-              </DaystreamAppRoot>
+                <DSTRWorkspaceLayout />
+              </DSTRAppRoot>
             </PostsProvider>
           </EditorRefsProvider>
         </AppStoreProvider>
@@ -65,12 +65,12 @@ export const ReactView = ({
   );
 };
 
-const DaystreamAppRoot: React.FC<{
+const DSTRAppRoot: React.FC<{
   children: React.ReactNode;
-  initialViewState: DaystreamViewState;
+  initialViewState: DSTRViewState;
 }> = ({ children, initialViewState }) => {
   const { settings, storage, shell } = useAppContext();
-  const component = useObsidianComponent() as DaystreamView;
+  const component = useObsidianComponent() as DSTRView;
   const store = useRequiredAppStore();
   const { viewNoteMode, file } = useAppStore(
     useShallow((s) => ({
@@ -135,7 +135,7 @@ const DaystreamAppRoot: React.FC<{
   useEffect(() => {
     // 通常の UI 操作では store が正となり、store同期hookから viewState へ片方向に書く。
     // Obsidian が setState で復元した場合だけ逆方向に同期し、古い session 番号との競合を防ぐ。
-    syncStoreFromDaystreamViewState(store, componentViewState);
+    syncStoreFromDSTRViewState(store, componentViewState);
   }, [store, externalStateRevision]);
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const DaystreamAppRoot: React.FC<{
         // 意図: 日付操作中や検索を閉じて入口へ戻った直後は、状態復元に伴う
         // 投稿エディタの自動フォーカスで、現在のコントロールから操作を奪わない。
         if (activeElement?.closest(
-          ".daystream-hierarchical-date-input, .daystream-main-navigation, .daystream-search-controls",
+          ".dstr-hierarchical-date-input, .dstr-main-navigation, .dstr-search-controls",
         )) return;
         input?.focus();
       });
@@ -166,8 +166,8 @@ const DaystreamAppRoot: React.FC<{
   }, [currentDailyNote, dateFilter, updateTasks, viewNoteMode, searchQuery]);
 
   // Sync state/handlers with Obsidian View
-  useDaystreamViewStateSync(component);
-  useDaystreamViewDelegates(component);
+  useDSTRViewStateSync(component);
+  useDSTRViewDelegates(component);
 
   useEffect(() => {
     return () => {

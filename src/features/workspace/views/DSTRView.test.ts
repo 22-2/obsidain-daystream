@@ -1,10 +1,10 @@
 import { WorkspaceLeaf } from "obsidian";
 import type { Settings } from "src/core/domain/settings";
-import { DaystreamView } from "src/features/workspace/views/DaystreamView";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
+import { DSTRView } from "src/features/workspace/views/DSTRView";
+import type { DSTRViewState } from "src/features/workspace/views/state";
 import { describe, expect, it, vi } from "vitest";
 
-const fixedState: DaystreamViewState = {
+const fixedState: DSTRViewState = {
   displayMode: "focus",
   granularity: "day",
   asTask: false,
@@ -18,9 +18,9 @@ const fixedState: DaystreamViewState = {
   file: "MFDI/Inbox.mfdi.md",
 };
 
-describe("DaystreamView external state revision", () => {
+describe("DSTRView external state revision", () => {
   it("changes only for state applied by Obsidian, not React partial updates", async () => {
-    const view = new DaystreamView(new WorkspaceLeaf(), {} as Settings);
+    const view = new DSTRView(new WorkspaceLeaf(), {} as Settings);
     Object.defineProperty(view, "updateView", { value: vi.fn() });
 
     expect(view.getExternalStateRevision()).toBe(0);
@@ -34,9 +34,9 @@ describe("DaystreamView external state revision", () => {
   });
 });
 
-describe("DaystreamView React readiness", () => {
+describe("DSTRView React readiness", () => {
   it("waits until React reports that the view is ready", async () => {
-    const view = new DaystreamView(new WorkspaceLeaf(), {} as Settings);
+    const view = new DSTRView(new WorkspaceLeaf(), {} as Settings);
     let resolved = false;
     const ready = view.waitForReactReady().then(() => {
       resolved = true;

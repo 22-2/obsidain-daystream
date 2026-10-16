@@ -17,19 +17,19 @@ import {
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
-import type { DaystreamNoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 
 interface NoteSourceContext {
   shell: ObsidianAppShell;
   date: MomentLike;
   granularity: Granularity;
   activeTopic: string;
-  noteMode: DaystreamNoteMode;
+  noteMode: DSTRNoteMode;
   file: string | null;
 }
 
 interface NoteSource {
-  mode: DaystreamNoteMode;
+  mode: DSTRNoteMode;
   resolveCurrentNote: () => TFile | null;
   ensureCurrentNote: () => Promise<TFile | null>;
   matchesPath: (filePath: string, currentNote?: TFile | null) => boolean;

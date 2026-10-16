@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
-import type { DaystreamNoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 import type { Granularity } from "src/core/domain/granularity";
 
 function getFixedInputStorageKey(file: string | null, fixedSessionNumber: number): string {
@@ -17,7 +17,7 @@ function getFixedDraftMetadataStorageKey(file: string | null, fixedSessionNumber
 }
 
 export function getInputStorageKey(
-  noteMode: DaystreamNoteMode,
+  noteMode: DSTRNoteMode,
   file: string | null,
   fixedSessionNumber = 1,
 ): string {
@@ -27,7 +27,7 @@ export function getInputStorageKey(
 }
 
 export function getInputAreaSizeStorageKey(
-  noteMode: DaystreamNoteMode,
+  noteMode: DSTRNoteMode,
   file: string | null,
   granularity: Granularity,
   noteDateStr: string,
@@ -42,7 +42,7 @@ export function getInputAreaSizeStorageKey(
 }
 
 export function getDraftMetadataStorageKey(
-  noteMode: DaystreamNoteMode,
+  noteMode: DSTRNoteMode,
   file: string | null,
   fixedSessionNumber = 1,
 ): string {

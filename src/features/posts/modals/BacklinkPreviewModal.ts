@@ -1,6 +1,6 @@
 import type { App } from "obsidian";
 import { DISPLAY_DATE_TIME_FORMAT } from "src/features/workspace/config/date-formats";
-import { DaystreamBaseModal } from "src/features/composer/modals/DaystreamBaseModal";
+import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
 import type { Post } from "src/core/domain/post";
 import { isPinned } from "src/core/domain/post-metadata";
 
@@ -37,7 +37,7 @@ export function openBacklinkPreviewModal(
   return modal;
 }
 
-class BacklinkPreviewModal extends DaystreamBaseModal<void> {
+class BacklinkPreviewModal extends DSTRBaseModal<void> {
   constructor(
     app: App,
     private readonly options: BacklinkPreviewModalOptions,
@@ -50,31 +50,31 @@ class BacklinkPreviewModal extends DaystreamBaseModal<void> {
 
   onOpen(): void {
     super.onOpen();
-    this.modalEl.addClass("daystream-backlink-preview-modal");
+    this.modalEl.addClass("dstr-backlink-preview-modal");
   }
 
   renderBody(bodyEl: HTMLElement): void {
     bodyEl.createDiv({
-      cls: "daystream-backlink-preview__summary",
+      cls: "dstr-backlink-preview__summary",
       text: "参照元をクリックすると、その日の focused モードで開いて該当投稿をハイライトします。",
     });
 
     bodyEl.createDiv({
-      cls: "daystream-backlink-preview__section-title",
+      cls: "dstr-backlink-preview__section-title",
       text: "参照されている投稿",
     });
-    const targetEl = bodyEl.createDiv({ cls: "daystream-backlink-preview__target" });
+    const targetEl = bodyEl.createDiv({ cls: "dstr-backlink-preview__target" });
     this.renderStaticItem(targetEl, this.options.targetPost);
 
     bodyEl.createDiv({
-      cls: "daystream-backlink-preview__section-title",
+      cls: "dstr-backlink-preview__section-title",
       text: `参照元 ${this.options.sourcePosts.length}件`,
     });
 
-    const listEl = bodyEl.createDiv({ cls: "daystream-backlink-preview__list" });
+    const listEl = bodyEl.createDiv({ cls: "dstr-backlink-preview__list" });
     if (this.options.sourcePosts.length === 0) {
       listEl.createDiv({
-        cls: "daystream-backlink-preview__empty",
+        cls: "dstr-backlink-preview__empty",
         text: "参照元が見つかりませんでした。",
       });
     } else {
@@ -92,13 +92,13 @@ class BacklinkPreviewModal extends DaystreamBaseModal<void> {
   }
 
   onClose(): void {
-    this.modalEl.removeClass("daystream-backlink-preview-modal");
+    this.modalEl.removeClass("dstr-backlink-preview-modal");
     super.onClose();
   }
 
   private renderItem(container: HTMLElement, post: Post): void {
     const buttonEl = container.createEl("button", {
-      cls: "daystream-backlink-preview__item",
+      cls: "dstr-backlink-preview__item",
       type: "button",
     });
 
@@ -114,31 +114,31 @@ class BacklinkPreviewModal extends DaystreamBaseModal<void> {
 
   private renderStaticItem(container: HTMLElement, post: Post): void {
     const itemEl = container.createDiv({
-      cls: "daystream-backlink-preview__item daystream-backlink-preview__item--target",
+      cls: "dstr-backlink-preview__item dstr-backlink-preview__item--target",
     });
     this.renderItemContent(itemEl, post);
   }
 
   private renderItemContent(container: HTMLElement, post: Post): void {
-    const metaEl = container.createDiv({ cls: "daystream-backlink-preview__meta" });
+    const metaEl = container.createDiv({ cls: "dstr-backlink-preview__meta" });
     metaEl.createDiv({
-      cls: "daystream-backlink-preview__time",
+      cls: "dstr-backlink-preview__time",
       text: post.timestamp.format(DISPLAY_DATE_TIME_FORMAT),
     });
 
     if (isPinned(post.metadata)) {
       metaEl.createDiv({
-        cls: "daystream-backlink-preview__badge",
+        cls: "dstr-backlink-preview__badge",
         text: "ピン留め",
       });
     }
 
     container.createDiv({
-      cls: "daystream-backlink-preview__path",
+      cls: "dstr-backlink-preview__path",
       text: post.path,
     });
     container.createDiv({
-      cls: "daystream-backlink-preview__preview",
+      cls: "dstr-backlink-preview__preview",
       text: buildBacklinkPreviewText(post.message),
     });
   }

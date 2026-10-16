@@ -1,7 +1,7 @@
-import { DaystreamDatabase, type MemoRecord } from "src/core/db/daystream-db";
+import { DSTRDatabase, type MemoRecord } from "src/core/db/dstr-db";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const databases: DaystreamDatabase[] = [];
+const databases: DSTRDatabase[] = [];
 
 beforeEach(() => {
   vi.useRealTimers();
@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 function createDatabase() {
-  const db = new DaystreamDatabase(`test-${crypto.randomUUID()}`);
+  const db = new DSTRDatabase(`test-${crypto.randomUUID()}`);
   databases.push(db);
   return db;
 }
@@ -48,7 +48,7 @@ function createMemo(overrides: Partial<MemoRecord> = {}): MemoRecord {
   };
 }
 
-describe("DaystreamDatabase Search", () => {
+describe("DSTRDatabase Search", () => {
   test("getLatestVisibleMemos filters by query", async () => {
     const db = createDatabase();
     await db.memos.bulkPut([

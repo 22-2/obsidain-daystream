@@ -1,12 +1,12 @@
-import { DaystreamDatabase, type MemoRecord } from "src/core/db/daystream-db";
+import { DSTRDatabase, type MemoRecord } from "src/core/db/dstr-db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("DaystreamDatabase", () => {
-  let db: DaystreamDatabase;
+describe("DSTRDatabase", () => {
+  let db: DSTRDatabase;
 
   beforeEach(async () => {
     vi.useRealTimers();
-    db = new DaystreamDatabase("test-app");
+    db = new DSTRDatabase("test-app");
     await db.open();
   });
 

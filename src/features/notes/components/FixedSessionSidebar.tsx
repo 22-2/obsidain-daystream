@@ -45,7 +45,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
     <SidebarTextButton
       isSelected={isSelected}
       className={cn(
-        "!h-auto min-h-[40px] whitespace-normal rounded-[var(--radius-s)] px-[var(--daystream-panel-item-padding-inline)] py-[var(--daystream-panel-item-padding-block)]",
+        "!h-auto min-h-[40px] whitespace-normal rounded-[var(--radius-s)] px-[var(--dstr-panel-item-padding-inline)] py-[var(--dstr-panel-item-padding-block)]",
         {
           "bg-transparent": !isSelected,
           "bg-[var(--background-modifier-hover)]": isSelected,
@@ -60,7 +60,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             <Text
               as="span"
               className={cn(
-                "truncate text-[length:var(--daystream-panel-label-font-size)] font-medium leading-[1.2]",
+                "truncate text-[length:var(--dstr-panel-label-font-size)] font-medium leading-[1.2]",
                 isSelected && "text-[var(--color-accent)]",
               )}
             >
@@ -68,7 +68,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             </Text>
           </HStack>
           <Box
-            className="flex h-[var(--daystream-panel-item-height)] w-[var(--daystream-panel-item-height)] cursor-pointer items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--background-modifier-hover)]"
+            className="flex h-[var(--dstr-panel-item-height)] w-[var(--dstr-panel-item-height)] cursor-pointer items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--background-modifier-hover)]"
             onClick={handlePinClick}
           >
             <ObsidianIcon
@@ -82,7 +82,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
             />
           </Box>
         </HStack>
-        <Text className="text-[length:var(--daystream-panel-meta-font-size)] leading-[1.25] text-[var(--text-muted)]">
+        <Text className="text-[length:var(--dstr-panel-meta-font-size)] leading-[1.25] text-[var(--text-muted)]">
           {formatLastActiveLabel(session.lastActiveAt)}
         </Text>
       </VStack>
@@ -114,7 +114,7 @@ const SessionGroup: React.FC<SessionGroupProps> = ({
       <SidebarSectionHeader
         className="justify-between px-2 pt-3"
         rightAddon={
-          <Text className="text-[length:var(--daystream-panel-meta-font-size)] font-medium text-[var(--text-muted)]">
+          <Text className="text-[length:var(--dstr-panel-meta-font-size)] font-medium text-[var(--text-muted)]">
             {sessions.length}
           </Text>
         }
@@ -237,7 +237,7 @@ export const FixedSessionSidebar: React.FC = () => {
       >
         <Text
           as="span"
-          className="text-[length:var(--daystream-panel-label-font-size)] font-medium text-[inherit]"
+          className="text-[length:var(--dstr-panel-label-font-size)] font-medium text-[inherit]"
         >
           New Session
         </Text>

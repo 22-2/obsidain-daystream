@@ -67,7 +67,7 @@ describe("saveActivityPromptResponse", () => {
       "## Thino",
     );
     expect(mocks.indexNoteContent).toHaveBeenCalledWith(shell, note, settings, "updated content");
-    expect(trigger).toHaveBeenCalledWith("daystream:scroll-to-top");
+    expect(trigger).toHaveBeenCalledWith("dstr:scroll-to-top");
     expect(result).toEqual({ notePath: note.path, indexError: null });
   });
 

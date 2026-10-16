@@ -1,8 +1,8 @@
-import type { DaystreamStore } from "src/features/workspace/store/slices/types";
+import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { TasksSlice } from "src/features/tasks/store/types";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createTasksSlice: StateCreator<DaystreamStore, [], [], TasksSlice> = (set, get) => ({
+export const createTasksSlice: StateCreator<DSTRStore, [], [], TasksSlice> = (set, get) => ({
   tasks: [],
 
   setTasks: (tasks) => {

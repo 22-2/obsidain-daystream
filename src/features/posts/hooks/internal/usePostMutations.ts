@@ -2,7 +2,7 @@ import type { MarkdownView } from "obsidian";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
 import { toText } from "src/core/post-utils";
-import { serializeDaystreamTags, TAG_METADATA_KEY } from "src/core/tags";
+import { serializeDSTRTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { usePostHelpers } from "src/features/posts/hooks/internal/usePostHelpers";
@@ -164,7 +164,7 @@ export const usePostMutations = () => {
   const setPostTags = useCallback(
     async (post: Post, rawInput: string) => {
       await replacePostAndRefresh(post, (metadata) => {
-        const serializedTags = serializeDaystreamTags(rawInput.split(","));
+        const serializedTags = serializeDSTRTags(rawInput.split(","));
         if (serializedTags.length === 0) {
           const { [TAG_METADATA_KEY]: _removed, ...rest } = metadata;
           return rest;

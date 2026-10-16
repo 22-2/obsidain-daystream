@@ -75,10 +75,10 @@ export function HierarchicalDateInput() {
   };
 
   return (
-    <HStack className="daystream-hierarchical-date-input gap-1">
+    <HStack className="dstr-hierarchical-date-input gap-1">
       <Input
         ref={yearTooltipRef}
-        className="daystream-date-input h-8 w-[5em] px-1 text-[length:var(--font-ui-smaller)]"
+        className="dstr-date-input h-8 w-[5em] px-1 text-[length:var(--font-ui-smaller)]"
         max={9999}
         min={1}
         type="number"
@@ -101,7 +101,7 @@ export function HierarchicalDateInput() {
       />
       <select
         ref={monthTooltipRef}
-        className="daystream-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
+        className="dstr-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
         disabled={!hasValidYear}
         value={monthValue}
         onClick={(event) => event.stopPropagation()}
@@ -116,7 +116,7 @@ export function HierarchicalDateInput() {
       </select>
       <select
         ref={dayTooltipRef}
-        className="daystream-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
+        className="dstr-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
         disabled={!hasValidYear || !monthValue}
         value={dayValue}
         onClick={(event) => event.stopPropagation()}

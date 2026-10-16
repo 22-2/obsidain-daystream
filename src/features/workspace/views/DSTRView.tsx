@@ -6,33 +6,33 @@ import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { ReactView } from "src/features/workspace/components/ReactView";
-import { addDaystreamPaneMenuItems } from "src/features/workspace/menus/daystreamPaneMenu";
+import { addDSTRPaneMenuItems } from "src/features/workspace/menus/dstrPaneMenu";
 import "src/core/ui/styles/global.css";
-import "src/core/ui/styles/daystream.css";
-import type { DaystreamViewDelegates } from "src/features/workspace/views/DaystreamViewHandler";
-import { DaystreamFixedNoteTitle } from "src/features/workspace/views/DaystreamFixedNoteTitle";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
+import "src/core/ui/styles/dstr.css";
+import type { DSTRViewDelegates } from "src/features/workspace/views/DSTRViewHandler";
+import { DSTRFixedNoteTitle } from "src/features/workspace/views/DSTRFixedNoteTitle";
+import type { DSTRViewState } from "src/features/workspace/views/state";
 import {
-  DEFAULT_DAYSTREAM_VIEW_STATE,
+  DEFAULT_DSTR_VIEW_STATE,
   getFixedNoteTitle,
-  getDaystreamViewCapabilities,
+  getDSTRViewCapabilities,
 } from "src/features/workspace/views/state";
 
 // Keep the persisted Obsidian type so saved workspace leaves still restore after the rebrand.
-export const VIEW_TYPE_DAYSTREAM = "mfdi-view";
+export const VIEW_TYPE_DSTR = "mfdi-view";
 
-export class DaystreamView extends ItemView {
+export class DSTRView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private state: DaystreamViewState = { ...DEFAULT_DAYSTREAM_VIEW_STATE };
+  private state: DSTRViewState = { ...DEFAULT_DSTR_VIEW_STATE };
   private externalStateRevision = 0;
-  private readonly fixedNoteTitle: DaystreamFixedNoteTitle;
+  private readonly fixedNoteTitle: DSTRFixedNoteTitle;
   private reactReadyPromise: Promise<void>;
   private resolveReactReady: (() => void) | null = null;
   private hasOpened = false;
 
   public navigation = false;
-  public readonly actionDelegates: DaystreamViewDelegates = {};
+  public readonly actionDelegates: DSTRViewDelegates = {};
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -41,7 +41,7 @@ export class DaystreamView extends ItemView {
   ) {
     super(leaf);
     this.settings = settings;
-    this.fixedNoteTitle = new DaystreamFixedNoteTitle(
+    this.fixedNoteTitle = new DSTRFixedNoteTitle(
       this,
       () => this.state,
       (newTitle) => this.renameFixedNote(newTitle),
@@ -58,7 +58,7 @@ export class DaystreamView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_DAYSTREAM;
+    return VIEW_TYPE_DSTR;
   }
 
   getDisplayText(): string {
@@ -97,7 +97,7 @@ export class DaystreamView extends ItemView {
   }
 
   onPaneMenu(menu: Menu, prev: string): void {
-    addDaystreamPaneMenuItems(menu, {
+    addDSTRPaneMenuItems(menu, {
       getState: () => this.state,
       actionDelegates: this.actionDelegates,
     });
@@ -109,7 +109,7 @@ export class DaystreamView extends ItemView {
   // State Management
   // -----------------------------------------------------------------------
 
-  getState(): DaystreamViewState {
+  getState(): DSTRViewState {
     return this.state;
   }
 
@@ -117,7 +117,7 @@ export class DaystreamView extends ItemView {
     return this.externalStateRevision;
   }
 
-  setStatePartial(patch: Partial<DaystreamViewState>): void {
+  setStatePartial(patch: Partial<DSTRViewState>): void {
     this.state = {
       ...this.state,
       ...patch,
@@ -126,7 +126,7 @@ export class DaystreamView extends ItemView {
     };
   }
 
-  async setState(state: DaystreamViewState): Promise<void> {
+  async setState(state: DSTRViewState): Promise<void> {
     this.setStatePartial(state);
     // Obsidian から復元・適用された state だけを React store への入力として扱う。
     // React 側の setStatePartial まで入力扱いすると、session 切替時に古い値が
@@ -198,22 +198,22 @@ export class DaystreamView extends ItemView {
 
   private updateActions(): void {
     this.cleanUpActions();
-    const capabilities = getDaystreamViewCapabilities(this.state);
+    const capabilities = getDSTRViewCapabilities(this.state);
 
     if (capabilities.supportsSidebar) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
-      }).setAttr("data-daystream-actions", "true");
+      }).setAttr("data-dstr-actions", "true");
 
       this.addAction("panel-left", "ナビゲーターを切り替え", () => {
         this.actionDelegates.onToggleLeftPanel?.();
-      }).setAttr("data-daystream-actions", "true");
+      }).setAttr("data-dstr-actions", "true");
     }
   }
 
   private cleanUpActions(): void {
     Array.from(this.actionsEl.children)
-      .filter((el) => el.getAttr("data-daystream-actions") === "true")
+      .filter((el) => el.getAttr("data-dstr-actions") === "true")
       .forEach((el) => el.detach());
   }
 

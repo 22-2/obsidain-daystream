@@ -1,11 +1,11 @@
 import { DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import type { Granularity } from "src/core/domain/granularity";
 import type { DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
-import type { DaystreamNoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 
-export type { DaystreamNoteMode } from "src/core/domain/note-mode";
+export type { DSTRNoteMode } from "src/core/domain/note-mode";
 
-interface DaystreamViewCapabilities {
+interface DSTRViewCapabilities {
   supportsDateNavigation: boolean;
   supportsDisplayModeSwitch: boolean;
   supportsSidebar: boolean;
@@ -15,7 +15,7 @@ interface DaystreamViewCapabilities {
   supportsTags: boolean;
 }
 
-export interface DaystreamViewState extends Record<string, unknown> {
+export interface DSTRViewState extends Record<string, unknown> {
   displayMode: DisplayMode;
   granularity: Granularity;
   asTask: boolean;
@@ -25,13 +25,13 @@ export interface DaystreamViewState extends Record<string, unknown> {
   dateFilter: DateFilter;
   searchQuery: string;
   activeTopic: string;
-  noteMode: DaystreamNoteMode;
+  noteMode: DSTRNoteMode;
   file: string | null;
   // タブ選択は vault 全体ではなく、Obsidian の各 view state に保存する。
   mainView?: MainView;
 }
 
-export const DEFAULT_DAYSTREAM_VIEW_STATE: DaystreamViewState = {
+export const DEFAULT_DSTR_VIEW_STATE: DSTRViewState = {
   displayMode: DISPLAY_MODE.FOCUS,
   granularity: "day",
   asTask: false,
@@ -46,16 +46,16 @@ export const DEFAULT_DAYSTREAM_VIEW_STATE: DaystreamViewState = {
   mainView: MAIN_VIEW.TIMELINE,
 };
 
-export function createDefaultDaystreamViewState(params?: {
-  noteMode?: DaystreamNoteMode;
+export function createDefaultDSTRViewState(params?: {
+  noteMode?: DSTRNoteMode;
   file?: string | null;
-}): DaystreamViewState {
+}): DSTRViewState {
   const { noteMode = "periodic", file = null } = params ?? {};
 
   if (noteMode === "fixed") {
     // fixedノートの既定値をここに集約し、React側の再同期でperiodic既定値へ戻るのを防ぐ。
     return {
-      ...DEFAULT_DAYSTREAM_VIEW_STATE,
+      ...DEFAULT_DSTR_VIEW_STATE,
       noteMode,
       file: file,
       displayMode: DISPLAY_MODE.FOCUS,
@@ -65,15 +65,15 @@ export function createDefaultDaystreamViewState(params?: {
   }
 
   return {
-    ...DEFAULT_DAYSTREAM_VIEW_STATE,
+    ...DEFAULT_DSTR_VIEW_STATE,
     noteMode,
     file: null,
   };
 }
 
-export function getDaystreamViewCapabilities(
-  state: Pick<DaystreamViewState, "noteMode">,
-): DaystreamViewCapabilities {
+export function getDSTRViewCapabilities(
+  state: Pick<DSTRViewState, "noteMode">,
+): DSTRViewCapabilities {
   if (state.noteMode === "fixed") {
     return {
       supportsDateNavigation: false,
@@ -97,8 +97,8 @@ export function getDaystreamViewCapabilities(
   };
 }
 
-export function createFixedNoteViewState(filePath: string): DaystreamViewState {
-  return createDefaultDaystreamViewState({
+export function createFixedNoteViewState(filePath: string): DSTRViewState {
+  return createDefaultDSTRViewState({
     noteMode: "fixed",
     file: filePath,
   });
@@ -107,5 +107,5 @@ export function createFixedNoteViewState(filePath: string): DaystreamViewState {
 export function getFixedNoteTitle(path: string | null): string {
   if (!path) return "Fixed Note";
   const segments = path.replace(/\\/g, "/").split("/");
-  return segments[segments.length - 1].replace(/\.daystream\.md$/, "") || "Fixed Note";
+  return segments[segments.length - 1].replace(/\.mfdi\.md$/i, "") || "Fixed Note";
 }

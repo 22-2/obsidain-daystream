@@ -1,8 +1,8 @@
 import type { ITagStatsRepository } from "src/core/db/interfaces/ITagStatsRepository";
-import type { MemoRecord, DaystreamDatabase } from "src/core/db/daystream-db";
+import type { MemoRecord, DSTRDatabase } from "src/core/db/dstr-db";
 
 export class DexieTagStatsRepository implements ITagStatsRepository {
-  constructor(private readonly db: DaystreamDatabase) {}
+  constructor(private readonly db: DSTRDatabase) {}
 
   /** Full rebuild from the current memos table. */
   async rebuild(): Promise<void> {

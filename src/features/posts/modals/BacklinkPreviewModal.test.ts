@@ -167,6 +167,6 @@ describe("BacklinkPreviewModal", () => {
     fireEvent.click(screen.getByRole("button", { name: /preview line 1/i }));
 
     expect(onSelectPost).toHaveBeenCalledWith(sourcePost);
-    expect(document.body.querySelector(".daystream-backlink-preview-modal")).toBeNull();
+    expect(document.body.querySelector(".dstr-backlink-preview-modal")).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 
@@ -99,7 +99,7 @@ async function writeFixedSessionMetaToFile(
 
 async function readAndMigrateFromLegacyStorage(
   shell: ObsidianAppShell,
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string,
 ): Promise<FixedSessionMetaMap> {
   if (!storage) {
@@ -124,7 +124,7 @@ async function readAndMigrateFromLegacyStorage(
 
 export async function readFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
 ): Promise<FixedSessionMetaMap> {
   if (!file) {
@@ -141,7 +141,7 @@ export async function readFixedSessionMeta(
 
 export async function writeFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   nextMeta: FixedSessionMetaMap,
 ): Promise<void> {
@@ -158,7 +158,7 @@ export async function writeFixedSessionMeta(
 
 export async function updateFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
   updater: (prev: FixedSessionLocalMeta) => FixedSessionLocalMeta,
@@ -176,7 +176,7 @@ export async function updateFixedSessionMeta(
 
 export async function removeFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
 ): Promise<FixedSessionMetaMap> {
@@ -189,7 +189,7 @@ export async function removeFixedSessionMeta(
 }
 
 export function readLastOpenedFixedSessionNumber(
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
 ): number | null {
   if (!storage || !file) {
@@ -204,7 +204,7 @@ export function readLastOpenedFixedSessionNumber(
 }
 
 export function writeLastOpenedFixedSessionNumber(
-  storage: DaystreamStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
 ): void {

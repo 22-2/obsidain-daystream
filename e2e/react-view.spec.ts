@@ -1,21 +1,21 @@
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 import {
   LIVE_EDITOR,
-  daystreamVaultOptions,
+  dstrVaultOptions,
   openHostNote,
-  openDaystreamView,
+  openDSTRView,
   setLiveEditorDelegateContent,
 } from "./support";
 
-const HOST_FILE_PATH = "daystream-e2e-react-host.md";
+const HOST_FILE_PATH = "dstr-e2e-react-host.md";
 
-test.use({ vaultOptions: daystreamVaultOptions({ logLevel: "debug" }) });
+test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 
-async function waitForDaystreamReady(obsidian: ObsidianAPI) {
+async function waitForDSTRReady(obsidian: ObsidianAPI) {
   await openHostNote(obsidian, HOST_FILE_PATH);
-  const view = await openDaystreamView(obsidian);
+  const view = await openDSTRView(obsidian);
   await expect(
     view.getByRole("tab", { name: "タイムライン", exact: true }),
   ).toHaveAttribute("aria-selected", "true", { timeout: 15000 });
@@ -39,7 +39,7 @@ interface ReactViewDebugSnapshot extends MemoDatabaseSnapshot {
   baseCardCount: number;
   timelineBadgeVisible: boolean;
   activeFilePath: string | null;
-  daystreamLeafCount: number;
+  dstrLeafCount: number;
   displayMode: string | null;
   nowDate: string;
   viewDate: string | null;
@@ -53,7 +53,7 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
     const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
     const activeFile = app.workspace.getActiveFile();
-    const viewState = (leaf?.view as DaystreamView | undefined)?.getState?.();
+    const viewState = (leaf?.view as DSTRView | undefined)?.getState?.();
     const viewDateValue = viewState?.date;
     const viewDate =
       viewDateValue &&
@@ -62,12 +62,12 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
       typeof viewDateValue.format === "function"
         ? viewDateValue.format("YYYY-MM-DD")
         : null;
-    const debugState = (leaf?.view as DaystreamView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
+    const debugState = (leaf?.view as DSTRView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
     const listEl = document.querySelector(".list") as HTMLElement | null;
 
     return {
       activeFilePath: activeFile?.path ?? null,
-      daystreamLeafCount: app.workspace.getLeavesOfType("mfdi-view").length,
+      dstrLeafCount: app.workspace.getLeavesOfType("mfdi-view").length,
       displayMode: viewState?.displayMode ?? null,
       viewDate,
       viewActiveTopic: viewState?.activeTopic ?? null,
@@ -87,7 +87,7 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
 /** Reads the memo rows that the view stores in IndexedDB. The database name comes from the app id. */
 async function getMemoDatabaseState(obsidian: ObsidianAPI): Promise<MemoDatabaseSnapshot> {
   const appId = await obsidian.evaluateApp(() => {
-    const plugin = app.plugins.getPlugin("daystream") as {
+    const plugin = app.plugins.getPlugin("dstr") as {
       shell?: { getAppId?: () => string };
     } | null;
     return plugin?.shell?.getAppId?.() ?? null;
@@ -175,7 +175,7 @@ async function expectListContainsMessage(obsidian: ObsidianAPI, message: string,
 
 test.describe("Daystream react view e2e", () => {
   test("ビュー表示中に日付が変わって新規日次ノート作成後も投稿がリストに表示される", async ({ obsidian }) => {
-    await waitForDaystreamReady(obsidian);
+    await waitForDSTRReady(obsidian);
 
     const dateShift = await obsidian.evaluateApp(() => {
       const now = window.moment();
@@ -210,7 +210,7 @@ test.describe("Daystream react view e2e", () => {
     await expectListContainsMessage(obsidian, message, 15000);
 
     await obsidian.closeTab();
-    await openDaystreamView(obsidian);
+    await openDSTRView(obsidian);
 
     await expectListContainsMessage(obsidian, message, 15000);
   });

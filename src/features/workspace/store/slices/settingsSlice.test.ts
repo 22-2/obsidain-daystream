@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { DaystreamStorage } from "src/core/storage";
+import { DSTRStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { createAppStore } from "src/features/workspace/store/appStore";
@@ -161,7 +161,7 @@ describe("settingsSlice", () => {
 
   it("カレンダーで選んだ日付と表示条件を再起動後も復元できる", () => {
     localStorage.clear();
-    const storage = new DaystreamStorage("calendar-navigation-test");
+    const storage = new DSTRStorage("calendar-navigation-test");
     const store = createAppStore();
     store.setState({
       storage,

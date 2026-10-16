@@ -8,13 +8,13 @@ import {
 import { DeleteConfirmModal, showDeleteConfirmModal } from "src/features/composer/modals/DeleteConfirmModal";
 import { DraftListModal } from "src/features/composer/modals/DraftListModal";
 import { showInputModal } from "src/features/composer/modals/InputModal";
-import type { DaystreamEditorModalOptions } from "src/features/composer/modals/DaystreamEditorModal";
-import { DaystreamEditorModal } from "src/features/composer/modals/DaystreamEditorModal";
+import type { DSTREditorModalOptions } from "src/features/composer/modals/DSTREditorModal";
+import { DSTREditorModal } from "src/features/composer/modals/DSTREditorModal";
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
 import type { Post } from "src/core/domain/post";
-import type { DaystreamEditorViewState } from "src/features/composer/views/DaystreamEditorView";
-import { VIEW_TYPE_DAYSTREAM_EDITOR } from "src/features/composer/views/DaystreamEditorView";
+import type { DSTREditorViewState } from "src/features/composer/views/DSTREditorView";
+import { VIEW_TYPE_DSTR_EDITOR } from "src/features/composer/views/DSTREditorView";
 
 type DeleteConfirmArgs = Parameters<typeof showDeleteConfirmModal>[1];
 type InputModalArgs = Parameters<typeof showInputModal>[1];
@@ -24,7 +24,7 @@ export function useObsidianUi() {
   const store = useRequiredAppStore();
 
   const openPopoutEditorView = useCallback(
-    (state: DaystreamEditorViewState): boolean => {
+    (state: DSTREditorViewState): boolean => {
       const app = shell.getRawApp();
       // 意図: openPopoutLeaf は Obsidian デスクトップ専用 API のため型定義にない場合がある。
       // unknown 経由でキャストして、存在しない環境（モバイル等）では何もしない。
@@ -37,7 +37,7 @@ export function useObsidianUi() {
 
       const leaf = openPopout.call(app.workspace);
       void leaf.setViewState({
-        type: VIEW_TYPE_DAYSTREAM_EDITOR,
+        type: VIEW_TYPE_DSTR_EDITOR,
         active: true,
         state,
       });
@@ -68,9 +68,9 @@ export function useObsidianUi() {
   );
 
   const openModalEditor = useCallback(
-    (options: DaystreamEditorModalOptions) => {
+    (options: DSTREditorModalOptions) => {
       // Obsidian UI API が raw app を要求する処理はここへ集約して、通常コンポーネントへ漏らさない。
-      const modal = new DaystreamEditorModal(shell.getRawApp(), options);
+      const modal = new DSTREditorModal(shell.getRawApp(), options);
       modal.open();
       return modal;
     },
@@ -98,7 +98,7 @@ export function useObsidianUi() {
         granularity: store.getState().granularity,
       };
 
-      const state: DaystreamEditorViewState = {
+      const state: DSTREditorViewState = {
         postInfo,
         message: post.message,
         draftMetadata,

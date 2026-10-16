@@ -5,7 +5,7 @@ import { applyCalendarSelection } from "src/features/notes/components/calendar/s
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
 import { DATE_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import { getGranularityRange } from "src/features/workspace/config/granularity-config";
-import { useDaystreamDB } from "src/core/db/hooks/useDaystreamDB";
+import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 import { useAppStore } from "src/features/workspace/store/appStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import useSWR from "swr";
@@ -56,7 +56,7 @@ export function useMiniCalendar() {
     })),
   );
 
-  const dbService = useDaystreamDB();
+  const dbService = useDSTRDB();
   const { data: dbActiveDates = new Set<string>() } = useSWR(
     ["activeDates"],
     async () => {

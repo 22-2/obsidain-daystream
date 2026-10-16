@@ -16,7 +16,7 @@ import { useAppStore, useRequiredAppStore } from "src/features/workspace/store/a
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { InputAreaSize } from "src/features/workspace/types";
 import { isHomeViewState } from "src/features/workspace/utils/view-state";
-import { getDaystreamViewCapabilities } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import type { ComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
@@ -36,7 +36,7 @@ export const InputAreaControl: FC<{
     })),
   );
   const capabilities = useMemo(
-    () => getDaystreamViewCapabilities({ noteMode: viewNoteMode }),
+    () => getDSTRViewCapabilities({ noteMode: viewNoteMode }),
     [viewNoteMode],
   );
   const {
@@ -123,7 +123,7 @@ export const InputAreaControl: FC<{
   // const step = getMoveStep();
   return (
     <Flex
-      className={`daystream-input-area-control items-center px-[1em] my-[var(--size-4-4)] h-[28px] group`}
+      className={`dstr-input-area-control items-center px-[1em] my-[var(--size-4-4)] h-[28px] group`}
     >
       {capabilities.supportsDateNavigation && (
         <IconButton
@@ -141,7 +141,7 @@ export const InputAreaControl: FC<{
       <Box className="flex-1" />
       <HStack
         className={cn(
-          "daystream-control-center justify-center flex-none",
+          "dstr-control-center justify-center flex-none",
           isExpanded && "hidden group-hover:flex",
         )}
       >
@@ -155,9 +155,9 @@ export const InputAreaControl: FC<{
         ) : (
           <>
             <NavButton direction="left" onClick={handleClickMovePrevious} />
-            <HStack className="daystream-date-controls gap-[0.2em]">
+            <HStack className="dstr-date-controls gap-[0.2em]">
               <Input
-                className={`daystream-date-input h-[28px] text-[90%] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
+                className={`dstr-date-input h-[28px] text-[90%] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
                 type={GRANULARITY_CONFIG[granularity].inputType}
                 value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
                 onChange={handleChangeCalendarDate}

@@ -3,7 +3,7 @@ import type { BuiltinMainContext } from "src/features/workspace/registration-con
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import { describe, expect, it, vi } from "vitest";
 
-const VIEW_TYPE_DAYSTREAM = "mfdi-view";
+const VIEW_TYPE_DSTR = "mfdi-view";
 
 // 意図: server.deps.inline で @22-2/obsidian-magical-editor が Vite 経由で処理されると
 // obsidian モックの全エクスポートが解決される必要がある。importOriginal でグローバルモックを
@@ -55,7 +55,7 @@ vi.mock("src/features/notes/extensions/fixed-note-view-extension", () => ({
 }));
 
 vi.mock("src/core/storage", () => ({
-  DaystreamStorage: class {
+  DSTRStorage: class {
     get = mocks.storageGet;
     set = mocks.storageSet;
   },
@@ -79,12 +79,12 @@ describe("builtin registry", () => {
     const registerView = vi.fn();
     const addRibbonIcon = vi.fn();
     const addCommand = vi.fn((command) => command);
-    const getDaystreamSubmitCallback = vi.fn(() => undefined);
-    const getDaystreamInputSnapshot = vi.fn(() => "");
-    const createDaystreamView = vi.fn((leaf) => ({ leaf }));
-    const createDaystreamEditorView = vi.fn((leaf) => ({ leaf }));
+    const getDSTRSubmitCallback = vi.fn(() => undefined);
+    const getDSTRInputSnapshot = vi.fn(() => "");
+    const createDSTRView = vi.fn((leaf) => ({ leaf }));
+    const createDSTREditorView = vi.fn((leaf) => ({ leaf }));
     const createAndOpenFixedNote = vi.fn(async () => {});
-    const attachDaystreamView = vi.fn(async () => ({ id: "leaf" }));
+    const attachDSTRView = vi.fn(async () => ({ id: "leaf" }));
     const saveSettings = vi.fn(async () => {});
 
     const settings = {
@@ -124,12 +124,12 @@ describe("builtin registry", () => {
       registerView,
       addRibbonIcon,
       addCommand,
-      getDaystreamSubmitCallback,
-      getDaystreamInputSnapshot,
-      createDaystreamView,
-      createDaystreamEditorView,
+      getDSTRSubmitCallback,
+      getDSTRInputSnapshot,
+      createDSTRView,
+      createDSTREditorView,
       createAndOpenFixedNote,
-      attachDaystreamView,
+      attachDSTRView,
     } as unknown as BuiltinMainContext;
 
     activateBuiltins(context, "app-1");
@@ -153,7 +153,7 @@ describe("builtin registry", () => {
       string,
       (leaf: unknown) => unknown,
     ];
-    expect(viewType).toBe(VIEW_TYPE_DAYSTREAM);
+    expect(viewType).toBe(VIEW_TYPE_DSTR);
     expect(viewCreator({ id: "leaf-1" })).toEqual({ leaf: { id: "leaf-1" } });
 
     const [editorViewType, editorViewCreator] = registerView.mock.calls[1] as [
@@ -174,7 +174,7 @@ describe("builtin registry", () => {
 
     const ribbonCallback = addRibbonIcon.mock.calls[0]?.[2] as () => void;
     ribbonCallback();
-    expect(attachDaystreamView).toHaveBeenCalledWith({});
+    expect(attachDSTRView).toHaveBeenCalledWith({});
 
     const openViewCommand = addCommand.mock.calls[0]?.[0] as {
       callback: () => Promise<void>;

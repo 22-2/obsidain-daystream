@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { DaystreamBaseModal } from "src/features/composer/modals/DaystreamBaseModal";
+import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
 
 export interface DiscardConfirmResult {
   confirmed: boolean;
@@ -10,7 +10,7 @@ export interface DiscardConfirmResult {
  * 入力内容の破棄を確認するモーダル。
  * 「二度と表示しない」チェックで次回以降の確認をスキップできる。
  */
-export class DiscardConfirmModal extends DaystreamBaseModal<DiscardConfirmResult> {
+export class DiscardConfirmModal extends DSTRBaseModal<DiscardConfirmResult> {
   private result: DiscardConfirmResult = {
     confirmed: false,
     neverShowAgain: false,
@@ -28,8 +28,8 @@ export class DiscardConfirmModal extends DaystreamBaseModal<DiscardConfirmResult
     });
 
     // 「二度と表示しない」チェックボックス
-    const checkRow = bodyEl.createDiv({ cls: "daystream-modal__checkbox-row" });
-    const checkboxId = "daystream-discard-never-show";
+    const checkRow = bodyEl.createDiv({ cls: "dstr-modal__checkbox-row" });
+    const checkboxId = "dstr-discard-never-show";
     const checkbox = checkRow.createEl("input", {
       type: "checkbox",
       attr: { id: checkboxId },

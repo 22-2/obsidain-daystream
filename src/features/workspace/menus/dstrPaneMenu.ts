@@ -1,16 +1,16 @@
 import type { Menu } from "obsidian";
 import { addPeriodMenuItems } from "src/features/workspace/menus/periodMenu";
-import type { DaystreamActionDelegate } from "src/features/workspace/views/DaystreamViewHandler";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
-import { getDaystreamViewCapabilities } from "src/features/workspace/views/state";
+import type { DSTRActionDelegate } from "src/features/workspace/views/DSTRViewHandler";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 
-export interface DaystreamPaneMenuOptions {
-  getState: () => DaystreamViewState;
-  actionDelegates: DaystreamActionDelegate;
+export interface DSTRPaneMenuOptions {
+  getState: () => DSTRViewState;
+  actionDelegates: DSTRActionDelegate;
 }
 
-/** Builds the pane menu for an Daystream view without coupling the menu to ItemView. */
-export function addDaystreamPaneMenuItems(menu: Menu, options: DaystreamPaneMenuOptions): void {
+/** Builds the pane menu for a Daystream view without coupling the menu to ItemView. */
+export function addDSTRPaneMenuItems(menu: Menu, options: DSTRPaneMenuOptions): void {
   const state = options.getState();
 
   if (state.noteMode === "fixed") {
@@ -28,8 +28,8 @@ export function addDaystreamPaneMenuItems(menu: Menu, options: DaystreamPaneMenu
 
 function addFixedNoteMenuItems(
   menu: Menu,
-  state: DaystreamViewState,
-  actionDelegates: DaystreamActionDelegate,
+  state: DSTRViewState,
+  actionDelegates: DSTRActionDelegate,
 ): void {
   if (state.noteMode !== "fixed" && state.displayMode === "timeline") return;
 
@@ -41,9 +41,9 @@ function addFixedNoteMenuItems(
   );
 }
 
-function addViewMenuItems(menu: Menu, options: DaystreamPaneMenuOptions): void {
+function addViewMenuItems(menu: Menu, options: DSTRPaneMenuOptions): void {
   const state = options.getState();
-  const capabilities = getDaystreamViewCapabilities(state);
+  const capabilities = getDSTRViewCapabilities(state);
 
   addCopyAllMessagesMenuItem(menu, options.actionDelegates);
 
@@ -77,7 +77,7 @@ function addViewMenuItems(menu: Menu, options: DaystreamPaneMenuOptions): void {
   );
 }
 
-function addCopyAllMessagesMenuItem(menu: Menu, actionDelegates: DaystreamActionDelegate): void {
+function addCopyAllMessagesMenuItem(menu: Menu, actionDelegates: DSTRActionDelegate): void {
   menu.addItem((item) =>
     item
       .setTitle("すべてのメッセージをコピー")
@@ -88,10 +88,10 @@ function addCopyAllMessagesMenuItem(menu: Menu, actionDelegates: DaystreamAction
 
 function addPeriodMenuItemsIfSupported(
   menu: Menu,
-  state: DaystreamViewState,
-  actionDelegates: DaystreamActionDelegate,
+  state: DSTRViewState,
+  actionDelegates: DSTRActionDelegate,
 ): void {
-  const capabilities = getDaystreamViewCapabilities(state);
+  const capabilities = getDSTRViewCapabilities(state);
   if (!capabilities.supportsPeriodMenus) return;
   if (state.displayMode !== "focus") return;
 

@@ -1,11 +1,11 @@
 import { createTimelineNavigationState } from "src/features/workspace/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
-import { createDefaultDaystreamViewState } from "src/features/workspace/views/state";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { createDefaultDSTRViewState } from "src/features/workspace/views/state";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
 
-export function syncStoreFromDaystreamViewState(store: AppStoreApi, viewState: DaystreamViewState): void {
+export function syncStoreFromDSTRViewState(store: AppStoreApi, viewState: DSTRViewState): void {
   const nextFixedSessionNumber =
     viewState.noteMode === "fixed" ? (viewState.fixedSessionNumber ?? 1) : 1;
   const currentState = store.getState();
@@ -37,7 +37,7 @@ export function syncStoreFromDaystreamViewState(store: AppStoreApi, viewState: D
     return;
   }
 
-  const fixedDefaults = createDefaultDaystreamViewState({
+  const fixedDefaults = createDefaultDSTRViewState({
     noteMode: "fixed",
     file: viewState.file,
   });

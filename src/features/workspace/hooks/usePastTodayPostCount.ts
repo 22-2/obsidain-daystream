@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { subscribeToDBUpdates } from "src/core/db/updates";
 import type { IDBService } from "src/core/db/interfaces/IDBService";
-import { useDaystreamDB } from "src/core/db/hooks/useDaystreamDB";
+import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { MomentLike } from "src/core/domain/post";
 import { isVisibleRootPost, memoRecordToPost } from "src/features/posts/utils/thread-utils";
@@ -64,7 +64,7 @@ export function usePastTodayPostCount(): {
   count: number;
   isLoading: boolean;
 } {
-  const db = useDaystreamDB();
+  const db = useDSTRDB();
   const { activeTopic, asTask, date, dateFilter, granularity, viewNoteMode } = useSettingsStore(
     useShallow((state) => ({
       activeTopic: state.activeTopic,

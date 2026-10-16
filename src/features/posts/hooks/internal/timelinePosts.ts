@@ -1,4 +1,4 @@
-import type { DaystreamDatabase } from "src/core/db/daystream-db";
+import type { DSTRDatabase } from "src/core/db/dstr-db";
 import type { MomentLike, Post } from "src/core/domain/post";
 import { memoRecordToPost } from "src/features/posts/utils/thread-utils";
 
@@ -19,7 +19,7 @@ export function resolveTimelineCacheBucket(
 }
 
 interface CreateTimelinePageFetcherDeps {
-  db: DaystreamDatabase;
+  db: DSTRDatabase;
 }
 
 export function resolveTimelineBaseDate(

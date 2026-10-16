@@ -29,13 +29,13 @@ import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
-import { getDaystreamViewCapabilities } from "src/features/workspace/views/state";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
 
-export const DaystreamWorkspaceLayout = () => {
+export const DSTRWorkspaceLayout = () => {
   const { settings: pluginSettings } = useAppContext();
-  const component = useObsidianComponent() as DaystreamView;
+  const component = useObsidianComponent() as DSTRView;
   const isCSSLoaded = useCSSLoaded(component.containerEl);
   const { viewNoteMode } = useAppStore(
     useShallow((s) => ({
@@ -43,7 +43,7 @@ export const DaystreamWorkspaceLayout = () => {
     })),
   );
   const capabilities = useMemo(
-    () => getDaystreamViewCapabilities({ noteMode: viewNoteMode }),
+    () => getDSTRViewCapabilities({ noteMode: viewNoteMode }),
     [viewNoteMode],
   );
   const settings = useSettingsStore(
@@ -200,7 +200,7 @@ export const DaystreamWorkspaceLayout = () => {
 
   return (
     <Flex
-      className="root daystream-dashboard-root h-full w-full overflow-hidden relative px-[var(--size-4-2)] py-[var(--size-4-2)]"
+      className="root dstr-dashboard-root h-full w-full overflow-hidden relative px-[var(--size-4-2)] py-[var(--size-4-2)]"
       ref={containerRef}
     >
       {/* Left Sidebar: calendar, tags, and period navigation */}
@@ -213,12 +213,12 @@ export const DaystreamWorkspaceLayout = () => {
       {/* Main Content */}
       <Flex
         className={cn(
-          "daystream-dashboard-main max-content min-w-0 flex-col h-full relative flex-grow overflow-hidden",
+          "dstr-dashboard-main max-content min-w-0 flex-col h-full relative flex-grow overflow-hidden",
         )}
       >
         <Flex
           className={cn(
-            "daystream-scroll-container flex-col flex-grow overflow-x-hidden",
+            "dstr-scroll-container flex-col flex-grow overflow-x-hidden",
             // 意図: ビルドでユーティリティに !important が付くため、展開中は
             // overflow-y-scroll 自体を外して CSS のロック指定との競合を防ぐ。
             settings.inputAreaSize === INPUT_AREA_SIZE.MAXIMIZED
@@ -228,14 +228,14 @@ export const DaystreamWorkspaceLayout = () => {
           ref={scrollContainerRef}
         >
           {/* スクロールエリア内に置くことでポストリストと一緒にスクロールアウトできるようにする */}
-          <div ref={listHeaderRef} className="daystream-list-header">
+          <div ref={listHeaderRef} className="dstr-list-header">
             {/* 意図: どのメインビューでも同じ投稿欄を常設し、展開アイコンを
                 押したときだけ InputArea の最大化レイアウトへ切り替える。
                 composer の開閉で一覧を置き換えない。 */}
             <InputArea />
-            <div className="daystream-main-toolbar">
+            <div className="dstr-main-toolbar">
               {/* 意図: 全体検索の入口は表示切替のタブ枠から分離し、元のタブの選択を残す。 */}
-              <div className="daystream-main-navigation">
+              <div className="dstr-main-navigation">
                 <MainViewTabs
                   value={
                     isSearchOpen
@@ -246,13 +246,13 @@ export const DaystreamWorkspaceLayout = () => {
                   onChange={setMainView}
                 />
                 <button
-                  data-testid="daystream-global-search"
+                  data-testid="dstr-global-search"
                   ref={(element) => {
                     searchButtonRef.current = element;
                     searchTooltipRef(element);
                   }}
                   type="button"
-                  className={cn("daystream-search-trigger", isSearchOpen && "is-active")}
+                  className={cn("dstr-search-trigger", isSearchOpen && "is-active")}
                   aria-expanded={isSearchOpen}
                   aria-controls={isSearchOpen ? searchPanelId : undefined}
                   onClick={() =>

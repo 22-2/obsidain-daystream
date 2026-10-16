@@ -1,7 +1,7 @@
 import type { Granularity } from "src/core/domain/granularity";
 import type { DateFilter, DisplayMode, TimeFilter } from "src/features/workspace/types";
 
-export interface DaystreamActionDelegate {
+export interface DSTRActionDelegate {
   onOpenDailyNoteAction?: () => void;
   onOpenComposer?: () => void;
   onChangeGranularity?: (g: Granularity) => void;
@@ -26,7 +26,7 @@ export interface DaystreamActionDelegate {
   onSearchInputClose?: () => void;
 }
 
-export interface DaystreamDebugDelegates {
+export interface DSTRDebugDelegates {
   onGetInputSnapshot?: () => string;
   onSetLiveEditorContentForTesting?: (content: string) => void;
   onGetLiveEditorContentForTesting?: () => string;
@@ -41,4 +41,4 @@ export interface DaystreamDebugDelegates {
   };
 }
 
-export type DaystreamViewDelegates = DaystreamActionDelegate & DaystreamDebugDelegates;
+export type DSTRViewDelegates = DSTRActionDelegate & DSTRDebugDelegates;

@@ -11,7 +11,7 @@ export const Card = (props: CardProps) => {
 
   return (
     <Box
-      className={`daystream-card relative rounded-sm [border-bottom-right-radius:6px] text-[var(--text-normal)] my-[var(--size-4-1)] transition-all duration-150 shadow-[var(--shadow-xs)] border border-transparent ${disableHoverBg ? "" : "hover:border-[var(--background-modifier-border-hover)]"} ${className ?? ""}`}
+      className={`dstr-card relative rounded-sm [border-bottom-right-radius:6px] text-[var(--text-normal)] my-[var(--size-4-1)] transition-all duration-150 shadow-[var(--shadow-xs)] border border-transparent ${disableHoverBg ? "" : "hover:border-[var(--background-modifier-border-hover)]"} ${className ?? ""}`}
       onContextMenu={onContextMenu}
       onDoubleClick={onDoubleClick}
       {...rest}

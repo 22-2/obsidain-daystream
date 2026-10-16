@@ -1,4 +1,4 @@
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import {
@@ -9,7 +9,7 @@ import {
 import { describe, expect, it, vi } from "vitest";
 
 type MockStorageHandle = {
-  storage: DaystreamStorage;
+  storage: DSTRStorage;
   get: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
 };
@@ -29,7 +29,7 @@ function createMockStorage(initialValues: Record<string, unknown> = {}): MockSto
       get,
       remove,
       set: vi.fn(),
-    } as unknown as DaystreamStorage,
+    } as unknown as DSTRStorage,
     get,
     remove,
   };

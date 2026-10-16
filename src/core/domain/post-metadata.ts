@@ -1,10 +1,10 @@
-import { parseDaystreamTags, TAG_METADATA_KEY } from "src/core/tags";
+import { parseDSTRTags, TAG_METADATA_KEY } from "src/core/tags";
 
 // 意図: 投稿のmetadata解釈をUIとDBで共有し、表示条件の食い違いを防ぐ。
 export const PINNED_METADATA_KEY = "pinned";
 
 export function getPostTags(metadata: Record<string, string>): string[] {
-  return parseDaystreamTags(metadata);
+  return parseDSTRTags(metadata);
 }
 
 export function isArchived(metadata: Record<string, string>): boolean {

@@ -3,7 +3,7 @@ import {
   buildFixedNotePathFromName,
   createNewFixedNote,
   ensureFixedNote,
-  isDaystreamFixedNotePath,
+  isDSTRFixedNotePath,
   normalizeFixedNotePath,
   renameFixedNote,
   trashFixedNote,
@@ -21,10 +21,10 @@ describe("fixed note utilities", () => {
     expect(normalizeFixedNotePath("inbox/fixed-note.md")).toBe("inbox/fixed-note.md");
     expect(normalizeFixedNotePath("   ")).toBe("");
 
-    // isDaystreamFixedNotePath
-    expect(isDaystreamFixedNotePath("MFDI/Untitled.mfdi.md")).toBe(true);
-    expect(isDaystreamFixedNotePath("MFDI/Untitled.Daystream.MD")).toBe(true);
-    expect(isDaystreamFixedNotePath("MFDI/Untitled.md")).toBe(false);
+    // isDSTRFixedNotePath
+    expect(isDSTRFixedNotePath("MFDI/Untitled.mfdi.md")).toBe(true);
+    expect(isDSTRFixedNotePath("MFDI/Untitled.MFDI.MD")).toBe(true);
+    expect(isDSTRFixedNotePath("MFDI/Untitled.md")).toBe(false);
   });
 
   it("fixed mode でのノート解決", () => {

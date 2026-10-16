@@ -1,15 +1,15 @@
 import { expect, test } from "obsidian-e2e-toolkit";
-import { collapseDaystreamSidebars, daystreamVaultOptions, openDaystreamView } from "./support";
+import { collapseDSTRSidebars, dstrVaultOptions, openDSTRView } from "./support";
 
-test.use({ vaultOptions: daystreamVaultOptions() });
+test.use({ vaultOptions: dstrVaultOptions() });
 
 // 意図: 検索入口の常設と閉じた後の復帰を、実際の Obsidian レンダラーでも保証する。
 test("全体検索をどのタブからでも開き、元の表示へ戻せる", async ({ obsidian, page }, testInfo) => {
-  const view = await openDaystreamView(obsidian);
+  const view = await openDSTRView(obsidian);
   // 意図: CSS の復旧は toolkit のセットアップに任せ、利用側は適用結果だけを検証する。
-  await expect(view).toHaveCSS("--daystream-css-loaded", "1");
-  const search = view.getByTestId("daystream-global-search");
-  const input = view.getByTestId("daystream-search-input");
+  await expect(view).toHaveCSS("--dstr-css-loaded", "1");
+  const search = view.getByTestId("dstr-global-search");
+  const input = view.getByTestId("dstr-search-input");
   await expect(search).toBeVisible();
   await expect(view.getByRole("tab", { name: "検索", exact: true })).toHaveCount(0);
   for (const name of ["タイムライン", "日付", "タスク", "インサイト"]) {
@@ -32,11 +32,11 @@ test("全体検索をどのタブからでも開き、元の表示へ戻せる",
   await page.screenshot({ path: testInfo.outputPath("global-search-desktop.png") });
   // 意図: デスクトップの左右サイドバーで中央が潰れないよう、狭幅の検証は
   // サイドバーを閉じたモバイル相当の表示で行う。
-  await collapseDaystreamSidebars(obsidian);
+  await collapseDSTRSidebars(obsidian);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(search).toBeVisible();
   await expect(search.locator("span")).toBeHidden();
-  const navigation = view.locator(".daystream-main-navigation");
+  const navigation = view.locator(".dstr-main-navigation");
   // 意図: Obsidian のサイドバーの閉じるアニメーション完了後の幅を測る。
   await expect.poll(async () => (await navigation.boundingBox())?.width ?? 0).toBeGreaterThan(200);
   const bounds = await navigation.boundingBox();

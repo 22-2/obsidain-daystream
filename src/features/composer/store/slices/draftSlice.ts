@@ -1,8 +1,8 @@
-import type { DaystreamStore } from "src/features/workspace/store/slices/types";
+import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { Draft, DraftSlice } from "src/features/composer/store/types";
 import type { StateCreator } from "zustand";
 
-export const createDraftSlice: StateCreator<DaystreamStore, [], [], DraftSlice> = (set, get) => ({
+export const createDraftSlice: StateCreator<DSTRStore, [], [], DraftSlice> = (set, get) => ({
   drafts: [],
   addDraft: (content: string) => {
     if (!content.trim()) return;

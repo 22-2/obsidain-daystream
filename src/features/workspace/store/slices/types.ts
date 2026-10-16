@@ -1,34 +1,34 @@
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
 import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, TimeFilter } from "src/features/workspace/types";
-import type { DaystreamNoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 import type { DraftSlice, EditorSlice } from "src/features/composer/store/types";
 import type { NoteSlice } from "src/features/notes/store/types";
 import type { TasksSlice } from "src/features/tasks/store/types";
 
 export interface EnvironmentSlice {
   shell: ObsidianAppShell | null;
-  storage: DaystreamStorage | null;
+  storage: DSTRStorage | null;
   pluginSettings: Settings | null;
-  viewNoteMode: DaystreamNoteMode;
+  viewNoteMode: DSTRNoteMode;
   file: string | null;
   setAppDependencies: (shell: ObsidianAppShell) => void;
-  setStorage: (storage: DaystreamStorage) => void;
+  setStorage: (storage: DSTRStorage) => void;
   setPluginSettings: (settings: Settings) => void;
   setViewContext: (params: {
-    noteMode: DaystreamNoteMode;
+    noteMode: DSTRNoteMode;
     file: string | null;
     fixedSessionNumber?: number;
   }) => void;
   initializeAppStore: (params: {
     shell: ObsidianAppShell;
     settings: Settings;
-    storage: DaystreamStorage;
+    storage: DSTRStorage;
     initialViewState?: {
-      noteMode: DaystreamNoteMode;
+      noteMode: DSTRNoteMode;
       file: string | null;
       fixedSessionNumber: number;
       mainView?: MainView;
@@ -117,7 +117,7 @@ export interface SettingsSlice extends NavigationSlice, LayoutSlice {
   hydrateSettingsState: () => void;
 }
 
-export type DaystreamStore = EnvironmentSlice &
+export type DSTRStore = EnvironmentSlice &
   SettingsSlice &
   TasksSlice &
   NoteSlice &

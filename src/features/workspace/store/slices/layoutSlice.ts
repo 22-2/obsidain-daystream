@@ -6,10 +6,10 @@ import {
   persistLayoutState,
   restoreInputAreaSize,
 } from "src/features/workspace/store/slices/settingsPersistence";
-import type { LayoutSlice, DaystreamStore } from "src/features/workspace/store/slices/types";
+import type { LayoutSlice, DSTRStore } from "src/features/workspace/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
-export const createLayoutSlice: StateCreator<DaystreamStore, [], [], LayoutSlice> = (set, get) => ({
+export const createLayoutSlice: StateCreator<DSTRStore, [], [], LayoutSlice> = (set, get) => ({
   ...DEFAULT_LAYOUT_STATE,
 
   setInputAreaSize: (size) => {

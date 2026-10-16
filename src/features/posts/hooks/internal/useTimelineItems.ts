@@ -4,7 +4,7 @@ import type { MomentLike, Post } from "src/core/domain/post";
 import type { DateFilter, DisplayMode } from "src/features/workspace/types";
 import { isPinned } from "src/core/domain/post-metadata";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import type { DaystreamNoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 
 export type TimelineItem =
   | { type: "post"; post: Post; key: string }
@@ -29,7 +29,7 @@ type UseTimelineItemsInput = {
   displayMode: DisplayMode;
   granularity: Granularity;
   dateFilter: DateFilter;
-  viewNoteMode: DaystreamNoteMode;
+  viewNoteMode: DSTRNoteMode;
 };
 
 type UseTimelineItemsOutput = {

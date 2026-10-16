@@ -5,6 +5,6 @@ import { WorkerClient } from "src/core/db/worker-client";
 /**
  * シングルソース化されたWorker内のデータベースサービスを取得するフック。
  */
-export function useDaystreamDB(): Remote<IDBService> {
+export function useDSTRDB(): Remote<IDBService> {
   return WorkerClient.get();
 }

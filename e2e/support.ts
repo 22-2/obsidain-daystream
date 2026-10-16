@@ -2,27 +2,27 @@ import { expect } from "obsidian-e2e-toolkit";
 import type { Locator } from "@playwright/test";
 import type { ObsidianAPI, VaultOptions } from "obsidian-e2e-toolkit";
 import { fileURLToPath } from "node:url";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 
-export const PLUGIN_ID = "daystream";
-export const DAYSTREAM_VIEW_TYPE = "mfdi-view";
-export const OPEN_VIEW_COMMAND = PLUGIN_ID + ":daystream-open-view";
-export const DAYSTREAM_LEAF = '.workspace-leaf-content[data-type="mfdi-view"]';
-export const LIVE_EDITOR = ".daystream-input-area .cm-content";
+export const PLUGIN_ID = "dstr";
+export const DSTR_VIEW_TYPE = "mfdi-view";
+export const OPEN_VIEW_COMMAND = PLUGIN_ID + ":dstr-open-view";
+export const DSTR_LEAF = '.workspace-leaf-content[data-type="mfdi-view"]';
+export const LIVE_EDITOR = ".dstr-input-area .cm-content";
 
 // The built plugin is read from the repository's dist/ folder.
 const PLUGIN_DIR = fileURLToPath(new URL("../dist", import.meta.url));
 
 /** Vault options for Daystream specs: a fresh vault with the built plugin, plus any spec-specific options. */
-export function daystreamVaultOptions(options: Partial<VaultOptions> = {}): Partial<VaultOptions> {
+export function dstrVaultOptions(options: Partial<VaultOptions> = {}): Partial<VaultOptions> {
   return { fresh: true, ...options, plugins: [{ path: PLUGIN_DIR }] };
 }
 
 /** Opens the Daystream view with its command and returns the view's leaf. */
-export async function openDaystreamView(obsidian: ObsidianAPI): Promise<Locator> {
+export async function openDSTRView(obsidian: ObsidianAPI): Promise<Locator> {
   await obsidian.command(OPEN_VIEW_COMMAND);
-  await obsidian.waitForViewType(DAYSTREAM_VIEW_TYPE);
-  return obsidian.page.locator(DAYSTREAM_LEAF);
+  await obsidian.waitForViewType(DSTR_VIEW_TYPE);
+  return obsidian.page.locator(DSTR_LEAF);
 }
 
 /** Creates an empty host note and opens it, so the Daystream view has a note tab beside it. */
@@ -32,7 +32,7 @@ export async function openHostNote(obsidian: ObsidianAPI, filePath: string): Pro
 }
 
 /** Hides the Daystream navigator and insight panels, then collapses Obsidian's own sidebars. */
-export async function collapseDaystreamSidebars(obsidian: ObsidianAPI): Promise<void> {
+export async function collapseDSTRSidebars(obsidian: ObsidianAPI): Promise<void> {
   const page = obsidian.page;
   await page.getByLabel("ナビゲーターを切り替え", { exact: true }).click();
   await page.getByLabel("インサイトを切り替え", { exact: true }).click();
@@ -46,7 +46,7 @@ export function getLiveEditorDelegateContent(obsidian: ObsidianAPI): Promise<str
     if (!leaf) {
       throw new Error("mfdi-view leaf not found");
     }
-    const delegates = (leaf.view as DaystreamView).actionDelegates;
+    const delegates = (leaf.view as DSTRView).actionDelegates;
     if (!delegates.onGetLiveEditorContentForTesting) {
       throw new Error("onGetLiveEditorContentForTesting is not ready");
     }
@@ -61,10 +61,10 @@ export async function setLiveEditorDelegateContent(obsidian: ObsidianAPI, text: 
     if (!leaf) {
       throw new Error("mfdi-view leaf not found");
     }
-    if (!(leaf.view as DaystreamView).actionDelegates.onSetLiveEditorContentForTesting) {
+    if (!(leaf.view as DSTRView).actionDelegates.onSetLiveEditorContentForTesting) {
       throw new Error("onSetLiveEditorContentForTesting is not ready");
     }
-    (leaf.view as DaystreamView).actionDelegates.onSetLiveEditorContentForTesting!(content);
+    (leaf.view as DSTRView).actionDelegates.onSetLiveEditorContentForTesting!(content);
   }, text);
   await expect.poll(() => getLiveEditorDelegateContent(obsidian)).toBe(text);
 }

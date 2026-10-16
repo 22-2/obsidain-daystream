@@ -35,7 +35,7 @@ export interface TagStatRecord {
   updatedAt: string;
 }
 
-function getDaystreamDatabaseName(appId: string): string {
+function getDSTRDatabaseName(appId: string): string {
   return `${appId}-mfdi-db`;
 }
 
@@ -349,7 +349,7 @@ const DB_VERSION = 7;
  * 3. 複数の Repository が同じトランザクションを共有できるよう、`_activeTx` による簡易的な
  *    トランザクション再利用（ネスト風の挙動）を実装しています。これにより、原子性を担保します。
  */
-export class DaystreamDatabase {
+export class DSTRDatabase {
   private readonly _db: Promise<IDBDatabase>;
   private readonly _name: string;
   private _txStack: IDBTransaction[] = [];
@@ -360,7 +360,7 @@ export class DaystreamDatabase {
   public readonly tagStats: TagStatStore;
 
   constructor(appId: string) {
-    this._name = getDaystreamDatabaseName(appId);
+    this._name = getDSTRDatabaseName(appId);
     // インスタンス作成時に Promise を初期化
     this._db = this.openDatabase();
 
@@ -620,7 +620,7 @@ export class DaystreamDatabase {
 
       openReq.onupgradeneeded = () => {
         const db = openReq.result;
-        DaystreamDatabase.migrate(db, openReq.transaction!);
+        DSTRDatabase.migrate(db, openReq.transaction!);
       };
 
       openReq.onsuccess = () => resolve(openReq.result);

@@ -1,5 +1,5 @@
 import { format, isValid, parseISO } from "date-fns";
-import type { MemoRecord } from "src/core/db/daystream-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 
 const ACTIVITY_DATE_FORMAT = "yyyy-MM-dd";
 

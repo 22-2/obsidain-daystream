@@ -7,6 +7,6 @@ export async function openMarkdownNote(leaf: WorkspaceLeaf, filePath: string): P
   await leaf.setViewState({
     type: "markdown",
     active: true,
-    state: { file: filePath, __daystream_force_markdown: true },
+    state: { file: filePath, __dstr_force_markdown: true },
   });
 }

@@ -12,7 +12,7 @@ import { usePosts } from "src/features/posts/hooks/usePosts";
 import { DiscardConfirmModal } from "src/features/composer/modals/DiscardConfirmModal";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { DaystreamEditorView } from "src/features/composer/views/DaystreamEditorView";
+import type { DSTREditorView } from "src/features/composer/views/DSTREditorView";
 import { useShallow } from "zustand/shallow";
 
 /**
@@ -23,7 +23,7 @@ import { useShallow } from "zustand/shallow";
  */
 export const PopoutInputArea: FC = memo(() => {
   // 意図: leaf.detach() でウィンドウを閉じるため、ItemView としてキャストして leaf を参照する。
-  const view = useObsidianComponent() as unknown as DaystreamEditorView;
+  const view = useObsidianComponent() as unknown as DSTREditorView;
   const { shell, storage } = useAppContext();
   const { inputRef } = useEditorRefs();
 
@@ -103,12 +103,12 @@ export const PopoutInputArea: FC = memo(() => {
     const closeAction = view.addAction("x", "閉じる", () => {
       void handleCancel();
     });
-    closeAction.setAttr("data-daystream-popout-actions", "true");
+    closeAction.setAttr("data-dstr-popout-actions", "true");
 
     const submitAction = view.addAction("send-horizontal", "投稿", () => {
       void handleSubmitAndClose();
     });
-    submitAction.setAttr("data-daystream-popout-actions", "true");
+    submitAction.setAttr("data-dstr-popout-actions", "true");
 
     return () => {
       submitAction.detach();
@@ -117,7 +117,7 @@ export const PopoutInputArea: FC = memo(() => {
   }, [handleCancel, handleSubmitAndClose, view]);
 
   return (
-    <Flex className="daystream-popout-editor h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
+    <Flex className="dstr-popout-editor h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
       {/* 意図: ポップアウトはエディタ全体を表示するため、通常サイズ限定の送信対象から除外する。 */}
       <ObsidianLiveEditor
         ref={inputRef}
@@ -127,7 +127,7 @@ export const PopoutInputArea: FC = memo(() => {
         externalVersion={inputSnapshotVersion}
         onChange={syncInputSession}
         onSubmit={handleSubmitAndClose}
-        className="daystream-popout-editor__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
+        className="dstr-popout-editor__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}
         ctrlEnterSends={ctrlEnterSends}

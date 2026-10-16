@@ -1,12 +1,12 @@
 import type { WorkspaceLeaf } from "obsidian";
 import {
   createFixedNoteViewExtension,
-  findExistingDaystreamLeaf,
+  findExistingDSTRLeaf,
 } from "src/features/notes/extensions/fixed-note-view-extension";
 import { describe, expect, it, vi } from "vitest";
 
 describe("fixed note view extension", () => {
-  it("converts fixed-note markdown state into an Daystream view state", () => {
+  it("converts fixed-note markdown state into a Daystream view state", () => {
     const extension = createFixedNoteViewExtension();
 
     const result = extension.convertMarkdownViewState({
@@ -63,7 +63,7 @@ describe("fixed note view extension", () => {
       type: "markdown",
       state: {
         file: "MFDI/Inbox.mfdi.md",
-        __daystream_force_markdown: true,
+        __dstr_force_markdown: true,
       },
     };
 
@@ -77,7 +77,7 @@ describe("fixed note view extension", () => {
       },
     } as WorkspaceLeaf;
 
-    const result = findExistingDaystreamLeaf([leaf], {
+    const result = findExistingDSTRLeaf([leaf], {
       noteMode: "fixed",
       file: "MFDI/Inbox.mfdi.md",
     });
@@ -89,7 +89,7 @@ describe("fixed note view extension", () => {
     const extension = createFixedNoteViewExtension({
       getPreferredFixedSessionNumber: () => 5,
     });
-    const attachDaystreamView = vi.fn(async () => undefined);
+    const attachDSTRView = vi.fn(async () => undefined);
     const leaves = [
       {
         view: {
@@ -99,9 +99,9 @@ describe("fixed note view extension", () => {
       } as any,
     ];
 
-    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDaystreamView });
+    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });
 
-    expect(attachDaystreamView).toHaveBeenCalledWith(
+    expect(attachDSTRView).toHaveBeenCalledWith(
       expect.objectContaining({
         noteMode: "fixed",
         file: "MFDI/Inbox.mfdi.md",
@@ -113,7 +113,7 @@ describe("fixed note view extension", () => {
 
   it("遅延読み込み中で view.file がない leaf も view state のパスから置き換える", async () => {
     const extension = createFixedNoteViewExtension();
-    const attachDaystreamView = vi.fn(async () => undefined);
+    const attachDSTRView = vi.fn(async () => undefined);
     const leaves = [
       {
         view: {},
@@ -121,9 +121,9 @@ describe("fixed note view extension", () => {
       } as any,
     ];
 
-    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDaystreamView });
+    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });
 
-    expect(attachDaystreamView).toHaveBeenCalledWith(
+    expect(attachDSTRView).toHaveBeenCalledWith(
       expect.objectContaining({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }),
       leaves[0],
     );

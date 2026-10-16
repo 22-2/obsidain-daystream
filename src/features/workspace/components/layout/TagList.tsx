@@ -18,15 +18,15 @@ export const TagList: React.FC = () => {
   if (!displayItems?.length) return null;
 
   return (
-    <PanelSection title="タグ" storageKey="periodic-tags" className="daystream-tag-section">
-      <VStack className="daystream-tag-list items-stretch gap-0">
+    <PanelSection title="タグ" storageKey="periodic-tags" className="dstr-tag-section">
+      <VStack className="dstr-tag-list items-stretch gap-0">
         {displayItems.map((item) => {
           const isActive = activeTag === item.tag;
           return (
             <SidebarTextButton
               key={item.tag}
               isSelected={isActive}
-              className={`daystream-scale-item daystream-scale-item-tag ${isActive ? "is-selected" : ""}`}
+              className={`dstr-scale-item dstr-scale-item-tag ${isActive ? "is-selected" : ""}`}
               onClick={() => setActiveTag(isActive ? null : item.tag)}
             >
               <HStack className="w-full gap-0 justify-between">

@@ -63,7 +63,7 @@ export const DraftListManager: React.FC<DraftListManagerProps> = ({ onClose }) =
       </Box>
 
       {/* Main Content */}
-      <Box className={cn("p-[1.2em] overflow-y-auto flex-1 flex flex-col daystream-draft-list")}>
+      <Box className={cn("p-[1.2em] overflow-y-auto flex-1 flex flex-col dstr-draft-list")}>
         {drafts.length === 0 ? (
           <Box
             className={cn(

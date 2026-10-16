@@ -39,7 +39,7 @@ export const ReadMoreContent: React.FC<ReadMoreContentProps> = ({
       {/* 行数超過時の「続きを読む」ボタン。展開後は非表示。 */}
       {isOverflowing && !expanded && (
         <Box
-          className="daystream-read-more"
+          className="dstr-read-more"
           onClick={(e) => {
             e.stopPropagation();
             setExpanded(true);

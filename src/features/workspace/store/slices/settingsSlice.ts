@@ -3,7 +3,7 @@ import { createNavigationSlice } from "src/features/workspace/store/slices/navig
 import { resolveInitialSettingsState } from "src/features/workspace/store/slices/settingsPersistence";
 import { DEFAULT_VIEW_STATE } from "src/features/workspace/store/slices/settingsDefaults";
 import { isPastDateReadOnly, isViewReadOnly } from "src/features/workspace/store/slices/settingsPredicates";
-import type { DaystreamStore, SettingsSlice } from "src/features/workspace/store/slices/types";
+import type { DSTRStore, SettingsSlice } from "src/features/workspace/store/slices/types";
 import type { StateCreator } from "zustand/vanilla";
 
 /**
@@ -12,7 +12,7 @@ import type { StateCreator } from "zustand/vanilla";
  * The public settings API remains flat for existing consumers, while the
  * implementation is split by responsibility into navigation and layout.
  */
-export const createSettingsSlice: StateCreator<DaystreamStore, [], [], SettingsSlice> = (
+export const createSettingsSlice: StateCreator<DSTRStore, [], [], SettingsSlice> = (
   set,
   get,
   store,

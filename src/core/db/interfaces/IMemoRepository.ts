@@ -1,4 +1,4 @@
-import type { MemoRecord } from "src/core/db/daystream-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import type { Granularity } from "src/core/domain/granularity";
 
 export interface IMemoRepository {

@@ -1,7 +1,7 @@
 import { expect, test } from "obsidian-e2e-toolkit";
-import { DAYSTREAM_VIEW_TYPE, daystreamVaultOptions, openDaystreamView } from "./support";
+import { DSTR_VIEW_TYPE, dstrVaultOptions, openDSTRView } from "./support";
 
-test.use({ vaultOptions: daystreamVaultOptions() });
+test.use({ vaultOptions: dstrVaultOptions() });
 
 test("タブ復帰とビューの開き直しで左右の開閉状態を維持する", async ({
   obsidian,
@@ -9,10 +9,10 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
 }) => {
   await page.setViewportSize({ width: 1800, height: 1000 });
   await obsidian.collapseSidebars();
-  const view = await openDaystreamView(obsidian);
-  const root = view.locator(".daystream-dashboard-root");
-  const leftPanel = view.locator(".daystream-dashboard-sidebar--left");
-  const rightPanel = view.locator(".daystream-dashboard-sidebar--right");
+  const view = await openDSTRView(obsidian);
+  const root = view.locator(".dstr-dashboard-root");
+  const leftPanel = view.locator(".dstr-dashboard-sidebar--left");
+  const rightPanel = view.locator(".dstr-dashboard-sidebar--right");
   await expect
     .poll(() =>
       root.evaluate((element) => element.getBoundingClientRect().width),
@@ -37,7 +37,7 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   await expect(leftPanel).toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
   await expect(rightPanel).not.toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
 
-  await obsidian.revealView(DAYSTREAM_VIEW_TYPE);
+  await obsidian.revealView(DSTR_VIEW_TYPE);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();
@@ -46,7 +46,7 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   await obsidian.evaluateApp(() =>
     app.workspace.getLeavesOfType("mfdi-view")[0].detach(),
   );
-  await openDaystreamView(obsidian);
+  await openDSTRView(obsidian);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();

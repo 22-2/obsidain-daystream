@@ -12,7 +12,7 @@ export const NavButton: FC<{
       name={`chevron-${direction}`}
       tooltip={direction === "left" ? "前へ" : "次へ"}
       onActivate={onClick}
-      className={cn(`daystream-nav-button daystream-nav-button-${direction} size-6 p-1`, className)}
+      className={cn(`dstr-nav-button dstr-nav-button-${direction} size-6 p-1`, className)}
     />
   );
 };

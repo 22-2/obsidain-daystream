@@ -1,7 +1,7 @@
 import type { Menu } from "obsidian";
-import type { DaystreamActionDelegate } from "src/features/workspace/views/DaystreamViewHandler";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
-import { addDaystreamPaneMenuItems } from "src/features/workspace/menus/daystreamPaneMenu";
+import type { DSTRActionDelegate } from "src/features/workspace/views/DSTRViewHandler";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { addDSTRPaneMenuItems } from "src/features/workspace/menus/dstrPaneMenu";
 import { describe, expect, it, vi } from "vitest";
 
 class TestMenuItem {
@@ -51,7 +51,7 @@ class TestMenu {
   }
 }
 
-const baseState: DaystreamViewState = {
+const baseState: DSTRViewState = {
   displayMode: "focus",
   granularity: "day",
   asTask: false,
@@ -71,16 +71,16 @@ function getTitles(menu: TestMenu): string[] {
     .map((item) => item.title);
 }
 
-describe("addDaystreamPaneMenuItems", () => {
+describe("addDSTRPaneMenuItems", () => {
   it("adds periodic-view actions and invokes current-state callbacks", () => {
     const state = { ...baseState };
     const onChangeDisplayMode = vi.fn();
     const onChangeAsTask = vi.fn();
     const menu = new TestMenu();
 
-    addDaystreamPaneMenuItems(menu as unknown as Menu, {
+    addDSTRPaneMenuItems(menu as unknown as Menu, {
       getState: () => state,
-      actionDelegates: { onChangeDisplayMode, onChangeAsTask } as DaystreamActionDelegate,
+      actionDelegates: { onChangeDisplayMode, onChangeAsTask } as DSTRActionDelegate,
     });
 
     expect(getTitles(menu)).toEqual(
@@ -111,7 +111,7 @@ describe("addDaystreamPaneMenuItems", () => {
   it("keeps only fixed-note actions and omits view controls", () => {
     const menu = new TestMenu();
 
-    addDaystreamPaneMenuItems(menu as unknown as Menu, {
+    addDSTRPaneMenuItems(menu as unknown as Menu, {
       getState: () => ({ ...baseState, noteMode: "fixed" }),
       actionDelegates: {},
     });

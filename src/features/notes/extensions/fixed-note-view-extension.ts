@@ -1,18 +1,18 @@
 import type { WorkspaceLeaf } from "obsidian";
-import { isDaystreamFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
-import { createFixedNoteViewState, DEFAULT_DAYSTREAM_VIEW_STATE } from "src/features/workspace/views/state";
+import { isDSTRFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
 type LeafWithState = WorkspaceLeaf & {
-  view: { getState: () => DaystreamViewState; file?: { path?: string } };
+  view: { getState: () => DSTRViewState; file?: { path?: string } };
 };
 
-type DaystreamViewStateWrapper = {
+type DSTRViewStateWrapper = {
   type: string;
-  state: DaystreamViewState;
+  state: DSTRViewState;
 };
 
-const DAYSTREAM_VIEW_TYPE = "mfdi-view";
+const DSTR_VIEW_TYPE = "mfdi-view";
 
 function isViewStatefulLeaf(leaf: WorkspaceLeaf): leaf is LeafWithState {
   const view = (leaf as LeafWithState).view;
@@ -29,11 +29,11 @@ function resolveLeafFilePath(leaf: WorkspaceLeaf): string {
 }
 
 export interface FixedNoteViewExtension {
-  convertMarkdownViewState: (viewState: unknown) => DaystreamViewStateWrapper;
+  convertMarkdownViewState: (viewState: unknown) => DSTRViewStateWrapper;
   replaceOpenFixedMarkdownLeaves: (params: {
     leaves: WorkspaceLeaf[];
-    attachDaystreamView: (
-      state: Partial<DaystreamViewState>,
+    attachDSTRView: (
+      state: Partial<DSTRViewState>,
       preferredLeaf?: WorkspaceLeaf,
     ) => Promise<WorkspaceLeaf | undefined>;
   }) => Promise<void>;
@@ -46,16 +46,16 @@ export interface FixedNoteViewExtensionParams {
 
 // contribution の外側（main 等）が leaf 探索だけしたい場合に直接インポートできるよう standalone export にする。
 // extension インターフェースに載せると「contribution に渡すオブジェクト」と「main が直接呼ぶ関数」の二重管理になるため分離した。
-export function findExistingDaystreamLeaf(
+export function findExistingDSTRLeaf(
   leaves: WorkspaceLeaf[],
-  state: Partial<DaystreamViewState>,
+  state: Partial<DSTRViewState>,
 ): WorkspaceLeaf | undefined {
   const isFixedMode = state.noteMode === "fixed";
   const fixedPath = normalizeFixedNotePath(typeof state.file === "string" ? state.file : "");
 
   return leaves.find((leaf) => {
     if (!isViewStatefulLeaf(leaf)) return false;
-    const currentState = leaf.view.getState() as DaystreamViewState;
+    const currentState = leaf.view.getState() as DSTRViewState;
     return isFixedMode
       ? currentState.noteMode === "fixed" &&
           normalizeFixedNotePath(currentState.file ?? "") === fixedPath
@@ -72,7 +72,7 @@ function shouldConvertViewState(viewState: unknown): boolean {
   if (candidate.type !== "markdown") return false;
 
   // フラグが付与されている場合は強制的にMarkdownビューとして開く意図がある。
-  if (candidate.state?.__daystream_force_markdown) return false;
+  if (candidate.state?.__dstr_force_markdown) return false;
 
   return true;
 }
@@ -88,18 +88,18 @@ export function createFixedNoteViewExtension(
 
   return {
     convertMarkdownViewState: (viewState) => {
-      if (!shouldConvertViewState(viewState)) return viewState as DaystreamViewStateWrapper;
+      if (!shouldConvertViewState(viewState)) return viewState as DSTRViewStateWrapper;
       const candidate = viewState as {
         type?: string;
-        state?: DaystreamViewState;
-      } as DaystreamViewStateWrapper;
+        state?: DSTRViewState;
+      } as DSTRViewStateWrapper;
       const filePath = typeof candidate.state?.file === "string" ? candidate.state.file : "";
-      if (!isDaystreamFixedNotePath(filePath)) return viewState as DaystreamViewStateWrapper;
+      if (!isDSTRFixedNotePath(filePath)) return viewState as DSTRViewStateWrapper;
 
       // 意図: 削除済み固定ノートまで Daystream へ強制変換すると、空 state が復元されて誤解を招く。
       // 存在確認が失敗した場合は markdown のまま返し、呼び出し側で通常の欠損ハンドリングに委ねる。
       if (isFixedNoteAvailable && !isFixedNoteAvailable(filePath)) {
-        return viewState as DaystreamViewStateWrapper;
+        return viewState as DSTRViewStateWrapper;
       }
 
       const fixedSessionNumber =
@@ -109,20 +109,20 @@ export function createFixedNoteViewExtension(
 
       return {
         ...candidate,
-        type: DAYSTREAM_VIEW_TYPE,
+        type: DSTR_VIEW_TYPE,
         state: {
-          ...DEFAULT_DAYSTREAM_VIEW_STATE,
+          ...DEFAULT_DSTR_VIEW_STATE,
           ...createFixedNoteViewState(filePath),
           fixedSessionNumber,
         },
-      } as DaystreamViewStateWrapper;
+      } as DSTRViewStateWrapper;
     },
 
-    replaceOpenFixedMarkdownLeaves: async ({ leaves, attachDaystreamView }) => {
+    replaceOpenFixedMarkdownLeaves: async ({ leaves, attachDSTRView }) => {
       for (const leaf of leaves) {
         const filePath = resolveLeafFilePath(leaf);
-        if (!isDaystreamFixedNotePath(filePath)) continue;
-        await attachDaystreamView(
+        if (!isDSTRFixedNotePath(filePath)) continue;
+        await attachDSTRView(
           {
             ...createFixedNoteViewState(filePath),
             fixedSessionNumber:

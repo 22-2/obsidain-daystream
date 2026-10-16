@@ -11,12 +11,12 @@ export const SidebarContainer: React.FC<{
       role="region"
       className={cn(
         isOpen
-          ? "flex w-[var(--daystream-panel-width)] min-w-[var(--daystream-panel-width)]"
+          ? "flex w-[var(--dstr-panel-width)] min-w-[var(--dstr-panel-width)]"
           : "hidden w-0 min-w-0",
         side === "left"
-          ? "daystream-dashboard-sidebar--left mr-[var(--size-4-2)]"
-          : "daystream-dashboard-sidebar--right ml-[var(--size-4-2)]",
-        "daystream-dashboard-sidebar h-full flex-col py-[var(--size-4-2)] px-0 transition-all duration-200 overflow-hidden rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] shadow-[var(--shadow-s)]",
+          ? "dstr-dashboard-sidebar--left mr-[var(--size-4-2)]"
+          : "dstr-dashboard-sidebar--right ml-[var(--size-4-2)]",
+        "dstr-dashboard-sidebar h-full flex-col py-[var(--size-4-2)] px-0 transition-all duration-200 overflow-hidden rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] bg-[var(--background-secondary)] shadow-[var(--shadow-s)]",
       )}
     >
       <Box className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</Box>

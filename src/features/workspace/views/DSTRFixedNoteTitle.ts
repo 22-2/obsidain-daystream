@@ -1,15 +1,15 @@
 import { ItemView, Scope } from "obsidian";
 import { EditableTitleBar } from "src/core/ui/components/common/EditableTitleBar";
-import type { DaystreamViewState } from "src/features/workspace/views/state";
+import type { DSTRViewState } from "src/features/workspace/views/state";
 import { getFixedNoteTitle } from "src/features/workspace/views/state";
 
 /** Owns the editable title chrome used by fixed-note views. */
-export class DaystreamFixedNoteTitle {
+export class DSTRFixedNoteTitle {
   private editableTitleBar: EditableTitleBar | null = null;
 
   constructor(
     private readonly view: ItemView,
-    private readonly getState: () => DaystreamViewState,
+    private readonly getState: () => DSTRViewState,
     private readonly onSubmitTitle: (newTitle: string) => Promise<void>,
   ) {}
 

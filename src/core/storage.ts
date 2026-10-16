@@ -6,7 +6,7 @@ export function createStorageKey(appId: string, key: string): string {
   return `${getStorageKeyPrefix(appId)}${key}`;
 }
 
-export class DaystreamStorage {
+export class DSTRStorage {
   private appId: string;
 
   constructor(appId: string) {

@@ -58,8 +58,8 @@ export const StatusBarHome: FC = () => {
       size="16px"
       onActivate={handleClickHome}
       className={cn(
-        "daystream-home-action size-6 shrink-0 p-0",
-        !isViewDefault && "daystream-home-action--active",
+        "dstr-home-action size-6 shrink-0 p-0",
+        !isViewDefault && "dstr-home-action--active",
       )}
     />
   );

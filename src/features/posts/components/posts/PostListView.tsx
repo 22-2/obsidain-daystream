@@ -18,7 +18,7 @@ import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { MomentLike, Post } from "src/core/domain/post";
-import { getDaystreamViewCapabilities } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { Virtualizer, type VirtualizerHandle } from "virtua";
 import { useShallow } from "zustand/shallow";
 
@@ -139,7 +139,7 @@ export const PostListView: React.FC = memo(() => {
   const { countMap: backlinkCounts, postsMap: backlinkPosts } = usePostBacklinks(filteredPosts);
 
   const capabilities = useMemo(
-    () => getDaystreamViewCapabilities({ noteMode: settings.viewNoteMode }),
+    () => getDSTRViewCapabilities({ noteMode: settings.viewNoteMode }),
     [settings.viewNoteMode],
   );
 
@@ -281,9 +281,9 @@ export const PostListView: React.FC = memo(() => {
   }, [posts, editingPostOffset, editingPost, setEditingPost]);
 
   useEffect(() => {
-    shell.on("daystream:scroll-to-top", scrollToTop);
+    shell.on("dstr:scroll-to-top", scrollToTop);
     return () => {
-      shell.off("daystream:scroll-to-top", scrollToTop);
+      shell.off("dstr:scroll-to-top", scrollToTop);
     };
   }, []);
 
@@ -419,7 +419,7 @@ export const PostListView: React.FC = memo(() => {
             ? "right-[calc(8px+300px)]"
             : "right-8",
         )}
-        onClick={() => shell.trigger("daystream:scroll-to-top")}
+        onClick={() => shell.trigger("dstr:scroll-to-top")}
         visible={showScrollTop}
       >
         <ObsidianIcon

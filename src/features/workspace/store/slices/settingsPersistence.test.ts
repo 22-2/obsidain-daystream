@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
-import type { DaystreamStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW, STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { resolveInitialSettingsState } from "src/features/workspace/store/slices/settingsPersistence";
 import { beforeEach, describe, expect, it } from "vitest";
 
 describe("main view persistence", () => {
-  let storage: DaystreamStorage;
+  let storage: DSTRStorage;
   let values: Map<string, unknown>;
 
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe("main view persistence", () => {
     storage = {
       get: <T,>(key: string, defaultValue: T): T =>
         (values.has(key) ? values.get(key) : defaultValue) as T,
-    } as DaystreamStorage;
+    } as DSTRStorage;
   });
 
   it("旧 contentView から mainView を移行する", () => {

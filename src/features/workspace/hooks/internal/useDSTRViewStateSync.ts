@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
 /** Mirrors store-owned view settings into the Obsidian view state. */
-export function useDaystreamViewStateSync(view: DaystreamView | null): void {
+export function useDSTRViewStateSync(view: DSTRView | null): void {
   const {
     granularity,
     activeTopic,

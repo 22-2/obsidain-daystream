@@ -10,11 +10,11 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { Granularity } from "src/core/domain/granularity";
 import type { DisplayMode } from "src/features/workspace/types";
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 import { useShallow } from "zustand/shallow";
 
 /** Installs the callbacks exposed to Obsidian chrome and non-React callers. */
-export function useDaystreamViewDelegates(view: DaystreamView | null): void {
+export function useDSTRViewDelegates(view: DSTRView | null): void {
   const { shell, settings } = useAppContext();
   const { openDraftList } = useObsidianUi();
   const store = useRequiredAppStore();

@@ -337,7 +337,7 @@ export const useSubmitAction = () => {
       }
 
       editorState.clearInput();
-      shell.trigger("daystream:scroll-to-top");
+      shell.trigger("dstr:scroll-to-top");
 
       await refreshPosts(note.path);
 

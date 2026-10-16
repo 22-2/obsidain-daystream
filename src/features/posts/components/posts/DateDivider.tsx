@@ -34,7 +34,7 @@ export const DateDivider: FC<DateDividerProps> = ({
   return (
     <Flex
       className={cn(
-        "daystream-date-divider items-center py-[var(--size-4-2)] px-[var(--size-4-4)] gap-[var(--size-4-4)]",
+        "dstr-date-divider items-center py-[var(--size-4-2)] px-[var(--size-4-4)] gap-[var(--size-4-4)]",
         { "cursor-pointer": clickable },
       )}
       role={clickable ? "button" : undefined}

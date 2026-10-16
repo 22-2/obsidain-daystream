@@ -36,7 +36,7 @@ export const MiniCalendar: React.FC<{
   }, [viewDate, onViewDateChange]);
 
   return (
-    <div className="mini-calendar mx-auto flex w-[var(--daystream-calendar-width)] max-w-full flex-col">
+    <div className="mini-calendar mx-auto flex w-[var(--dstr-calendar-width)] max-w-full flex-col">
       <CalendarHeader
         viewDate={viewDate}
         date={date}
@@ -54,13 +54,13 @@ export const MiniCalendar: React.FC<{
         }}
       />
 
-      <div className="mini-calendar__grid grid grid-cols-[repeat(8,var(--daystream-calendar-cell-size))] gap-[var(--daystream-calendar-grid-gap)] text-center text-[length:var(--daystream-calendar-cell-font-size)]">
+      <div className="mini-calendar__grid grid grid-cols-[repeat(8,var(--dstr-calendar-cell-size))] gap-[var(--dstr-calendar-grid-gap)] text-center text-[length:var(--dstr-calendar-cell-font-size)]">
         {/* 曜日ヘッダー */}
         <div /> {/* 週番号列のスペーサー */}
         {WEEK_DAY_LABELS.map((label) => (
           <div
             key={label}
-            className="mini-calendar__weekday-label text-[var(--text-muted)] text-[length:var(--daystream-calendar-weekday-font-size)] py-[var(--daystream-calendar-weekday-padding-block)]"
+            className="mini-calendar__weekday-label text-[var(--text-muted)] text-[length:var(--dstr-calendar-weekday-font-size)] py-[var(--dstr-calendar-weekday-padding-block)]"
           >
             {label}
           </div>

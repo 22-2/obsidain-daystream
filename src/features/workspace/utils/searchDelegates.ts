@@ -1,7 +1,7 @@
-import type { DaystreamView } from "src/features/workspace/views/DaystreamView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 
 export function bindSearchDelegates(
-  view: DaystreamView,
+  view: DSTRView,
   actionDelegates: {
     setSearchQuery: (query: string) => void;
     setSearchInputOpen: (open: boolean) => void;
