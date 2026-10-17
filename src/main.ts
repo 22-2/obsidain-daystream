@@ -28,8 +28,14 @@ import { restoreAndFocusElectronWindow } from "src/core/platform/electron-window
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { showInputModal } from "src/features/composer/modals/InputModal";
 import { TopicManagerModal } from "src/features/notes/modals/TopicManagerModal";
-import { DSTREditorView } from "src/features/composer/views/DSTREditorView";
-import { DSTRView } from "src/features/workspace/views/DSTRView";
+import {
+  DSTREditorView,
+  LegacyDSTREditorView,
+} from "src/features/composer/views/DSTREditorView";
+import {
+  DSTRView,
+  LegacyDSTRView,
+} from "src/features/workspace/views/DSTRView";
 import type { DSTRViewState } from "src/features/workspace/views/state";
 import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
@@ -167,18 +173,24 @@ export default class DSTRPlugin extends Plugin {
       getDSTRInputSnapshot: () =>
         this.getActiveDSTRView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
       createDSTRView: (leaf, viewType) => {
-        const view = new DSTRView(leaf, this.settings, async (mode) => {
+        const ViewClass =
+          viewType === LEGACY_DAYSTREAM_IDENTIFIERS.viewType
+            ? LegacyDSTRView
+            : DSTRView;
+        const view = new ViewClass(leaf, this.settings, async (mode) => {
           this.settings.editorExpansionMode = mode;
           await this.saveSettings();
           this.rerenderView();
-        }, viewType);
+        });
         this.views.add(view);
         this.view = view;
         this.setupViewCallbacks(view);
         return view;
       },
       createDSTREditorView: (leaf, viewType) =>
-        new DSTREditorView(leaf, this.settings, viewType),
+        viewType === LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType
+          ? new LegacyDSTREditorView(leaf, this.settings)
+          : new DSTREditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
       attachDSTRView: (state, preferredLeaf) => this.attachDSTRView(state, preferredLeaf),
     };

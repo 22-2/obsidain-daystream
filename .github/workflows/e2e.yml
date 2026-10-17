@@ -26,6 +26,7 @@ jobs:
             contents: read
             packages: read
         strategy:
+            fail-fast: false
             matrix:
                 os: [macos-latest, windows-latest]
 
@@ -91,7 +92,7 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-                  pnpm install --no-frozen-lockfile
+                  pnpm install --frozen-lockfile
 
             - name: Install Electron binaries
               # 意図: pnpm 12 では electron の postinstall が実行されず dist/ が空になるため明示的に取得する。

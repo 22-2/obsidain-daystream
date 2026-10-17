@@ -3,6 +3,7 @@ import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { VIEW_TYPE_DSTR } from "src/core/view-types";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -27,7 +28,6 @@ export class DSTRView extends ItemView {
   private state: DSTRViewState = { ...DEFAULT_DSTR_VIEW_STATE };
   private externalStateRevision = 0;
   private readonly fixedNoteTitle: DSTRFixedNoteTitle;
-  private readonly viewType: string;
   private reactReadyPromise: Promise<void>;
   private resolveReactReady: (() => void) | null = null;
   private hasOpened = false;
@@ -39,11 +39,9 @@ export class DSTRView extends ItemView {
     leaf: WorkspaceLeaf,
     settings: Settings,
     private readonly persistEditorExpansionMode?: (mode: EditorExpansionMode) => Promise<void>,
-    viewType = VIEW_TYPE_DSTR,
   ) {
     super(leaf);
     this.settings = settings;
-    this.viewType = viewType;
     this.fixedNoteTitle = new DSTRFixedNoteTitle(
       this,
       () => this.state,
@@ -61,7 +59,8 @@ export class DSTRView extends ItemView {
   }
 
   getViewType(): string {
-    return this.viewType;
+    // 意図: Obsidian の基底コンストラクタからも呼ばれるため、インスタンス初期化前に確定する型を返す。
+    return VIEW_TYPE_DSTR;
   }
 
   getDisplayText(): string {
@@ -250,5 +249,11 @@ export class DSTRView extends ItemView {
     this.reactReadyPromise = new Promise<void>((resolve) => {
       this.resolveReactReady = resolve;
     });
+  }
+}
+
+export class LegacyDSTRView extends DSTRView {
+  override getViewType(): string {
+    return LEGACY_DAYSTREAM_IDENTIFIERS.viewType;
   }
 }

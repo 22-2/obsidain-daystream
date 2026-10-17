@@ -13,11 +13,12 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   const root = view.locator(".dstr-dashboard-root");
   const leftPanel = view.locator(".dstr-dashboard-sidebar--left");
   const rightPanel = view.locator(".dstr-dashboard-sidebar--right");
+  // 意図: 1800px のviewportでも Obsidian の領域を差し引くとleafは約1370pxになるため、両パネル表示に必要な幅で確認する。
   await expect
     .poll(() =>
       root.evaluate((element) => element.getBoundingClientRect().width),
     )
-    .toBeGreaterThan(1400);
+    .toBeGreaterThan(1300);
   await expect(leftPanel).toBeVisible();
   await expect(rightPanel).toBeVisible();
 

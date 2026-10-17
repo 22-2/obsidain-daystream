@@ -3,6 +3,7 @@ import { ItemView, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import type { Settings } from "src/core/domain/settings";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { EditorOnlyReactView } from "src/features/composer/components/EditorOnlyReactView";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
@@ -23,15 +24,13 @@ export interface DSTREditorViewState extends Record<string, unknown> {
 export class DSTREditorView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private readonly viewType: string;
   private state: DSTREditorViewState | null = null;
   // popout ウィンドウでは navigation ヘッダが不要
   public navigation: boolean = false;
 
-  constructor(leaf: WorkspaceLeaf, settings: Settings, viewType = VIEW_TYPE_DSTR_EDITOR) {
+  constructor(leaf: WorkspaceLeaf, settings: Settings) {
     super(leaf);
     this.settings = settings;
-    this.viewType = viewType;
   }
 
   // -----------------------------------------------------------------------
@@ -43,7 +42,8 @@ export class DSTREditorView extends ItemView {
   }
 
   getViewType(): string {
-    return this.viewType;
+    // 意図: Obsidian の基底コンストラクタからも呼ばれるため、インスタンス初期化前に確定する型を返す。
+    return VIEW_TYPE_DSTR_EDITOR;
   }
 
   getDisplayText(): string {
@@ -91,5 +91,11 @@ export class DSTREditorView extends ItemView {
         initialState={this.state}
       />,
     );
+  }
+}
+
+export class LegacyDSTREditorView extends DSTREditorView {
+  override getViewType(): string {
+    return LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType;
   }
 }

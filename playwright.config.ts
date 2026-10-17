@@ -14,8 +14,8 @@ export default defineObsidianConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  // 意図: Windows の toolkit は Obsidian 間で同じ名前付きパイプを使うため、CI では直列化して EADDRINUSE を防ぐ。
-  workers: process.env.CI && process.platform === "win32" ? 1 : 2,
+  // 意図: 4 vCPU の Windows runner は3並列、macOS runner とローカルは2並列でCPUを使い切る。
+  workers: process.env.CI && process.platform === "win32" ? 3 : 2,
   reporter: "html",
   use: {
     trace: "on-first-retry",
