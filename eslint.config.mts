@@ -62,6 +62,13 @@ export default defineConfig(
 		},
 	},
 	{
+		// 意図: テストは jsdom 上で動き Obsidian の createDiv / createEl を持たないため、標準 DOM API を使う。
+		files: ['**/*.test.{ts,tsx}'],
+		rules: {
+			'obsidianmd/prefer-create-el': 'off',
+		},
+	},
+	{
 		files: ['vite.config.ts', 'vitest.config.ts', 'playwright.config.ts'],
 		languageOptions: {
 			globals: {

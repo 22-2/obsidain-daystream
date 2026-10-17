@@ -22,7 +22,7 @@ class ResizeObserverMock implements ResizeObserver {
         callback(
           [
             {
-              target: createDiv(),
+              target: document.createElement("div"),
               contentRect: new DOMRect(0, 0, width, 600),
               borderBoxSize: [],
               contentBoxSize: [],
@@ -58,7 +58,7 @@ function mountAutoToggle(
   store.getState().setLeftPanelOpen(leftPanelOpen);
   store.getState().setRightPanelOpen(rightPanelOpen);
   const save = vi.spyOn(storage, "set");
-  const containerRef = { current: createDiv() };
+  const containerRef = { current: document.createElement("div") };
   const hook = renderHook(
     ({ enabled }) =>
       useSidebarAutoToggle(

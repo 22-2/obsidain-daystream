@@ -32,9 +32,9 @@ function toTestCreateOptions(options: unknown): TestCreateOptions {
 
 vi.mock("obsidian", () => {
   class Modal {
-    modalEl = createDiv();
-    contentEl = createDiv();
-    titleEl = createDiv();
+    modalEl = document.createElement("div");
+    contentEl = document.createElement("div");
+    titleEl = document.createElement("div");
 
     constructor(_app: unknown) {
       this.modalEl.append(this.titleEl, this.contentEl);
@@ -94,7 +94,7 @@ beforeAll(() => {
   };
   proto.createDiv = function (options) {
     const normalizedOptions = toTestCreateOptions(options);
-    const el = createDiv();
+    const el = document.createElement("div");
     if (normalizedOptions.cls) {
       el.className = normalizedOptions.cls;
     }
@@ -106,7 +106,7 @@ beforeAll(() => {
   };
   proto.createEl = function (tag, options) {
     const normalizedOptions = toTestCreateOptions(options);
-    const el = createEl(tag);
+    const el = document.createElement(tag);
     if (normalizedOptions.cls) {
       el.className = normalizedOptions.cls;
     }

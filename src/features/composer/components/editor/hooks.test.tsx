@@ -94,7 +94,7 @@ vi.mock("@22-2/obsidian-magical-editor", () => {
 
     loadToDom(parent: HTMLElement) {
       this.view = {
-        containerEl: createDiv(),
+        containerEl: document.createElement("div"),
         toggleCtrlEnterKeyBinding: (enabled) => {
           this.ctrlEnterBindingCalls.push(enabled);
         },
