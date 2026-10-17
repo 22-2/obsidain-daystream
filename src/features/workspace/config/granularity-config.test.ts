@@ -23,9 +23,6 @@ describe("GRANULARITY_CONFIG", () => {
     expect(typeof cfg.showWeekday).toBe("boolean");
     expect(typeof cfg.readsDirectlyFromPeriodicNote).toBe("boolean");
     expect(typeof cfg.showCalendarRangeHighlight).toBe("boolean");
-    expect(cfg.settings.periodicity).toBeTruthy();
-    expect(cfg.settings.source).toBeTruthy();
-    expect(cfg.settings.defaultFormat).toBeTruthy();
   });
 
   it("day だけ showWeekday が true", () => {

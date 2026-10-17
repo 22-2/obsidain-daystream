@@ -1,0 +1,16 @@
+{
+  "name": "@22-2/obsidian-daily-notes-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Resolve, locate, and create date-named notes using the Daily Notes, Periodic Notes, and Calendar plugin settings.",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "moment": "*",
+    "obsidian": "*"
+  }
+}

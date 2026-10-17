@@ -1,6 +1,6 @@
 import type { TFile } from "obsidian";
 import type { Topic } from "src/core/topic";
-import { getDateFromFilename } from "src/core/platform/daily-notes/utils";
+import { getDateFromFilename } from "src/core/platform/daily-notes";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { GRANULARITIES, type Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
