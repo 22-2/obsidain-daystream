@@ -2,6 +2,7 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { TFile } from "obsidian";
 import React from "react";
 import { DSTRStorage } from "src/core/storage";
+import { createLocalStorageHost } from "src/__mocks__/local-storage-host";
 import { useFixedSessions } from "src/features/notes/hooks/useFixedSessions";
 import { AppStoreProvider, createAppStore } from "src/features/workspace/store/appStore";
 import {
@@ -69,7 +70,7 @@ describe("useFixedSessions", () => {
       files.set(filePath, content);
     });
     mocked.confirmDelete.mockResolvedValue(true);
-    storage = new DSTRStorage("fixed-sessions-test");
+    storage = new DSTRStorage(createLocalStorageHost("fixed-sessions-test"));
     store = createAppStore();
     store.setState({ storage, viewNoteMode: "fixed", file: path, fixedSessionNumber: 2 });
   });

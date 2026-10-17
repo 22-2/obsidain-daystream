@@ -1,6 +1,7 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { DSTRStorage } from "src/core/storage";
+import { createLocalStorageHost } from "src/__mocks__/local-storage-host";
 import { useSidebarAutoToggle } from "src/features/workspace/hooks/internal/useSidebarAutoToggle";
 import { createAppStore } from "src/features/workspace/store/appStore";
 import { resolveInitialSettingsState } from "src/features/workspace/store/slices/settingsPersistence";
@@ -51,7 +52,7 @@ function mountAutoToggle(
   enabled = true,
 ) {
   const store = createAppStore();
-  const storage = new DSTRStorage("sidebar-auto-toggle-test");
+  const storage = new DSTRStorage(createLocalStorageHost("sidebar-auto-toggle-test"));
   store.setState({ storage });
   store.getState().setLeftPanelOpen(leftPanelOpen);
   store.getState().setRightPanelOpen(rightPanelOpen);
