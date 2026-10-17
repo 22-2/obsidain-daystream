@@ -7,7 +7,7 @@ export default defineConfig({
     // 意図: workerを使い回してjsdomの準備負荷を抑えつつ、VM単位でテストごとの分離を保つ。
     pool: 'vmForks',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx,js,jsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx,js,jsx}', 'packages/*/src/**/*.{test,spec}.ts'],
     exclude: ['node_modules/**', 'e2e/**'],
     alias: {
       "src": path.resolve(__dirname, './src'),

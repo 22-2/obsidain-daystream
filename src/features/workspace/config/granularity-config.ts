@@ -2,7 +2,6 @@
 // UI display config — granularity ごとの表示設定
 
 import type { Moment } from "moment";
-import { GRANULARITY_SETTINGS, type GranularitySettings } from "src/core/domain/granularity-settings";
 import { GRANULARITIES, type Granularity } from "src/core/domain/granularity";
 import { DATE_FILTER_IDS } from "src/features/workspace/config/filter-config";
 
@@ -21,7 +20,6 @@ interface GranularityConfigEntry {
   showWeekday: boolean;
   readsDirectlyFromPeriodicNote: boolean;
   showCalendarRangeHighlight: boolean;
-  settings: GranularitySettings;
 }
 
 export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
@@ -38,7 +36,6 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     showWeekday: true,
     readsDirectlyFromPeriodicNote: false,
     showCalendarRangeHighlight: true,
-    settings: GRANULARITY_SETTINGS.day,
   },
   week: {
     label: "週",
@@ -53,7 +50,6 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     showWeekday: false,
     readsDirectlyFromPeriodicNote: false,
     showCalendarRangeHighlight: true,
-    settings: GRANULARITY_SETTINGS.week,
   },
   month: {
     label: "月",
@@ -69,7 +65,6 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     readsDirectlyFromPeriodicNote: true,
     // 意図: 月粒度では選択した月全体をナビゲーター上でも範囲として示す。
     showCalendarRangeHighlight: true,
-    settings: GRANULARITY_SETTINGS.month,
   },
   quarter: {
     label: "四半期",
@@ -84,7 +79,6 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
     showCalendarRangeHighlight: false,
-    settings: GRANULARITY_SETTINGS.quarter,
   },
   year: {
     label: "年",
@@ -99,7 +93,6 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
     showCalendarRangeHighlight: false,
-    settings: GRANULARITY_SETTINGS.year,
   },
 };
 
