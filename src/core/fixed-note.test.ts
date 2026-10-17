@@ -1,9 +1,10 @@
 import type { TFile } from "obsidian";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import {
   buildFixedNotePathFromName,
   createNewFixedNote,
   ensureFixedNote,
-  isMFDIFixedNotePath,
+  isDSTRFixedNotePath,
   normalizeFixedNotePath,
   renameFixedNote,
   trashFixedNote,
@@ -21,10 +22,13 @@ describe("fixed note utilities", () => {
     expect(normalizeFixedNotePath("inbox/fixed-note.md")).toBe("inbox/fixed-note.md");
     expect(normalizeFixedNotePath("   ")).toBe("");
 
-    // isMFDIFixedNotePath
-    expect(isMFDIFixedNotePath("MFDI/Untitled.mfdi.md")).toBe(true);
-    expect(isMFDIFixedNotePath("MFDI/Untitled.MFDI.MD")).toBe(true);
-    expect(isMFDIFixedNotePath("MFDI/Untitled.md")).toBe(false);
+    // isDSTRFixedNotePath
+    expect(isDSTRFixedNotePath("dstr/Untitled.dstr.md")).toBe(true);
+    expect(isDSTRFixedNotePath("dstr/Untitled.dstr.MD")).toBe(true);
+    expect(
+      isDSTRFixedNotePath(`archive/Untitled${LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix}`),
+    ).toBe(true);
+    expect(isDSTRFixedNotePath("dstr/Untitled.md")).toBe(false);
   });
 
   it("fixed mode でのノート解決", () => {
@@ -63,34 +67,34 @@ describe("fixed note utilities", () => {
   it("パス生成時に名前が重複したら連番を振る", () => {
     const shell = {
       getAbstractFileByPath: vi.fn((p) =>
-        ["MFDI/Note.mfdi.md", "MFDI/Note 1.mfdi.md"].includes(p) ? {} : null,
+        ["dstr/Note.dstr.md", "dstr/Note 1.dstr.md"].includes(p) ? {} : null,
       ),
     } as any;
 
     // 重複して 2 になるはず
-    expect(buildFixedNotePathFromName("MFDI", "Note", shell)).toBe("MFDI/Note 2.mfdi.md");
+    expect(buildFixedNotePathFromName("dstr", "Note", shell)).toBe("dstr/Note 2.dstr.md");
     // 名前が空なら Untitled
-    expect(buildFixedNotePathFromName("MFDI", "", shell)).toBe("MFDI/Untitled.mfdi.md");
+    expect(buildFixedNotePathFromName("dstr", "", shell)).toBe("dstr/Untitled.dstr.md");
     // フォルダなしならルート
-    expect(buildFixedNotePathFromName("", "Root", shell)).toBe("Root.mfdi.md");
+    expect(buildFixedNotePathFromName("", "Root", shell)).toBe("Root.dstr.md");
   });
 
   it("新しい固定ノート(Untitled)を生成する", async () => {
-    const file = mockFile("MFDI/Untitled.mfdi.md");
+    const file = mockFile("dstr/Untitled.dstr.md");
     const shell = {
       getAbstractFileByPath: vi.fn(() => null),
       createFolder: vi.fn(),
       createFile: vi.fn(async () => file),
     } as any;
 
-    const result = await createNewFixedNote(shell, "MFDI");
+    const result = await createNewFixedNote(shell, "dstr");
 
-    expect(shell.createFile).toHaveBeenCalledWith("MFDI/Untitled.mfdi.md", "");
+    expect(shell.createFile).toHaveBeenCalledWith("dstr/Untitled.dstr.md", "");
     expect(result).toBe(file);
   });
 
   it("固定ノートのリネームと削除を共通操作へ委譲する", async () => {
-    const file = mockFile("MFDI/Inbox.mfdi.md");
+    const file = mockFile("dstr/Inbox.dstr.md");
     const renameFile = vi.fn(async () => undefined);
     const trashFile = vi.fn(async () => undefined);
     const shell = {
@@ -101,7 +105,7 @@ describe("fixed note utilities", () => {
     const path = await renameFixedNote(shell, file.path, " Renamed ");
     await trashFixedNote(shell, file.path);
 
-    expect(renameFile).toHaveBeenCalledWith(file, "Renamed.mfdi.md");
+    expect(renameFile).toHaveBeenCalledWith(file, "Renamed.dstr.md");
     expect(trashFile).toHaveBeenCalledWith(file);
     expect(path).toBe(file.path);
   });

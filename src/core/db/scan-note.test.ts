@@ -12,7 +12,7 @@ describe("buildMemoRecordsForNote", () => {
       content: [
         "## Thino",
         "- 10:00:00 hello",
-        "    [mfditags::IT, Later]",
+        "    [dstrtags::IT, Later]",
         "- 11:00:00 hidden",
         "    [archived::true]",
       ].join("\n"),

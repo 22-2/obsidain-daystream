@@ -1,5 +1,6 @@
 import moment from "moment";
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import type { Post } from "src/core/domain/post";
 import {
   countVisibleRootPosts,
@@ -37,13 +38,16 @@ describe("thread-utils", () => {
     expect(createThreadId()).toMatch(/^[a-f0-9]{8}$/);
   });
 
-  test("falls back to path and offset when reply has no mfdiId", () => {
+  test("falls back to path and offset when reply has no dstrId", () => {
     expect(resolvePostId({ parentId: "root-1" }, "daily.md", 20)).toBe("daily.md:20");
   });
 
-  test("resolves thread root id from parentId or mfdiId", () => {
+  test("resolves thread root id from parentId or dstrId", () => {
     expect(resolveThreadRootId({ parentId: "root-1" })).toBe("root-1");
-    expect(resolveThreadRootId({ mfdiId: "root-1" })).toBe("root-1");
+    expect(resolveThreadRootId({ dstrId: "root-1" })).toBe("root-1");
+    expect(
+      resolveThreadRootId({ [LEGACY_DAYSTREAM_IDENTIFIERS.threadIdMetadataKey]: "legacy-root" }),
+    ).toBe("legacy-root");
   });
 
   test("counts only root-visible posts", () => {
@@ -85,7 +89,7 @@ describe("thread-utils", () => {
     ]);
   });
 
-  test("memoRecordToPost maps thread root to mfdiId so it stays visible", () => {
+  test("memoRecordToPost maps thread root to dstrId so it stays visible", () => {
     const memo: MemoRecord = {
       id: "daily/2026-03-15.md:10",
       path: "daily/2026-03-15.md",
@@ -94,7 +98,7 @@ describe("thread-utils", () => {
       noteGranularity: "day",
       content: "root",
       tags: [],
-      metadataJson: JSON.stringify({ mfdiId: "root-1" }),
+      metadataJson: JSON.stringify({ dstrId: "root-1" }),
       startOffset: 10,
       endOffset: 20,
       bodyStartOffset: 12,
@@ -113,7 +117,7 @@ describe("thread-utils", () => {
     expect(isThreadReply(post)).toBe(false);
   });
 
-  test("memoRecordToPost keeps reply id as path:offset when mfdiId is absent", () => {
+  test("memoRecordToPost keeps reply id as path:offset when dstrId is absent", () => {
     const memo: MemoRecord = {
       id: "daily/2026-03-15.md:30",
       path: "daily/2026-03-15.md",

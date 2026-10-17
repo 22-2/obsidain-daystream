@@ -58,16 +58,16 @@ export const InViewComposer: FC = memo(() => {
 
   useEffect(() => {
     Array.from(view.actionsEl.children)
-      .filter((element) => element.getAttr("data-mfdi-actions") === "true")
+      .filter((element) => element.getAttr("data-dstr-actions") === "true")
       .forEach((element) => element.detach());
 
     const closeAction = view.addAction("x", "閉じる", handleClose);
-    closeAction.setAttr("data-mfdi-composer-actions", "true");
+    closeAction.setAttr("data-dstr-composer-actions", "true");
 
     const saveAction = view.addAction("send-horizontal", "投稿", () => {
       void handleSubmitAndClose();
     });
-    saveAction.setAttr("data-mfdi-composer-actions", "true");
+    saveAction.setAttr("data-dstr-composer-actions", "true");
 
     return () => {
       saveAction.detach();
@@ -87,7 +87,7 @@ export const InViewComposer: FC = memo(() => {
   }, [handleClose]);
 
   return (
-    <Flex className="mfdi-in-view-composer h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
+    <Flex className="dstr-in-view-composer h-full w-full flex-col overflow-hidden bg-[var(--background-primary)]">
       {/* 意図: 全画面の一時コンポーザも展開中と同じ扱いにして、設定の文言と挙動を揃える。 */}
       <ObsidianLiveEditor
         ref={inputRef}
@@ -97,7 +97,7 @@ export const InViewComposer: FC = memo(() => {
         externalVersion={inputSnapshotVersion}
         onChange={syncInputSession}
         onSubmit={handleSubmitAndClose}
-        className="mfdi-in-view-composer__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
+        className="dstr-in-view-composer__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}
         ctrlEnterSends={ctrlEnterSends}

@@ -9,7 +9,7 @@ import { isThreadRoot } from "src/features/posts/utils/thread-utils";
 
 /**
  * Post オブジェクトから派生値を計算して PostCard に委譲するラッパー。
- * MFDI のストア型に依存するロジックはここに集約し、
+ * Daystream のストア型に依存するロジックはここに集約し、
  * PostCard 自体は Post 型を知らない純粋な見た目コンポーネントとして保つ。
  */
 export const PostCardView = React.memo(
@@ -27,7 +27,7 @@ export const PostCardView = React.memo(
     onToggleThreadFocus,
     className,
     style,
-    // MFDI ストアへの依存を排除し、Paper Cut などの他プラグインからも再利用できるようにする
+    // Daystream ストアへの依存を排除し、Paper Cut などの他プラグインからも再利用できるようにする
     enabledCardView,
     allowEditingPastNotes,
   }: {

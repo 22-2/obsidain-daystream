@@ -117,7 +117,7 @@ export const PostCard = React.memo(
 
     return (
       <Card
-        className={[className, isHighlighted ? "mfdi-card--highlighted" : ""]
+        className={[className, isHighlighted ? "dstr-card--highlighted" : ""]
           .filter(Boolean)
           .join(" ")}
         disableHoverBg={isHighlighted}
@@ -160,7 +160,7 @@ export const PostCard = React.memo(
                 gap={3}
               >
                 {/* Message Body */}
-                <Box className="mfdi-message-body px-1 break-words">
+                <Box className="dstr-message-body px-1 break-words">
                   <ObsidianMarkdown content={displayText} sourcePath={sourcePath} />
                 </Box>
 

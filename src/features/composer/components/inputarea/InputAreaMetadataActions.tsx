@@ -1,11 +1,11 @@
 import { memo, useCallback, useMemo, type FC } from "react";
-import { TAG_METADATA_KEY, serializeMfdiTags } from "src/core/tags";
+import { removeLegacyDSTRTags, TAG_METADATA_KEY, serializeDSTRTags } from "src/core/tags";
 import { IconButton } from "src/core/ui/components/common/IconButton";
 import { HStack } from "src/core/ui/components/primitives";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { PINNED_METADATA_KEY, getRawTagMetadata, isPinned } from "src/core/domain/post-metadata";
-import { getMFDIViewCapabilities } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
 
 type InputAreaMetadataActionsProps = {
@@ -24,7 +24,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
     );
 
     const capabilities = useMemo(
-      () => getMFDIViewCapabilities({ noteMode: viewNoteMode }),
+      () => getDSTRViewCapabilities({ noteMode: viewNoteMode }),
       [viewNoteMode],
     );
 
@@ -53,7 +53,8 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
       if (nextValue === null) return;
 
       const nextMetadata = { ...draftMetadata };
-      const serializedTags = serializeMfdiTags(nextValue.split(","));
+      removeLegacyDSTRTags(nextMetadata);
+      const serializedTags = serializeDSTRTags(nextValue.split(","));
       if (serializedTags.length === 0) {
         // 意図: タグを空にした場合はキーごと消し、submit 時に残骸が残らないようにする。
         delete nextMetadata[TAG_METADATA_KEY];

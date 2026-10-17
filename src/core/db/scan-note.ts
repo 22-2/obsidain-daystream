@@ -1,6 +1,7 @@
 import { resolveMemoTimestamp } from "src/core/post-utils";
 import { parseThinoEntries } from "src/core/thino";
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
+import { normalizeDSTRMetadata } from "src/core/metadata";
 import type { ScannableNote } from "src/core/db/worker-api";
 import { getPostTags, isArchived, isDeleted, isPinned } from "src/core/domain/post-metadata";
 
@@ -16,7 +17,7 @@ export function buildMemoRecordsForNote(file: ScannableNote): MemoRecord[] {
       noteGranularity: file.noteGranularity,
       content: entry.message,
       tags: getPostTags(entry.metadata),
-      metadataJson: JSON.stringify(entry.metadata),
+      metadataJson: JSON.stringify(normalizeDSTRMetadata(entry.metadata)),
       startOffset: entry.startOffset,
       endOffset: entry.endOffset,
       bodyStartOffset: entry.bodyStartOffset,

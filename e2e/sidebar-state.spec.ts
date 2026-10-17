@@ -1,7 +1,7 @@
 import { expect, test } from "obsidian-e2e-toolkit";
-import { MFDI_VIEW_TYPE, mfdiVaultOptions, openMfdiView } from "./support";
+import { DSTR_VIEW_TYPE, dstrVaultOptions, openDSTRView } from "./support";
 
-test.use({ vaultOptions: mfdiVaultOptions() });
+test.use({ vaultOptions: dstrVaultOptions() });
 
 test("タブ復帰とビューの開き直しで左右の開閉状態を維持する", async ({
   obsidian,
@@ -9,15 +9,16 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
 }) => {
   await page.setViewportSize({ width: 1800, height: 1000 });
   await obsidian.collapseSidebars();
-  const view = await openMfdiView(obsidian);
-  const root = view.locator(".mfdi-dashboard-root");
-  const leftPanel = view.locator(".mfdi-dashboard-sidebar--left");
-  const rightPanel = view.locator(".mfdi-dashboard-sidebar--right");
+  const view = await openDSTRView(obsidian);
+  const root = view.locator(".dstr-dashboard-root");
+  const leftPanel = view.locator(".dstr-dashboard-sidebar--left");
+  const rightPanel = view.locator(".dstr-dashboard-sidebar--right");
+  // 意図: 1800px のviewportでも Obsidian の領域を差し引くとleafは約1370pxになるため、両パネル表示に必要な幅で確認する。
   await expect
     .poll(() =>
       root.evaluate((element) => element.getBoundingClientRect().width),
     )
-    .toBeGreaterThan(1400);
+    .toBeGreaterThan(1300);
   await expect(leftPanel).toBeVisible();
   await expect(rightPanel).toBeVisible();
 
@@ -37,16 +38,16 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
   await expect(leftPanel).toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
   await expect(rightPanel).not.toHaveClass(/(?:^|\s)hidden(?:\s|$)/);
 
-  await obsidian.revealView(MFDI_VIEW_TYPE);
+  await obsidian.revealView(DSTR_VIEW_TYPE);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();
 
   // 意図: store の再作成と保存状態の復元まで通し、初回の幅測定でも上書きしないことを確認する。
   await obsidian.evaluateApp(() =>
-    app.workspace.getLeavesOfType("mfdi-view")[0].detach(),
+    app.workspace.getLeavesOfType("dstr-view")[0].detach(),
   );
-  await openMfdiView(obsidian);
+  await openDSTRView(obsidian);
   await expect(root).toBeVisible();
   await expect(leftPanel).toBeHidden();
   await expect(rightPanel).toBeVisible();

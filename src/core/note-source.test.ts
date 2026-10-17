@@ -45,8 +45,8 @@ describe("resolveNoteSource", () => {
     extension: "md",
   });
   const fixedFile = Object.assign(new TFile(), {
-    path: "MFDI/Inbox.mfdi.md",
-    basename: "Inbox.mfdi",
+    path: "dstr/Inbox.dstr.md",
+    basename: "Inbox.dstr",
     extension: "md",
   });
 
@@ -84,7 +84,7 @@ describe("resolveNoteSource", () => {
       granularity: "day",
       activeTopic: "",
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     });
 
     expect(source.mode).toBe("fixed");
@@ -93,10 +93,10 @@ describe("resolveNoteSource", () => {
   });
 
   it("creates a fixed note from user input through the core helper", async () => {
-    const created = await createFixedNoteFromInput(shell, "MFDI", "Scratch");
+    const created = await createFixedNoteFromInput(shell, "dstr", "Scratch");
 
-    expect(shell.createFile).toHaveBeenCalledWith("MFDI/Scratch.mfdi.md", "");
-    expect(created.path).toBe("MFDI/Scratch.mfdi.md");
+    expect(shell.createFile).toHaveBeenCalledWith("dstr/Scratch.dstr.md", "");
+    expect(created.path).toBe("dstr/Scratch.dstr.md");
   });
 
   it("collects periodic entries for explicit dates", () => {

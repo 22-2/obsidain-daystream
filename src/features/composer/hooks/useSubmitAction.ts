@@ -1,6 +1,7 @@
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
 import { ensureFixedSessionHeading } from "src/core/fixed-sessions";
+import { normalizeDSTRMetadata } from "src/core/metadata";
 import { resolveNoteSource } from "src/core/note-source";
 import { toText } from "src/core/post-utils";
 import { indexNoteContent } from "src/core/db/indexer/tag-indexer";
@@ -122,11 +123,13 @@ export const useSubmitAction = () => {
 
       const now = window.moment();
       let targetTs = latestPost.timestamp;
-      const metadata = mergeDraftMetadataForSubmit({
-        latestMetadata: latestPost.metadata,
-        draftMetadataBase: editorState.draftMetadataBase,
-        draftMetadata: editorState.draftMetadata,
-      });
+      const metadata = normalizeDSTRMetadata(
+        mergeDraftMetadataForSubmit({
+          latestMetadata: latestPost.metadata,
+          draftMetadataBase: editorState.draftMetadataBase,
+          draftMetadata: editorState.draftMetadata,
+        }),
+      );
       if (settings.updateDateStrategy === "always") {
         targetTs = now;
       } else if (
@@ -180,11 +183,13 @@ export const useSubmitAction = () => {
       const metadata: Record<string, string> = {
         [THREAD_METADATA_KEYS.PARENT_ID]: settingsState.threadFocusRootId!,
       };
-      const mergedMetadata = mergeDraftMetadataForSubmit({
-        latestMetadata: metadata,
-        draftMetadataBase: editorState.draftMetadataBase,
-        draftMetadata: editorState.draftMetadata,
-      });
+      const mergedMetadata = normalizeDSTRMetadata(
+        mergeDraftMetadataForSubmit({
+          latestMetadata: metadata,
+          draftMetadataBase: editorState.draftMetadataBase,
+          draftMetadata: editorState.draftMetadata,
+        }),
+      );
       // 日をまたぐ返信には `posted` を付与（同日返信は通常通りタイムスタンプ）
       if (!now.isSame(rootPost.noteDate, "day")) {
         mergedMetadata.posted = now.toISOString();
@@ -246,11 +251,13 @@ export const useSubmitAction = () => {
         settingsState.getEffectiveDate(),
         now,
       );
-      const metadata: Record<string, string> = mergeDraftMetadataForSubmit({
-        latestMetadata: {},
-        draftMetadataBase: editorState.draftMetadataBase,
-        draftMetadata: editorState.draftMetadata,
-      });
+      const metadata: Record<string, string> = normalizeDSTRMetadata(
+        mergeDraftMetadataForSubmit({
+          latestMetadata: {},
+          draftMetadataBase: editorState.draftMetadataBase,
+          draftMetadata: editorState.draftMetadata,
+        }),
+      );
 
       // 日をまたぐ投稿には `posted` を付与（同日投稿は通常通りタイムスタンプ）
       if (settingsState.viewNoteMode === "fixed" || !targetDate.isSame(now, "day")) {
@@ -337,7 +344,7 @@ export const useSubmitAction = () => {
       }
 
       editorState.clearInput();
-      shell.trigger("mfdi:scroll-to-top");
+      shell.trigger("dstr:scroll-to-top");
 
       await refreshPosts(note.path);
 

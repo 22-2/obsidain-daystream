@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { MFDIStorage } from "src/core/storage";
+import { DSTRStorage } from "src/core/storage";
 import type { PluginLifecycleContext } from "src/core/plugin-host";
 import type { Settings } from "src/core/domain/settings";
 import { createTagIndexExtension } from "src/core/db/tag-index-extension";
@@ -7,7 +7,7 @@ import { createTagIndexExtension } from "src/core/db/tag-index-extension";
 export function registerTagIndexLifecycle(
   context: PluginLifecycleContext<Settings>,
   appId: string,
-  storage: MFDIStorage,
+  storage: DSTRStorage,
 ): void {
   const tagIndexExtension = createTagIndexExtension(appId);
 

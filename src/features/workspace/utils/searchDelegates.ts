@@ -1,7 +1,7 @@
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 
 export function bindSearchDelegates(
-  view: MFDIView,
+  view: DSTRView,
   actionDelegates: {
     setSearchQuery: (query: string) => void;
     setSearchInputOpen: (open: boolean) => void;

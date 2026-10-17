@@ -1,6 +1,6 @@
 import { consola } from "consola";
 
-export const rootLogger = consola.withTag("mfdi");
+export const rootLogger = consola.withTag("DSTR");
 
 type Logger = typeof rootLogger;
 

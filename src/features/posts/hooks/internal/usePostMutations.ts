@@ -1,8 +1,9 @@
 import type { MarkdownView } from "obsidian";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
+import { normalizeDSTRMetadata } from "src/core/metadata";
 import { toText } from "src/core/post-utils";
-import { serializeMfdiTags, TAG_METADATA_KEY } from "src/core/tags";
+import { serializeDSTRTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { usePostHelpers } from "src/features/posts/hooks/internal/usePostHelpers";
@@ -164,7 +165,7 @@ export const usePostMutations = () => {
   const setPostTags = useCallback(
     async (post: Post, rawInput: string) => {
       await replacePostAndRefresh(post, (metadata) => {
-        const serializedTags = serializeMfdiTags(rawInput.split(","));
+        const serializedTags = serializeDSTRTags(rawInput.split(","));
         if (serializedTags.length === 0) {
           const { [TAG_METADATA_KEY]: _removed, ...rest } = metadata;
           return rest;
@@ -283,10 +284,10 @@ export const usePostMutations = () => {
         false,
         settingsState.granularity,
         getSerializedTimestamp(latestPost.timestamp, latestPost.noteDate),
-        {
+        normalizeDSTRMetadata({
           ...latestPost.metadata,
           [THREAD_METADATA_KEYS.ID]: rootId,
-        },
+        }),
       );
 
       await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);
@@ -341,7 +342,7 @@ export const usePostMutations = () => {
     [shell, findLatestPost, notifyNotFoundAndRefresh],
   );
 
-  /** 投稿を同じ MFDI タブの focused モードで開き、一覧上でハイライトする */
+  /** 投稿を同じ Daystream タブの focused モードで開き、一覧上でハイライトする */
   const handleHighlightPost = useCallback(
     async (post: Post) => {
       const latestPost = await findLatestPost(post);
@@ -350,7 +351,7 @@ export const usePostMutations = () => {
         return;
       }
 
-      // 意図: exact jump は MFDI 内の文脈を保ったまま対象日へ移動したいので、
+      // 意図: exact jump は Daystream 内の文脈を保ったまま対象日へ移動したいので、
       // 外部 leaf ではなく focused/day/all の状態へ寄せて一覧上の強調表示へ統一する。
       if (
         editorState.editingPost &&

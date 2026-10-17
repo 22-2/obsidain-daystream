@@ -10,7 +10,7 @@ import {
   type ActivitySummary,
 } from "src/features/insights/domain/activitySummary";
 import { HStack, Spinner, Text, VStack } from "src/core/ui/components/primitives";
-import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
+import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -51,7 +51,7 @@ function buildActivityBars(summary: ActivitySummary | null) {
 }
 
 export const InsightsSidebar: React.FC = () => {
-  const db = useMFDIDB();
+  const db = useDSTRDB();
   const { activeTag, activeTopic } = useSettingsStore(
     useShallow((state) => ({
       activeTag: state.activeTag,
@@ -100,7 +100,7 @@ export const InsightsSidebar: React.FC = () => {
     <VStack className="h-full w-full items-stretch gap-0 overflow-y-auto">
       <PanelSection title="アクティビティ" storageKey="insights-activity" className="pt-2">
         <div
-          className="mfdi-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
+          className="dstr-activity-chart flex h-[92px] items-end gap-[2px] rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-[var(--background-primary)] px-2 py-2"
           ref={(element) => {
             if (element) setTooltip(element, "投稿アクティビティ");
           }}
@@ -108,7 +108,7 @@ export const InsightsSidebar: React.FC = () => {
           {bars.map((count, index) => (
             <div
               key={index}
-              className="mfdi-activity-chart__bar min-w-0 flex-1 rounded-t-[2px] bg-[var(--color-accent)] transition-[height] duration-200"
+              className="dstr-activity-chart__bar min-w-0 flex-1 rounded-t-[2px] bg-[var(--color-accent)] transition-[height] duration-200"
               ref={(element) => {
                 if (element) setTooltip(element, `${count}件`);
               }}
@@ -118,7 +118,7 @@ export const InsightsSidebar: React.FC = () => {
             />
           ))}
         </div>
-        <HStack className="justify-between text-[length:var(--mfdi-panel-meta-font-size)] text-[var(--text-muted)]">
+        <HStack className="justify-between text-[length:var(--dstr-panel-meta-font-size)] text-[var(--text-muted)]">
           <Text>{loading ? "読み込み中…" : formatDate(summary?.firstDate ?? null)}</Text>
           <Text>{formatDate(summary?.latestDate ?? null)}</Text>
         </HStack>
@@ -127,7 +127,7 @@ export const InsightsSidebar: React.FC = () => {
       <PanelDivider />
 
       <PanelSection title="統計" storageKey="insights-statistics" className="pt-2">
-        <VStack className="items-stretch gap-1 text-[length:var(--mfdi-panel-label-font-size)]">
+        <VStack className="items-stretch gap-1 text-[length:var(--dstr-panel-label-font-size)]">
           <StatRow label="投稿" value={summary?.totalPosts ?? 0} loading={loading} />
           <StatRow label="投稿のある日" value={summary?.activeDays ?? 0} loading={loading} />
           <StatRow label="タグ" value={summary?.tagCount ?? 0} loading={loading} />

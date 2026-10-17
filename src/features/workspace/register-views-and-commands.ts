@@ -1,32 +1,37 @@
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
-import { VIEW_TYPE_MFDI_EDITOR } from "src/features/composer/views/MFDIEditorView";
-
-const VIEW_TYPE_MFDI = "mfdi-view";
+import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 
 export function registerWorkspaceViews(context: BuiltinMainContext): void {
-  context.registerView(VIEW_TYPE_MFDI, (leaf) => context.createMFDIView(leaf));
-  context.registerView(VIEW_TYPE_MFDI_EDITOR, (leaf) => context.createMFDIEditorView(leaf));
+  context.registerView(VIEW_TYPE_DSTR, (leaf) => context.createDSTRView(leaf));
+  context.registerView(VIEW_TYPE_DSTR_EDITOR, (leaf) => context.createDSTREditorView(leaf));
+  context.registerView(LEGACY_DAYSTREAM_IDENTIFIERS.viewType, (leaf) =>
+    context.createDSTRView(leaf, LEGACY_DAYSTREAM_IDENTIFIERS.viewType),
+  );
+  context.registerView(LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType, (leaf) =>
+    context.createDSTREditorView(leaf, LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType),
+  );
 }
 
 export function registerWorkspaceRibbon(context: BuiltinMainContext): void {
-  context.addRibbonIcon("pencil", "Mobile First Daily Interface", () => {
-    void context.attachMFDIView({});
+  context.addRibbonIcon("pencil", "Daystream", () => {
+    void context.attachDSTRView({});
   });
 }
 
 export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   context.addCommand({
-    id: "mfdi-open-view",
-    name: "Open Mobile First Daily Interface",
+    id: "dstr-open-view",
+    name: "Open Daystream",
     callback: async () => {
-      const leaf = await context.attachMFDIView({});
+      const leaf = await context.attachDSTRView({});
       if (leaf) context.app.workspace.revealLeaf(leaf);
     },
   });
 
   context.addCommand({
-    id: "mfdi-open-fixed-note-view",
-    name: "Create New MFDI Fixed Note",
+    id: "dstr-open-fixed-note-view",
+    name: "Create New Daystream Fixed Note",
     callback: () => {
       void context.createAndOpenFixedNote();
     },
@@ -35,20 +40,20 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   // 意図: Ctrl+Enter 設定が無効でもキーボードのみで投稿できるようにする。
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({
-    id: "mfdi-submit-post",
-    name: "MFDI: 投稿を送信",
+    id: "dstr-submit-post",
+    name: "Daystream: 投稿を送信",
     checkCallback: (checking) => {
       const activeView = context.app.workspace.activeLeaf?.view;
-      if (activeView?.getViewType() !== "mfdi-view") {
+      if (activeView?.getViewType() !== VIEW_TYPE_DSTR) {
         return false;
       }
 
       if (checking) {
-        const inputSnapshot = context.getMFDIInputSnapshot();
+        const inputSnapshot = context.getDSTRInputSnapshot();
         return inputSnapshot.trim().length > 0;
       }
 
-      const submitFn = context.getMFDISubmitCallback();
+      const submitFn = context.getDSTRSubmitCallback();
       void submitFn?.();
     },
   });

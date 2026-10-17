@@ -1,5 +1,6 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import {
   readFixedSessionMeta,
@@ -9,7 +10,7 @@ import {
 import { describe, expect, it, vi } from "vitest";
 
 type MockStorageHandle = {
-  storage: MFDIStorage;
+  storage: DSTRStorage;
   get: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
 };
@@ -29,7 +30,7 @@ function createMockStorage(initialValues: Record<string, unknown> = {}): MockSto
       get,
       remove,
       set: vi.fn(),
-    } as unknown as MFDIStorage,
+    } as unknown as DSTRStorage,
     get,
     remove,
   };
@@ -54,24 +55,26 @@ function createMockShell(): {
 }
 
 describe("fixed-session-storage", () => {
-  it("sidecar ファイルがあれば fixedSessionMeta をそれを正として読む", async () => {
-    const filePath = "MFDI/Inbox.mfdi.md";
-    const { shell, loadFile } = createMockShell();
+  it("旧sidecarをDSTR名へ移行して読み込む", async () => {
+    const filePath = `dstr/Inbox${LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix}`;
+    const legacySidecarPath = `${filePath.slice(0, -3)}.fixed-session-meta.json`;
+    const { shell, loadFile, writeFile } = createMockShell();
     const { storage, get } = createMockStorage({
       [`${STORAGE_KEYS.FIXED_SESSION_META}:${encodeURIComponent(filePath)}`]: {
         "9": { name: "legacy" },
       },
     });
 
-    loadFile.mockResolvedValue(
-      JSON.stringify({
+    loadFile.mockImplementation(async (path: string) => {
+      if (path !== legacySidecarPath) throw new Error("not found");
+      return JSON.stringify({
         "2": {
           createdAt: "2026-05-01T10:00:00.000Z",
           name: "Focus",
           pinned: true,
         },
-      }),
-    );
+      });
+    });
 
     const result = await readFixedSessionMeta(shell, storage, filePath);
 
@@ -82,12 +85,17 @@ describe("fixed-session-storage", () => {
         pinned: true,
       },
     });
-    expect(loadFile).toHaveBeenCalledWith("MFDI/Inbox.mfdi.fixed-session-meta.json");
+    expect(loadFile).toHaveBeenNthCalledWith(1, "dstr/Inbox.dstr.fixed-session-meta.json");
+    expect(loadFile).toHaveBeenNthCalledWith(2, legacySidecarPath);
+    expect(writeFile).toHaveBeenCalledWith(
+      "dstr/Inbox.dstr.fixed-session-meta.json",
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
     expect(get).not.toHaveBeenCalled();
   });
 
   it("sidecar が無い場合は旧 storage から移行してファイルへ保存する", async () => {
-    const filePath = "MFDI/Inbox.mfdi.md";
+    const filePath = "dstr/Inbox.dstr.md";
     const legacyStorageKey = `${STORAGE_KEYS.FIXED_SESSION_META}:${encodeURIComponent(filePath)}`;
     const { shell, loadFile, writeFile } = createMockShell();
     const { storage, remove } = createMockStorage({
@@ -112,14 +120,14 @@ describe("fixed-session-storage", () => {
       },
     });
     expect(writeFile).toHaveBeenCalledWith(
-      "MFDI/Inbox.mfdi.fixed-session-meta.json",
+      "dstr/Inbox.dstr.fixed-session-meta.json",
       `${JSON.stringify(result, null, 2)}\n`,
     );
     expect(remove).toHaveBeenCalledWith(legacyStorageKey);
   });
 
   it("ノートごとの last opened session を storage から読む", () => {
-    const filePath = "MFDI/Inbox.mfdi.md";
+    const filePath = "dstr/Inbox.dstr.md";
     const { storage } = createMockStorage({
       [`${STORAGE_KEYS.FIXED_SESSION_LAST_OPENED}:${encodeURIComponent(filePath)}`]: 7,
     });
@@ -128,7 +136,7 @@ describe("fixed-session-storage", () => {
   });
 
   it("ノートごとの last opened session を storage に書く", () => {
-    const filePath = "MFDI/Inbox.mfdi.md";
+    const filePath = "dstr/Inbox.dstr.md";
     const { storage } = createMockStorage();
 
     writeLastOpenedFixedSessionNumber(storage, filePath, 3);

@@ -1,7 +1,7 @@
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { syncStoreFromMFDIViewState } from "src/features/workspace/views/sync-store-from-view-state";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { syncStoreFromDSTRViewState } from "src/features/workspace/views/sync-store-from-view-state";
 import { describe, expect, it, vi } from "vitest";
 
 function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState"]>>) {
@@ -46,10 +46,10 @@ function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState
   return { state, store };
 }
 
-describe("syncStoreFromMFDIViewState", () => {
+describe("syncStoreFromDSTRViewState", () => {
   it("restores a fixed note session number without reapplying periodic UI state", () => {
     const { state, store } = createMockStore();
-    const viewState: MFDIViewState = {
+    const viewState: DSTRViewState = {
       displayMode: "focus",
       granularity: "day",
       asTask: false,
@@ -60,14 +60,14 @@ describe("syncStoreFromMFDIViewState", () => {
       searchQuery: "",
       activeTopic: "",
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDSTRViewState(store, viewState);
 
     expect(state.fixedSessionNumber).toBe(4);
     expect(state.viewNoteMode).toBe("fixed");
-    expect(state.file).toBe("MFDI/Inbox.mfdi.md");
+    expect(state.file).toBe("dstr/Inbox.dstr.md");
     expect(state.displayMode).toBe("focus");
     expect(state.granularity).toBe("day");
     expect(state.dateFilter).toBe("all");
@@ -78,7 +78,7 @@ describe("syncStoreFromMFDIViewState", () => {
     expect(state.threadFocusRootId).toBeNull();
     expect(state.setViewContext).toHaveBeenCalledWith({
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
       fixedSessionNumber: 4,
     });
   });
@@ -87,9 +87,9 @@ describe("syncStoreFromMFDIViewState", () => {
     const { state, store } = createMockStore({
       fixedSessionNumber: 8,
       viewNoteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     });
-    const viewState: MFDIViewState = {
+    const viewState: DSTRViewState = {
       displayMode: "timeline",
       granularity: "day",
       asTask: false,
@@ -103,7 +103,7 @@ describe("syncStoreFromMFDIViewState", () => {
       file: null,
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDSTRViewState(store, viewState);
 
     expect(state.fixedSessionNumber).toBe(1);
     expect(state.viewNoteMode).toBe("periodic");
@@ -117,7 +117,7 @@ describe("syncStoreFromMFDIViewState", () => {
 
   it("restores a periodic view's main tab without using the vault-wide preference", () => {
     const { state, store } = createMockStore();
-    const viewState: MFDIViewState = {
+    const viewState: DSTRViewState = {
       displayMode: "timeline",
       granularity: "day",
       asTask: false,
@@ -132,7 +132,7 @@ describe("syncStoreFromMFDIViewState", () => {
       mainView: MAIN_VIEW.DATE,
     };
 
-    syncStoreFromMFDIViewState(store, viewState);
+    syncStoreFromDSTRViewState(store, viewState);
 
     expect(state.mainView).toBe(MAIN_VIEW.DATE);
     expect(state.displayMode).toBe("focus");

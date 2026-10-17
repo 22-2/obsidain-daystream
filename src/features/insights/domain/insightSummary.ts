@@ -1,5 +1,5 @@
 // 意図: UIから独立した集計規則をfeatureのdomain層に置き、画面とhookで共有する。
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 
 const MONTH_KEYS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
 const WEEKDAY_COUNT = 7;

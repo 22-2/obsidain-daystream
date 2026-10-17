@@ -6,7 +6,7 @@ import { filterPostsByRelativeWindow } from "src/features/posts/utils/post-filte
 import { getPostTags, isPinned, isVisible } from "src/core/domain/post-metadata";
 import { getThreadPosts, isVisibleRootPost, sortThreadPosts } from "src/features/posts/utils/thread-utils";
 import { isThreadView, isTimelineView } from "src/features/workspace/utils/view-mode";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 
 interface UseFilteredPostsProps {
   posts: Post[];
@@ -17,7 +17,7 @@ interface UseFilteredPostsProps {
   granularity: Granularity;
   displayMode: DisplayMode;
   threadFocusRootId: string | null;
-  viewNoteMode?: MFDINoteMode;
+  viewNoteMode?: DSTRNoteMode;
   includeThreadReplies?: boolean;
 }
 

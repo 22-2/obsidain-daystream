@@ -7,8 +7,8 @@ import { setConsolaLevel } from "src/core/logger";
 import { createFixedNoteFromInput } from "src/core/note-source";
 import type { Topic } from "src/core/topic";
 import { WorkerClient } from "src/core/db/worker-client";
-import { extension as mfdiBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
-import { findExistingMFDILeaf } from "src/features/notes/extensions/fixed-note-view-extension";
+import { extension as dstrBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
+import { findExistingDSTRLeaf } from "src/features/notes/extensions/fixed-note-view-extension";
 import {
   ACTIVITY_PROMPT_TEXT,
   createActivityPromptNotificationScheduler,
@@ -20,22 +20,30 @@ import {
   DEFAULT_SETTINGS,
   normalizeCtrlEnterSendMode,
 } from "src/core/domain/settings";
-import { MFDISettingTab } from "src/features/settings/MFDISettingTab";
+import { DSTRSettingTab } from "src/features/settings/DSTRSettingTab";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { watchElectronPowerState } from "src/core/platform/electron-power";
 import { restoreAndFocusElectronWindow } from "src/core/platform/electron-window";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { showInputModal } from "src/features/composer/modals/InputModal";
 import { TopicManagerModal } from "src/features/notes/modals/TopicManagerModal";
-import { MFDIEditorView } from "src/features/composer/views/MFDIEditorView";
-import { MFDIView, VIEW_TYPE_MFDI } from "src/features/workspace/views/MFDIView";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/features/workspace/views/state";
+import {
+  DSTREditorView,
+  LegacyDSTREditorView,
+} from "src/features/composer/views/DSTREditorView";
+import {
+  DSTRView,
+  LegacyDSTRView,
+} from "src/features/workspace/views/DSTRView";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
-export default class MFDIPlugin extends Plugin {
+export default class DSTRPlugin extends Plugin {
   shell: ObsidianAppShell;
   declare settings: Settings;
-  view?: MFDIView;
-  private readonly views = new Set<MFDIView>();
+  view?: DSTRView;
+  private readonly views = new Set<DSTRView>();
   private activityPromptScheduler: ActivityPromptNotificationScheduler | null = null;
   private activityPromptNotificationsReady = false;
   private activityPromptNotificationsPaused = false;
@@ -65,12 +73,12 @@ export default class MFDIPlugin extends Plugin {
     // custom view の登録に必要な settings はまず default で即時に立てる。
     this.settings = this.createBootstrapSettings();
 
-    this.registerEditorExtension(mfdiBottomPaddingExtension);
+    this.registerEditorExtension(dstrBottomPaddingExtension);
 
-    this.addSettingTab(new MFDISettingTab(this.app, this));
+    this.addSettingTab(new DSTRSettingTab(this.app, this));
 
     // 意図: workspace 復元時に custom view/type 変換が既に登録済みでないと、
-    // 起動直後の leaf 復元で mfdi-view を解決できず、固定ノートタブを取りこぼす。
+    // 起動直後の leaf 復元で custom view を解決できず、固定ノートタブを取りこぼす。
     this.activateBuiltinRegistry();
 
     await this.loadSettings();
@@ -97,7 +105,29 @@ export default class MFDIPlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       // Worker 初期化は非同期に開始（失敗はログのみ）。
       void this.initializeWorker();
+      void this.migrateLegacyWorkspaceViews().catch((error) => {
+        console.error("Failed to migrate saved Daystream views:", error);
+      });
     });
+  }
+
+  private async migrateLegacyWorkspaceViews(): Promise<void> {
+    const workspace = this.app.workspace;
+    const viewTypeMigrations = [
+      [LEGACY_DAYSTREAM_IDENTIFIERS.viewType, VIEW_TYPE_DSTR],
+      [LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType, VIEW_TYPE_DSTR_EDITOR],
+    ] as const;
+
+    for (const [legacyType, currentType] of viewTypeMigrations) {
+      for (const leaf of [...workspace.getLeavesOfType(legacyType)]) {
+        const state = leaf.getViewState();
+        await leaf.setViewState({
+          ...state,
+          type: currentType,
+          active: workspace.activeLeaf === leaf,
+        });
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -118,7 +148,7 @@ export default class MFDIPlugin extends Plugin {
     this.settings.files = [...this.settings.files, { path: fixedNote.path }];
     await this.saveSettings();
 
-    const leaf = await this.attachMFDIView(createFixedNoteViewState(fixedNote.path));
+    const leaf = await this.attachDSTRView(createFixedNoteViewState(fixedNote.path));
     if (leaf) this.app.workspace.revealLeaf(leaf);
   }
 
@@ -139,11 +169,15 @@ export default class MFDIPlugin extends Plugin {
       registerView: (type, viewCreator) => this.registerView(type, viewCreator),
       addRibbonIcon: (icon, title, callback) => this.addRibbonIcon(icon, title, callback),
       addCommand: (command) => this.addCommand(command),
-      getMFDISubmitCallback: () => this.getActiveMFDIView()?.actionDelegates.onSubmit,
-      getMFDIInputSnapshot: () =>
-        this.getActiveMFDIView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
-      createMFDIView: (leaf) => {
-        const view = new MFDIView(leaf, this.settings, async (mode) => {
+      getDSTRSubmitCallback: () => this.getActiveDSTRView()?.actionDelegates.onSubmit,
+      getDSTRInputSnapshot: () =>
+        this.getActiveDSTRView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
+      createDSTRView: (leaf, viewType) => {
+        const ViewClass =
+          viewType === LEGACY_DAYSTREAM_IDENTIFIERS.viewType
+            ? LegacyDSTRView
+            : DSTRView;
+        const view = new ViewClass(leaf, this.settings, async (mode) => {
           this.settings.editorExpansionMode = mode;
           await this.saveSettings();
           this.rerenderView();
@@ -153,28 +187,31 @@ export default class MFDIPlugin extends Plugin {
         this.setupViewCallbacks(view);
         return view;
       },
-      createMFDIEditorView: (leaf) => new MFDIEditorView(leaf, this.settings),
+      createDSTREditorView: (leaf, viewType) =>
+        viewType === LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType
+          ? new LegacyDSTREditorView(leaf, this.settings)
+          : new DSTREditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
-      attachMFDIView: (state, preferredLeaf) => this.attachMFDIView(state, preferredLeaf),
+      attachDSTRView: (state, preferredLeaf) => this.attachDSTRView(state, preferredLeaf),
     };
 
     activateBuiltins(context, this.shell.getAppId());
   }
 
   // leaf 探索込みの setViewState ラッパー。同一条件の leaf が既に存在する場合は再利用する。
-  async attachMFDIView(
-    state: Partial<MFDIViewState> = DEFAULT_MFDI_VIEW_STATE,
+  async attachDSTRView(
+    state: Partial<DSTRViewState> = DEFAULT_DSTR_VIEW_STATE,
     preferredLeaf?: WorkspaceLeaf,
   ): Promise<WorkspaceLeaf | undefined> {
-    const mergedState = { ...DEFAULT_MFDI_VIEW_STATE, ...state };
-    const existing = findExistingMFDILeaf(
-      this.app.workspace.getLeavesOfType(VIEW_TYPE_MFDI),
+    const mergedState = { ...DEFAULT_DSTR_VIEW_STATE, ...state };
+    const existing = findExistingDSTRLeaf(
+      this.app.workspace.getLeavesOfType(VIEW_TYPE_DSTR),
       state,
     );
     const targetLeaf = preferredLeaf ?? existing ?? this.app.workspace.getLeaf(false);
 
     await targetLeaf.setViewState({
-      type: VIEW_TYPE_MFDI,
+      type: VIEW_TYPE_DSTR,
       active: true,
       state: mergedState,
     });
@@ -182,19 +219,19 @@ export default class MFDIPlugin extends Plugin {
     return targetLeaf;
   }
 
-  private getActiveMFDIView(): MFDIView | undefined {
+  private getActiveDSTRView(): DSTRView | undefined {
     const activeView = this.app.workspace.activeLeaf?.view;
     if (!activeView) return undefined;
 
     const viewType = activeView.getViewType();
-    if (viewType !== VIEW_TYPE_MFDI) return undefined;
-    return activeView as MFDIView;
+    if (viewType !== VIEW_TYPE_DSTR) return undefined;
+    return activeView as DSTRView;
   }
 
   /**
-   * MFDIView のコールバックを設定する
+   * DSTRView のコールバックを設定する
    */
-  private setupViewCallbacks(view: MFDIView) {
+  private setupViewCallbacks(view: DSTRView) {
     view.actionDelegates.onTopicSaveRequested = async (topicId: string) => {
       this.settings.activeTopic = topicId;
       await this.saveSettings();
@@ -258,14 +295,14 @@ export default class MFDIPlugin extends Plugin {
   }
 
   private async showActivityPromptComposer(): Promise<void> {
-    const leaf = await this.attachMFDIView({});
+    const leaf = await this.attachDSTRView({});
     if (!leaf) return;
 
     this.app.workspace.revealLeaf(leaf);
 
-    await (leaf.view as MFDIView).waitForReactReady();
+    await (leaf.view as DSTRView).waitForReactReady();
     restoreAndFocusElectronWindow();
-    (leaf.view as MFDIView).actionDelegates.onOpenComposer?.();
+    (leaf.view as DSTRView).actionDelegates.onOpenComposer?.();
   }
 
   async saveSettings(): Promise<void> {

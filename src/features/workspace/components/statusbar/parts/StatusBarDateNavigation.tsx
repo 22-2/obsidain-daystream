@@ -10,14 +10,14 @@ import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
 import { useAppStore } from "src/features/workspace/store/appStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import { getMFDIViewCapabilities } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
 
 export const StatusBarDateNavigation: FC = () => {
   const dateTooltipRef = useObsidianTooltip("表示日");
   const { viewNoteMode } = useAppStore(useShallow((s) => ({ viewNoteMode: s.viewNoteMode })));
   const capabilities = useMemo(
-    () => getMFDIViewCapabilities({ noteMode: viewNoteMode }),
+    () => getDSTRViewCapabilities({ noteMode: viewNoteMode }),
     [viewNoteMode],
   );
   const {
@@ -77,7 +77,7 @@ export const StatusBarDateNavigation: FC = () => {
   if (!capabilities.supportsDateNavigation) return null;
 
   return (
-    <HStack className="mfdi-statusbar-date-bar flex-none gap-1">
+    <HStack className="dstr-statusbar-date-bar flex-none gap-1">
       {/* 意図: ホームも日付操作と同じ並びに置き、背景のないバーで単独に浮いて見えるのを防ぐ。 */}
       <StatusBarHome />
       {isStatusIndicatorVisible ? (
@@ -96,7 +96,7 @@ export const StatusBarDateNavigation: FC = () => {
           ) : (
             <Input
               ref={dateTooltipRef}
-              className={`mfdi-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
+              className={`dstr-date-input h-[32px] text-[length:var(--font-ui-smaller)] pl-[var(--size-4-6)] ${GRANULARITY_CONFIG[granularity].inputWidthClass}`}
               type={GRANULARITY_CONFIG[granularity].inputType}
               value={date.format(GRANULARITY_CONFIG[granularity].inputFormat)}
               onChange={handleChangeDate}

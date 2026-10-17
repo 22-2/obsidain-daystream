@@ -33,7 +33,7 @@ export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
   return (
     <Box
       ref={rootRef}
-      className="markdown-rendered block dark:text-[var(--mfdi-content-color-dark)]"
+      className="markdown-rendered block dark:text-[var(--dstr-content-color-dark)]"
       onClick={(e) => {
         const el = e.target as HTMLElement;
         // 応急処置

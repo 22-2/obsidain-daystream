@@ -1,13 +1,13 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import {
   getDraftMetadataStorageKey,
   getInputStorageKey,
 } from "src/features/composer/store/slices/inputStorage";
-import type { MFDINoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 
 export interface FixedSessionPersistenceState {
-  storage: MFDIStorage | null;
-  viewNoteMode: MFDINoteMode;
+  storage: DSTRStorage | null;
+  viewNoteMode: DSTRNoteMode;
   file: string | null;
 }
 

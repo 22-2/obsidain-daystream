@@ -1,11 +1,13 @@
 import { DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import type { Granularity } from "src/core/domain/granularity";
 import type { DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
-import type { MFDINoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
+import { FILENAME_SUFFIX } from "src/core/fixed-note";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 
-export type { MFDINoteMode } from "src/core/domain/note-mode";
+export type { DSTRNoteMode } from "src/core/domain/note-mode";
 
-interface MFDIViewCapabilities {
+interface DSTRViewCapabilities {
   supportsDateNavigation: boolean;
   supportsDisplayModeSwitch: boolean;
   supportsSidebar: boolean;
@@ -15,7 +17,7 @@ interface MFDIViewCapabilities {
   supportsTags: boolean;
 }
 
-export interface MFDIViewState extends Record<string, unknown> {
+export interface DSTRViewState extends Record<string, unknown> {
   displayMode: DisplayMode;
   granularity: Granularity;
   asTask: boolean;
@@ -25,13 +27,13 @@ export interface MFDIViewState extends Record<string, unknown> {
   dateFilter: DateFilter;
   searchQuery: string;
   activeTopic: string;
-  noteMode: MFDINoteMode;
+  noteMode: DSTRNoteMode;
   file: string | null;
   // タブ選択は vault 全体ではなく、Obsidian の各 view state に保存する。
   mainView?: MainView;
 }
 
-export const DEFAULT_MFDI_VIEW_STATE: MFDIViewState = {
+export const DEFAULT_DSTR_VIEW_STATE: DSTRViewState = {
   displayMode: DISPLAY_MODE.FOCUS,
   granularity: "day",
   asTask: false,
@@ -46,16 +48,16 @@ export const DEFAULT_MFDI_VIEW_STATE: MFDIViewState = {
   mainView: MAIN_VIEW.TIMELINE,
 };
 
-export function createDefaultMFDIViewState(params?: {
-  noteMode?: MFDINoteMode;
+export function createDefaultDSTRViewState(params?: {
+  noteMode?: DSTRNoteMode;
   file?: string | null;
-}): MFDIViewState {
+}): DSTRViewState {
   const { noteMode = "periodic", file = null } = params ?? {};
 
   if (noteMode === "fixed") {
     // fixedノートの既定値をここに集約し、React側の再同期でperiodic既定値へ戻るのを防ぐ。
     return {
-      ...DEFAULT_MFDI_VIEW_STATE,
+      ...DEFAULT_DSTR_VIEW_STATE,
       noteMode,
       file: file,
       displayMode: DISPLAY_MODE.FOCUS,
@@ -65,15 +67,15 @@ export function createDefaultMFDIViewState(params?: {
   }
 
   return {
-    ...DEFAULT_MFDI_VIEW_STATE,
+    ...DEFAULT_DSTR_VIEW_STATE,
     noteMode,
     file: null,
   };
 }
 
-export function getMFDIViewCapabilities(
-  state: Pick<MFDIViewState, "noteMode">,
-): MFDIViewCapabilities {
+export function getDSTRViewCapabilities(
+  state: Pick<DSTRViewState, "noteMode">,
+): DSTRViewCapabilities {
   if (state.noteMode === "fixed") {
     return {
       supportsDateNavigation: false,
@@ -97,8 +99,8 @@ export function getMFDIViewCapabilities(
   };
 }
 
-export function createFixedNoteViewState(filePath: string): MFDIViewState {
-  return createDefaultMFDIViewState({
+export function createFixedNoteViewState(filePath: string): DSTRViewState {
+  return createDefaultDSTRViewState({
     noteMode: "fixed",
     file: filePath,
   });
@@ -107,5 +109,9 @@ export function createFixedNoteViewState(filePath: string): MFDIViewState {
 export function getFixedNoteTitle(path: string | null): string {
   if (!path) return "Fixed Note";
   const segments = path.replace(/\\/g, "/").split("/");
-  return segments[segments.length - 1].replace(/\.mfdi\.md$/, "") || "Fixed Note";
+  const filename = segments[segments.length - 1];
+  const suffix = [FILENAME_SUFFIX, LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix].find((value) =>
+    filename.toLowerCase().endsWith(value),
+  );
+  return (suffix ? filename.slice(0, -suffix.length) : filename) || "Fixed Note";
 }

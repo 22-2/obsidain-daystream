@@ -9,11 +9,11 @@ import {
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
 import { getInputAreaSizeStorageKey } from "src/features/composer/store/slices/inputStorage";
-import type { MFDIStore } from "src/features/workspace/store/slices/types";
+import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
 import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, TimeFilter } from "src/features/workspace/types";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
 
 export interface PersistedNavigationState {
@@ -30,7 +30,7 @@ export interface PersistedNavigationState {
 }
 
 export function persistNavigationState(
-  state: Pick<MFDIStore, "storage" | "mainView">,
+  state: Pick<DSTRStore, "storage" | "mainView">,
   patch: PersistedNavigationState,
 ): void {
   const storage = state.storage;
@@ -60,7 +60,7 @@ export interface PersistedLayoutState {
 }
 
 export function persistLayoutState(
-  state: Pick<MFDIStore, "storage">,
+  state: Pick<DSTRStore, "storage">,
   patch: PersistedLayoutState,
 ): void {
   const storage = state.storage;
@@ -72,7 +72,7 @@ export function persistLayoutState(
 }
 
 type InputAreaPersistenceState = Pick<
-  MFDIStore,
+  DSTRStore,
   "storage" | "viewNoteMode" | "file" | "granularity" | "date"
 >;
 
@@ -106,8 +106,8 @@ export function restoreInputAreaSize(state: InputAreaPersistenceState): InputAre
 
 export function resolveInitialSettingsState(
   settings: Settings,
-  storage: MFDIStore["storage"],
-  viewNoteMode: MFDINoteMode,
+  storage: DSTRStore["storage"],
+  viewNoteMode: DSTRNoteMode,
   file: string | null,
 ) {
   // 編集中投稿が復元できる場合はその粒度・日付を優先する

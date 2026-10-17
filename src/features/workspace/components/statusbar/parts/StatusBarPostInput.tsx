@@ -12,7 +12,7 @@ export const StatusBarPostInput: FC = () => {
 
   return (
     <div
-      className="mfdi-statusbar-post-input flex min-h-10 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-1 transition-colors hover:bg-[var(--background-modifier-hover)]"
+      className="dstr-statusbar-post-input flex min-h-10 w-full cursor-pointer items-center gap-1 rounded-[var(--radius-s)] border border-[var(--background-modifier-border)] bg-transparent px-1 transition-colors hover:bg-[var(--background-modifier-hover)]"
       onClick={openComposer}
     >
       <ObsidianIcon

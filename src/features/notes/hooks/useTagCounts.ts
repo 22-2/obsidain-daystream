@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { subscribeToDBUpdates } from "src/core/db/updates";
-import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
+import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 
 export interface TagCountItem {
   tag: string;
@@ -9,7 +9,7 @@ export interface TagCountItem {
 
 /** タグ一覧をサイドバーと検索ビューで同じ並び・更新タイミングで共有する。 */
 export function useTagCounts(): TagCountItem[] | null {
-  const db = useMFDIDB();
+  const db = useDSTRDB();
   const [items, setItems] = useState<TagCountItem[] | null>(null);
   const [stableItems, setStableItems] = useState<TagCountItem[] | null>(null);
 

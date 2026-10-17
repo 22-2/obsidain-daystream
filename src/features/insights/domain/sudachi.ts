@@ -1,4 +1,4 @@
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import {
   getInsightRecordCacheKey,
   getInsightWordSource,

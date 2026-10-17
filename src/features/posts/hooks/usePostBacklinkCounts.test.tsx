@@ -2,7 +2,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import moment from "moment";
 import React from "react";
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import { usePostBacklinkCounts, usePostBacklinks } from "src/features/posts/hooks/usePostBacklinkCounts";
 import type { Post } from "src/core/domain/post";
 import { SWRConfig } from "swr";
@@ -14,8 +14,8 @@ const mocked = vi.hoisted(() => ({
   activeTopic: "work",
 }));
 
-vi.mock("src/core/db/hooks/useMFDIDB", () => ({
-  useMFDIDB: () => ({
+vi.mock("src/core/db/hooks/useDSTRDB", () => ({
+  useDSTRDB: () => ({
     countMemos: mocked.countMemos,
     getMemos: mocked.getMemos,
   }),

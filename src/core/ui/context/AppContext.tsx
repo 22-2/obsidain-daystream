@@ -1,13 +1,13 @@
 import type { App } from "obsidian";
 import type { ReactNode } from "react";
 import { createContext, useContext, useMemo } from "react";
-import { MFDIStorage } from "src/core/storage";
+import { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 
 interface AppContextValue {
   shell: ObsidianAppShell;
-  storage: MFDIStorage;
+  storage: DSTRStorage;
   settings: Settings;
 }
 
@@ -35,7 +35,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   children,
 }) => {
   const shell = useMemo(() => new ObsidianAppShell(app), [app]);
-  const storage = useMemo(() => new MFDIStorage(shell.getAppId()), [shell]);
+  const storage = useMemo(() => new DSTRStorage(shell.getAppId()), [shell]);
   const value = useMemo<AppContextValue>(
     // 一般ロジックから raw app を見えなくして、依存の漏れを型で止める。
     () => ({ shell, storage, settings }),

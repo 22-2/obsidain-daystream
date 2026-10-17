@@ -1,6 +1,6 @@
 import { Menu } from "obsidian";
 import { useEffect, useMemo, useState } from "react";
-import { useMFDIDB } from "src/core/db/hooks/useMFDIDB";
+import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 import { addGranularityMenuItems } from "src/features/workspace/menus/granularityMenu";
 import { addPeriodMenuItems } from "src/features/workspace/menus/periodMenu";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
@@ -9,12 +9,12 @@ import type { DisplayMode } from "src/features/workspace/types";
 import { isVisible } from "src/core/domain/post-metadata";
 import { countVisibleRootPosts } from "src/features/posts/utils/thread-utils";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import { getMFDIViewCapabilities, type MFDINoteMode } from "src/features/workspace/views/state";
+import { getDSTRViewCapabilities, type DSTRNoteMode } from "src/features/workspace/views/state";
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";
 
 export function useDbTotalCount(activeTopic: string | undefined) {
-  const db = useMFDIDB();
+  const db = useDSTRDB();
   const { data } = useSWR(db ? ["dbTotalCount", activeTopic] : null, () =>
     db!.countMemos(activeTopic),
   );
@@ -111,6 +111,6 @@ export function useCurrentTime(enabled: boolean) {
   return currentTime;
 }
 
-export function useCapabilities(viewNoteMode: MFDINoteMode) {
-  return useMemo(() => getMFDIViewCapabilities({ noteMode: viewNoteMode }), [viewNoteMode]);
+export function useCapabilities(viewNoteMode: DSTRNoteMode) {
+  return useMemo(() => getDSTRViewCapabilities({ noteMode: viewNoteMode }), [viewNoteMode]);
 }

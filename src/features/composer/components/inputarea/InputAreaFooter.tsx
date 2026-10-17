@@ -156,7 +156,7 @@ export const InputAreaFooter: FC<{
 
   return (
     <InputAreaFooterBase
-      className="mfdi-input-area-footer group"
+      className="dstr-input-area-footer group"
       onClick={handleClick}
       canSubmit={canSubmit}
       onSubmit={handleSubmit}

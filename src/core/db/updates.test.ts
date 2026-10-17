@@ -27,15 +27,15 @@ describe("subscribeToDBUpdates", () => {
     const onUpdate = vi.fn();
     const cleanup = subscribeToDBUpdates(onUpdate);
 
-    expect(channel?.name).toBe("mfdi-db-updates");
+    expect(channel?.name).toBe("dstr-db-updates");
     channel?.onmessage?.({ data: { type: "unrelated" } } as MessageEvent<unknown>);
     expect(onUpdate).not.toHaveBeenCalled();
 
     channel?.onmessage?.({
-      data: { type: "mfdi-db-updated", detail: { path: "daily/2026-10-07.md" } },
+      data: { type: "dstr-db-updated", detail: { path: "daily/2026-10-07.md" } },
     } as MessageEvent<unknown>);
     expect(onUpdate).toHaveBeenCalledWith({
-      type: "mfdi-db-updated",
+      type: "dstr-db-updated",
       detail: { path: "daily/2026-10-07.md" },
     });
 

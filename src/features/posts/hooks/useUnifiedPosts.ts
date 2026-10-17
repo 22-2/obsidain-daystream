@@ -4,12 +4,12 @@ import { useInfiniteTimeline } from "src/features/posts/hooks/internal/useInfini
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { DisplayMode } from "src/features/workspace/types";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
 
 export function shouldUseTimelineView(params: {
   displayMode: DisplayMode;
-  viewNoteMode: MFDINoteMode;
+  viewNoteMode: DSTRNoteMode;
 }): boolean {
   const { displayMode, viewNoteMode } = params;
   // fixedノートでは常に単一ノートの一覧を表示したいため、

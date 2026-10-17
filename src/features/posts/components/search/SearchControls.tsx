@@ -25,14 +25,14 @@ export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
   }, [searchInputOpen]);
 
   return (
-    <section className="mfdi-search-controls">
+    <section className="dstr-search-controls">
       <Input
         ref={inputRef}
         type="search"
-        data-testid="mfdi-search-input"
+        data-testid="dstr-search-input"
         value={searchQuery}
         placeholder="本文・URL・タグを検索"
-        className="mfdi-search-controls__input"
+        className="dstr-search-controls__input"
         onFocus={() => setSearchInputOpen(true)}
         onBlur={() => setSearchInputOpen(false)}
         onChange={(event) => setSearchQuery(event.target.value)}
@@ -46,7 +46,7 @@ export const SearchControls: FC<{ onClose: () => void }> = ({ onClose }) => {
       <button
         ref={closeTooltipRef}
         type="button"
-        className="mfdi-search-close"
+        className="dstr-search-close"
         onClick={onClose}
       >
         <ObsidianIcon name="x" size="16px" className="pointer-events-none size-4 p-0" />

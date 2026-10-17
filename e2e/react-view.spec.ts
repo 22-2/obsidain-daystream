@@ -1,21 +1,21 @@
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import type { MFDIView } from "src/features/workspace/views/MFDIView";
+import type { DSTRView } from "src/features/workspace/views/DSTRView";
 import {
   LIVE_EDITOR,
-  mfdiVaultOptions,
+  dstrVaultOptions,
   openHostNote,
-  openMfdiView,
+  openDSTRView,
   setLiveEditorDelegateContent,
 } from "./support";
 
-const HOST_FILE_PATH = "mfdi-e2e-react-host.md";
+const HOST_FILE_PATH = "dstr-e2e-react-host.md";
 
-test.use({ vaultOptions: mfdiVaultOptions({ logLevel: "debug" }) });
+test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 
-async function waitForMFDIReady(obsidian: ObsidianAPI) {
+async function waitForDSTRReady(obsidian: ObsidianAPI) {
   await openHostNote(obsidian, HOST_FILE_PATH);
-  const view = await openMfdiView(obsidian);
+  const view = await openDSTRView(obsidian);
   await expect(
     view.getByRole("tab", { name: "タイムライン", exact: true }),
   ).toHaveAttribute("aria-selected", "true", { timeout: 15000 });
@@ -39,7 +39,7 @@ interface ReactViewDebugSnapshot extends MemoDatabaseSnapshot {
   baseCardCount: number;
   timelineBadgeVisible: boolean;
   activeFilePath: string | null;
-  mfdiLeafCount: number;
+  dstrLeafCount: number;
   displayMode: string | null;
   nowDate: string;
   viewDate: string | null;
@@ -51,9 +51,9 @@ interface ReactViewDebugSnapshot extends MemoDatabaseSnapshot {
 /** Reads the view state and the list DOM in one evaluation, so both describe the same moment. */
 async function getReactViewViewState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     const activeFile = app.workspace.getActiveFile();
-    const viewState = (leaf?.view as MFDIView | undefined)?.getState?.();
+    const viewState = (leaf?.view as DSTRView | undefined)?.getState?.();
     const viewDateValue = viewState?.date;
     const viewDate =
       viewDateValue &&
@@ -62,12 +62,12 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
       typeof viewDateValue.format === "function"
         ? viewDateValue.format("YYYY-MM-DD")
         : null;
-    const debugState = (leaf?.view as MFDIView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
+    const debugState = (leaf?.view as DSTRView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
     const listEl = document.querySelector(".list") as HTMLElement | null;
 
     return {
       activeFilePath: activeFile?.path ?? null,
-      mfdiLeafCount: app.workspace.getLeavesOfType("mfdi-view").length,
+      dstrLeafCount: app.workspace.getLeavesOfType("dstr-view").length,
       displayMode: viewState?.displayMode ?? null,
       viewDate,
       viewActiveTopic: viewState?.activeTopic ?? null,
@@ -87,7 +87,7 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
 /** Reads the memo rows that the view stores in IndexedDB. The database name comes from the app id. */
 async function getMemoDatabaseState(obsidian: ObsidianAPI): Promise<MemoDatabaseSnapshot> {
   const appId = await obsidian.evaluateApp(() => {
-    const plugin = app.plugins.getPlugin("mobile-first-daily-interface") as {
+    const plugin = app.plugins.getPlugin("dstr") as {
       shell?: { getAppId?: () => string };
     } | null;
     return plugin?.shell?.getAppId?.() ?? null;
@@ -105,7 +105,7 @@ async function getMemoDatabaseState(obsidian: ObsidianAPI): Promise<MemoDatabase
     }
 
     try {
-      const dbName = `${currentAppId}-mfdi-db`;
+      const dbName = `${currentAppId}-dstr-db`;
       const opened = await new Promise<IDBDatabase>((resolve, reject) => {
         const request = indexedDB.open(dbName);
         request.onsuccess = () => resolve(request.result);
@@ -173,9 +173,9 @@ async function expectListContainsMessage(obsidian: ObsidianAPI, message: string,
     });
 }
 
-test.describe("MFDI react view e2e", () => {
+test.describe("Daystream react view e2e", () => {
   test("ビュー表示中に日付が変わって新規日次ノート作成後も投稿がリストに表示される", async ({ obsidian }) => {
-    await waitForMFDIReady(obsidian);
+    await waitForDSTRReady(obsidian);
 
     const dateShift = await obsidian.evaluateApp(() => {
       const now = window.moment();
@@ -210,7 +210,7 @@ test.describe("MFDI react view e2e", () => {
     await expectListContainsMessage(obsidian, message, 15000);
 
     await obsidian.closeTab();
-    await openMfdiView(obsidian);
+    await openDSTRView(obsidian);
 
     await expectListContainsMessage(obsidian, message, 15000);
   });

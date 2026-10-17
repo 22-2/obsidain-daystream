@@ -2,7 +2,7 @@ import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
 import type { MainView } from "src/features/workspace/types";
-import type { MFDINoteMode } from "src/features/workspace/views/state";
+import type { DSTRNoteMode } from "src/features/workspace/views/state";
 
 const TABS: Array<{
   value: MainView;
@@ -33,20 +33,20 @@ const TABS: Array<{
 
 export const MainViewTabs: React.FC<{
   value: MainView;
-  noteMode: MFDINoteMode;
+  noteMode: DSTRNoteMode;
   onChange: (value: MainView) => void;
 }> = ({ value, noteMode, onChange }) => {
   const tabs = TABS.filter((tab) => noteMode === "periodic" || !tab.periodicOnly);
 
   return (
-    <nav className="mfdi-main-view-tabs" role="tablist">
+    <nav className="dstr-main-view-tabs" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.value}
           type="button"
           role="tab"
           aria-selected={value === tab.value}
-          className={cn("mfdi-main-view-tabs__tab", value === tab.value && "is-active")}
+          className={cn("dstr-main-view-tabs__tab", value === tab.value && "is-active")}
           onClick={() => onChange(tab.value)}
         >
           <ObsidianIcon name={tab.icon} size="16px" className="pointer-events-none size-4 p-0" />

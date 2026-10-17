@@ -1,4 +1,6 @@
 import type { Granularity } from "src/core/domain/granularity";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+import { getDSTRThreadId, normalizeDSTRMetadata } from "src/core/metadata";
 
 // ---------------------------------------------------------------------------
 // Record types
@@ -35,8 +37,12 @@ export interface TagStatRecord {
   updatedAt: string;
 }
 
-function getMFDIDatabaseName(appId: string): string {
-  return `${appId}-mfdi-db`;
+function getDSTRDatabaseName(appId: string): string {
+  return `${appId}-dstr-db`;
+}
+
+function getLegacyDatabaseName(appId: string): string {
+  return `${appId}${LEGACY_DAYSTREAM_IDENTIFIERS.databaseSuffix}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -85,7 +91,7 @@ function cursorAll<T>(
 function isThreadRootMemo(memo: MemoRecord): boolean {
   try {
     const parsed = JSON.parse(memo.metadataJson) as Record<string, unknown>;
-    const threadId = parsed.mfdiId;
+    const threadId = getDSTRThreadId(parsed as Record<string, string>);
     const parentId = parsed.parentId;
     return (
       typeof threadId === "string" && threadId.length > 0 && (parentId == null || parentId === "")
@@ -349,9 +355,10 @@ const DB_VERSION = 7;
  * 3. 複数の Repository が同じトランザクションを共有できるよう、`_activeTx` による簡易的な
  *    トランザクション再利用（ネスト風の挙動）を実装しています。これにより、原子性を担保します。
  */
-export class MFDIDatabase {
+export class DSTRDatabase {
   private readonly _db: Promise<IDBDatabase>;
   private readonly _name: string;
+  private readonly _legacyName: string;
   private _txStack: IDBTransaction[] = [];
 
   // store accessor インスタンスは一度だけ生成する
@@ -360,7 +367,8 @@ export class MFDIDatabase {
   public readonly tagStats: TagStatStore;
 
   constructor(appId: string) {
-    this._name = getMFDIDatabaseName(appId);
+    this._name = getDSTRDatabaseName(appId);
+    this._legacyName = getLegacyDatabaseName(appId);
     // インスタンス作成時に Promise を初期化
     this._db = this.openDatabase();
 
@@ -620,12 +628,86 @@ export class MFDIDatabase {
 
       openReq.onupgradeneeded = () => {
         const db = openReq.result;
-        MFDIDatabase.migrate(db, openReq.transaction!);
+        DSTRDatabase.migrate(db, openReq.transaction!);
       };
 
-      openReq.onsuccess = () => resolve(openReq.result);
+      openReq.onsuccess = () => {
+        const db = openReq.result;
+        void this.migrateLegacyDatabase(db).then(() => resolve(db), reject);
+      };
       openReq.onerror = () => reject(openReq.error);
     });
+  }
+
+  private async migrateLegacyDatabase(db: IDBDatabase): Promise<void> {
+    const currentStoreNames = ["memos", "meta", "tagStats"].filter((name) =>
+      db.objectStoreNames.contains(name),
+    );
+    const currentCounts = await Promise.all(
+      currentStoreNames.map((name) => {
+        const transaction = db.transaction(name, "readonly");
+        return req(transaction.objectStore(name).count());
+      }),
+    );
+    if (currentCounts.some((count) => count > 0)) return;
+
+    const factory = indexedDB as IDBFactory & {
+      databases?: () => Promise<Array<{ name?: string }>>;
+    };
+    const databases = await factory.databases?.();
+    if (!databases?.some((database) => database.name === this._legacyName)) return;
+
+    const legacyOpenReq = indexedDB.open(this._legacyName);
+    const legacyDb = await new Promise<IDBDatabase>((resolve, reject) => {
+      legacyOpenReq.onsuccess = () => resolve(legacyOpenReq.result);
+      legacyOpenReq.onerror = () => reject(legacyOpenReq.error);
+    });
+
+    try {
+      const storeNames = ["memos", "meta", "tagStats"].filter(
+        (name) => db.objectStoreNames.contains(name) && legacyDb.objectStoreNames.contains(name),
+      );
+      if (storeNames.length === 0) return;
+
+      const recordsByStore = await Promise.all(
+        storeNames.map(async (name) => {
+          const transaction = legacyDb.transaction(name, "readonly");
+          return req(transaction.objectStore(name).getAll()) as Promise<
+            Array<Record<string, unknown>>
+          >;
+        }),
+      );
+      const memoIndex = storeNames.indexOf("memos");
+      if (memoIndex >= 0) {
+        recordsByStore[memoIndex] = recordsByStore[memoIndex].map((record) => {
+          if (typeof record.metadataJson !== "string") return record;
+          try {
+            return {
+              ...record,
+              metadataJson: JSON.stringify(
+                normalizeDSTRMetadata(JSON.parse(record.metadataJson) as Record<string, string>),
+              ),
+            };
+          } catch {
+            return record;
+          }
+        });
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(storeNames, "readwrite");
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () =>
+          reject(transaction.error ?? new Error("Database migration aborted"));
+        storeNames.forEach((name, index) => {
+          const store = transaction.objectStore(name);
+          recordsByStore[index].forEach((record) => store.put(record));
+        });
+      });
+    } finally {
+      legacyDb.close();
+    }
   }
 
   /** スキーママイグレーション（onupgradeneeded から切り出し） */

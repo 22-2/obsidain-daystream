@@ -1,10 +1,10 @@
-import type { MFDIDatabase } from "src/core/db/mfdi-db";
+import type { DSTRDatabase } from "src/core/db/dstr-db";
 
 // ---------------------------------------------------------------------------
 // TagStatsManager — encapsulates all tag-count bookkeeping
 // ---------------------------------------------------------------------------
 export class TagStatsManager {
-  constructor(private readonly db: MFDIDatabase) {}
+  constructor(private readonly db: DSTRDatabase) {}
 
   /** Full rebuild from the current memos table. */
   async rebuild(): Promise<void> {

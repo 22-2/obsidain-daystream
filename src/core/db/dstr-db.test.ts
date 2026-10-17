@@ -1,12 +1,12 @@
-import { MFDIDatabase, type MemoRecord } from "src/core/db/mfdi-db";
+import { DSTRDatabase, type MemoRecord } from "src/core/db/dstr-db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("MFDIDatabase", () => {
-  let db: MFDIDatabase;
+describe("DSTRDatabase", () => {
+  let db: DSTRDatabase;
 
   beforeEach(async () => {
     vi.useRealTimers();
-    db = new MFDIDatabase("test-app");
+    db = new DSTRDatabase("test-app");
     await db.open();
   });
 

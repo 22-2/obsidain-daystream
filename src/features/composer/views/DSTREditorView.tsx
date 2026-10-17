@@ -3,26 +3,28 @@ import { ItemView, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import type { Settings } from "src/core/domain/settings";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+import { VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { EditorOnlyReactView } from "src/features/composer/components/EditorOnlyReactView";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
 import "src/core/ui/styles/global.css";
-import "src/core/ui/styles/mfdi.css";
+import "src/core/ui/styles/dstr.css";
 
-export const VIEW_TYPE_MFDI_EDITOR = "mfdi-editor-view";
+export { VIEW_TYPE_DSTR_EDITOR };
 
 // popout ウィンドウへ渡すシリアライズ済みの状態
 // Post の Moment フィールドは ISO 文字列に変換して Record 互換にする
-export interface MFDIEditorViewState extends Record<string, unknown> {
+export interface DSTREditorViewState extends Record<string, unknown> {
   postInfo?: PersistedEditingPost;
   message?: string;
   draftMetadata?: Record<string, string>;
   draftMetadataBase?: Record<string, string>;
 }
 
-export class MFDIEditorView extends ItemView {
+export class DSTREditorView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private state: MFDIEditorViewState | null = null;
+  private state: DSTREditorViewState | null = null;
   // popout ウィンドウでは navigation ヘッダが不要
   public navigation: boolean = false;
 
@@ -40,11 +42,12 @@ export class MFDIEditorView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_MFDI_EDITOR;
+    // 意図: Obsidian の基底コンストラクタからも呼ばれるため、インスタンス初期化前に確定する型を返す。
+    return VIEW_TYPE_DSTR_EDITOR;
   }
 
   getDisplayText(): string {
-    return "MFDI エディタ";
+    return "Daystream エディタ";
   }
 
   async onOpen(): Promise<void> {
@@ -63,13 +66,13 @@ export class MFDIEditorView extends ItemView {
   // State management
   // -----------------------------------------------------------------------
 
-  async setState(state: MFDIEditorViewState): Promise<void> {
+  async setState(state: DSTREditorViewState): Promise<void> {
     this.state = state;
     this.setupView();
   }
 
-  getState(): MFDIEditorViewState {
-    return this.state || ({} as MFDIEditorViewState);
+  getState(): DSTREditorViewState {
+    return this.state || ({} as DSTREditorViewState);
   }
 
   // -----------------------------------------------------------------------
@@ -88,5 +91,11 @@ export class MFDIEditorView extends ItemView {
         initialState={this.state}
       />,
     );
+  }
+}
+
+export class LegacyDSTREditorView extends DSTREditorView {
+  override getViewType(): string {
+    return LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType;
   }
 }

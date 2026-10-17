@@ -70,7 +70,7 @@ function YearTabs({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="mfdi-insight-years" role="tablist">
+    <div className="dstr-insight-years" role="tablist">
       <button
         type="button"
         role="tab"
@@ -106,7 +106,7 @@ function InsightCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className={`mfdi-insight-card ${className ?? ""}`}>
+    <section className={`dstr-insight-card ${className ?? ""}`}>
       <h2>{title}</h2>
       {children}
     </section>
@@ -123,7 +123,7 @@ function Stat({
   detail?: string;
 }) {
   return (
-    <div className="mfdi-insight-stat">
+    <div className="dstr-insight-stat">
       <span>{label}</span>
       <strong>{typeof value === "number" ? formatNumber(value) : value}</strong>
       {detail ? <small>{detail}</small> : null}
@@ -152,13 +152,13 @@ function AnnualActivity({
   const max = Math.max(1, ...cells.map((cell) => cell.count));
 
   return (
-    <InsightCard title="年間アクティビティ" className="mfdi-insight-card--activity">
-      <div className="mfdi-insight-card__meta">
+    <InsightCard title="年間アクティビティ" className="dstr-insight-card--activity">
+      <div className="dstr-insight-card__meta">
         <strong>{displayYear ?? "—"}</strong>
         <YearTabs summary={summary} value={year} onChange={onYearChange} />
       </div>
       <div
-        className="mfdi-activity-grid"
+        className="dstr-activity-grid"
         ref={(element) => {
           if (element) setTooltip(element, `${displayYear ?? ""}年の活動量`);
         }}
@@ -175,7 +175,7 @@ function AnnualActivity({
           />
         ))}
       </div>
-      <small className="mfdi-insight-muted">{displayYear ? `${displayYear}-01-01` : "—"}</small>
+      <small className="dstr-insight-muted">{displayYear ? `${displayYear}-01-01` : "—"}</small>
     </InsightCard>
   );
 }
@@ -187,14 +187,14 @@ function WeekdayHourHeatmap({ summary, year }: { summary: InsightSummary; year: 
   return (
     <InsightCard title="時間帯×曜日">
       <div
-        className="mfdi-time-heatmap"
+        className="dstr-time-heatmap"
         ref={(element) => {
           if (element) setTooltip(element, "時間帯と曜日ごとの投稿数");
         }}
       >
-        <div className="mfdi-time-heatmap__axis" />
+        <div className="dstr-time-heatmap__axis" />
         {Array.from({ length: 24 }, (_, hour) => (
-          <span key={hour} className="mfdi-time-heatmap__hour">
+          <span key={hour} className="dstr-time-heatmap__hour">
             {hour % 6 === 0 ? hour : ""}
           </span>
         ))}
@@ -209,7 +209,7 @@ function WeekdayHourHeatmap({ summary, year }: { summary: InsightSummary; year: 
 function FragmentRow({ label, values, max }: { label: string; values: number[]; max: number }) {
   return (
     <>
-      <span className="mfdi-time-heatmap__day">{label}</span>
+      <span className="dstr-time-heatmap__day">{label}</span>
       {Array.from({ length: 24 }, (_, hour) => {
         const count = values?.[hour] ?? 0;
         return (
@@ -229,7 +229,7 @@ function FragmentRow({ label, values, max }: { label: string; values: number[]; 
 function MiniBars({ values }: { values: number[] }) {
   const max = Math.max(1, ...values);
   return (
-    <div className="mfdi-mini-bars" aria-hidden="true">
+    <div className="dstr-mini-bars" aria-hidden="true">
       {values.map((value, index) => (
         <span key={index} style={{ height: `${value ? Math.max(8, (value / max) * 100) : 2}%` }} />
       ))}
@@ -243,8 +243,8 @@ function MonthlyTrends({ stats }: { stats: InsightMonthStat[] }) {
   const imageRates = stats.map((item) => item.imageRate);
   const referenceRates = stats.map((item) => item.referenceRate);
   return (
-    <InsightCard title="スタイルの推移（月次）" className="mfdi-insight-card--trends">
-      <div className="mfdi-insight-trend-grid">
+    <InsightCard title="スタイルの推移（月次）" className="dstr-insight-card--trends">
+      <div className="dstr-insight-trend-grid">
         <Trend title="投稿数" values={posts} suffix="件" />
         <Trend title="平均文字数" values={averageCharacters} suffix="字" />
         <Trend title="画像率" values={imageRates} suffix="%" />
@@ -257,8 +257,8 @@ function MonthlyTrends({ stats }: { stats: InsightMonthStat[] }) {
 function Trend({ title, values, suffix }: { title: string; values: number[]; suffix: string }) {
   const latest = values.at(-1) ?? 0;
   return (
-    <div className="mfdi-insight-trend">
-      <div className="mfdi-insight-trend__header">
+    <div className="dstr-insight-trend">
+      <div className="dstr-insight-trend__header">
         <span>{title}</span>
         <strong>
           {formatNumber(latest)}
@@ -281,9 +281,9 @@ function Overview({
 }) {
   const selectedStats = summary.monthlyStats[year === "all" ? summary.years[0] : year] ?? [];
   return (
-    <div className="mfdi-insight-sections">
+    <div className="dstr-insight-sections">
       <InsightCard title="記録">
-        <div className="mfdi-insight-stats">
+        <div className="dstr-insight-stats">
           <Stat label="最長連続投稿日数" value={`${summary.longestStreak} 日`} />
           <Stat label="現在の連続投稿日数" value={`${summary.currentStreak} 日`} />
           <Stat label="最初の投稿日" value={formatDate(summary.firstDate)} />
@@ -308,10 +308,10 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
   const maxWord = Math.max(1, ...words.map((item) => item.count));
 
   return (
-    <div className="mfdi-insight-sections">
+    <div className="dstr-insight-sections">
       <InsightCard title="語トレンド">
         <form
-          className="mfdi-word-search"
+          className="dstr-word-search"
           onSubmit={(event) => {
             event.preventDefault();
             setQuery(input);
@@ -327,7 +327,7 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
           </Button>
         </form>
         {query ? (
-          <div className="mfdi-word-trend">
+          <div className="dstr-word-trend">
             {trend.map((item) => (
               <div
                 key={item.word}
@@ -345,22 +345,22 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
             ))}
           </div>
         ) : (
-          <p className="mfdi-insight-muted">語を入力して「表示」を押してください。</p>
+          <p className="dstr-insight-muted">語を入力して「表示」を押してください。</p>
         )}
       </InsightCard>
 
-      <InsightCard title="頻出語" className="mfdi-insight-card--words">
-        <div className="mfdi-insight-card__meta">
+      <InsightCard title="頻出語" className="dstr-insight-card--words">
+        <div className="dstr-insight-card__meta">
           <span>{year === "all" ? "すべて" : year}</span>
           <span>{formatNumber(words.length)}語</span>
         </div>
-        <div className="mfdi-word-list">
+        <div className="dstr-word-list">
           {words.map((item, index) => (
-            <div key={item.word} className="mfdi-word-list__item">
-              <span className="mfdi-word-list__rank">{index + 1}</span>
+            <div key={item.word} className="dstr-word-list__item">
+              <span className="dstr-word-list__rank">{index + 1}</span>
               <strong>{item.word}</strong>
               <span
-                className="mfdi-word-list__bar"
+                className="dstr-word-list__bar"
                 style={{
                   width: `${Math.max(3, (item.count / maxWord) * 100)}%`,
                 }}
@@ -371,8 +371,8 @@ function Words({ summary, year }: { summary: InsightSummary; year: string }) {
         </div>
       </InsightCard>
 
-      <InsightCard title="リンクドメイン" className="mfdi-insight-card--compact">
-        <div className="mfdi-insight-ranking">
+      <InsightCard title="リンクドメイン" className="dstr-insight-card--compact">
+        <div className="dstr-insight-ranking">
           {domains.map((item) => (
             <div key={item.word}>
               <span>{item.word}</span>
@@ -401,13 +401,13 @@ export const InsightView: React.FC = () => {
   );
 
   return (
-    <div className="mfdi-insight-view">
-      <header className="mfdi-insight-header">
+    <div className="dstr-insight-view">
+      <header className="dstr-insight-header">
         <div>
           <h1>インサイト</h1>
           <small>{selectedLabel}</small>
         </div>
-        <div className="mfdi-insight-tabs" role="tablist">
+        <div className="dstr-insight-tabs" role="tablist">
           <button
             type="button"
             role="tab"
@@ -430,15 +430,15 @@ export const InsightView: React.FC = () => {
       </header>
 
       {loading && !summary ? (
-        <div className="mfdi-insight-loading">
+        <div className="dstr-insight-loading">
           <Spinner className="size-6" />
           集計中…
         </div>
       ) : error ? (
-        <div className="mfdi-insight-empty">インサイトを読み込めませんでした。</div>
+        <div className="dstr-insight-empty">インサイトを読み込めませんでした。</div>
       ) : summary && summary.totalPosts > 0 ? (
         <>
-          <div className="mfdi-insight-filter-row">
+          <div className="dstr-insight-filter-row">
             <YearTabs summary={summary} value={year} onChange={setYear} />
           </div>
           {tab === "overview" ? (
@@ -448,7 +448,7 @@ export const InsightView: React.FC = () => {
           )}
         </>
       ) : (
-        <div className="mfdi-insight-empty">まだ集計できる投稿がありません。</div>
+        <div className="dstr-insight-empty">まだ集計できる投稿がありません。</div>
       )}
     </div>
   );

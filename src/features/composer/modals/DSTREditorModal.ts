@@ -8,7 +8,7 @@ import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { InputAreaFooterBase } from "src/features/composer/components/inputarea/InputAreaFooterBase";
 import { PLACEHOLDER_TEXT } from "src/features/workspace/config/constants";
 
-export interface MFDIEditorModalOptions {
+export interface DSTREditorModalOptions {
   initialContent: string;
   onChange: (content: string) => void;
   onClose: (content: string) => void;
@@ -26,8 +26,8 @@ type EditorWithMousePosition = {
   focus: () => void;
 };
 
-export class MFDIEditorModal extends ModalEditor {
-  private readonly modalOptions: MFDIEditorModalOptions;
+export class DSTREditorModal extends ModalEditor {
+  private readonly modalOptions: DSTREditorModalOptions;
   private readonly submissionState: { submitted: boolean };
   private footerRoot: Root | null = null;
   private unsubscribeContent: (() => void) | null = null;
@@ -48,7 +48,7 @@ export class MFDIEditorModal extends ModalEditor {
     });
   };
 
-  constructor(app: App, options: MFDIEditorModalOptions) {
+  constructor(app: App, options: DSTREditorModalOptions) {
     const submissionState = { submitted: false };
     super(app, {
       initialContent: options.initialContent,
@@ -60,7 +60,7 @@ export class MFDIEditorModal extends ModalEditor {
     });
     this.modalOptions = options;
     this.submissionState = submissionState;
-    this.modalEl.addClass("mfdi-modal-editor");
+    this.modalEl.addClass("dstr-modal-editor");
 
     this.scope = new Scope(this.app.scope as Scope);
     const close = () => {
@@ -79,7 +79,7 @@ export class MFDIEditorModal extends ModalEditor {
     this.contentEl.addEventListener("mousedown", this.handleSizerMouseDown, true);
 
     const footer = this.contentEl.createDiv({
-      cls: "mfdi-editor-modal__footer",
+      cls: "dstr-editor-modal__footer",
     });
     this.footerRoot = createRoot(footer);
     this.unsubscribeContent = this.subscribeContent((content) => {
@@ -95,7 +95,7 @@ export class MFDIEditorModal extends ModalEditor {
 
     this.footerRoot.render(
       createElement(InputAreaFooterBase, {
-        className: "mfdi-input-area-footer mfdi-editor-modal__footer-content pl-0 pt-0",
+        className: "dstr-input-area-footer dstr-editor-modal__footer-content pl-0 pt-0",
         actionsPlacement: "start",
         submitButtonClassName:
           "h-8 w-12 border-0 bg-transparent p-1 shadow-none hover:bg-transparent disabled:bg-transparent",

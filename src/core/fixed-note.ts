@@ -1,8 +1,9 @@
 import { normalizePath, TFile } from "obsidian";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { ensureExtension } from "src/core/path";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 
-export const FILENAME_SUFFIX = ".mfdi.md";
+export const FILENAME_SUFFIX = ".dstr.md";
 export const UNTITLED_FILENAME = `Untitled`;
 
 // --- ユーティリティ ---
@@ -13,13 +14,34 @@ export const normalizeFixedNotePath = (p: string) => {
   return s && !s.toLowerCase().endsWith(".md") ? `${s}.md` : s;
 };
 
-export const isMFDIFixedNotePath = (p: string) =>
-  normalizePath(p).toLowerCase().endsWith(FILENAME_SUFFIX);
+export const isDSTRFixedNotePath = (p: string) => {
+  const normalizedPath = normalizePath(p).toLowerCase();
+  return (
+    normalizedPath.endsWith(FILENAME_SUFFIX) ||
+    normalizedPath.endsWith(LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix)
+  );
+};
+
+function toCurrentFixedNotePath(path: string): string {
+  const lowerPath = path.toLowerCase();
+  const legacySuffix = LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix;
+  return lowerPath.endsWith(legacySuffix)
+    ? `${path.slice(0, -legacySuffix.length)}${FILENAME_SUFFIX}`
+    : path;
+}
+
+function toLegacyFixedNotePath(path: string): string {
+  const lowerPath = path.toLowerCase();
+  return lowerPath.endsWith(FILENAME_SUFFIX)
+    ? `${path.slice(0, -FILENAME_SUFFIX.length)}${LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix}`
+    : path;
+}
 
 // --- 取得・作成 ---
 export function resolveFixedNote(shell: ObsidianAppShell, raw: string | null): TFile | null {
   const path = normalizeFixedNotePath(raw ?? "");
-  const file = path ? shell.getAbstractFileByPath(path) : null;
+  const filePaths = path ? [...new Set([path, toCurrentFixedNotePath(path)])] : [];
+  const file = filePaths.map((filePath) => shell.getAbstractFileByPath(filePath)).find(Boolean);
   // テスト環境では `({ path } as TFile)` のようにプレーンオブジェクトで TFile を模した値が使われるため
   // `instanceof TFile` が false になることがある。実行時の堅牢性を上げるため、まず `instanceof` を試し、
   // それ以外はダックタイピングで `path` を持つオブジェクトを受け入れる。
@@ -60,11 +82,15 @@ async function ensureFolder(shell: ObsidianAppShell, path: string) {
 }
 
 export async function ensureFixedNote(shell: ObsidianAppShell, raw: string): Promise<TFile> {
-  const path = normalizeFixedNotePath(raw);
+  let path = normalizeFixedNotePath(raw);
   if (!path) throw new Error("path is empty");
 
   const existing = resolveFixedNote(shell, path);
   if (existing) return existing;
+
+  path = toCurrentFixedNotePath(path);
+  const migrated = resolveFixedNote(shell, path);
+  if (migrated) return migrated;
 
   const folderPath = path.substring(0, path.lastIndexOf("/"));
   if (folderPath) await ensureFolder(shell, folderPath);
@@ -83,7 +109,10 @@ export function buildFixedNotePathFromName(
 
   let path = base,
     i = 1;
-  while (shell.getAbstractFileByPath(path)) {
+  while (
+    shell.getAbstractFileByPath(path) ||
+    shell.getAbstractFileByPath(toLegacyFixedNotePath(path))
+  ) {
     path = base.replace(FILENAME_SUFFIX, ` ${i++}${FILENAME_SUFFIX}`);
   }
   return path;

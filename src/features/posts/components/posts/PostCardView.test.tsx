@@ -115,6 +115,6 @@ describe("PostCardView", () => {
       <PostCardView post={post} backlinkCount={0} granularity="day" isHighlighted />,
     );
 
-    expect(container.querySelector(".mfdi-card--highlighted")).not.toBeNull();
+    expect(container.querySelector(".dstr-card--highlighted")).not.toBeNull();
   });
 });

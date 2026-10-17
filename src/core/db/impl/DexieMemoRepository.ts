@@ -1,9 +1,9 @@
 import type { IMemoRepository } from "src/core/db/interfaces/IMemoRepository";
-import type { MemoRecord, MFDIDatabase } from "src/core/db/mfdi-db";
+import type { MemoRecord, DSTRDatabase } from "src/core/db/dstr-db";
 import type { Granularity } from "src/core/domain/granularity";
 
 export class DexieMemoRepository implements IMemoRepository {
-  constructor(private readonly db: MFDIDatabase) {}
+  constructor(private readonly db: DSTRDatabase) {}
 
   async getAllActiveDates(): Promise<string[]> {
     return await this.db.getAllActiveDates();

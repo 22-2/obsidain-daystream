@@ -43,7 +43,7 @@ describe("fetchPastTodayPostCount", () => {
           createMemoRecord(
             "reply-2025",
             "2025-08-11T10:00:00.000Z",
-            JSON.stringify({ mfdiId: "reply", parentId: "root-2025" }),
+            JSON.stringify({ dstrId: "reply", parentId: "root-2025" }),
           ),
         ];
       }

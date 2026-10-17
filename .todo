@@ -8,20 +8,20 @@
 - [ ] deleted:: E:\AppData\obsidian\vaults\suizen\etc\journals\2026-02-19.md
 - [ ] deletedビュー
 - [x] scope
-- [x] mfdiビューからマークダウンビューに移る時、フォーカスが利かない
+- [x] DSTRビューからマークダウンビューに移る時、フォーカスが利かない
 - [x] 今日/今週などを右クリックしたとき、メニューを開く
 - [x] quick menu
 - [x] 無秩序な関数の引数をservice-containerやcontextで整理したいっす
 - [x] thinoのパーサ以外削除
 - [x] obsidian-daily-notes-interfaceからの流用を再統合して単一モジュール化
-- [x] MFDIViewのscopeが利かない
+- [x] DSTRViewのscopeが利かない
 - [x] get/setstateに保存
 - [x] 表示されているポストの全コピー
 
 - [x] 下書き
 
-- [x] tests: エスケープキーでEMFDIEditorModalが閉じる、scopedホットキーで開く
-- [x] tests: ctrl+enterで、MFDIViewのScopeのホットキーのみが呼び出される（Obsidian側でctrl+enterにホットキーを登録していても）
+- [x] tests: エスケープキーでDSTRのEditorModalが閉じる、scopedホットキーで開く
+- [x] tests: ctrl+enterで、DSTRViewのScopeのホットキーのみが呼び出される（Obsidian側でctrl+enterにホットキーを登録していても）
 - [x] tests: ライブエディタで、エスケープキーでマルチカーソルが解除される
 - [x] 検索
 - [x] タグ

@@ -1,5 +1,7 @@
-import type { MFDIStorage } from "src/core/storage";
+import type { DSTRStorage } from "src/core/storage";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { FILENAME_SUFFIX } from "src/core/fixed-note";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 
 export interface FixedSessionLocalMeta {
@@ -29,11 +31,20 @@ function getFixedSessionLastOpenedStorageKey(file: string | null): string {
 }
 
 function getFixedSessionMetaFilePath(file: string): string {
-  if (file.toLowerCase().endsWith(".md")) {
-    return `${file.slice(0, -3)}${FIXED_SESSION_META_FILE_SUFFIX}`;
-  }
+  const lowerFile = file.toLowerCase();
+  const legacySuffix = LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix;
+  const currentFile = lowerFile.endsWith(legacySuffix)
+    ? `${file.slice(0, -legacySuffix.length)}${FILENAME_SUFFIX}`
+    : file;
+  const normalized = currentFile.replace(/\.md$/i, "");
+  return `${normalized}${FIXED_SESSION_META_FILE_SUFFIX}`;
+}
 
-  return `${file}${FIXED_SESSION_META_FILE_SUFFIX}`;
+function getLegacyFixedSessionMetaFilePath(file: string): string {
+  if (file.toLowerCase().endsWith(".md")) {
+    return `${file.slice(0, -3)}.fixed-session-meta.json`;
+  }
+  return `${file}.fixed-session-meta.json`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -74,15 +85,29 @@ async function readFixedSessionMetaFromFile(
   shell: ObsidianAppShell,
   file: string,
 ): Promise<FixedSessionMetaMap | null> {
-  const filePath = getFixedSessionMetaFilePath(file);
+  const currentPath = getFixedSessionMetaFilePath(file);
+  const legacyPath = getLegacyFixedSessionMetaFilePath(file);
+  const candidatePaths = [...new Set([currentPath, legacyPath])];
 
-  try {
-    const raw = await shell.loadFile(filePath);
-    const parsed = JSON.parse(raw) as unknown;
-    return sanitizeFixedSessionMetaMap(parsed);
-  } catch {
-    return null;
+  for (const filePath of candidatePaths) {
+    try {
+      const raw = await shell.loadFile(filePath);
+      const parsed = JSON.parse(raw) as unknown;
+      const sanitized = sanitizeFixedSessionMetaMap(parsed);
+      if (filePath !== currentPath && Object.keys(sanitized).length > 0) {
+        try {
+          await writeFixedSessionMetaToFile(shell, file, sanitized);
+        } catch (error) {
+          console.error("Failed to migrate fixed-session sidecar:", error);
+        }
+      }
+      return sanitized;
+    } catch {
+      // Try the previous sidecar name when the DSTR sidecar is not present.
+    }
   }
+
+  return null;
 }
 
 async function writeFixedSessionMetaToFile(
@@ -99,7 +124,7 @@ async function writeFixedSessionMetaToFile(
 
 async function readAndMigrateFromLegacyStorage(
   shell: ObsidianAppShell,
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string,
 ): Promise<FixedSessionMetaMap> {
   if (!storage) {
@@ -124,7 +149,7 @@ async function readAndMigrateFromLegacyStorage(
 
 export async function readFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
 ): Promise<FixedSessionMetaMap> {
   if (!file) {
@@ -141,7 +166,7 @@ export async function readFixedSessionMeta(
 
 export async function writeFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   nextMeta: FixedSessionMetaMap,
 ): Promise<void> {
@@ -158,7 +183,7 @@ export async function writeFixedSessionMeta(
 
 export async function updateFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
   updater: (prev: FixedSessionLocalMeta) => FixedSessionLocalMeta,
@@ -176,7 +201,7 @@ export async function updateFixedSessionMeta(
 
 export async function removeFixedSessionMeta(
   shell: ObsidianAppShell,
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
 ): Promise<FixedSessionMetaMap> {
@@ -189,7 +214,7 @@ export async function removeFixedSessionMeta(
 }
 
 export function readLastOpenedFixedSessionNumber(
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
 ): number | null {
   if (!storage || !file) {
@@ -204,7 +229,7 @@ export function readLastOpenedFixedSessionNumber(
 }
 
 export function writeLastOpenedFixedSessionNumber(
-  storage: MFDIStorage | null,
+  storage: DSTRStorage | null,
   file: string | null,
   sessionNumber: number,
 ): void {

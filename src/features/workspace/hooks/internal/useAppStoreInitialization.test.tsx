@@ -1,5 +1,5 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
-import { MFDIStorage } from "src/core/storage";
+import { DSTRStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { INPUT_AREA_SIZE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { useAppStoreInitialization } from "src/features/workspace/hooks/internal/useAppStoreInitialization";
@@ -18,7 +18,7 @@ describe("useAppStoreInitialization", () => {
     "展開モードを %s に変更しても最大化と現在の操作状態を維持する",
     (mode) => {
       const store = createAppStore();
-      const storage = new MFDIStorage("expansion-test");
+      const storage = new DSTRStorage("expansion-test");
       const shell = {} as AppShell;
       const { rerender } = renderHook(
         ({ settings }) =>
@@ -48,7 +48,7 @@ describe("useAppStoreInitialization", () => {
 
   it("初回は保存済み入力を復元し、設定更新では現在の入力を復元し直さない", () => {
     const store = createAppStore();
-    const storage = new MFDIStorage("initialization-test");
+    const storage = new DSTRStorage("initialization-test");
     const shell = {} as AppShell;
     store.setState({ storage });
     store.getState().replaceInput("saved input");

@@ -1,18 +1,19 @@
 import type { WorkspaceLeaf } from "obsidian";
-import { isMFDIFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
-import type { MFDIViewState } from "src/features/workspace/views/state";
-import { createFixedNoteViewState, DEFAULT_MFDI_VIEW_STATE } from "src/features/workspace/views/state";
+import { isDSTRFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
+import { VIEW_TYPE_DSTR } from "src/core/view-types";
+import type { DSTRViewState } from "src/features/workspace/views/state";
+import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
 type LeafWithState = WorkspaceLeaf & {
-  view: { getState: () => MFDIViewState; file?: { path?: string } };
+  view: { getState: () => DSTRViewState; file?: { path?: string } };
 };
 
-type MFDIViewStateWrapper = {
+type DSTRViewStateWrapper = {
   type: string;
-  state: MFDIViewState;
+  state: DSTRViewState;
 };
 
-const MFDI_VIEW_TYPE = "mfdi-view";
+const DSTR_VIEW_TYPE = VIEW_TYPE_DSTR;
 
 function isViewStatefulLeaf(leaf: WorkspaceLeaf): leaf is LeafWithState {
   const view = (leaf as LeafWithState).view;
@@ -29,11 +30,11 @@ function resolveLeafFilePath(leaf: WorkspaceLeaf): string {
 }
 
 export interface FixedNoteViewExtension {
-  convertMarkdownViewState: (viewState: unknown) => MFDIViewStateWrapper;
+  convertMarkdownViewState: (viewState: unknown) => DSTRViewStateWrapper;
   replaceOpenFixedMarkdownLeaves: (params: {
     leaves: WorkspaceLeaf[];
-    attachMFDIView: (
-      state: Partial<MFDIViewState>,
+    attachDSTRView: (
+      state: Partial<DSTRViewState>,
       preferredLeaf?: WorkspaceLeaf,
     ) => Promise<WorkspaceLeaf | undefined>;
   }) => Promise<void>;
@@ -46,16 +47,16 @@ export interface FixedNoteViewExtensionParams {
 
 // contribution の外側（main 等）が leaf 探索だけしたい場合に直接インポートできるよう standalone export にする。
 // extension インターフェースに載せると「contribution に渡すオブジェクト」と「main が直接呼ぶ関数」の二重管理になるため分離した。
-export function findExistingMFDILeaf(
+export function findExistingDSTRLeaf(
   leaves: WorkspaceLeaf[],
-  state: Partial<MFDIViewState>,
+  state: Partial<DSTRViewState>,
 ): WorkspaceLeaf | undefined {
   const isFixedMode = state.noteMode === "fixed";
   const fixedPath = normalizeFixedNotePath(typeof state.file === "string" ? state.file : "");
 
   return leaves.find((leaf) => {
     if (!isViewStatefulLeaf(leaf)) return false;
-    const currentState = leaf.view.getState() as MFDIViewState;
+    const currentState = leaf.view.getState() as DSTRViewState;
     return isFixedMode
       ? currentState.noteMode === "fixed" &&
           normalizeFixedNotePath(currentState.file ?? "") === fixedPath
@@ -72,7 +73,7 @@ function shouldConvertViewState(viewState: unknown): boolean {
   if (candidate.type !== "markdown") return false;
 
   // フラグが付与されている場合は強制的にMarkdownビューとして開く意図がある。
-  if (candidate.state?.__mfdi_force_markdown) return false;
+  if (candidate.state?.__dstr_force_markdown) return false;
 
   return true;
 }
@@ -88,18 +89,18 @@ export function createFixedNoteViewExtension(
 
   return {
     convertMarkdownViewState: (viewState) => {
-      if (!shouldConvertViewState(viewState)) return viewState as MFDIViewStateWrapper;
+      if (!shouldConvertViewState(viewState)) return viewState as DSTRViewStateWrapper;
       const candidate = viewState as {
         type?: string;
-        state?: MFDIViewState;
-      } as MFDIViewStateWrapper;
+        state?: DSTRViewState;
+      } as DSTRViewStateWrapper;
       const filePath = typeof candidate.state?.file === "string" ? candidate.state.file : "";
-      if (!isMFDIFixedNotePath(filePath)) return viewState as MFDIViewStateWrapper;
+      if (!isDSTRFixedNotePath(filePath)) return viewState as DSTRViewStateWrapper;
 
-      // 意図: 削除済み固定ノートまで MFDI へ強制変換すると、空 state が復元されて誤解を招く。
+      // 意図: 削除済み固定ノートまで Daystream へ強制変換すると、空 state が復元されて誤解を招く。
       // 存在確認が失敗した場合は markdown のまま返し、呼び出し側で通常の欠損ハンドリングに委ねる。
       if (isFixedNoteAvailable && !isFixedNoteAvailable(filePath)) {
-        return viewState as MFDIViewStateWrapper;
+        return viewState as DSTRViewStateWrapper;
       }
 
       const fixedSessionNumber =
@@ -109,20 +110,20 @@ export function createFixedNoteViewExtension(
 
       return {
         ...candidate,
-        type: MFDI_VIEW_TYPE,
+        type: DSTR_VIEW_TYPE,
         state: {
-          ...DEFAULT_MFDI_VIEW_STATE,
+          ...DEFAULT_DSTR_VIEW_STATE,
           ...createFixedNoteViewState(filePath),
           fixedSessionNumber,
         },
-      } as MFDIViewStateWrapper;
+      } as DSTRViewStateWrapper;
     },
 
-    replaceOpenFixedMarkdownLeaves: async ({ leaves, attachMFDIView }) => {
+    replaceOpenFixedMarkdownLeaves: async ({ leaves, attachDSTRView }) => {
       for (const leaf of leaves) {
         const filePath = resolveLeafFilePath(leaf);
-        if (!isMFDIFixedNotePath(filePath)) continue;
-        await attachMFDIView(
+        if (!isDSTRFixedNotePath(filePath)) continue;
+        await attachDSTRView(
           {
             ...createFixedNoteViewState(filePath),
             fixedSessionNumber:

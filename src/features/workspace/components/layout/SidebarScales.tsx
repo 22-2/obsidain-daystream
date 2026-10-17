@@ -149,15 +149,15 @@ export const SidebarScales: React.FC<{
     <PanelSection
       title="年月日別"
       storageKey="periodic-scales"
-      className="mfdi-sidebar-scales items-stretch gap-0"
+      className="dstr-sidebar-scales items-stretch gap-0"
       onTitleClick={isViewingCurrentMonth ? undefined : handleResetViewMonth}
     >
       <VStack className="items-stretch gap-1">
-        <HStack className="mfdi-scale-navigation justify-end gap-1">
+        <HStack className="dstr-scale-navigation justify-end gap-1">
           <NavButton direction="left" onClick={() => handleMoveViewMonth(-1)} className="p-1" />
           <NavButton direction="right" onClick={() => handleMoveViewMonth(1)} className="p-1" />
         </HStack>
-        <VStack className="mfdi-scale-list-unified items-stretch gap-0">
+        <VStack className="dstr-scale-list-unified items-stretch gap-0">
           {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
             const key = buildScaleKey(baseDate, scaleGranularity);
             const counts = countsMap[key];
@@ -174,7 +174,7 @@ export const SidebarScales: React.FC<{
                 isSelected={isSelected}
                 isMuted={!hasActivity}
                 className={cn(
-                  `mfdi-scale-item mfdi-scale-item-${scaleGranularity}`,
+                  `dstr-scale-item dstr-scale-item-${scaleGranularity}`,
                   isSelected && "is-selected",
                 )}
                 onClick={() => {
@@ -210,7 +210,7 @@ export const SidebarScales: React.FC<{
                 key={w.format("YYYY-WW")}
                 isSelected={isSelected}
                 isMuted={!hasActivity}
-                className={cn("mfdi-scale-item mfdi-scale-item-week", isSelected && "is-selected")}
+                className={cn("dstr-scale-item dstr-scale-item-week", isSelected && "is-selected")}
                 onClick={() => {
                   if (isSelected) {
                     handleClickHome();

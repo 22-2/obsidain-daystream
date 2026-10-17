@@ -69,14 +69,14 @@ export const PanelSection: React.FC<{
   return (
     <VStack
       className={cn(
-        "mfdi-panel-section items-stretch gap-[var(--mfdi-panel-section-gap)] px-[var(--mfdi-panel-section-padding-inline)] pb-[var(--mfdi-panel-section-padding-bottom)]",
+        "dstr-panel-section items-stretch gap-[var(--dstr-panel-section-gap)] px-[var(--dstr-panel-section-padding-inline)] pb-[var(--dstr-panel-section-padding-bottom)]",
         className,
       )}
     >
-      <div className="mfdi-panel-section__header group flex min-w-0 items-center justify-between gap-2">
+      <div className="dstr-panel-section__header group flex min-w-0 items-center justify-between gap-2">
         <button
           type="button"
-          className="mfdi-panel-section__toggle !h-auto flex min-w-0 min-h-0 flex-1 justify-start items-center gap-1 rounded-[var(--radius-s)] border-0 bg-transparent px-0 py-[var(--mfdi-panel-heading-padding-block)] leading-[var(--mfdi-panel-heading-line-height)] text-left text-[length:var(--mfdi-panel-heading-font-size)] font-bold uppercase tracking-wider text-[var(--text-muted)] shadow-none hover:bg-[var(--background-modifier-hover)]"
+          className="dstr-panel-section__toggle !h-auto flex min-w-0 min-h-0 flex-1 justify-start items-center gap-1 rounded-[var(--radius-s)] border-0 bg-transparent px-0 py-[var(--dstr-panel-heading-padding-block)] leading-[var(--dstr-panel-heading-line-height)] text-left text-[length:var(--dstr-panel-heading-font-size)] font-bold uppercase tracking-wider text-[var(--text-muted)] shadow-none hover:bg-[var(--background-modifier-hover)]"
           aria-controls={contentId}
           aria-expanded={expanded}
           onClick={toggle}
@@ -89,7 +89,7 @@ export const PanelSection: React.FC<{
         {rightAddon}
       </div>
       {expanded ? (
-        <div id={contentId} className="mfdi-panel-section__content">
+        <div id={contentId} className="dstr-panel-section__content">
           {children}
         </div>
       ) : null}
@@ -98,5 +98,5 @@ export const PanelSection: React.FC<{
 };
 
 export const PanelDivider: React.FC = () => (
-  <div className="mfdi-panel-divider border-t border-[var(--background-modifier-border)]" />
+  <div className="dstr-panel-divider border-t border-[var(--background-modifier-border)]" />
 );

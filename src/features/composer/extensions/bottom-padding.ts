@@ -3,16 +3,16 @@ import type { EditorView } from "@codemirror/view";
 import { ViewPlugin, type ViewUpdate } from "@codemirror/view";
 import { createLogger } from "src/core/logger";
 
-const TARGET_VIEW_SELECTOR = '[data-type="mfdi-view"], [data-type="mfdi-editor-view"]';
+const TARGET_VIEW_SELECTOR = '[data-type="dstr-view"], [data-type="dstr-editor-view"]';
 const CONTENT_PADDING_PROPERTY = "padding-bottom";
 
-const logger = createLogger("mfdi:cm-bottom-padding");
+const logger = createLogger("dstr:cm-bottom-padding");
 
 /**
- * MFDI の 2 つのビューだけで .cm-content の下端余白を補正する。
+ * Daystream の 2 つのビューだけで .cm-content の下端余白を補正する。
  */
 export const extension: Extension = ViewPlugin.fromClass(
-  class MFDIBottomPaddingPlugin {
+  class DSTRBottomPaddingPlugin {
     private readonly resizeObserver: ResizeObserver | null;
     private isTargetCache: boolean | null = null;
 

@@ -1,10 +1,15 @@
 import { WorkspaceLeaf } from "obsidian";
 import type { Settings } from "src/core/domain/settings";
-import { MFDIView } from "src/features/workspace/views/MFDIView";
-import type { MFDIViewState } from "src/features/workspace/views/state";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+import { VIEW_TYPE_DSTR } from "src/core/view-types";
+import {
+  DSTRView,
+  LegacyDSTRView,
+} from "src/features/workspace/views/DSTRView";
+import type { DSTRViewState } from "src/features/workspace/views/state";
 import { describe, expect, it, vi } from "vitest";
 
-const fixedState: MFDIViewState = {
+const fixedState: DSTRViewState = {
   displayMode: "focus",
   granularity: "day",
   asTask: false,
@@ -15,12 +20,12 @@ const fixedState: MFDIViewState = {
   searchQuery: "",
   activeTopic: "",
   noteMode: "fixed",
-  file: "MFDI/Inbox.mfdi.md",
+  file: "dstr/Inbox.dstr.md",
 };
 
-describe("MFDIView external state revision", () => {
+describe("DSTRView external state revision", () => {
   it("changes only for state applied by Obsidian, not React partial updates", async () => {
-    const view = new MFDIView(new WorkspaceLeaf(), {} as Settings);
+    const view = new DSTRView(new WorkspaceLeaf(), {} as Settings);
     Object.defineProperty(view, "updateView", { value: vi.fn() });
 
     expect(view.getExternalStateRevision()).toBe(0);
@@ -34,9 +39,23 @@ describe("MFDIView external state revision", () => {
   });
 });
 
-describe("MFDIView React readiness", () => {
+describe("DSTRView type", () => {
+  it("uses the registered DSTR type", () => {
+    const view = new DSTRView(new WorkspaceLeaf(), {} as Settings);
+
+    expect(view.getViewType()).toBe(VIEW_TYPE_DSTR);
+  });
+
+  it("keeps the legacy type only for workspace migration", () => {
+    const view = new LegacyDSTRView(new WorkspaceLeaf(), {} as Settings);
+
+    expect(view.getViewType()).toBe(LEGACY_DAYSTREAM_IDENTIFIERS.viewType);
+  });
+});
+
+describe("DSTRView React readiness", () => {
   it("waits until React reports that the view is ready", async () => {
-    const view = new MFDIView(new WorkspaceLeaf(), {} as Settings);
+    const view = new DSTRView(new WorkspaceLeaf(), {} as Settings);
     let resolved = false;
     const ready = view.waitForReactReady().then(() => {
       resolved = true;

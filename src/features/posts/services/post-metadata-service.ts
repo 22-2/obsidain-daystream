@@ -3,7 +3,7 @@ import { resolveTimestamp, toText } from "src/core/post-utils";
 import { parseThinoEntries } from "src/core/thino";
 import type { Post } from "src/core/domain/post";
 import type { Granularity } from "src/core/domain/granularity";
-import type { MFDINoteMode } from "src/core/domain/note-mode";
+import type { DSTRNoteMode } from "src/core/domain/note-mode";
 import { buildFixedSessionPosts } from "src/features/notes/utils/fixed-session-utils";
 import { buildPostFromEntry } from "src/features/posts/utils/thread-utils";
 
@@ -11,7 +11,7 @@ import { buildPostFromEntry } from "src/features/posts/utils/thread-utils";
 export async function readLatestPostsForPath(params: {
   shell: ObsidianAppShell;
   insertAfter: string;
-  noteMode: MFDINoteMode;
+  noteMode: DSTRNoteMode;
   path: string;
   noteDate: Post["noteDate"];
 }): Promise<Post[]> {
@@ -35,7 +35,7 @@ export async function readLatestPostsForPath(params: {
 export async function findLatestPostInNote(params: {
   shell: ObsidianAppShell;
   insertAfter: string;
-  noteMode: MFDINoteMode;
+  noteMode: DSTRNoteMode;
   post: Post;
 }): Promise<Post | null> {
   const { post } = params;
@@ -57,7 +57,7 @@ export async function findLatestPostInNote(params: {
 export async function findLatestThreadPostsInNote(params: {
   shell: ObsidianAppShell;
   insertAfter: string;
-  noteMode: MFDINoteMode;
+  noteMode: DSTRNoteMode;
   rootPost: Post;
 }): Promise<Post[]> {
   const { rootPost } = params;

@@ -1,4 +1,7 @@
-const TAG_METADATA_KEY = "mfditags";
+import { DSTR_TAGS_METADATA_KEY, getDSTRTagsMetadata } from "src/core/metadata";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+
+const TAG_METADATA_KEY = DSTR_TAGS_METADATA_KEY;
 
 export function isValidTagName(name: string): boolean {
   const trimmed = name.trim();
@@ -28,8 +31,8 @@ export function normalizeTags(tags: string[]): string[] {
   return normalized;
 }
 
-export function parseMfdiTags(metadata: Record<string, string>): string[] {
-  const raw = metadata[TAG_METADATA_KEY];
+export function parseDSTRTags(metadata: Record<string, string>): string[] {
+  const raw = getDSTRTagsMetadata(metadata);
   if (!raw) {
     return [];
   }
@@ -37,8 +40,12 @@ export function parseMfdiTags(metadata: Record<string, string>): string[] {
   return normalizeTags(raw.split(","));
 }
 
-export function serializeMfdiTags(tags: string[]): string {
+export function serializeDSTRTags(tags: string[]): string {
   return normalizeTags(tags).join(", ");
+}
+
+export function removeLegacyDSTRTags(metadata: Record<string, string>): void {
+  delete metadata[LEGACY_DAYSTREAM_IDENTIFIERS.tagsMetadataKey];
 }
 
 export { TAG_METADATA_KEY };

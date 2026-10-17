@@ -5,12 +5,12 @@ import { createDraftSlice } from "src/features/composer/store/slices/draftSlice"
 import { createEditorSlice } from "src/features/composer/store/slices/editorSlice";
 import { createNoteSlice } from "src/features/notes/store/slices/noteSlice";
 import { createTasksSlice } from "src/features/tasks/store/slices/tasksSlice";
-import type { MFDIStore } from "src/features/workspace/store/slices/types";
+import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
 
 export function createAppStore() {
-  return createStore<MFDIStore>((set, get, store) => ({
+  return createStore<DSTRStore>((set, get, store) => ({
     ...createEnvironmentSlice(set, get, store),
     ...createSettingsSlice(set, get, store),
     ...createTasksSlice(set, get, store),
@@ -51,14 +51,14 @@ export function useRequiredAppStore(): AppStoreApi {
 
 export function initializeAppStore(
   params: {
-    shell: NonNullable<MFDIStore["shell"]>;
-    settings: NonNullable<MFDIStore["pluginSettings"]>;
-    storage: NonNullable<MFDIStore["storage"]>;
+    shell: NonNullable<DSTRStore["shell"]>;
+    settings: NonNullable<DSTRStore["pluginSettings"]>;
+    storage: NonNullable<DSTRStore["storage"]>;
     initialViewState?: {
-      noteMode: MFDIStore["viewNoteMode"];
+      noteMode: DSTRStore["viewNoteMode"];
       file: string | null;
       fixedSessionNumber: number;
-      mainView?: MFDIStore["mainView"];
+      mainView?: DSTRStore["mainView"];
     };
   },
   store: AppStoreApi = appStore,
@@ -66,7 +66,7 @@ export function initializeAppStore(
   store.getState().initializeAppStore(params);
 }
 
-export function useAppStore<T>(selector: (state: MFDIStore) => T): T {
+export function useAppStore<T>(selector: (state: DSTRStore) => T): T {
   const store = useRequiredAppStore();
   return useStore(store, selector);
 }

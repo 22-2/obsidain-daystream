@@ -1,4 +1,4 @@
-import type { MFDIDatabase } from "src/core/db/mfdi-db";
+import type { DSTRDatabase } from "src/core/db/dstr-db";
 import type { MomentLike, Post } from "src/core/domain/post";
 import { memoRecordToPost } from "src/features/posts/utils/thread-utils";
 
@@ -19,7 +19,7 @@ export function resolveTimelineCacheBucket(
 }
 
 interface CreateTimelinePageFetcherDeps {
-  db: MFDIDatabase;
+  db: DSTRDatabase;
 }
 
 export function resolveTimelineBaseDate(

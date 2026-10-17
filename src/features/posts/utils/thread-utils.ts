@@ -1,8 +1,9 @@
-import type { MemoRecord } from "src/core/db/mfdi-db";
+import type { MemoRecord } from "src/core/db/dstr-db";
 import type { MomentLike, Post } from "src/core/domain/post";
+import { DSTR_THREAD_ID_METADATA_KEY, getDSTRThreadId } from "src/core/metadata";
 
 export const THREAD_METADATA_KEYS = {
-  ID: "mfdiId",
+  ID: DSTR_THREAD_ID_METADATA_KEY,
   PARENT_ID: "parentId",
 } as const;
 
@@ -20,11 +21,11 @@ export function resolvePostId(
   path: string,
   startOffset: number,
 ): string {
-  return metadata?.[THREAD_METADATA_KEYS.ID] ?? `${path}:${startOffset}`;
+  return getDSTRThreadId(metadata) ?? `${path}:${startOffset}`;
 }
 
 export function resolveThreadRootId(metadata: Record<string, string> | undefined): string | null {
-  return metadata?.[THREAD_METADATA_KEYS.PARENT_ID] ?? metadata?.[THREAD_METADATA_KEYS.ID] ?? null;
+  return metadata?.[THREAD_METADATA_KEYS.PARENT_ID] ?? getDSTRThreadId(metadata) ?? null;
 }
 
 export function isThreadReply(post: Post): boolean {
@@ -111,7 +112,7 @@ export function memoRecordToPost(record: MemoRecord): Post {
   const metadata = JSON.parse(record.metadataJson) as Record<string, string>;
 
   // 意図: Post.id は UI のスレッド判定キーとして使われる。
-  // ルート投稿で `id=record.id(path:offset)` のままだと `threadRootId(mfdiId)` と一致せず
+  // ルート投稿で `id=record.id(path:offset)` のままだと `threadRootId(dstrId)` と一致せず
   // 返信扱いになってルートが非表示化されるため、metadata 由来のID解決を優先する。
   return {
     id: resolvePostId(metadata, record.path, record.startOffset),

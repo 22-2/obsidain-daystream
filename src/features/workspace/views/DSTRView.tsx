@@ -2,36 +2,38 @@ import type { WorkspaceLeaf } from "obsidian";
 import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
+import { VIEW_TYPE_DSTR } from "src/core/view-types";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { ReactView } from "src/features/workspace/components/ReactView";
-import { addMFDIPaneMenuItems } from "src/features/workspace/menus/mfdiPaneMenu";
+import { addDSTRPaneMenuItems } from "src/features/workspace/menus/dstrPaneMenu";
 import "src/core/ui/styles/global.css";
-import "src/core/ui/styles/mfdi.css";
-import type { MFDIViewDelegates } from "src/features/workspace/views/MFDIViewHandler";
-import { MFDIFixedNoteTitle } from "src/features/workspace/views/MFDIFixedNoteTitle";
-import type { MFDIViewState } from "src/features/workspace/views/state";
+import "src/core/ui/styles/dstr.css";
+import type { DSTRViewDelegates } from "src/features/workspace/views/DSTRViewHandler";
+import { DSTRFixedNoteTitle } from "src/features/workspace/views/DSTRFixedNoteTitle";
+import type { DSTRViewState } from "src/features/workspace/views/state";
 import {
-  DEFAULT_MFDI_VIEW_STATE,
+  DEFAULT_DSTR_VIEW_STATE,
   getFixedNoteTitle,
-  getMFDIViewCapabilities,
+  getDSTRViewCapabilities,
 } from "src/features/workspace/views/state";
 
-export const VIEW_TYPE_MFDI = "mfdi-view";
+export { VIEW_TYPE_DSTR };
 
-export class MFDIView extends ItemView {
+export class DSTRView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
-  private state: MFDIViewState = { ...DEFAULT_MFDI_VIEW_STATE };
+  private state: DSTRViewState = { ...DEFAULT_DSTR_VIEW_STATE };
   private externalStateRevision = 0;
-  private readonly fixedNoteTitle: MFDIFixedNoteTitle;
+  private readonly fixedNoteTitle: DSTRFixedNoteTitle;
   private reactReadyPromise: Promise<void>;
   private resolveReactReady: (() => void) | null = null;
   private hasOpened = false;
 
   public navigation = false;
-  public readonly actionDelegates: MFDIViewDelegates = {};
+  public readonly actionDelegates: DSTRViewDelegates = {};
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -40,7 +42,7 @@ export class MFDIView extends ItemView {
   ) {
     super(leaf);
     this.settings = settings;
-    this.fixedNoteTitle = new MFDIFixedNoteTitle(
+    this.fixedNoteTitle = new DSTRFixedNoteTitle(
       this,
       () => this.state,
       (newTitle) => this.renameFixedNote(newTitle),
@@ -57,14 +59,15 @@ export class MFDIView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_MFDI;
+    // 意図: Obsidian の基底コンストラクタからも呼ばれるため、インスタンス初期化前に確定する型を返す。
+    return VIEW_TYPE_DSTR;
   }
 
   getDisplayText(): string {
     if (this.state.noteMode === "fixed") {
-      return `MFDI: ${getFixedNoteTitle(this.state.file)}`;
+      return `Daystream: ${getFixedNoteTitle(this.state.file)}`;
     }
-    return "Mobile First Daily Interface";
+    return "Daystream";
   }
 
   async onOpen(): Promise<void> {
@@ -96,7 +99,7 @@ export class MFDIView extends ItemView {
   }
 
   onPaneMenu(menu: Menu, prev: string): void {
-    addMFDIPaneMenuItems(menu, {
+    addDSTRPaneMenuItems(menu, {
       getState: () => this.state,
       actionDelegates: this.actionDelegates,
     });
@@ -108,7 +111,7 @@ export class MFDIView extends ItemView {
   // State Management
   // -----------------------------------------------------------------------
 
-  getState(): MFDIViewState {
+  getState(): DSTRViewState {
     return this.state;
   }
 
@@ -116,7 +119,7 @@ export class MFDIView extends ItemView {
     return this.externalStateRevision;
   }
 
-  setStatePartial(patch: Partial<MFDIViewState>): void {
+  setStatePartial(patch: Partial<DSTRViewState>): void {
     this.state = {
       ...this.state,
       ...patch,
@@ -125,7 +128,7 @@ export class MFDIView extends ItemView {
     };
   }
 
-  async setState(state: MFDIViewState): Promise<void> {
+  async setState(state: DSTRViewState): Promise<void> {
     this.setStatePartial(state);
     // Obsidian から復元・適用された state だけを React store への入力として扱う。
     // React 側の setStatePartial まで入力扱いすると、session 切替時に古い値が
@@ -197,22 +200,22 @@ export class MFDIView extends ItemView {
 
   private updateActions(): void {
     this.cleanUpActions();
-    const capabilities = getMFDIViewCapabilities(this.state);
+    const capabilities = getDSTRViewCapabilities(this.state);
 
     if (capabilities.supportsSidebar) {
       this.addAction("panel-right", "インサイトを切り替え", () => {
         this.actionDelegates.onToggleRightPanel?.();
-      }).setAttr("data-mfdi-actions", "true");
+      }).setAttr("data-dstr-actions", "true");
 
       this.addAction("panel-left", "ナビゲーターを切り替え", () => {
         this.actionDelegates.onToggleLeftPanel?.();
-      }).setAttr("data-mfdi-actions", "true");
+      }).setAttr("data-dstr-actions", "true");
     }
   }
 
   private cleanUpActions(): void {
     Array.from(this.actionsEl.children)
-      .filter((el) => el.getAttr("data-mfdi-actions") === "true")
+      .filter((el) => el.getAttr("data-dstr-actions") === "true")
       .forEach((el) => el.detach());
   }
 
@@ -246,5 +249,11 @@ export class MFDIView extends ItemView {
     this.reactReadyPromise = new Promise<void>((resolve) => {
       this.resolveReactReady = resolve;
     });
+  }
+}
+
+export class LegacyDSTRView extends DSTRView {
+  override getViewType(): string {
+    return LEGACY_DAYSTREAM_IDENTIFIERS.viewType;
   }
 }

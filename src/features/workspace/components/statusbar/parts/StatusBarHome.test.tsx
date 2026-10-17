@@ -27,17 +27,17 @@ it("月表示のまま別の月へ移動してもホームの色を切り替え�
     </AppStoreProvider>,
   );
   const home = screen.getByRole("button", { name: "ホーム" });
-  expect(home.classList.contains("mfdi-home-action--active")).toBe(false);
+  expect(home.classList.contains("dstr-home-action--active")).toBe(false);
 
   // 意図: granularity や絞り込みが同じでも、日付の購読で再描画されることを検証する。
   act(() => store.getState().handleClickMovePrevious());
-  expect(home.classList.contains("mfdi-home-action--active")).toBe(true);
+  expect(home.classList.contains("dstr-home-action--active")).toBe(true);
   fireEvent.click(home);
-  expect(home.classList.contains("mfdi-home-action--active")).toBe(false);
+  expect(home.classList.contains("dstr-home-action--active")).toBe(false);
   expect(store.getState().date.format("YYYY-MM-DD")).toBe("2026-03-01");
 
   act(() => store.getState().setActiveTag("IT"));
-  expect(home.classList.contains("mfdi-home-action--active")).toBe(true);
+  expect(home.classList.contains("dstr-home-action--active")).toBe(true);
   fireEvent.click(home);
-  expect(home.classList.contains("mfdi-home-action--active")).toBe(false);
+  expect(home.classList.contains("dstr-home-action--active")).toBe(false);
 });

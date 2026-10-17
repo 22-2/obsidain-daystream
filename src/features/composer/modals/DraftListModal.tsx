@@ -14,7 +14,7 @@ export class DraftListModal extends Modal {
   constructor(app: App, store: AppStoreApi) {
     super(app);
     this.store = store;
-    this.modalEl.addClass("mfdi-draft-list-modal");
+    this.modalEl.addClass("dstr-draft-list-modal");
   }
 
   onOpen() {

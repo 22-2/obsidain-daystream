@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import { MFDIBaseModal } from "src/features/composer/modals/MFDIBaseModal";
+import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
 
 export async function showDeleteConfirmModal(
   app: App,
@@ -21,7 +21,7 @@ export async function showDeleteConfirmModal(
   ).show();
 }
 
-export class DeleteConfirmModal extends MFDIBaseModal<boolean> {
+export class DeleteConfirmModal extends DSTRBaseModal<boolean> {
   private confirmed = false;
   private message: string | (() => Promise<void>);
   private confirmText: string;

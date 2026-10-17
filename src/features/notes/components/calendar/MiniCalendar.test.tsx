@@ -36,8 +36,8 @@ vi.mock("src/core/ui/context/AppContext", () => ({
   useObsidianApp: vi.fn(() => ({ vault: { getFiles: () => [] } })),
 }));
 
-vi.mock("src/core/db/hooks/useMFDIDB", () => ({
-  useMFDIDB: vi.fn(() => ({
+vi.mock("src/core/db/hooks/useDSTRDB", () => ({
+  useDSTRDB: vi.fn(() => ({
     getAllActiveDates: vi.fn(async () => []),
   })),
 }));

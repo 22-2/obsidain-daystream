@@ -1,7 +1,7 @@
-import { MFDIDatabase, type MemoRecord } from "src/core/db/mfdi-db";
+import { DSTRDatabase, type MemoRecord } from "src/core/db/dstr-db";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const databases: MFDIDatabase[] = [];
+const databases: DSTRDatabase[] = [];
 
 beforeEach(() => {
   vi.useRealTimers();
@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 function createDatabase() {
-  const db = new MFDIDatabase(`test-${crypto.randomUUID()}`);
+  const db = new DSTRDatabase(`test-${crypto.randomUUID()}`);
   databases.push(db);
   return db;
 }
@@ -48,7 +48,7 @@ function createMemo(overrides: Partial<MemoRecord> = {}): MemoRecord {
   };
 }
 
-describe("MFDIDatabase Search", () => {
+describe("DSTRDatabase Search", () => {
   test("getLatestVisibleMemos filters by query", async () => {
     const db = createDatabase();
     await db.memos.bulkPut([
@@ -112,11 +112,11 @@ describe("MFDIDatabase Search", () => {
     await db.memos.bulkPut([
       createMemo({
         content: "thread root",
-        metadataJson: JSON.stringify({ mfdiId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "root-1" }),
       }),
       createMemo({
         content: "thread reply",
-        metadataJson: JSON.stringify({ mfdiId: "reply-1", parentId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-1", parentId: "root-1" }),
       }),
       createMemo({ content: "plain post", metadataJson: JSON.stringify({}) }),
     ]);
@@ -132,17 +132,17 @@ describe("MFDIDatabase Search", () => {
       createMemo({
         content: "apple root",
         noteDate: "2026-01-01",
-        metadataJson: JSON.stringify({ mfdiId: "root-2" }),
+        metadataJson: JSON.stringify({ dstrId: "root-2" }),
       }),
       createMemo({
         content: "apple reply",
         noteDate: "2026-01-02",
-        metadataJson: JSON.stringify({ mfdiId: "reply-2", parentId: "root-2" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-2", parentId: "root-2" }),
       }),
       createMemo({
         content: "banana root",
         noteDate: "2026-01-03",
-        metadataJson: JSON.stringify({ mfdiId: "root-3" }),
+        metadataJson: JSON.stringify({ dstrId: "root-3" }),
       }),
     ]);
 
@@ -164,7 +164,7 @@ describe("MFDIDatabase Search", () => {
         content: "pinned root",
         noteDate: "2026-01-01",
         pinned: 1,
-        metadataJson: JSON.stringify({ mfdiId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "root-1" }),
       }),
       createMemo({
         content: "unpinned root",
@@ -174,7 +174,7 @@ describe("MFDIDatabase Search", () => {
         content: "pinned reply",
         noteDate: "2026-01-03",
         pinned: 1,
-        metadataJson: JSON.stringify({ mfdiId: "reply-1", parentId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-1", parentId: "root-1" }),
       }),
     ]);
 
