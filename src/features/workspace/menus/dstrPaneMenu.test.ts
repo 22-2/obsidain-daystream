@@ -1,5 +1,4 @@
 import type { Menu } from "obsidian";
-import type { DSTRActionDelegate } from "src/features/workspace/views/DSTRViewHandler";
 import type { DSTRViewState } from "src/features/workspace/views/state";
 import { addDSTRPaneMenuItems } from "src/features/workspace/menus/dstrPaneMenu";
 import { describe, expect, it, vi } from "vitest";
@@ -80,7 +79,7 @@ describe("addDSTRPaneMenuItems", () => {
 
     addDSTRPaneMenuItems(menu as unknown as Menu, {
       getState: () => state,
-      actionDelegates: { onChangeDisplayMode, onChangeAsTask } as DSTRActionDelegate,
+      actionDelegates: { onChangeDisplayMode, onChangeAsTask },
     });
 
     expect(getTitles(menu)).toEqual(

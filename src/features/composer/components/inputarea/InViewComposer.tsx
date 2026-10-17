@@ -11,12 +11,13 @@ import { usePostActions } from "src/features/posts/hooks/internal/usePostActions
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { ComposerHostView } from "src/features/composer/types/composer-host";
+import { reportSubmitFailure } from "src/features/composer/utils/composer-failure";
+import { isComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 /** メインビュー全体を使う一時的な投稿エディタ。 */
 export const InViewComposer: FC = memo(() => {
-  const view = useObsidianComponent() as ComposerHostView;
+  const view = useObsidianComponent(isComposerHostView);
   const { shell } = useAppContext();
   const { inputRef } = useEditorRefs();
   const {
@@ -65,7 +66,7 @@ export const InViewComposer: FC = memo(() => {
     closeAction.setAttr("data-dstr-composer-actions", "true");
 
     const saveAction = view.addAction("send-horizontal", "投稿", () => {
-      void handleSubmitAndClose();
+      handleSubmitAndClose().catch(reportSubmitFailure);
     });
     saveAction.setAttr("data-dstr-composer-actions", "true");
 
@@ -96,7 +97,9 @@ export const InViewComposer: FC = memo(() => {
         initialValue={inputSnapshot}
         externalVersion={inputSnapshotVersion}
         onChange={syncInputSession}
-        onSubmit={handleSubmitAndClose}
+        onSubmit={() => {
+          handleSubmitAndClose().catch(reportSubmitFailure);
+        }}
         className="dstr-in-view-composer__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}

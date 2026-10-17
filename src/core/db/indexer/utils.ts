@@ -82,18 +82,3 @@ export async function toScannableNote(
     content,
   };
 }
-
-function generateBatchId(): string {
-  return crypto.randomUUID
-    ? crypto.randomUUID()
-    : `batch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function estimateBytes(notes: ScannableNote[]): number {
-  try {
-    const enc = new TextEncoder();
-    return notes.reduce((sum, n) => sum + enc.encode(n.content).length, 0);
-  } catch {
-    return notes.reduce((sum, n) => sum + n.content.length, 0);
-  }
-}

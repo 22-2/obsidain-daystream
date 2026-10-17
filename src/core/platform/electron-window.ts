@@ -16,10 +16,10 @@ interface ElectronModuleLike {
 type ElectronRequire = (moduleName: string) => unknown;
 
 function getElectronRequire(): ElectronRequire | null {
-  const runtime = globalThis as typeof globalThis & {
+  const runtime: typeof window & {
     require?: ElectronRequire;
     window?: { require?: ElectronRequire };
-  };
+  } = window;
 
   return runtime.window?.require ?? runtime.require ?? null;
 }

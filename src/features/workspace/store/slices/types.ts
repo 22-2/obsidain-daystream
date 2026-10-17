@@ -1,3 +1,4 @@
+import type { Moment } from "moment";
 import type { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -68,7 +69,7 @@ export interface NavigationSlice {
   setFixedSessionNumber: (sessionNumber: number) => void;
   setGranularity: (g: Granularity) => void;
   setCalendarSelection: (selection: {
-    date: moment.Moment;
+    date: Moment;
     dateFilter: DateFilter;
     granularity?: Granularity;
   }) => void;

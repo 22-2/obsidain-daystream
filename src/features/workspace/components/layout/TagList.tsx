@@ -1,3 +1,4 @@
+import type React from "react";
 import { PanelSection } from "src/features/workspace/components/layout/PanelPrimitives";
 import { SidebarItemCount, SidebarTextButton } from "src/features/workspace/components/layout/SidebarPrimitives";
 import { HStack, Text, VStack } from "src/core/ui/components/primitives";

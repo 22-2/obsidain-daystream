@@ -1,5 +1,6 @@
 import type { App } from "obsidian";
 import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
+import { reportComposerFailure } from "src/features/composer/utils/composer-failure";
 
 export async function showDeleteConfirmModal(
   app: App,
@@ -75,15 +76,21 @@ export class DeleteConfirmModal extends DSTRBaseModal<boolean> {
     this.createButton(
       actionsEl,
       this.confirmText,
-      async () => {
+      () => {
         this.confirmed = true;
-        if (typeof this.message === "function") {
-          await this.message();
-        }
-        this.close();
+        this.runConfirmedAction().catch(
+          reportComposerFailure("Failed to run delete action", "削除できませんでした"),
+        );
       },
       { warning: this.isDestructive, cta: !this.isDestructive },
     );
+  }
+
+  private async runConfirmedAction(): Promise<void> {
+    if (typeof this.message === "function") {
+      await this.message();
+    }
+    this.close();
   }
 
   onClose(): void {

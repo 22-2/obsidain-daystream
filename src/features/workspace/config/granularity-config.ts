@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 // ─────────────────────────────────────────────────────────────────
 // UI display config — granularity ごとの表示設定
 
@@ -32,7 +33,7 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     inputFormat: "YYYY-MM-DD",
     displayFormat: "YYYY年MM月DD日",
     inputWidthClass: "w-[10em]",
-    parseInput: (v) => window.moment(v, "YYYY-MM-DD"),
+    parseInput: (v) => obsidianMoment(v, "YYYY-MM-DD"),
     showWeekday: true,
     readsDirectlyFromPeriodicNote: false,
     showCalendarRangeHighlight: true,
@@ -46,7 +47,7 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     inputFormat: "GGGG-[W]WW",
     displayFormat: "GGGG年 [W]WW週",
     inputWidthClass: "w-[10em]",
-    parseInput: (v) => window.moment(v, "GGGG-[W]WW"),
+    parseInput: (v) => obsidianMoment(v, "GGGG-[W]WW"),
     showWeekday: false,
     readsDirectlyFromPeriodicNote: false,
     showCalendarRangeHighlight: true,
@@ -60,7 +61,7 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     inputFormat: "YYYY-MM",
     displayFormat: "YYYY年MM月",
     inputWidthClass: "w-[10em]",
-    parseInput: (v) => window.moment(v, "YYYY-MM"),
+    parseInput: (v) => obsidianMoment(v, "YYYY-MM"),
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
     // 意図: 月粒度では選択した月全体をナビゲーター上でも範囲として示す。
@@ -75,7 +76,7 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     inputFormat: "YYYY-[Q]Q",
     displayFormat: "YYYY年 第Q四半期",
     inputWidthClass: "w-[8em]",
-    parseInput: (v) => window.moment(v, "YYYY-[Q]Q"),
+    parseInput: (v) => obsidianMoment(v, "YYYY-[Q]Q"),
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
     showCalendarRangeHighlight: false,
@@ -89,7 +90,7 @@ export const GRANULARITY_CONFIG: Record<Granularity, GranularityConfigEntry> = {
     inputFormat: "YYYY",
     displayFormat: "YYYY年",
     inputWidthClass: "w-[6.5em]",
-    parseInput: (v) => window.moment(v, "YYYY"),
+    parseInput: (v) => obsidianMoment(v, "YYYY"),
     showWeekday: false,
     readsDirectlyFromPeriodicNote: true,
     showCalendarRangeHighlight: false,

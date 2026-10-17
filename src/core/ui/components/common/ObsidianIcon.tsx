@@ -11,6 +11,13 @@ export interface ObsidianIconProps extends BoxProps {
   size?: IconSize;
 }
 
+type SvgWithCssStyles = Element & { setCssStyles(styles: Record<string, string>): void };
+
+// Obsidian の setIcon が作る SVG には setCssStyles が付いている場合があるため、実行時に確認する。
+function hasSetCssStyles(el: Element): el is SvgWithCssStyles {
+  return "setCssStyles" in el && typeof el.setCssStyles === "function";
+}
+
 export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
   ({ name, size, className, ...restProps }, forwardedRef) => {
     const innerRef = useRef<HTMLDivElement | null>(null);
@@ -22,7 +29,7 @@ export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
       if (typeof forwardedRef === "function") {
         forwardedRef(node);
       } else if (typeof forwardedRef === "object" && forwardedRef !== null) {
-        (forwardedRef as React.RefObject<HTMLDivElement | null>).current = node;
+        forwardedRef.current = node;
       }
     }, [forwardedRef]);
 
@@ -31,9 +38,8 @@ export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
       if (!refEl) return;
 
       // Clear previous icon contents if API available
-      const maybeEmpty = (refEl as unknown as { empty?: () => void }).empty;
-      if (typeof maybeEmpty === "function") {
-        maybeEmpty.call(refEl);
+      if (typeof refEl.empty === "function") {
+        refEl.empty();
       } else {
         refEl.innerHTML = "";
       }
@@ -47,15 +53,11 @@ export const ObsidianIcon = React.forwardRef<HTMLDivElement, ObsidianIconProps>(
       const svg = refEl.querySelector("svg");
       if (!svg) return;
 
-      const setter = svg as unknown as {
-        setCssStyles?: (styles: Record<string, string>) => void;
-      };
       const cssSize = size == null ? "100%" : toIconCssSize(size);
-      setter.setCssStyles?.({
-        width: cssSize,
-        height: cssSize,
-      });
-      svg.style.flexShrink = "0";
+      if (hasSetCssStyles(svg)) {
+        svg.setCssStyles({ width: cssSize, height: cssSize });
+      }
+      svg.classList.add("flex-shrink-0");
     }, [name, size]);
 
     const base =

@@ -1,3 +1,5 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { IDBService } from "src/core/db/interfaces/IDBService";
 import { fetchPastTodayPostCount } from "src/features/workspace/hooks/usePastTodayPostCount";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,7 +27,7 @@ function createMemoRecord(id: string, createdAt: string, metadataJson = "{}") {
 
 describe("fetchPastTodayPostCount", () => {
   const getAllActiveDates = vi.fn<() => Promise<string[]>>();
-  const getMemos = vi.fn();
+  const getMemos = vi.fn<IDBService["getMemos"]>();
 
   beforeEach(() => {
     getAllActiveDates.mockReset();
@@ -36,7 +38,7 @@ describe("fetchPastTodayPostCount", () => {
     getAllActiveDates.mockResolvedValue(["2026-08-11", "2025-08-11", "2024-08-01"]);
     getMemos.mockImplementation(async ({ startDate, topicId }) => {
       expect(topicId).toBe("work");
-      const year = window.moment(startDate).year();
+      const year = obsidianMoment(startDate).year();
       if (year === 2025) {
         return [
           createMemoRecord("root-2025", "2025-08-11T09:00:00.000Z"),
@@ -55,7 +57,7 @@ describe("fetchPastTodayPostCount", () => {
 
     const count = await fetchPastTodayPostCount(
       { getAllActiveDates, getMemos },
-      window.moment("2026-08-11T12:00:00.000Z"),
+      obsidianMoment("2026-08-11T12:00:00.000Z"),
       "work",
     );
 
@@ -69,7 +71,7 @@ describe("fetchPastTodayPostCount", () => {
 
     const count = await fetchPastTodayPostCount(
       { getAllActiveDates, getMemos },
-      window.moment("2028-02-29T12:00:00.000Z"),
+      obsidianMoment("2028-02-29T12:00:00.000Z"),
     );
 
     expect(count).toBe(1);

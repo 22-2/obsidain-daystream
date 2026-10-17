@@ -1,4 +1,4 @@
-import type { TFile } from "obsidian";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import {
   buildFixedNotePathFromName,
@@ -10,10 +10,11 @@ import {
   trashFixedNote,
 } from "src/core/fixed-note";
 import { resolveNoteSource } from "src/core/note-source";
+import { createFakeFileManager, createFakeShell, createFakeTFile } from "src/core/test-fixtures";
 import { describe, expect, it, vi } from "vitest";
 
 // テスト用の簡易的な File オブジェクト作成
-const mockFile = (path: string) => ({ path }) as TFile;
+const mockFile = (path: string) => createFakeTFile(path);
 
 describe("fixed note utilities", () => {
   it("パスの正規化と拡張子の判定", () => {
@@ -33,13 +34,13 @@ describe("fixed note utilities", () => {
 
   it("fixed mode でのノート解決", () => {
     const file = mockFile("notes/fixed.md");
-    const shell = {
-      getAbstractFileByPath: vi.fn((p) => (p === "notes/fixed.md" ? file : null)),
-    } as any;
+    const shell = createFakeShell({
+      getAbstractFileByPath: vi.fn((p: string) => (p === "notes/fixed.md" ? file : null)),
+    });
 
     const source = resolveNoteSource({
       shell,
-      date: window.moment(),
+      date: obsidianMoment(),
       granularity: "day",
       activeTopic: "",
       noteMode: "fixed",
@@ -51,25 +52,27 @@ describe("fixed note utilities", () => {
 
   it("ノートが存在しない場合はフォルダも含めて作成する", async () => {
     const file = mockFile("notes/fixed.md");
-    const shell = {
+    const createFolder = vi.fn();
+    const createFile = vi.fn(async () => file);
+    const shell = createFakeShell({
       getAbstractFileByPath: vi.fn(() => null),
-      createFolder: vi.fn(),
-      createFile: vi.fn(async () => file),
-    } as any;
+      createFolder,
+      createFile,
+    });
 
     const result = await ensureFixedNote(shell, "notes/fixed");
 
-    expect(shell.createFolder).toHaveBeenCalledWith("notes");
-    expect(shell.createFile).toHaveBeenCalledWith("notes/fixed.md", "");
+    expect(createFolder).toHaveBeenCalledWith("notes");
+    expect(createFile).toHaveBeenCalledWith("notes/fixed.md", "");
     expect(result).toBe(file);
   });
 
   it("パス生成時に名前が重複したら連番を振る", () => {
-    const shell = {
-      getAbstractFileByPath: vi.fn((p) =>
-        ["dstr/Note.dstr.md", "dstr/Note 1.dstr.md"].includes(p) ? {} : null,
+    const shell = createFakeShell({
+      getAbstractFileByPath: vi.fn((p: string) =>
+        ["dstr/Note.dstr.md", "dstr/Note 1.dstr.md"].includes(p) ? createFakeTFile(p) : null,
       ),
-    } as any;
+    });
 
     // 重複して 2 になるはず
     expect(buildFixedNotePathFromName("dstr", "Note", shell)).toBe("dstr/Note 2.dstr.md");
@@ -81,15 +84,16 @@ describe("fixed note utilities", () => {
 
   it("新しい固定ノート(Untitled)を生成する", async () => {
     const file = mockFile("dstr/Untitled.dstr.md");
-    const shell = {
+    const createFile = vi.fn(async () => file);
+    const shell = createFakeShell({
       getAbstractFileByPath: vi.fn(() => null),
       createFolder: vi.fn(),
-      createFile: vi.fn(async () => file),
-    } as any;
+      createFile,
+    });
 
     const result = await createNewFixedNote(shell, "dstr");
 
-    expect(shell.createFile).toHaveBeenCalledWith("dstr/Untitled.dstr.md", "");
+    expect(createFile).toHaveBeenCalledWith("dstr/Untitled.dstr.md", "");
     expect(result).toBe(file);
   });
 
@@ -97,10 +101,10 @@ describe("fixed note utilities", () => {
     const file = mockFile("dstr/Inbox.dstr.md");
     const renameFile = vi.fn(async () => undefined);
     const trashFile = vi.fn(async () => undefined);
-    const shell = {
+    const shell = createFakeShell({
       getAbstractFileByPath: vi.fn(() => file),
-      getFileManager: vi.fn(() => ({ renameFile, trashFile })),
-    } as any;
+      getFileManager: vi.fn(() => createFakeFileManager({ renameFile, trashFile })),
+    });
 
     const path = await renameFixedNote(shell, file.path, " Renamed ");
     await trashFixedNote(shell, file.path);

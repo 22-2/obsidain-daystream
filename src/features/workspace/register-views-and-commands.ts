@@ -1,4 +1,6 @@
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
+import { ItemView } from "obsidian";
+import { reportError } from "src/core/error-report";
 import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 
@@ -15,25 +17,37 @@ export function registerWorkspaceViews(context: BuiltinMainContext): void {
 
 export function registerWorkspaceRibbon(context: BuiltinMainContext): void {
   context.addRibbonIcon("pencil", "Daystream", () => {
-    void context.attachDSTRView({});
+    context.attachDSTRView({}).catch((error: unknown) => {
+      reportError({
+        context: "Failed to open daystream view",
+        error,
+        notice: "ビューを開けませんでした",
+      });
+    });
   });
 }
 
 export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   context.addCommand({
     id: "dstr-open-view",
-    name: "Open Daystream",
+    name: "Open view",
     callback: async () => {
       const leaf = await context.attachDSTRView({});
-      if (leaf) context.app.workspace.revealLeaf(leaf);
+      if (leaf) await context.app.workspace.revealLeaf(leaf);
     },
   });
 
   context.addCommand({
     id: "dstr-open-fixed-note-view",
-    name: "Create New Daystream Fixed Note",
+    name: "Create new fixed note",
     callback: () => {
-      void context.createAndOpenFixedNote();
+      context.createAndOpenFixedNote().catch((error: unknown) => {
+        reportError({
+          context: "Failed to create fixed note",
+          error,
+          notice: "固定ノートを作成できませんでした",
+        });
+      });
     },
   });
 
@@ -41,9 +55,9 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({
     id: "dstr-submit-post",
-    name: "Daystream: 投稿を送信",
+    name: "投稿を送信",
     checkCallback: (checking) => {
-      const activeView = context.app.workspace.activeLeaf?.view;
+      const activeView = context.app.workspace.getActiveViewOfType(ItemView);
       if (activeView?.getViewType() !== VIEW_TYPE_DSTR) {
         return false;
       }
@@ -54,7 +68,13 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
       }
 
       const submitFn = context.getDSTRSubmitCallback();
-      void submitFn?.();
+      submitFn?.().catch((error: unknown) => {
+        reportError({
+          context: "Failed to submit post",
+          error,
+          notice: "投稿を送信できませんでした",
+        });
+      });
     },
   });
 }

@@ -10,17 +10,32 @@ type LeafHistory = { backHistory: LeafHistoryEntry[]; forwardHistory: LeafHistor
 
 const DSTR_VIEW_TYPES = new Set<string>([VIEW_TYPE_DSTR, LEGACY_DAYSTREAM_IDENTIFIERS.viewType]);
 
-function getLeafHistory(leaf: WorkspaceLeaf): LeafHistory | null {
-  const history = (leaf as WorkspaceLeaf & { history?: Partial<LeafHistory> }).history;
-  if (!Array.isArray(history?.backHistory) || !Array.isArray(history?.forwardHistory)) return null;
-  return history as LeafHistory;
+// 意図: 削除処理が触るのは view state と履歴だけなので、必要な形だけを要求する。
+// history の型は Obsidian の型定義と食い違うため unknown にして、使う前に形を確かめる。
+type ForgettableLeaf = Pick<WorkspaceLeaf, "getViewState" | "setViewState"> & {
+  history?: unknown;
+};
+
+function isLeafHistory(value: unknown): value is LeafHistory {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "backHistory" in value &&
+    "forwardHistory" in value &&
+    Array.isArray(value.backHistory) &&
+    Array.isArray(value.forwardHistory)
+  );
+}
+
+function getLeafHistory(leaf: ForgettableLeaf): LeafHistory | null {
+  return isLeafHistory(leaf.history) ? leaf.history : null;
 }
 
 function isSameFixedNote(file: unknown, normalizedPath: string): boolean {
   return typeof file === "string" && normalizeFixedNotePath(file) === normalizedPath;
 }
 
-function isShowingFixedNote(leaf: WorkspaceLeaf, normalizedPath: string): boolean {
+function isShowingFixedNote(leaf: ForgettableLeaf, normalizedPath: string): boolean {
   const viewState = leaf.getViewState();
   return DSTR_VIEW_TYPES.has(viewState.type) && isSameFixedNote(viewState.state?.file, normalizedPath);
 }
@@ -32,7 +47,7 @@ function isShowingFixedNote(leaf: WorkspaceLeaf, normalizedPath: string): boolea
  * 履歴から除かない。残すと「戻る」で削除済みノートの空ビューが復元されてしまう。
  */
 export async function forgetDeletedFixedNote(
-  leaves: WorkspaceLeaf[],
+  leaves: ForgettableLeaf[],
   deletedPath: string,
 ): Promise<void> {
   const normalizedPath = normalizeFixedNotePath(deletedPath);

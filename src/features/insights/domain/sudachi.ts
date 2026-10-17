@@ -1,4 +1,5 @@
 import type { MemoRecord } from "src/core/db/dstr-db";
+import { requestUrl } from "obsidian";
 import {
   getInsightRecordCacheKey,
   getInsightWordSource,
@@ -14,19 +15,26 @@ interface SudachiResponse {
 
 const tokenCache = new Map<string, string[]>();
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isUnknownArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return isUnknownArray(value) && value.every((item) => typeof item === "string");
+}
+
 function isSudachiResponse(value: unknown, expectedLength: number): value is SudachiResponse {
-  if (!value || typeof value !== "object" || !("results" in value)) return false;
-  const results = (value as { results?: unknown }).results;
+  if (!isRecord(value)) return false;
+  const results = value.results;
   return (
-    Array.isArray(results) &&
+    isUnknownArray(results) &&
     results.length === expectedLength &&
     results.every(
-      (result) =>
-        !!result &&
-        typeof result === "object" &&
-        "words" in result &&
-        Array.isArray((result as { words?: unknown }).words) &&
-        (result as { words: unknown[] }).words.every((word) => typeof word === "string"),
+      (result) => isRecord(result) && isStringArray(result.words),
     )
   );
 }
@@ -57,17 +65,19 @@ export async function tokenizeInsightRecords(
   if (missingRecords.length === 0) return result;
 
   try {
-    const response = await fetch(SUDACHI_ENDPOINT, {
+    // requestUrl は AbortSignal を受けないため、応答後に中止済みなら結果を捨てる。
+    const response = await requestUrl({
+      url: SUDACHI_ENDPOINT,
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         texts: missingRecords.map((record) => getInsightWordSource(record.content)),
       }),
-      signal,
+      throw: false,
     });
-    if (!response.ok) return null;
+    if (signal?.aborted || response.status >= 400) return null;
 
-    const payload: unknown = await response.json();
+    const payload: unknown = response.json;
     if (!isSudachiResponse(payload, missingRecords.length)) return null;
 
     payload.results.forEach((item, index) => {

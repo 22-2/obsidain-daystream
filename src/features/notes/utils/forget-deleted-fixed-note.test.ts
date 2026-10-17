@@ -1,6 +1,6 @@
-import type { WorkspaceLeaf } from "obsidian";
+import type { ViewState } from "obsidian";
 import { forgetDeletedFixedNote } from "src/features/notes/utils/forget-deleted-fixed-note";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, type Mock } from "vitest";
 
 const DELETED = "dstr/Target.dstr.md";
 
@@ -8,22 +8,29 @@ function entry(type: string, file: string) {
   return { state: { type, state: { file } }, eState: {} };
 }
 
+type TestHistory = {
+  backHistory: ReturnType<typeof entry>[];
+  forwardHistory: ReturnType<typeof entry>[];
+};
+
+type TestLeaf = {
+  getViewState: Mock<() => { type: string; state?: Record<string, unknown> }>;
+  setViewState: Mock<(state: ViewState) => Promise<void>>;
+  history?: TestHistory;
+};
+
 function createLeaf(params: {
   current: { type: string; state?: Record<string, unknown> };
-  backHistory?: unknown[];
-  forwardHistory?: unknown[];
+  backHistory?: ReturnType<typeof entry>[];
+  forwardHistory?: ReturnType<typeof entry>[];
   withoutHistory?: boolean;
-}) {
-  const leaf = {
+}): TestLeaf {
+  return {
     getViewState: vi.fn(() => params.current),
-    setViewState: vi.fn(async () => {}),
+    setViewState: vi.fn(async (_state: ViewState) => {}),
     history: params.withoutHistory
       ? undefined
       : { backHistory: params.backHistory ?? [], forwardHistory: params.forwardHistory ?? [] },
-  };
-  return leaf as unknown as WorkspaceLeaf & {
-    setViewState: ReturnType<typeof vi.fn>;
-    history: { backHistory: unknown[]; forwardHistory: unknown[] };
   };
 }
 
@@ -37,8 +44,8 @@ describe("forgetDeletedFixedNote", () => {
 
     await forgetDeletedFixedNote([leaf], DELETED);
 
-    expect(leaf.history.backHistory).toEqual([entry("markdown", "a.md")]);
-    expect(leaf.history.forwardHistory).toEqual([entry("markdown", "c.md")]);
+    expect(leaf.history?.backHistory).toEqual([entry("markdown", "a.md")]);
+    expect(leaf.history?.forwardHistory).toEqual([entry("markdown", "c.md")]);
     expect(leaf.setViewState).not.toHaveBeenCalled();
   });
 
@@ -57,12 +64,12 @@ describe("forgetDeletedFixedNote", () => {
   it("空タブへの切り替えで積まれた履歴も取り除く", async () => {
     const leaf = createLeaf({ current: { type: "dstr-view", state: { file: DELETED } } });
     leaf.setViewState.mockImplementation(async () => {
-      leaf.history.backHistory.push(entry("dstr-view", DELETED));
+      leaf.history?.backHistory.push(entry("dstr-view", DELETED));
     });
 
     await forgetDeletedFixedNote([leaf], DELETED);
 
-    expect(leaf.history.backHistory).toEqual([]);
+    expect(leaf.history?.backHistory).toEqual([]);
   });
 
   it("履歴を持たない leaf は無視する", async () => {

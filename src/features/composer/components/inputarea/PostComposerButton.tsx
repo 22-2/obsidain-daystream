@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useRef } from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { FloatingButton } from "src/core/ui/components/primitives/FloatingButton";

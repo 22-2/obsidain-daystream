@@ -2,23 +2,17 @@ import {
   inferNoteIdentityFromFile,
   inferNoteIdentityFromFilename,
 } from "src/core/db/note-file-identity";
-import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { createFakeShell } from "src/core/test-fixtures";
 import { describe, expect, test } from "vitest";
 
-const shell = {
-  ...new ObsidianAppShell({
-    vault: {},
-    workspace: {},
-    metadataCache: {},
-    fileManager: {},
-  } as any),
+const shell = createFakeShell({
   getCommunityPlugin: () => undefined,
   getInternalPluginById: () => undefined,
-};
+});
 
 describe("note file identity inference", () => {
   test("infers the default topic daily note", () => {
-    const identity = inferNoteIdentityFromFilename("2026-03-23", ["", "writing"], shell as any);
+    const identity = inferNoteIdentityFromFilename("2026-03-23", ["", "writing"], shell);
 
     expect(identity).not.toBeNull();
     expect(identity?.topicId).toBe("");
@@ -30,7 +24,7 @@ describe("note file identity inference", () => {
     const identity = inferNoteIdentityFromFilename(
       "deep-work-2026-03-23",
       ["", "deep-work", "deep"],
-      shell as any,
+      shell,
     );
 
     expect(identity).not.toBeNull();
@@ -39,14 +33,14 @@ describe("note file identity inference", () => {
   });
 
   test("returns null when nothing matches", () => {
-    expect(inferNoteIdentityFromFilename("not-a-note", ["", "writing"], shell as any)).toBeNull();
+    expect(inferNoteIdentityFromFilename("not-a-note", ["", "writing"], shell)).toBeNull();
   });
 
   test("accepts a TFile-like object", () => {
     const identity = inferNoteIdentityFromFile(
-      { basename: "writing-2026-03" } as never,
+      { basename: "writing-2026-03" },
       ["", "writing"],
-      shell as any,
+      shell,
     );
 
     expect(identity).not.toBeNull();
@@ -55,7 +49,7 @@ describe("note file identity inference", () => {
   });
 
   test("infers a quarterly note", () => {
-    const identity = inferNoteIdentityFromFilename("2026-Q2", ["", "writing"], shell as any);
+    const identity = inferNoteIdentityFromFilename("2026-Q2", ["", "writing"], shell);
 
     expect(identity).not.toBeNull();
     expect(identity?.topicId).toBe("");

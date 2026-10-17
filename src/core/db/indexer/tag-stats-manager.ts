@@ -1,4 +1,4 @@
-import type { DSTRDatabase } from "src/core/db/dstr-db";
+import type { DSTRDatabase, MemoRecord } from "src/core/db/dstr-db";
 
 // ---------------------------------------------------------------------------
 // TagStatsManager — encapsulates all tag-count bookkeeping
@@ -66,11 +66,11 @@ export class TagStatsManager {
   }
 
   /** Collect tag counts from an in-memory record array. */
-  collectFromRecords(records: any[]): Map<string, number> {
+  collectFromRecords(records: readonly Pick<MemoRecord, "archived" | "deleted" | "tags">[]): Map<string, number> {
     const counts = new Map<string, number>();
-    for (const r of records ?? []) {
-      if (r.archived || r.deleted) continue;
-      for (const tag of r.tags ?? []) {
+    for (const record of records) {
+      if (record.archived || record.deleted) continue;
+      for (const tag of record.tags) {
         counts.set(tag, (counts.get(tag) ?? 0) + 1);
       }
     }

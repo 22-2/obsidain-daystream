@@ -1,6 +1,11 @@
 import type { Granularity } from "src/core/domain/granularity";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
-import { getDSTRThreadId, normalizeDSTRMetadata } from "src/core/metadata";
+import { toError } from "src/core/errors";
+import {
+  getDSTRThreadId,
+  normalizeDSTRMetadata,
+  parseDSTRMetadataJson,
+} from "src/core/metadata";
 
 // ---------------------------------------------------------------------------
 // Record types
@@ -53,8 +58,16 @@ function getLegacyDatabaseName(appId: string): string {
 function req<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onerror = () => reject(toError(request.error, "IndexedDB request failed"));
   });
+}
+
+/**
+ * 結果の型を呼び出し側で指定する IDBRequest の変換。
+ * lib.dom の getAll / get は any を返すため、ここで型を宣言して境界の any を外へ出さない。
+ */
+function reqTyped<T>(request: IDBRequest): Promise<T> {
+  return req(request as IDBRequest<T>);
 }
 
 /**
@@ -84,21 +97,17 @@ function cursorAll<T>(
       cursor.continue();
     };
 
-    cursorReq.onerror = () => reject(cursorReq.error);
+    cursorReq.onerror = () => reject(toError(cursorReq.error, "IndexedDB cursor failed"));
   });
 }
 
 function isThreadRootMemo(memo: MemoRecord): boolean {
-  try {
-    const parsed = JSON.parse(memo.metadataJson) as Record<string, unknown>;
-    const threadId = getDSTRThreadId(parsed as Record<string, string>);
-    const parentId = parsed.parentId;
-    return (
-      typeof threadId === "string" && threadId.length > 0 && (parentId == null || parentId === "")
-    );
-  } catch {
-    return false;
-  }
+  const parsed = parseDSTRMetadataJson(memo.metadataJson);
+  if (!parsed) return false;
+
+  const threadId = getDSTRThreadId(parsed);
+  const parentId = parsed.parentId;
+  return typeof threadId === "string" && threadId.length > 0 && (parentId == null || parentId === "");
 }
 
 /**
@@ -219,7 +228,7 @@ class MemoStore {
   }
 
   toArray(): Promise<MemoRecord[]> {
-    return this.perform("readonly", (s) => req(s.getAll()));
+    return this.perform("readonly", (s) => reqTyped<MemoRecord[]>(s.getAll()));
   }
 
   bulkPut(items: MemoRecord[]): Promise<void> {
@@ -233,7 +242,7 @@ class MemoStore {
       equals: (value: unknown) => ({
         toArray: (): Promise<MemoRecord[]> => {
           return this.perform("readonly", (s) =>
-            req(s.index(indexName).getAll(IDBKeyRange.only(value))),
+            reqTyped<MemoRecord[]>(s.index(indexName).getAll(IDBKeyRange.only(value))),
           );
         },
         delete: (): Promise<void> => {
@@ -249,7 +258,7 @@ class MemoStore {
                   resolve();
                 }
               };
-              request.onerror = () => reject(request.error);
+              request.onerror = () => reject(toError(request.error, "IndexedDB request failed"));
             });
           });
         },
@@ -306,7 +315,7 @@ class TagStatStore {
   }
 
   toArray(): Promise<TagStatRecord[]> {
-    return this.perform("readonly", (s) => req(s.getAll()));
+    return this.perform("readonly", (s) => reqTyped<TagStatRecord[]>(s.getAll()));
   }
 
   bulkPut(items: TagStatRecord[]): Promise<void> {
@@ -317,7 +326,7 @@ class TagStatStore {
 
   bulkGet(tags: string[]): Promise<(TagStatRecord | undefined)[]> {
     return this.perform("readonly", async (s) => {
-      return Promise.all(tags.map((tag) => req(s.get(tag))));
+      return Promise.all(tags.map((tag) => reqTyped<TagStatRecord | undefined>(s.get(tag))));
     });
   }
 
@@ -397,7 +406,7 @@ export class DSTRDatabase {
     await new Promise<void>((resolve, reject) => {
       const r = indexedDB.deleteDatabase(this._name);
       r.onsuccess = () => resolve();
-      r.onerror = () => reject(r.error);
+      r.onerror = () => reject(toError(r.error, "IndexedDB delete failed"));
     });
   }
 
@@ -430,11 +439,11 @@ export class DSTRDatabase {
       };
       tx.onerror = () => {
         cleanup();
-        reject(callbackError ?? tx.error);
+        reject(toError(callbackError ?? tx.error, "IndexedDB transaction failed"));
       };
       tx.onabort = () => {
         cleanup();
-        reject(callbackError ?? new Error("Transaction aborted"));
+        reject(toError(callbackError, "Transaction aborted"));
       };
 
       callback()
@@ -635,7 +644,7 @@ export class DSTRDatabase {
         const db = openReq.result;
         void this.migrateLegacyDatabase(db).then(() => resolve(db), reject);
       };
-      openReq.onerror = () => reject(openReq.error);
+      openReq.onerror = () => reject(toError(openReq.error, "IndexedDB open failed"));
     });
   }
 
@@ -660,7 +669,7 @@ export class DSTRDatabase {
     const legacyOpenReq = indexedDB.open(this._legacyName);
     const legacyDb = await new Promise<IDBDatabase>((resolve, reject) => {
       legacyOpenReq.onsuccess = () => resolve(legacyOpenReq.result);
-      legacyOpenReq.onerror = () => reject(legacyOpenReq.error);
+      legacyOpenReq.onerror = () => reject(toError(legacyOpenReq.error, "Legacy IndexedDB open failed"));
     });
 
     try {
@@ -681,25 +690,22 @@ export class DSTRDatabase {
       if (memoIndex >= 0) {
         recordsByStore[memoIndex] = recordsByStore[memoIndex].map((record) => {
           if (typeof record.metadataJson !== "string") return record;
-          try {
-            return {
-              ...record,
-              metadataJson: JSON.stringify(
-                normalizeDSTRMetadata(JSON.parse(record.metadataJson) as Record<string, string>),
-              ),
-            };
-          } catch {
-            return record;
-          }
+          const metadata = parseDSTRMetadataJson(record.metadataJson);
+          if (!metadata) return record;
+
+          return {
+            ...record,
+            metadataJson: JSON.stringify(normalizeDSTRMetadata(metadata)),
+          };
         });
       }
 
       await new Promise<void>((resolve, reject) => {
         const transaction = db.transaction(storeNames, "readwrite");
         transaction.oncomplete = () => resolve();
-        transaction.onerror = () => reject(transaction.error);
+        transaction.onerror = () => reject(toError(transaction.error, "Database migration failed"));
         transaction.onabort = () =>
-          reject(transaction.error ?? new Error("Database migration aborted"));
+          reject(toError(transaction.error, "Database migration aborted"));
         storeNames.forEach((name, index) => {
           const store = transaction.objectStore(name);
           recordsByStore[index].forEach((record) => store.put(record));

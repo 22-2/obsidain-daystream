@@ -1,5 +1,7 @@
 import { Menu } from "obsidian";
+import type { MouseEvent } from "react";
 import { useCallback } from "react";
+import { reportError } from "src/core/error-report";
 import type { MomentLike } from "src/core/domain/post";
 
 type DividerContextMenuCapabilities = {
@@ -33,7 +35,7 @@ export function useDividerContextMenu({
 }: UseDividerContextMenuInput) {
   const showDividerContextMenu = useCallback(
     (
-      event: React.MouseEvent,
+      event: MouseEvent,
       params?: {
         date?: MomentLike;
         groupKey?: string;
@@ -63,7 +65,9 @@ export function useDividerContextMenu({
             .setIcon("code-xml")
             .setDisabled(!capabilities.supportsDateNavigation)
             .onClick(() => {
-              void openDailyNoteSourceForDate(targetDate);
+              openDailyNoteSourceForDate(targetDate).catch((error: unknown) =>
+                reportError({ context: "Failed to open daily note source", error }),
+              );
             }),
         );
 
@@ -101,7 +105,7 @@ export function useDividerContextMenu({
           .onClick(expandAll),
       );
 
-      menu.showAtMouseEvent(event as unknown as MouseEvent);
+      menu.showAtMouseEvent(event.nativeEvent);
     },
     [
       canCollapseDividers,

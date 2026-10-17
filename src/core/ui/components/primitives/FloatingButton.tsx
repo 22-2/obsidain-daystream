@@ -1,4 +1,4 @@
-import type { MouseEventHandler, ReactNode } from "react";
+import type { FC, MouseEventHandler, ReactNode } from "react";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { useObsidianTooltip } from "src/core/ui/hooks/useObsidianTooltip";
 
@@ -13,7 +13,7 @@ type FloatingButtonProps = {
   children?: ReactNode;
 };
 
-export const FloatingButton: React.FC<FloatingButtonProps> = ({
+export const FloatingButton: FC<FloatingButtonProps> = ({
   onClick,
   tooltip,
   visible = true,

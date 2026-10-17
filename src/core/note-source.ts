@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { TFile } from "obsidian";
 import {
   buildFixedNotePathFromName,
@@ -117,7 +118,7 @@ export function searchPeriodicDayWindow(params: {
     };
   }
 
-  const oldestPossibleDate = window.moment(uids[0].substring("day-".length));
+  const oldestPossibleDate = obsidianMoment(uids[0].substring("day-".length));
   const start = baseDate.clone().startOf("day");
   const dates = Array.from({ length: days }, (_, index) => start.clone().subtract(index, "days"));
   const lastInWindow = dates[dates.length - 1];
@@ -139,7 +140,7 @@ export function searchPeriodicDayWindow(params: {
       return searchPeriodicDayWindow({
         shell,
         activeTopic,
-        baseDate: window.moment(nextUid.substring("day-".length)),
+        baseDate: obsidianMoment(nextUid.substring("day-".length)),
         days,
       });
     }

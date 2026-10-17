@@ -1,13 +1,14 @@
-import React from "react";
+import type { ElementType, HTMLAttributes } from "react";
+import { createElement } from "react";
 import { cn } from "src/core/ui/components/primitives/utils";
 
-type TextProps = React.HTMLAttributes<HTMLElement> & {
-  as?: any;
+type TextProps = HTMLAttributes<HTMLElement> & {
+  as?: ElementType;
   className?: string;
 };
 
 export const Text = ({ as: Comp = "span", className, children, ...rest }: TextProps) => {
-  return React.createElement(Comp as any, { className: cn(className), ...rest }, children);
+  return createElement(Comp, { ...rest, className: cn(className) }, children);
 };
 
 Text.displayName = "Text";

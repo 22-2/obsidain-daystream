@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import type { Granularity } from "src/core/domain/granularity";
 import type { Post } from "src/core/domain/post";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { DateFilter, DisplayMode, TimeFilter } from "src/features/workspace/types";
 import { filterPostsByRelativeWindow } from "src/features/posts/utils/post-filters";
 import { getPostTags, isPinned, isVisible } from "src/core/domain/post-metadata";
@@ -115,7 +116,7 @@ function filterPostsForView({
     return sortPostsPinnedFirst(visibleRoots);
   }
 
-  const now = window.moment();
+  const now = obsidianMoment();
   return sortPostsPinnedFirst(
     visibleRoots.filter((post) => now.diff(post.timestamp, "hours") < hours),
   );

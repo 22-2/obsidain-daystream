@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import {
   groupSessionsByActivity,
   type FixedSessionSummary,
@@ -22,7 +23,7 @@ function session(
 describe("groupSessionsByActivity", () => {
   it("ちょうど7日前は最近のグループ、その1ミリ秒前は古いグループに入る", () => {
     // 意図: 日単位への丸めで境界が変わらないよう、同じ時刻からの7日間を検証する。
-    const threshold = window.moment().subtract(7, "days");
+    const threshold = obsidianMoment().subtract(7, "days");
     const onBoundary = session(1, { lastActiveAt: threshold.toISOString() });
     const beforeBoundary = session(2, {
       lastActiveAt: threshold.clone().subtract(1, "millisecond").toISOString(),
@@ -36,7 +37,7 @@ describe("groupSessionsByActivity", () => {
   });
 
   it("活動日時がなくても、不正な日時でも古いグループに入る", () => {
-    const withoutActivity = session(1, { createdAt: window.moment().toISOString() });
+    const withoutActivity = session(1, { createdAt: obsidianMoment().toISOString() });
     const invalidActivity = session(2, { lastActiveAt: "2026-13-01T00:00:00.000Z" });
 
     const grouped = groupSessionsByActivity([invalidActivity, withoutActivity]);
@@ -48,9 +49,9 @@ describe("groupSessionsByActivity", () => {
   it("古いセッションでもピン留めなら専用グループだけに入る", () => {
     const pinned = session(1, {
       pinned: true,
-      lastActiveAt: window.moment().subtract(30, "days").toISOString(),
+      lastActiveAt: obsidianMoment().subtract(30, "days").toISOString(),
     });
-    const recent = session(2, { lastActiveAt: window.moment().toISOString() });
+    const recent = session(2, { lastActiveAt: obsidianMoment().toISOString() });
 
     const grouped = groupSessionsByActivity([recent, pinned]);
 
@@ -60,10 +61,10 @@ describe("groupSessionsByActivity", () => {
   });
 
   it("活動時刻が更新されても作成日時の新しい順を維持し、同時刻なら番号順に並ぶ", () => {
-    const createdAt = window.moment().subtract(2, "days").toISOString();
+    const createdAt = obsidianMoment().subtract(2, "days").toISOString();
     const older = session(1, {
-      createdAt: window.moment().subtract(5, "days").toISOString(),
-      lastActiveAt: window.moment().toISOString(),
+      createdAt: obsidianMoment().subtract(5, "days").toISOString(),
+      lastActiveAt: obsidianMoment().toISOString(),
     });
     const newerFirst = session(2, { createdAt, lastActiveAt: createdAt });
     const newerSecond = session(3, { createdAt, lastActiveAt: createdAt });

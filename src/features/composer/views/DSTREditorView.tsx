@@ -72,7 +72,7 @@ export class DSTREditorView extends ItemView {
   }
 
   getState(): DSTREditorViewState {
-    return this.state || ({} as DSTREditorViewState);
+    return this.state || ({});
   }
 
   // -----------------------------------------------------------------------

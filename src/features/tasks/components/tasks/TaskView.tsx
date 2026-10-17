@@ -1,3 +1,4 @@
+import type React from "react";
 import { memo } from "react";
 import { excludeWikiLink } from "src/core/strings";
 import type { Task } from "src/core/task-text";

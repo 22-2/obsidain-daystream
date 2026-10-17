@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { fireEvent, screen } from "@testing-library/react";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import {
   buildBacklinkPreviewText,
   openBacklinkPreviewModal,
@@ -27,14 +27,14 @@ type TestCreateOptions = {
 };
 
 function toTestCreateOptions(options: unknown): TestCreateOptions {
-  return typeof options === "object" && options !== null ? (options as TestCreateOptions) : {};
+  return typeof options === "object" && options !== null ? options : {};
 }
 
 vi.mock("obsidian", () => {
   class Modal {
-    modalEl = document.createElement("div");
-    contentEl = document.createElement("div");
-    titleEl = document.createElement("div");
+    modalEl = createDiv();
+    contentEl = createDiv();
+    titleEl = createDiv();
 
     constructor(_app: unknown) {
       this.modalEl.append(this.titleEl, this.contentEl);
@@ -59,13 +59,13 @@ vi.mock("obsidian", () => {
 });
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-04-10T16:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-04-10T16:00:00.000Z");
 
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-04-10T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-04-10T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,
@@ -94,7 +94,7 @@ beforeAll(() => {
   };
   proto.createDiv = function (options) {
     const normalizedOptions = toTestCreateOptions(options);
-    const el = document.createElement("div");
+    const el = createDiv();
     if (normalizedOptions.cls) {
       el.className = normalizedOptions.cls;
     }
@@ -106,7 +106,7 @@ beforeAll(() => {
   };
   proto.createEl = function (tag, options) {
     const normalizedOptions = toTestCreateOptions(options);
-    const el = document.createElement(tag);
+    const el = createEl(tag);
     if (normalizedOptions.cls) {
       el.className = normalizedOptions.cls;
     }
@@ -145,12 +145,12 @@ describe("BacklinkPreviewModal", () => {
   it("preview item をクリックすると callback を呼んで modal を閉じる", () => {
     const targetPost = createPost({
       id: "target-1",
-      timestamp: moment("2026-04-09T16:40:00.000Z"),
+      timestamp: obsidianMoment("2026-04-09T16:40:00.000Z"),
     });
     const sourcePost = createPost({
       id: "source-1",
       message: "preview line 1\npreview line 2\npreview line 3",
-      timestamp: moment("2026-04-10T10:00:00.000Z"),
+      timestamp: obsidianMoment("2026-04-10T10:00:00.000Z"),
     });
     const onSelectPost = vi.fn();
 

@@ -1,3 +1,4 @@
+import type { Moment } from "moment";
 import React, { useEffect } from "react";
 import { CalendarHeader } from "src/features/notes/components/calendar/CalendarHeader";
 import { useMiniCalendar } from "src/features/notes/components/calendar/utils";
@@ -10,7 +11,7 @@ const WEEK_DAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"] as con
 // ─────────────────────────────────────────────
 
 export const MiniCalendar: React.FC<{
-  onViewDateChange?: (date: moment.Moment) => void;
+  onViewDateChange?: (date: Moment) => void;
 }> = ({ onViewDateChange }) => {
   const {
     date,
@@ -41,7 +42,7 @@ export const MiniCalendar: React.FC<{
         viewDate={viewDate}
         date={date}
         granularity={granularity}
-        dateFilter={dateFilter as string}
+        dateFilter={dateFilter}
         onPrev={handlePrevMonth}
         onNext={handleNextMonth}
         onSelectYear={(e) => {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef } from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
+import { reportError } from "src/core/error-report";
 import { EmptyState } from "src/features/workspace/components/EmptyState";
 import { InputArea } from "src/features/composer/components/inputarea/InputArea";
 import { InsightView } from "src/features/insights/components/InsightView";
@@ -18,7 +19,6 @@ import { PastTodayNotice } from "src/features/workspace/components/statusbar/par
 import { TaskListView } from "src/features/tasks/components/tasks/TaskListView";
 import { INPUT_AREA_SIZE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
-import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useCSSLoaded } from "src/core/ui/hooks/useCSSLoaded";
 import { usePosts } from "src/features/posts/hooks/usePosts";
@@ -29,13 +29,13 @@ import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import type { DSTRView } from "src/features/workspace/views/DSTRView";
+import { useDSTRView } from "src/features/workspace/views/useDSTRView";
 import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
 
 export const DSTRWorkspaceLayout = () => {
   const { settings: pluginSettings } = useAppContext();
-  const component = useObsidianComponent() as DSTRView;
+  const component = useDSTRView();
   const isCSSLoaded = useCSSLoaded(component.containerEl);
   const { viewNoteMode } = useAppStore(
     useShallow((s) => ({
@@ -97,7 +97,9 @@ export const DSTRWorkspaceLayout = () => {
       const text = postsTocopy
         .map((p) => `${p.timestamp.format("YYYY-MM-DD HH:mm")}\n${p.message}`)
         .join("\n\n");
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(text).catch((error: unknown) => {
+        reportError({ context: "Failed to copy posts", error, notice: "投稿をコピーできませんでした" });
+      });
     };
     return () => {
       component.actionDelegates.onCopyAllPosts = undefined;

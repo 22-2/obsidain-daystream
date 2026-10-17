@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { useEffect } from "react";
 import { subscribeToDBUpdates } from "src/core/db/updates";
 import type { IDBService } from "src/core/db/interfaces/IDBService";
@@ -14,7 +15,7 @@ function getPastTodayYears(activeDates: string[], targetDate: MomentLike) {
   const years = new Set<number>();
 
   for (const activeDate of activeDates) {
-    const parsedDate = window.moment(activeDate, "YYYY-MM-DD", true);
+    const parsedDate = obsidianMoment(activeDate, "YYYY-MM-DD", true);
     if (!parsedDate.isValid() || parsedDate.year() >= targetDate.year()) {
       continue;
     }
@@ -80,7 +81,7 @@ export function usePastTodayPostCount(): {
     viewNoteMode === "periodic" && granularity === "day" && dateFilter === "today" && !asTask;
   const dateKey = date.format("YYYY-MM-DD");
 
-  const { data, error, mutate } = useSWR<number>(
+  const { data, error, mutate } = useSWR<number, Error>(
     enabled ? ["past-today-post-count", activeTopic || "all", dateKey] : null,
     async () => fetchPastTodayPostCount(db, date, activeTopic || undefined),
     {

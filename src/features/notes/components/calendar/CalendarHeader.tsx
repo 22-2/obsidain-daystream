@@ -1,3 +1,4 @@
+import type { Moment } from "moment";
 import type React from "react";
 import { NavButton } from "src/core/ui/components/common/NavButton";
 import { getCalendarNavigationSelection } from "src/features/notes/components/calendar/selection";
@@ -8,8 +9,8 @@ import type { Granularity } from "src/features/workspace/config/granularity-conf
 // サブコンポーネント (Tailwind化)
 // ─────────────────────────────────────────────
 export const CalendarHeader: React.FC<{
-  viewDate: moment.Moment;
-  date: moment.Moment;
+  viewDate: Moment;
+  date: Moment;
   granularity: Granularity;
   dateFilter: string;
   onPrev: () => void;

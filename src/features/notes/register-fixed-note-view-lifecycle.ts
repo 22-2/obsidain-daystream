@@ -1,5 +1,5 @@
 import { around } from "monkey-around";
-import { TFile, WorkspaceLeaf } from "obsidian";
+import { TFile, WorkspaceLeaf, type ViewState } from "obsidian";
 import { DSTRStorage } from "src/core/storage";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { createFixedNoteViewExtension } from "src/features/notes/extensions/fixed-note-view-extension";
@@ -22,8 +22,8 @@ export function registerFixedNoteViewLifecycle(
 
   context.register(
     around(WorkspaceLeaf.prototype, {
-      setViewState(original: Function) {
-        return function (this: WorkspaceLeaf, viewState, eState) {
+      setViewState(original: WorkspaceLeaf["setViewState"]) {
+        return function (this: WorkspaceLeaf, viewState: ViewState, eState?: unknown) {
           const nextState = fixedNoteViewExtension.convertMarkdownViewState(viewState);
           return original.call(this, nextState, eState);
         };

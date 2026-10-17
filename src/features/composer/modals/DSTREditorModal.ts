@@ -62,7 +62,7 @@ export class DSTREditorModal extends ModalEditor {
     this.submissionState = submissionState;
     this.modalEl.addClass("dstr-modal-editor");
 
-    this.scope = new Scope(this.app.scope as Scope);
+    this.scope = new Scope(this.app.scope);
     const close = () => {
       this.close();
       return true;
@@ -75,7 +75,7 @@ export class DSTREditorModal extends ModalEditor {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.titleEl.empty();
-    this.titleEl.style.display = "none";
+    this.titleEl.hide();
     this.contentEl.addEventListener("mousedown", this.handleSizerMouseDown, true);
 
     const footer = this.contentEl.createDiv({

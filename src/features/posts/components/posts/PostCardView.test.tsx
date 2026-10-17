@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import React from "react";
 import { PostCardView } from "src/features/posts/components/posts/PostCardView";
 import type { Post } from "src/core/domain/post";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("obsidian", () => ({
-  setTooltip: (el: HTMLElement, tooltip: string) =>
-    el.setAttribute("aria-label", tooltip),
+vi.mock("obsidian", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("obsidian")>()),
+  setTooltip: (el: HTMLElement, tooltip: string) => el.setAttribute("aria-label", tooltip),
 }));
 
 vi.mock("src/features/workspace/store/appStore", () => ({
@@ -50,13 +50,13 @@ vi.mock("src/core/ui/components/common/ObsidianIcon", () => ({
 }));
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-04-10T16:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-04-10T16:00:00.000Z");
 
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-04-10T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-04-10T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,

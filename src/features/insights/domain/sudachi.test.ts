@@ -1,4 +1,5 @@
 import type { MemoRecord } from "src/core/db/dstr-db";
+import { requestUrl } from "obsidian";
 import { getInsightRecordCacheKey } from "src/features/insights/domain/insightSummary";
 import {
   clearSudachiCache,
@@ -30,21 +31,26 @@ function record(overrides: Partial<MemoRecord> = {}): MemoRecord {
 }
 
 afterEach(() => vi.unstubAllGlobals());
-beforeEach(() => clearSudachiCache());
+beforeEach(() => {
+  clearSudachiCache();
+  vi.mocked(requestUrl).mockReset();
+});
+
+function mockSudachiResponse(words: string[][]): void {
+  vi.mocked(requestUrl).mockResolvedValue({
+    status: 200,
+    headers: {},
+    arrayBuffer: new ArrayBuffer(0),
+    json: { results: words.map((item) => ({ words: item })) },
+    text: "",
+  });
+}
 
 describe("tokenizeInsightRecords", () => {
   it("投稿と内容語を対応づける", async () => {
     const first = record({ id: "first" });
     const second = record({ id: "second", content: "分析を試します。" });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          results: [{ words: ["開発"] }, { words: ["分析", "試す"] }],
-        }),
-      }),
-    );
+    mockSudachiResponse([["開発"], ["分析", "試す"]]);
 
     const result = await tokenizeInsightRecords([first, second]);
 
@@ -53,22 +59,18 @@ describe("tokenizeInsightRecords", () => {
   });
 
   it("サーバーが使えないときは簡易分析へフォールバックする", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    vi.mocked(requestUrl).mockRejectedValue(new Error("offline"));
 
     await expect(tokenizeInsightRecords([record()])).resolves.toBeNull();
   });
 
   it("同じ投稿はSudachiサーバーへ再送しない", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ results: [{ words: ["開発"] }] }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    mockSudachiResponse([["開発"]]);
     const memo = record();
 
     await tokenizeInsightRecords([memo]);
     await tokenizeInsightRecords([memo]);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(requestUrl).toHaveBeenCalledTimes(1);
   });
 });

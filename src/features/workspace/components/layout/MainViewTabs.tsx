@@ -1,3 +1,4 @@
+import type React from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";

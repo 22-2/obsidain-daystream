@@ -104,7 +104,7 @@ export async function createMeta(url: string): Promise<Meta | null> {
   }
 
   const headers = forceLowerCaseKeys(res.headers);
-  const contentType = headers["content-type"] as string;
+  const contentType = headers["content-type"];
   if (contentType.startsWith("image/")) {
     return {
       type: "image",

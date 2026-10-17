@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { Settings } from "src/core/domain/settings";
 import {
   CONTENT_VIEW,
@@ -129,8 +130,8 @@ export function resolveInitialSettingsState(
       ? editingPost.noteDateStr
       : (storage?.get<string | null>(STORAGE_KEYS.DATE, null) ?? null);
 
-  const date = savedDate ? window.moment(savedDate) : window.moment();
-  const validDate = date.isValid() ? date : window.moment();
+  const date = savedDate ? obsidianMoment(savedDate) : obsidianMoment();
+  const validDate = date.isValid() ? date : obsidianMoment();
   const sidebarOpen = storage?.get<boolean>(STORAGE_KEYS.SIDEBAR_OPEN, true) ?? true;
   const leftPanelOpen =
     storage?.get<boolean>(STORAGE_KEYS.PANEL_LEFT_OPEN, sidebarOpen) ?? sidebarOpen;
@@ -138,7 +139,7 @@ export function resolveInitialSettingsState(
     storage?.get<boolean>(STORAGE_KEYS.PANEL_RIGHT_OPEN, sidebarOpen) ?? sidebarOpen;
   const displayMode =
     storage?.get<DisplayMode>(STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.TIMELINE) ??
-    (DISPLAY_MODE.TIMELINE as DisplayMode);
+    (DISPLAY_MODE.TIMELINE);
   const contentView =
     storage?.get<ContentView>(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.TIMELINE) ??
     CONTENT_VIEW.TIMELINE;

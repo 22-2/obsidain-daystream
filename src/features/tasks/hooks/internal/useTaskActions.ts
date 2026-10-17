@@ -32,30 +32,29 @@ export const useTaskActions = () => {
         return;
       }
       if (!noteState.currentDailyNote) return;
+      if (!shell) return;
       const mark = checked ? "x" : " ";
       postsState.setTasks(
         postsState.tasks.map((x) => (x.offset === task.offset ? { ...x, mark } : x)),
       );
-      await shell!.setCheckMark(noteState.currentDailyNote.path, mark, task.offset);
+      await shell.setCheckMark(noteState.currentDailyNote.path, mark, task.offset);
     },
     [noteState.currentDailyNote, postsState.tasks, postsState.setTasks, shell, isReadOnly],
   );
 
   const openTaskInEditor = useCallback(
-    (task: Task) => {
-      (async () => {
-        if (!noteState.currentDailyNote) return;
-        if (!shell) return;
-        const leaf = shell.getLeaf(true);
-        await leaf.openFile(noteState.currentDailyNote!);
-        const editor = shell.getActiveMarkdownEditor()!;
-        if (!editor) return;
-        const pos = editor.offsetToPos(task.offset);
-        editor.setCursor(pos);
-        await leaf.openFile(noteState.currentDailyNote!, {
-          eState: { line: pos.line },
-        });
-      })();
+    async (task: Task) => {
+      if (!noteState.currentDailyNote) return;
+      if (!shell) return;
+      const leaf = shell.getLeaf(true);
+      await leaf.openFile(noteState.currentDailyNote);
+      const editor = shell.getActiveMarkdownEditor();
+      if (!editor) return;
+      const pos = editor.offsetToPos(task.offset);
+      editor.setCursor(pos);
+      await leaf.openFile(noteState.currentDailyNote, {
+        eState: { line: pos.line },
+      });
     },
     [shell, noteState.currentDailyNote],
   );

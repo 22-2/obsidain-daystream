@@ -94,14 +94,14 @@ vi.mock("@22-2/obsidian-magical-editor", () => {
 
     loadToDom(parent: HTMLElement) {
       this.view = {
-        containerEl: document.createElement("div"),
+        containerEl: createDiv(),
         toggleCtrlEnterKeyBinding: (enabled) => {
           this.ctrlEnterBindingCalls.push(enabled);
         },
       };
       this.view?.containerEl.classList.add("mock-editor");
       this.view?.containerEl.remove();
-      parent.appendChild(this.view!.containerEl);
+      parent.appendChild(this.view.containerEl);
 
       if (fakeEditorState.triggerOnLoad !== null) {
         this.options.onChange(fakeEditorState.triggerOnLoad);

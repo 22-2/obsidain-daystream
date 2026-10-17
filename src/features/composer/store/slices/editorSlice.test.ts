@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { DSTRStorage } from "src/core/storage";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/features/workspace/config/constants";
@@ -45,7 +46,7 @@ function createMockStorage(initialValues: Record<string, unknown> = {}): MockSto
 }
 
 function buildPostFixture(message: string): Post {
-  const noteDate = window.moment("2026-03-15T00:00:00.000Z");
+  const noteDate = obsidianMoment("2026-03-15T00:00:00.000Z");
   const timestamp = noteDate.clone().hour(12);
 
   return {
@@ -203,7 +204,7 @@ describe("editorSlice", () => {
   it("月を往復しても以前の最大化が勝手に復元されない", () => {
     const store = createAppStore();
     const { storage } = createMockStorage();
-    const august = window.moment("2026-08-01");
+    const august = obsidianMoment("2026-08-01");
     store.setState({ storage, granularity: "month", date: august.clone() });
     store.getState().setInputAreaSize(INPUT_AREA_SIZE.MAXIMIZED);
     expect(store.getState().inputAreaSize).toBe(INPUT_AREA_SIZE.MAXIMIZED);
@@ -219,7 +220,7 @@ describe("editorSlice", () => {
     "%s の旧最大化状態は初期化時と再訪時に復元しない",
     (noteMode) => {
       const store = createAppStore();
-      const date = window.moment("2026-08-01");
+      const date = obsidianMoment("2026-08-01");
       const file = noteMode === "fixed" ? "dstr/a.dstr.md" : null;
       const { storage } = createMockStorage({
         [STORAGE_KEYS.GRANULARITY]: "month",
@@ -241,7 +242,7 @@ describe("editorSlice", () => {
   it("最大化を一時状態にしても日付ごとの最小化は復元する", () => {
     const store = createAppStore();
     const { storage } = createMockStorage();
-    const date = window.moment("2026-08-01");
+    const date = obsidianMoment("2026-08-01");
     store.setState({ storage, granularity: "month", date: date.clone() });
     store.getState().setInputAreaSize(INPUT_AREA_SIZE.MINIMIZED);
 
@@ -487,19 +488,19 @@ describe("editorSlice", () => {
       granularity: "day",
       threadFocusRootId: null,
     });
-    expect(firstTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+    expect(firstTab.getState().date.isSame(obsidianMoment(), "day")).toBe(true);
 
-    firstTab.getState().setDate(window.moment("2026-03-10"));
+    firstTab.getState().setDate(obsidianMoment("2026-03-10"));
     expect(values.get(STORAGE_KEYS.DATE)).toBe(savedDate);
     const secondTab = initializeTimeline();
-    expect(secondTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+    expect(secondTab.getState().date.isSame(obsidianMoment(), "day")).toBe(true);
     expect(firstTab.getState().date.format("YYYY-MM-DD")).toBe("2026-03-10");
 
     firstTab.getState().setMainView(MAIN_VIEW.DATE);
     firstTab.getState().setGranularity("month");
     firstTab.getState().setMainView(MAIN_VIEW.TIMELINE);
     expect(firstTab.getState().granularity).toBe("day");
-    expect(firstTab.getState().date.isSame(window.moment(), "day")).toBe(true);
+    expect(firstTab.getState().date.isSame(obsidianMoment(), "day")).toBe(true);
     expect(values.get(STORAGE_KEYS.GRANULARITY)).toBe("month");
   });
 });

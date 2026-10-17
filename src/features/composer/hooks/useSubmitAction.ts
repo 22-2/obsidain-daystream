@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
 import { ensureFixedSessionHeading } from "src/core/fixed-sessions";
@@ -73,7 +74,7 @@ export const useSubmitAction = () => {
     async (note: TFile): Promise<string | null> => {
       const insertAfter = settings.insertAfter.trim();
       if (!insertAfter) {
-        new Notice("fixed session を使うには insertAfter 見出しの設定が必要です");
+        new Notice("Fixed session を使うには挿入位置の設定が必要です");
         return null;
       }
 
@@ -124,7 +125,7 @@ export const useSubmitAction = () => {
         return;
       }
 
-      const now = window.moment();
+      const now = obsidianMoment();
       let targetTs = latestPost.timestamp;
       const metadata = normalizeDSTRMetadata(
         mergeDraftMetadataForSubmit({
@@ -182,7 +183,7 @@ export const useSubmitAction = () => {
         return;
       }
 
-      const now = window.moment();
+      const now = obsidianMoment();
       const metadata: Record<string, string> = {
         [THREAD_METADATA_KEYS.PARENT_ID]: settingsState.threadFocusRootId!,
       };
@@ -248,7 +249,7 @@ export const useSubmitAction = () => {
   /** 通常の新規投稿を行う */
   const handleNewPostSubmit = useCallback(
     async (currentInput: string) => {
-      const now = window.moment();
+      const now = obsidianMoment();
       const targetDate = resolveWriteDate(
         settingsState.displayMode,
         settingsState.getEffectiveDate(),
@@ -353,7 +354,7 @@ export const useSubmitAction = () => {
 
       // フォーカスモードでは、投稿後に基準日を「いま」に同期する。
       if (settingsState.viewNoteMode === "periodic" && settingsState.displayMode === "focus") {
-        settingsState.setDate(window.moment());
+        settingsState.setDate(obsidianMoment());
       }
     },
     [
@@ -380,7 +381,7 @@ export const useSubmitAction = () => {
     // 意図: 日付跨ぎ直後は stale な日付のまま再検証されると、
     // DBに投稿があってもタイムライン範囲外となり UI が空表示になる。
     if (isTimelineView(settingsState.displayMode)) {
-      settingsState.setDate(window.moment());
+      settingsState.setDate(obsidianMoment());
     }
 
     const currentInput = editorState.getInputValue();

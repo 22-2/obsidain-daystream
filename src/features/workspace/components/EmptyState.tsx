@@ -1,3 +1,4 @@
+import type React from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { Box, Flex } from "src/core/ui/components/primitives";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";

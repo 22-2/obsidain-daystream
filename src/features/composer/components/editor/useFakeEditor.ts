@@ -1,7 +1,9 @@
+import type React from "react";
 import { FakeEditor } from "@22-2/obsidian-magical-editor";
 import type { App, WorkspaceLeaf } from "obsidian";
 import { useCallback, useEffect, useRef } from "react";
 import type { CtrlEnterSendMode } from "src/core/domain/settings";
+import { reportComposerFailure } from "src/features/composer/utils/composer-failure";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -165,7 +167,7 @@ export function useFakeEditor(
       }
 
       editorRef.current = editor;
-      editor.loadToDom(containerRef.current!);
+      editor.loadToDom(containerRef.current);
       await editor.ready;
 
       if (!active) {
@@ -201,7 +203,9 @@ export function useFakeEditor(
       };
     };
 
-    init();
+    init().catch(
+      reportComposerFailure("Failed to initialize editor", "エディタを初期化できませんでした"),
+    );
 
     return () => {
       active = false;

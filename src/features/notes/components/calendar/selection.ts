@@ -1,9 +1,10 @@
+import type { Moment } from "moment";
 import type { Granularity } from "src/features/workspace/config/granularity-config";
 import { DATE_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import type { DateFilter } from "src/features/workspace/types";
 
 export interface CalendarSelectionState {
-  date: moment.Moment;
+  date: Moment;
   granularity: Granularity;
   dateFilter: string;
 }
@@ -18,7 +19,7 @@ export interface CalendarNavigationSelection {
  */
 export function getCalendarNavigationSelection(
   state: CalendarSelectionState,
-  viewDate: moment.Moment,
+  viewDate: Moment,
 ): CalendarNavigationSelection {
   const sameYear = viewDate.isSame(state.date, "year");
   const sameMonth = viewDate.isSame(state.date, "month");
@@ -38,7 +39,7 @@ export function getCalendarNavigationSelection(
 
 export function isCalendarScaleSelected(
   state: CalendarSelectionState,
-  targetDate: moment.Moment,
+  targetDate: Moment,
   targetGranularity: Granularity,
 ): boolean {
   return (
@@ -52,7 +53,7 @@ export function isCalendarScaleSelected(
 
 export function isCalendarWeekSelected(
   state: CalendarSelectionState,
-  weekStart: moment.Moment,
+  weekStart: Moment,
 ): boolean {
   return (
     (state.granularity === "week" ||
@@ -67,7 +68,7 @@ export function isCalendarDaySelected(state: CalendarSelectionState): boolean {
 
 export function isCalendarDateSelected(
   state: CalendarSelectionState,
-  day: moment.Moment,
+  day: Moment,
 ): boolean {
   return day.isSame(state.date, "day");
 }
@@ -77,7 +78,7 @@ export interface CalendarSelectionActions {
 }
 
 export interface CalendarSelectionTarget {
-  date: moment.Moment;
+  date: Moment;
   dateFilter: DateFilter;
   granularity?: Granularity;
 }

@@ -18,7 +18,8 @@ import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useAppStore, useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { ComposerHostView } from "src/features/composer/types/composer-host";
+import { reportSubmitFailure } from "src/features/composer/utils/composer-failure";
+import { isComposerHostView } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 export const InputAreaFooter: FC<{
@@ -26,7 +27,7 @@ export const InputAreaFooter: FC<{
   onOpenInNewWindow: () => void;
 }> = memo(({ onToggleExpand, onOpenInNewWindow }) => {
   const { settings } = useAppContext();
-  const component = useObsidianComponent() as ComposerHostView;
+  const component = useObsidianComponent(isComposerHostView);
   const store = useRequiredAppStore();
   const { posts } = usePosts();
 
@@ -141,7 +142,7 @@ export const InputAreaFooter: FC<{
       size="1em"
       onActivate={() => {
         if (isReadOnly || !canSubmit) return;
-        void handleSubmit();
+        handleSubmit().catch(reportSubmitFailure);
       }}
       isDisabled={isReadOnly || !canSubmit}
       className={cn(
@@ -159,7 +160,9 @@ export const InputAreaFooter: FC<{
       className="dstr-input-area-footer group"
       onClick={handleClick}
       canSubmit={canSubmit}
-      onSubmit={handleSubmit}
+      onSubmit={() => {
+        handleSubmit().catch(reportSubmitFailure);
+      }}
       onCancel={editingPost ? cancelEdit : undefined}
       characterCount={inputSnapshot.length}
       leadingActions={<InputAreaMetadataActions isReadOnly={isReadOnly} />}

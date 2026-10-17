@@ -7,12 +7,13 @@ import {
   readLastOpenedFixedSessionNumber,
   writeLastOpenedFixedSessionNumber,
 } from "src/features/notes/utils/fixed-session-storage";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, type Mock } from "vitest";
 
 type MockStorageHandle = {
   storage: DSTRStorage;
   get: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
+  set: ReturnType<typeof vi.fn>;
 };
 
 function createMockStorage(initialValues: Record<string, unknown> = {}): MockStorageHandle {
@@ -24,25 +25,29 @@ function createMockStorage(initialValues: Record<string, unknown> = {}): MockSto
   const remove = vi.fn((key: string) => {
     values.delete(key);
   });
+  const set = vi.fn();
 
   return {
     storage: {
       get,
       remove,
-      set: vi.fn(),
+      set,
     } as unknown as DSTRStorage,
     get,
     remove,
+    set,
   };
 }
 
-function createMockShell(): {
+type MockShellHandle = {
   shell: ObsidianAppShell;
-  loadFile: ReturnType<typeof vi.fn>;
-  writeFile: ReturnType<typeof vi.fn>;
-} {
-  const loadFile = vi.fn();
-  const writeFile = vi.fn(async () => {});
+  loadFile: Mock<(path: string) => Promise<string>>;
+  writeFile: Mock<(path: string, content: string) => Promise<void>>;
+};
+
+function createMockShell(): MockShellHandle {
+  const loadFile = vi.fn<(path: string) => Promise<string>>();
+  const writeFile = vi.fn<(path: string, content: string) => Promise<void>>(async () => {});
 
   return {
     shell: {
@@ -137,11 +142,11 @@ describe("fixed-session-storage", () => {
 
   it("ノートごとの last opened session を storage に書く", () => {
     const filePath = "dstr/Inbox.dstr.md";
-    const { storage } = createMockStorage();
+    const { storage, set } = createMockStorage();
 
     writeLastOpenedFixedSessionNumber(storage, filePath, 3);
 
-    expect(storage.set).toHaveBeenCalledWith(
+    expect(set).toHaveBeenCalledWith(
       `${STORAGE_KEYS.FIXED_SESSION_LAST_OPENED}:${encodeURIComponent(filePath)}`,
       3,
     );

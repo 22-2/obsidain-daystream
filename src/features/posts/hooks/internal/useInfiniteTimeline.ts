@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { WorkerClient } from "src/core/db/worker-client";
+import { isObsidianDocumentFocused, obsidianMoment } from "src/core/platform/obsidian-globals";
+import { reportError } from "src/core/error-report";
 import type { TimelinePostsPage } from "src/features/posts/hooks/internal/timelinePosts";
 import {
   resolveTimelineBaseDate,
@@ -60,15 +62,10 @@ export const useInfiniteTimeline = () => {
     // タイムラインを表示中であれば、現在の日付とタイムラインの基準日が同じか確認し、異なっていれば更新する
     const timer = window.setInterval(() => {
       // タイムライン非表示中、またはウィンドウがフォーカスされていない場合は何もしない
-      if (
-        !isTimelineView(displayMode) ||
-        !(typeof activeDocument !== "undefined" && activeDocument.hasFocus())
-      ) {
-        return;
-      }
+      if (!isTimelineView(displayMode) || !isObsidianDocumentFocused()) return;
 
       const state = store.getState();
-      const now = window.moment();
+      const now = obsidianMoment();
       if (!state.date.isSame(now, "day")) {
         state.setDate(now);
       }
@@ -118,7 +115,11 @@ export const useInfiniteTimeline = () => {
     },
     async (key) => {
       const dbService = WorkerClient.get();
-      const pageParam = key[key.length - 1];
+      const rawPageParam: unknown = key[key.length - 1];
+      if (rawPageParam !== null && typeof rawPageParam !== "string") {
+        throw new TypeError("Timeline page key must end with a string or null");
+      }
+      const pageParam = rawPageParam;
 
       const baseDate = resolveTimelineBaseDate(pageParam, store.getState().getEffectiveDate);
 
@@ -198,7 +199,11 @@ export const useInfiniteTimeline = () => {
   // 次ページ読み込みトリガー
   // ---------------------------------------------------------------------------
   const loadMore = useCallback(() => {
-    if (hasNextPage && !isValidating) setSize(size + 1);
+    if (hasNextPage && !isValidating) {
+      void setSize(size + 1).catch((error: unknown) =>
+        reportError({ context: "Failed to load the next timeline page", error }),
+      );
+    }
   }, [hasNextPage, isValidating, size, setSize]);
 
   return useMemo(

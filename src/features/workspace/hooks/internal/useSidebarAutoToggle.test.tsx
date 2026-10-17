@@ -22,7 +22,7 @@ class ResizeObserverMock implements ResizeObserver {
         callback(
           [
             {
-              target: document.createElement("div"),
+              target: createDiv(),
               contentRect: new DOMRect(0, 0, width, 600),
               borderBoxSize: [],
               contentBoxSize: [],
@@ -43,7 +43,8 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
-  localStorage.clear();
+  // 意図: テスト用 jsdom の保存領域だけを空にする。vault 保存は createLocalStorageHost 経由。
+  window.localStorage.clear();
 });
 
 function mountAutoToggle(
@@ -57,7 +58,7 @@ function mountAutoToggle(
   store.getState().setLeftPanelOpen(leftPanelOpen);
   store.getState().setRightPanelOpen(rightPanelOpen);
   const save = vi.spyOn(storage, "set");
-  const containerRef = { current: document.createElement("div") };
+  const containerRef = { current: createDiv() };
   const hook = renderHook(
     ({ enabled }) =>
       useSidebarAutoToggle(

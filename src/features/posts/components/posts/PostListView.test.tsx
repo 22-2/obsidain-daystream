@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, render, screen } from "@testing-library/react";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import React from "react";
 import { PostListView } from "src/features/posts/components/posts/PostListView";
 import type { TimelineItem } from "src/features/posts/hooks/internal/useTimelineItems";
@@ -77,8 +77,8 @@ function createPost(): Post {
   return {
     id: "post-1",
     threadRootId: null,
-    timestamp: moment("2026-04-10T14:39:00.000Z"),
-    noteDate: moment("2026-04-10T00:00:00.000Z"),
+    timestamp: obsidianMoment("2026-04-10T14:39:00.000Z"),
+    noteDate: obsidianMoment("2026-04-10T00:00:00.000Z"),
     message: "editing target",
     metadata: {},
     offset: 10,
@@ -90,9 +90,9 @@ function createPost(): Post {
   };
 }
 
-vi.mock("obsidian", () => ({
-  setTooltip: (el: HTMLElement, tooltip: string) =>
-    el.setAttribute("aria-label", tooltip),
+vi.mock("obsidian", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("obsidian")>()),
+  setTooltip: (el: HTMLElement, tooltip: string) => el.setAttribute("aria-label", tooltip),
   Menu: class {
     addItem() {
       return this;

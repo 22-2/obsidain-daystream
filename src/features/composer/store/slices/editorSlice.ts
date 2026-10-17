@@ -54,13 +54,13 @@ export function mergeDraftMetadataForSubmit(params: {
 }
 
 export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (set, get) => {
-  let inputPersistTimer: ReturnType<typeof setTimeout> | null = null;
+  let inputPersistTimer: number | null = null;
 
   const persistInput = (input: string, mode: PersistMode) => {
     const { viewNoteMode, file, fixedSessionNumber } = get();
 
     if (inputPersistTimer !== null) {
-      clearTimeout(inputPersistTimer);
+      window.clearTimeout(inputPersistTimer);
       inputPersistTimer = null;
     }
 
@@ -72,7 +72,7 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
       return;
     }
 
-    inputPersistTimer = setTimeout(() => {
+    inputPersistTimer = window.setTimeout(() => {
       persistInputValue(
         { storage: get().storage, viewNoteMode, file, fixedSessionNumber },
         input,

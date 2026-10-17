@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { renderHook, waitFor } from "@testing-library/react";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import React from "react";
 import type { MemoRecord } from "src/core/db/dstr-db";
 import { usePostBacklinkCounts, usePostBacklinks } from "src/features/posts/hooks/usePostBacklinkCounts";
@@ -27,13 +27,13 @@ vi.mock("src/features/workspace/store/settingsStore", () => ({
 }));
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-04-10T16:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-04-10T16:00:00.000Z");
 
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-04-10T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-04-10T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,

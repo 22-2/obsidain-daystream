@@ -14,7 +14,7 @@ afterEach(async () => {
       continue;
     }
 
-    db.close();
+    await db.close();
     await db.delete();
   }
 });

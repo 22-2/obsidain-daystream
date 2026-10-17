@@ -1,8 +1,10 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Menu } from "obsidian";
 import React from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { Box, HStack, Text } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
+import { reportComposerFailure } from "src/features/composer/utils/composer-failure";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useAppStore } from "src/features/workspace/store/appStore";
 import { useShallow } from "zustand/shallow";
@@ -28,8 +30,8 @@ export const DraftListManager: React.FC<DraftListManagerProps> = ({ onClose }) =
   );
 
   const formatTime = (timestamp: number) => {
-    const now = window.moment();
-    const target = window.moment(timestamp);
+    const now = obsidianMoment();
+    const target = obsidianMoment(timestamp);
     if (now.isSame(target, "day")) {
       return target.format("HH:mm");
     }
@@ -98,7 +100,9 @@ export const DraftListManager: React.FC<DraftListManagerProps> = ({ onClose }) =
                           .setTitle("コピー")
                           .setIcon("copy")
                           .onClick(() => {
-                            navigator.clipboard.writeText(draft.content);
+                            navigator.clipboard
+                              .writeText(draft.content)
+                              .catch(reportComposerFailure("Failed to copy draft", "コピーできませんでした"));
                           });
                       });
 

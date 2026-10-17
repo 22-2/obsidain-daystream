@@ -1,3 +1,4 @@
+import type { Moment } from "moment";
 import type { FC } from "react";
 import { useMemo } from "react";
 import { Box } from "src/core/ui/components/primitives";
@@ -23,8 +24,8 @@ function getDateLabel({
   dateFilter,
 }: {
   isFixedNote: boolean;
-  currentTime: moment.Moment;
-  date: moment.Moment;
+  currentTime: Moment;
+  date: Moment;
   granularity: Granularity;
   dateFilter: string;
 }): string {

@@ -1,12 +1,15 @@
-import React from "react";
+import type { HTMLAttributes } from "react";
+import { createElement } from "react";
 import { cn } from "src/core/ui/components/primitives/utils";
 
-type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
-  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+type HeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+type HeadingProps = HTMLAttributes<HTMLHeadingElement> & {
+  as?: HeadingLevel;
   className?: string;
 };
 
 export const Heading = ({ as: Comp = "h3", className, children, ...rest }: HeadingProps) =>
-  React.createElement(Comp as any, { className: cn(className), ...rest }, children);
+  createElement(Comp, { ...rest, className: cn(className) }, children);
 
 Heading.displayName = "Heading";

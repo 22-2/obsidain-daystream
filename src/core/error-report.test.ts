@@ -5,7 +5,10 @@ import {
 } from "src/core/error-report";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ Notice: vi.fn(), logError: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  Notice: vi.fn<(message: string, timeout?: number) => void>(),
+  logError: vi.fn<(...args: unknown[]) => void>(),
+}));
 
 vi.mock("src/core/logger", () => ({
   createLogger: () => ({ error: mocks.logError }),
@@ -32,10 +35,10 @@ describe("reportError", () => {
       expect.objectContaining({
         context: "Failed to save",
         message: "disk full",
-        stack: expect.stringContaining("disk full"),
         details: { path: "a.md" },
       }),
     ]);
+    expect(getRecentErrorReports()[0]?.stack).toContain("disk full");
   });
 
   it("Error 以外の値も文字列化して記録する", () => {
@@ -50,7 +53,7 @@ describe("reportError", () => {
 
     reportError({ context: "notify", error: new Error("timeout"), notice: "保存できませんでした" });
     expect(mocks.Notice).toHaveBeenCalledTimes(1);
-    const [message] = mocks.Notice.mock.calls[0]!;
+    const [message] = mocks.Notice.mock.calls[0];
     expect(message).toContain("保存できませんでした");
     expect(message).toContain("原因: timeout");
   });
@@ -67,7 +70,7 @@ describe("reportError", () => {
   });
 
   it("記録は直近 20 件だけを保持する", () => {
-    for (let i = 0; i < 25; i += 1) reportError({ context: `c${i}`, error: new Error(String(i)) });
+    for (let i = 0; i < 25; i += 1) reportError({ context: "c" + i, error: new Error(String(i)) });
 
     const reports = getRecentErrorReports();
     expect(reports).toHaveLength(20);

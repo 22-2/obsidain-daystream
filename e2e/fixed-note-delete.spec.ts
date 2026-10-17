@@ -10,8 +10,8 @@ test.use({ vaultOptions: dstrVaultOptions() });
 
 async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
-    if (!app.vault.getAbstractFileByPath("dstr")) {
-      await app.vault.createFolder("dstr");
+    if (!window.app.vault.getAbstractFileByPath("dstr")) {
+      await window.app.vault.createFolder("dstr");
     }
   });
   await obsidian.save(FIXED_NOTE_PATH, "## Thino session 1\n- 09:00:00 delete-target\n");
@@ -20,9 +20,9 @@ async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
 /** Opens a file in the most recent leaf, so the previous file stays in that leaf's history. */
 async function openInSameLeaf(obsidian: ObsidianAPI, filePath: string) {
   await obsidian.evaluateApp(async (path) => {
-    const file = app.vault.getFileByPath(path);
+    const file = window.app.vault.getFileByPath(path);
     if (!file) throw new Error(`file not found: ${path}`);
-    await app.workspace.getMostRecentLeaf()!.openFile(file);
+    await window.app.workspace.getMostRecentLeaf()!.openFile(file);
   }, filePath);
 }
 
@@ -30,13 +30,22 @@ async function openInSameLeaf(obsidian: ObsidianAPI, filePath: string) {
 function getHistoryFiles(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
     const files: unknown[] = [];
-    app.workspace.iterateAllLeaves((leaf) => {
+    window.app.workspace.iterateAllLeaves((leaf) => {
       // 意図: leaf.history は非公開APIのため、型を緩めて中身だけ読む。
-      const history = (leaf as unknown as { history?: Record<string, unknown> }).history;
-      for (const key of ["backHistory", "forwardHistory"]) {
+      const history = (leaf as unknown as {
+        history?: Partial<Record<"backHistory" | "forwardHistory", unknown[]>>;
+      }).history;
+      for (const key of ["backHistory", "forwardHistory"] as const) {
         const entries = history?.[key];
         if (!Array.isArray(entries)) continue;
-        for (const entry of entries) files.push(entry?.state?.state?.file);
+        for (const entry of entries) {
+          if (typeof entry !== "object" || entry === null) continue;
+          const state = (entry as { state?: unknown }).state;
+          if (typeof state !== "object" || state === null) continue;
+          const nestedState = (state as { state?: unknown }).state;
+          if (typeof nestedState !== "object" || nestedState === null) continue;
+          files.push((nestedState as { file?: unknown }).file);
+        }
       }
     });
     return files;
@@ -56,7 +65,7 @@ test.describe("fixed note delete", () => {
     await expect.poll(() => getHistoryFiles(obsidian)).toContain(FIXED_NOTE_PATH);
 
     await obsidian.evaluateApp(async (path) => {
-      await app.fileManager.trashFile(app.vault.getFileByPath(path)!);
+      await window.app.fileManager.trashFile(window.app.vault.getFileByPath(path)!);
     }, FIXED_NOTE_PATH);
 
     await expect.poll(() => getHistoryFiles(obsidian)).not.toContain(FIXED_NOTE_PATH);
@@ -70,11 +79,11 @@ test.describe("fixed note delete", () => {
     await obsidian.waitForViewType(DSTR_VIEW_TYPE);
 
     await obsidian.evaluateApp(async (path) => {
-      await app.fileManager.trashFile(app.vault.getFileByPath(path)!);
+      await window.app.fileManager.trashFile(window.app.vault.getFileByPath(path)!);
     }, FIXED_NOTE_PATH);
 
     await expect
-      .poll(() => obsidian.evaluateApp(() => app.workspace.getLeavesOfType("dstr-view").length))
+      .poll(() => obsidian.evaluateApp(() => window.app.workspace.getLeavesOfType("dstr-view").length))
       .toBe(0);
     await expect.poll(() => getHistoryFiles(obsidian)).not.toContain(FIXED_NOTE_PATH);
   });

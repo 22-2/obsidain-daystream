@@ -27,11 +27,11 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
 
   // 意図: 実際に別タブへ移り、ネイティブ ResizeObserver に非表示時の幅 0 を通知させる。
   await obsidian.evaluateApp(async () => {
-    await app.workspace
+    await window.app.workspace
       .getLeaf(true)
       .setViewState({ type: "empty", active: true });
     await new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())),
     );
   });
   await expect(root).toBeHidden();
@@ -45,7 +45,7 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
 
   // 意図: store の再作成と保存状態の復元まで通し、初回の幅測定でも上書きしないことを確認する。
   await obsidian.evaluateApp(() =>
-    app.workspace.getLeavesOfType("dstr-view")[0].detach(),
+    window.app.workspace.getLeavesOfType("dstr-view")[0].detach(),
   );
   await openDSTRView(obsidian);
   await expect(root).toBeVisible();

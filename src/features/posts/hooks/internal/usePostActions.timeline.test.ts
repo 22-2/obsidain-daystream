@@ -2,6 +2,12 @@
 import { act, renderHook as renderHookBase } from "@testing-library/react";
 import React from "react";
 import { TFile } from "obsidian";
+import type { Post } from "src/core/domain/post";
+import type { Settings } from "src/core/domain/settings";
+import type { DSTRStorage } from "src/core/storage";
+import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { NoteSlice } from "src/features/notes/store/types";
 import * as dailyNotes from "src/core/platform/daily-notes";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
@@ -15,6 +21,35 @@ import { settingsStore } from "src/features/workspace/store/settingsStore";
 import { THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// 意図: usePosts / useUnifiedPosts のモックが返す投稿一覧。テストごとに投稿を差し替える。
+const postsFixture = vi.hoisted(() => ({ posts: [] as Post[] }));
+
+type ShellMethods = Pick<
+  ObsidianAppShell,
+  "insertTextAfter" | "insertTextAfterEnsuringMarker" | "replaceRange" | "loadFile"
+>;
+type WriteFile = (path: string, content: string) => Promise<void>;
+
+const loadFileReturning = (content: string) =>
+  vi.fn<ObsidianAppShell["loadFile"]>(async () => content);
+
+const createTestSettings = (): Settings => ({
+  postFormatOption: "Thino",
+  insertAfter: "## Thino",
+  enabledCardView: true,
+  autoToggleSidebar: true,
+  debugMode: false,
+  allowEditingPastNotes: false,
+  updateDateStrategy: "never",
+  topics: [],
+  activeTopic: "",
+  files: [],
+  editorExpansionMode: "default",
+  fullScanIntervalHours: 24,
+  openInNewWindowMode: "always",
+  ctrlEnterSends: "disabled",
+});
+
 const StoreWrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(AppStoreProvider, { store: editorStore, children });
 
@@ -23,16 +58,14 @@ const renderHook = (callback: () => ReturnType<typeof usePostActions>) =>
 
 vi.mock("src/features/composer/context/EditorRefsContext", () => ({
   useEditorRefs: vi.fn(),
-  EditorRefsProvider: ({ children }: { children: any }) => children,
+  EditorRefsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // 意図: usePosts は PostsProvider 必須になったため、renderHook 単体では
-// provider ツリーを組まずに tasksStore の内容をそのまま返すモックで代替する。
+// provider ツリーを組まずに postsFixture の内容をそのまま返すモックで代替する。
 vi.mock("src/features/posts/hooks/usePosts", () => ({
-  usePosts: () => ({
-    posts: (tasksStore.getState() as any).posts ?? [],
-  }),
-  PostsProvider: ({ children }: { children: any }) => children,
+  usePosts: () => ({ posts: postsFixture.posts }),
+  PostsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // 意図: submit 直後の write-through インデックス（WorkerClient 経由）は
@@ -43,7 +76,7 @@ vi.mock("src/core/db/indexer/tag-indexer", () => ({
 
 vi.mock("src/features/posts/hooks/useUnifiedPosts", () => ({
   useUnifiedPosts: vi.fn(() => ({
-    posts: (tasksStore.getState() as any).posts ?? [],
+    posts: postsFixture.posts,
     loadMore: vi.fn(),
     hasMore: false,
     isLoading: false,
@@ -81,101 +114,89 @@ vi.mock("./refreshPosts", () => ({
 }));
 
 describe("timeline note resolution", () => {
-  const today = window.moment("2026-03-15T09:00:00.000Z");
+  const today = obsidianMoment("2026-03-15T09:00:00.000Z");
   const yesterday = today.clone().subtract(1, "day");
   const todayNote = Object.assign(new TFile(), {
     path: "2026-03-15.md",
     basename: "2026-03-15",
     extension: "md",
-  }) as any;
+  });
   const yesterdayNote = Object.assign(new TFile(), {
     path: "2026-03-14.md",
     basename: "2026-03-14",
     extension: "md",
-  }) as any;
-  let mockApp: any;
+  });
+  const findNote = (path: string): TFile | null =>
+    path === todayNote.path ? todayNote : path === yesterdayNote.path ? yesterdayNote : null;
 
-  const mockInsertTextAfter = vi.fn();
+  const mockInsertTextAfter = vi.fn<ObsidianAppShell["insertTextAfter"]>();
   // 新規投稿はマーカー保証込みの 1 write 経路（insertTextAfterEnsuringMarker）を通る
-  const mockInsertTextAfterEnsuringMarker = vi.fn();
-  const mockOpenFile = vi.fn();
-  const mockRefreshPosts = vi.fn();
-  const mockCreateNoteWithInsertAfter = vi.fn();
-  const mockScrollTo = vi.fn();
+  const mockInsertTextAfterEnsuringMarker = vi.fn<ObsidianAppShell["insertTextAfterEnsuringMarker"]>();
+  const mockOpenFile = vi.fn<(file: TFile) => Promise<void>>();
+  const mockRefreshPosts = vi.fn<ReturnType<typeof createRefreshPosts>>();
+  const mockCreateNoteWithInsertAfter = vi.fn<NoteSlice["createNoteWithInsertAfter"]>();
+  const mockScrollTo = vi.fn<(options?: ScrollToOptions) => void>();
+
+  const createLeaf = () => ({
+    openFile: mockOpenFile,
+    setViewState: async (viewState: { state?: { file?: unknown } }) => {
+      const filePath = typeof viewState.state?.file === "string" ? viewState.state.file : "";
+      const file = findNote(filePath);
+      if (file) await mockOpenFile(file);
+    },
+  });
+
+  const buildMockApp = () => ({
+    workspace: {
+      getLeaf: vi.fn(createLeaf),
+    },
+    vault: {
+      getAbstractFileByPath: vi.fn(findNote),
+      adapter: { write: vi.fn<WriteFile>() },
+    },
+    getVault: vi.fn(() => ({ adapter: { write: vi.fn<WriteFile>() } })),
+    writeFile: vi.fn<WriteFile>(async () => {}),
+    getAbstractFileByPath: vi.fn(findNote),
+    getLeaf: vi.fn(createLeaf),
+    revealLeaf: vi.fn(async () => {}),
+    getWorkspace: vi.fn(() => ({ activeEditor: null })),
+  });
+  let mockApp: ReturnType<typeof buildMockApp>;
+
+  // 意図: ObsidianAppShell は protected な内部状態を持つクラスなので、テストでは必要なメソッドだけ持つ偽物を境界でキャストする。
+  const createShell = (overrides: Partial<ShellMethods> = {}): ObsidianAppShell =>
+    ({
+      ...mockApp,
+      trigger: vi.fn(),
+      insertTextAfter: mockInsertTextAfter,
+      insertTextAfterEnsuringMarker: mockInsertTextAfterEnsuringMarker,
+      replaceRange: vi.fn<ObsidianAppShell["replaceRange"]>(),
+      loadFile: loadFileReturning(""),
+      ...overrides,
+    }) as unknown as ObsidianAppShell;
+
+  const mockAppContext = (overrides: Partial<ShellMethods> = {}) => {
+    vi.mocked(useAppContext).mockReturnValue({
+      shell: createShell(overrides),
+      // 意図: このテストの対象は storage を参照しないため、空の値で代替する。
+      storage: {} as DSTRStorage,
+      settings: createTestSettings(),
+    });
+  };
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(today.toDate());
     vi.clearAllMocks();
 
-    mockApp = {
-      workspace: {
-        getLeaf: vi.fn(() => ({
-          openFile: mockOpenFile,
-          setViewState: async (viewState: any) => {
-            const filePath = typeof viewState?.state?.file === "string" ? viewState.state.file : "";
-            const file = mockApp.vault.getAbstractFileByPath(filePath);
-            if (file) await mockOpenFile(file);
-          },
-        })),
-      },
-      vault: {
-        getAbstractFileByPath: vi.fn((path: string) =>
-          path === todayNote.path ? todayNote : path === yesterdayNote.path ? yesterdayNote : null,
-        ),
-      },
-      getVault: vi.fn(() => ({ adapter: { write: vi.fn() } })),
-      writeFile: vi.fn(async () => {}),
-      getAbstractFileByPath: vi.fn((path: string) =>
-        path === todayNote.path ? todayNote : path === yesterdayNote.path ? yesterdayNote : null,
-      ),
-      getLeaf: vi.fn(() => ({
-        openFile: mockOpenFile,
-        setViewState: async (viewState: any) => {
-          const filePath = typeof viewState?.state?.file === "string" ? viewState.state.file : "";
-          const file = mockApp.getAbstractFileByPath(filePath);
-          if (file) await mockOpenFile(file);
-        },
-      })),
-      revealLeaf: vi.fn(async () => {}),
-      getWorkspace: vi.fn(() => ({ activeEditor: null })),
-    };
+    mockApp = buildMockApp();
+    postsFixture.posts = [];
+    mockAppContext();
 
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        insertTextAfterEnsuringMarker: mockInsertTextAfterEnsuringMarker,
-        replaceRange: vi.fn(),
-        loadFile: vi.fn(async () => ""),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
-    });
-
-    (createRefreshPosts as any).mockReturnValue(mockRefreshPosts);
+    vi.mocked(createRefreshPosts).mockReturnValue(mockRefreshPosts);
 
     settingsStore.setState({
-      pluginSettings: {
-        postFormatOption: "Thino",
-        insertAfter: "## Thino",
-        enabledCardView: true,
-        autoToggleSidebar: true,
-        debugMode: false,
-        allowEditingPastNotes: false,
-        updateDateStrategy: "never",
-        topics: [],
-        activeTopic: "",
-        files: [],
-        editorExpansionMode: "default",
-        fullScanIntervalHours: 24,
-        openInNewWindowMode: "always",
-        ctrlEnterSends: "disabled",
-      },
+      pluginSettings: createTestSettings(),
       activeTopic: "",
       granularity: "day",
       date: yesterday.clone(),
@@ -224,7 +245,7 @@ describe("timeline note resolution", () => {
     });
 
     expect(mockCreateNoteWithInsertAfter).toHaveBeenCalledTimes(1);
-    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day")).toBe(true);
+    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2]?.isSame(today, "day")).toBe(true);
     expect(mockInsertTextAfterEnsuringMarker).toHaveBeenCalledWith(
       todayNote,
       expect.stringContaining("timeline post"),
@@ -298,9 +319,7 @@ describe("timeline note resolution", () => {
       date.isSame(today, "day") ? todayNote : null,
     );
 
-    await noteStore.getState().handleClickOpenDailyNote(mockApp, {
-      insertAfter: "## Thino",
-    } as any);
+    await noteStore.getState().handleClickOpenDailyNote(createShell(), createTestSettings());
 
     expect(mockCreateNoteWithInsertAfter).not.toHaveBeenCalled();
     expect(mockOpenFile).toHaveBeenCalledWith(todayNote);
@@ -310,17 +329,15 @@ describe("timeline note resolution", () => {
     vi.mocked(dailyNotes.getTopicNote).mockReturnValue(null);
     mockCreateNoteWithInsertAfter.mockResolvedValue(todayNote);
 
-    await noteStore.getState().handleClickOpenDailyNote(mockApp, {
-      insertAfter: "## Thino",
-    } as any);
+    await noteStore.getState().handleClickOpenDailyNote(createShell(), createTestSettings());
 
     expect(mockCreateNoteWithInsertAfter).toHaveBeenCalledTimes(1);
-    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2].isSame(today, "day")).toBe(true);
+    expect(mockCreateNoteWithInsertAfter.mock.calls[0][2]?.isSame(today, "day")).toBe(true);
     expect(mockOpenFile).toHaveBeenCalledWith(todayNote);
   });
 
   it("スレッド表示中の投稿は親ノートへ返信として保存する", async () => {
-    const threadRoot = {
+    const threadRoot: Post = {
       id: "root-1",
       threadRootId: "root-1",
       timestamp: yesterday.clone().hour(12),
@@ -335,15 +352,15 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    (tasksStore as any).setState({ posts: [threadRoot], tasks: [] });
+    postsFixture.posts = [threadRoot];
     settingsStore.setState({
       threadFocusRootId: "root-1",
       displayMode: DISPLAY_MODE.FOCUS,
       date: today.clone(),
     });
-    mockInsertTextAfter.mockResolvedValue(undefined);
+    mockInsertTextAfter.mockResolvedValue("");
     mockRefreshPosts.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => usePostActions());
@@ -364,7 +381,7 @@ describe("timeline note resolution", () => {
   });
 
   it("過去編集を許可していれば過去スレッドにも返信できる", async () => {
-    const threadRoot = {
+    const threadRoot: Post = {
       id: "root-past-1",
       threadRootId: "root-past-1",
       timestamp: yesterday.clone().hour(12),
@@ -379,20 +396,16 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    (tasksStore as any).setState({ posts: [threadRoot], tasks: [] });
-    settingsStore.setState((state) => ({
-      ...state,
-      pluginSettings: {
-        ...state.pluginSettings!,
-        allowEditingPastNotes: true,
-      },
+    postsFixture.posts = [threadRoot];
+    settingsStore.setState({
+      pluginSettings: { ...createTestSettings(), allowEditingPastNotes: true },
       threadFocusRootId: "root-past-1",
       displayMode: DISPLAY_MODE.FOCUS,
       date: yesterday.clone(),
-    }));
-    mockInsertTextAfter.mockResolvedValue(undefined);
+    });
+    mockInsertTextAfter.mockResolvedValue("");
     mockRefreshPosts.mockResolvedValue(undefined);
 
     expect(editorStore.getState().canSubmit([])).toBe(true);
@@ -412,7 +425,7 @@ describe("timeline note resolution", () => {
   });
 
   it("同日の親ノートへの返信は実時刻で保存する", async () => {
-    const todayThreadRoot = {
+    const todayThreadRoot: Post = {
       id: "root-today-1",
       threadRootId: "root-today-1",
       timestamp: today.clone().hour(8),
@@ -427,15 +440,15 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: todayNote.path,
-    } as any;
+    };
 
-    (tasksStore as any).setState({ posts: [todayThreadRoot], tasks: [] });
+    postsFixture.posts = [todayThreadRoot];
     settingsStore.setState({
       threadFocusRootId: "root-today-1",
       displayMode: DISPLAY_MODE.FOCUS,
       date: today.clone(),
     });
-    mockInsertTextAfter.mockResolvedValue(undefined);
+    mockInsertTextAfter.mockResolvedValue("");
     mockRefreshPosts.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => usePostActions());
@@ -451,7 +464,7 @@ describe("timeline note resolution", () => {
   });
 
   it("handleHighlightPost は同じ Daystream タブを focused/day/all へ切り替えて対象投稿をハイライトする", async () => {
-    const targetPost = {
+    const targetPost: Post = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,
       timestamp: yesterday.clone().hour(14).minute(39).second(0),
@@ -464,10 +477,9 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    settingsStore.setState((state) => ({
-      ...state,
+    settingsStore.setState({
       activeTag: "IT",
       granularity: "month",
       dateFilter: "7d",
@@ -476,7 +488,7 @@ describe("timeline note resolution", () => {
       asTask: true,
       threadOnly: true,
       searchQuery: "abc",
-    }));
+    });
 
     editorStore.setState({
       editingPost: {
@@ -486,19 +498,8 @@ describe("timeline note resolution", () => {
       },
     });
 
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: vi.fn(),
-        loadFile: vi.fn(async () => ["## Thino", "- 14:39:00 jump target", ""].join("\n")),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      loadFile: loadFileReturning(["## Thino", "- 14:39:00 jump target", ""].join("\n")),
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -522,7 +523,7 @@ describe("timeline note resolution", () => {
   });
 
   it("スレッド作成では自動でスレッド表示へ切り替える", async () => {
-    const plainPost = {
+    const plainPost: Post = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,
       timestamp: yesterday.clone().hour(12),
@@ -535,23 +536,13 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    const mockReplaceRange = vi.fn().mockResolvedValue(undefined);
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>().mockResolvedValue("");
     const content = ["## Thino", "- 12:00:00 parent", ""].join("\n");
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: vi.fn(async () => content),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: loadFileReturning(content),
     });
     settingsStore.setState({ threadFocusRootId: null });
 
@@ -574,7 +565,7 @@ describe("timeline note resolution", () => {
   });
 
   it("スレッド作成は dstrId がなくても最新オフセットを再発見して置換する", async () => {
-    const plainPost = {
+    const plainPost: Post = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,
       timestamp: yesterday.clone().hour(12),
@@ -587,27 +578,17 @@ describe("timeline note resolution", () => {
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
     const shiftedContent = `## Thino
 note header
 - 12:00:00 parent
 `;
 
-    const mockReplaceRange = vi.fn().mockResolvedValue(undefined);
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: vi.fn(async () => shiftedContent),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>().mockResolvedValue("");
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: loadFileReturning(shiftedContent),
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -622,7 +603,7 @@ note header
   });
 
   it("タイムラインからスレッド作成した時はフォーカス切替後に再読込する", async () => {
-    const plainPost = {
+    const plainPost: Post = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,
       timestamp: yesterday.clone().hour(12),
@@ -635,9 +616,9 @@ note header
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    const mockReplaceRange = vi.fn().mockResolvedValue(undefined);
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>().mockResolvedValue("");
     const content = ["## Thino", "- 12:00:00 parent", ""].join("\n");
     const refreshStateSnapshots: Array<{
       displayMode: string;
@@ -654,19 +635,9 @@ note header
       });
     });
 
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: vi.fn(async () => content),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: loadFileReturning(content),
     });
 
     settingsStore.setState({
@@ -682,17 +653,18 @@ note header
     });
 
     expect(mockRefreshPosts).toHaveBeenCalledWith(yesterdayNote.path);
-    expect(refreshStateSnapshots).toEqual([
-      {
-        displayMode: DISPLAY_MODE.FOCUS,
-        threadFocusRootId: expect.stringMatching(/^[a-f0-9]{8}$/),
-        dateIso: yesterday.clone().startOf("day").toISOString(),
-      },
-    ]);
+    expect(refreshStateSnapshots).toHaveLength(1);
+    const [snapshot] = refreshStateSnapshots;
+    expect(snapshot?.threadFocusRootId).toMatch(/^[a-f0-9]{8}$/);
+    expect(snapshot).toEqual({
+      displayMode: DISPLAY_MODE.FOCUS,
+      threadFocusRootId: snapshot?.threadFocusRootId,
+      dateIso: yesterday.clone().startOf("day").toISOString(),
+    });
   });
 
   it("既存スレッドを表示するとフォーカス表示へ切り替わる", async () => {
-    const threadRoot = {
+    const threadRoot: Post = {
       id: "root-1",
       threadRootId: "root-1",
       timestamp: yesterday.clone().hour(12),
@@ -707,7 +679,7 @@ note header
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
     settingsStore.setState({
       displayMode: DISPLAY_MODE.TIMELINE,
@@ -725,7 +697,7 @@ note header
   });
 
   it("スレッド親を削除すると子もまとめて削除する", async () => {
-    const rootPost = {
+    const rootPost: Post = {
       id: "root-1",
       threadRootId: "root-1",
       timestamp: yesterday.clone().hour(12),
@@ -740,8 +712,8 @@ note header
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
-    const replyPost = {
+    };
+    const replyPost: Post = {
       id: `${yesterdayNote.path}:20`,
       threadRootId: "root-1",
       timestamp: today.clone().hour(1),
@@ -757,12 +729,12 @@ note header
       bodyStartOffset: 22,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    (tasksStore as any).setState({ posts: [replyPost, rootPost], tasks: [] });
+    postsFixture.posts = [replyPost, rootPost];
     settingsStore.setState({ threadFocusRootId: "root-1" });
 
-    const mockReplaceRange = vi.fn().mockResolvedValue(undefined);
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>().mockResolvedValue("");
     const content = [
       "## Thino",
       `- 12:00:00 parent [${THREAD_METADATA_KEYS.ID}::root-1]`,
@@ -771,19 +743,9 @@ note header
       `    [posted::${today.toISOString()}]`,
       "",
     ].join("\n");
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: vi.fn(async () => content),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: loadFileReturning(content),
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -798,7 +760,7 @@ note header
   });
 
   it("dstrId がある投稿はオフセットがずれても最新位置で削除できる", async () => {
-    const rootPost = {
+    const rootPost: Post = {
       id: "root-1",
       threadRootId: "root-1",
       timestamp: yesterday.clone().hour(12),
@@ -813,9 +775,9 @@ note header
       bodyStartOffset: 2,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
-    const replyPost = {
+    const replyPost: Post = {
       id: `${yesterdayNote.path}:20`,
       threadRootId: "root-1",
       timestamp: today.clone().hour(1),
@@ -831,7 +793,7 @@ note header
       bodyStartOffset: 22,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
     const shiftedContent = `## Thino
 prefix
@@ -843,23 +805,13 @@ prefix
     [posted::${today.toISOString()}]
 `;
 
-    (tasksStore as any).setState({ posts: [replyPost, rootPost], tasks: [] });
+    postsFixture.posts = [replyPost, rootPost];
     settingsStore.setState({ threadFocusRootId: "root-1" });
 
-    const mockReplaceRange = vi.fn().mockResolvedValue(undefined);
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: vi.fn(async () => shiftedContent),
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>().mockResolvedValue("");
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: loadFileReturning(shiftedContent),
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -875,7 +827,7 @@ prefix
   });
 
   it("永久削除は対象投稿だけを消して前後のデータを壊さない", async () => {
-    const targetPost = {
+    const targetPost: Post = {
       id: `${yesterdayNote.path}:20`,
       threadRootId: null,
       timestamp: yesterday.clone().hour(10),
@@ -888,7 +840,7 @@ prefix
       bodyStartOffset: 22,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
     let storedContent = `## Thino
 - 09:00:00 keep before
@@ -896,34 +848,23 @@ prefix
 - 11:00:00 keep after
 `;
 
-    const mockLoadFile = vi.fn(async () => storedContent);
-    const mockReplaceRange = vi.fn(
-      async (_path: string, startOffset: number, endOffset: number, replacement: string) => {
+    const mockLoadFile = vi.fn<ObsidianAppShell["loadFile"]>(async () => storedContent);
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>(
+      async (_path, startOffset, endOffset, replacement) => {
         storedContent =
           storedContent.slice(0, startOffset) + replacement + storedContent.slice(endOffset);
+        return storedContent;
       },
     );
-    const mockWrite = vi.fn(async (_path: string, content: string) => {
+    const mockWrite = vi.fn<WriteFile>(async (_path, content) => {
       storedContent = content;
     });
 
-    mockApp.vault.adapter = {
-      write: mockWrite,
-    };
+    mockApp.vault.adapter.write = mockWrite;
 
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: mockLoadFile,
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: mockLoadFile,
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -944,7 +885,7 @@ prefix
   });
 
   it("スレッドの永久削除は関連投稿だけを消して他の投稿を壊さない", async () => {
-    const rootPost = {
+    const rootPost: Post = {
       id: "root-1",
       threadRootId: "root-1",
       timestamp: yesterday.clone().hour(10),
@@ -959,7 +900,7 @@ prefix
       bodyStartOffset: 22,
       kind: "thino",
       path: yesterdayNote.path,
-    } as any;
+    };
 
     let storedContent = `## Thino
 - 09:00:00 keep before
@@ -971,36 +912,25 @@ prefix
 - 11:00:00 keep after
 `;
 
-    const mockLoadFile = vi.fn(async () => storedContent);
-    const mockReplaceRange = vi.fn(
-      async (_path: string, startOffset: number, endOffset: number, replacement: string) => {
+    const mockLoadFile = vi.fn<ObsidianAppShell["loadFile"]>(async () => storedContent);
+    const mockReplaceRange = vi.fn<ObsidianAppShell["replaceRange"]>(
+      async (_path, startOffset, endOffset, replacement) => {
         storedContent =
           storedContent.slice(0, startOffset) + replacement + storedContent.slice(endOffset);
+        return storedContent;
       },
     );
-    const mockWrite = vi.fn(async (_path: string, content: string) => {
+    const mockWrite = vi.fn<WriteFile>(async (_path, content) => {
       storedContent = content;
     });
 
-    mockApp.vault.adapter = {
-      write: mockWrite,
-    };
+    mockApp.vault.adapter.write = mockWrite;
 
     settingsStore.setState({ threadFocusRootId: "root-1" });
 
-    (useAppContext as any).mockReturnValue({
-      app: mockApp,
-      shell: {
-        ...mockApp,
-        trigger: vi.fn(),
-        insertTextAfter: mockInsertTextAfter,
-        replaceRange: mockReplaceRange,
-        loadFile: mockLoadFile,
-      },
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    mockAppContext({
+      replaceRange: mockReplaceRange,
+      loadFile: mockLoadFile,
     });
 
     const { result } = renderHook(() => usePostActions());

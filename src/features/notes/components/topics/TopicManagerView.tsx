@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { reportError } from "src/core/error-report";
 import type { Topic } from "src/core/topic";
 import { DEFAULT_TOPIC } from "src/core/topic";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
@@ -178,17 +179,21 @@ const useTopicManagerViewState = (
   const isSaving = useRef(false);
 
   const handleSwitch = useCallback(
-    async (topicId: string) => {
+    (topicId: string) => {
       if (isSaving.current) return;
       isSaving.current = true;
-      try {
-        const updatedTopics = topics.map((topic) =>
-          topic.id === topicId ? { ...topic, archived: false } : topic,
-        );
-        await onSave(updatedTopics, topicId);
-      } finally {
-        isSaving.current = false;
-      }
+      const updatedTopics = topics.map((topic) =>
+        topic.id === topicId ? { ...topic, archived: false } : topic,
+      );
+      onSave(updatedTopics, topicId).then(
+        () => {
+          isSaving.current = false;
+        },
+        (error: unknown) => {
+          isSaving.current = false;
+          reportError({ context: "Failed to switch topic", error, details: { topicId } });
+        },
+      );
     },
     [topics, onSave],
   );
@@ -267,6 +272,10 @@ const useTopicManagerViewState = (
     commitTitleEdit,
     handleAddSubmit,
     handleCancelAdd,
-    onSave: () => onSave(topics, activeTopic),
+    onSave: () => {
+      onSave(topics, activeTopic).catch((error: unknown) =>
+        reportError({ context: "Failed to save topics", error, details: { activeTopic } }),
+      );
+    },
   };
 };

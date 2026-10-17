@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Notice } from "obsidian";
 import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW, MOVE_STEP } from "src/features/workspace/config/constants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/features/workspace/config/filter-config";
@@ -26,12 +27,12 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
   activeTag: null,
   fixedSessionNumber: 1,
   granularity: GRANULARITY_CONFIG.day.unit,
-  date: window.moment(),
+  date: obsidianMoment(),
   timeFilter: TIME_FILTER_IDS.ALL,
   dateFilter: DATE_FILTER_IDS.TODAY,
-  displayMode: DISPLAY_MODE.TIMELINE as DisplayMode,
-  contentView: CONTENT_VIEW.TIMELINE as ContentView,
-  mainView: MAIN_VIEW.TIMELINE as MainView,
+  displayMode: DISPLAY_MODE.TIMELINE,
+  contentView: CONTENT_VIEW.TIMELINE,
+  mainView: MAIN_VIEW.TIMELINE,
   searchReturnState: null,
   asTask: false,
   threadOnly: false,
@@ -280,7 +281,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
 
   handleClickHome: () => {
     // 意図: Home は今日の単日表示ではなく、クリックした時点の今月全体へ戻す。月をまたいだ起動中も再計算する。
-    const homeDate = window.moment().startOf("month");
+    const homeDate = obsidianMoment().startOf("month");
     const currentMainView = get().mainView;
     const mainViewCompatibility = resolveMainViewCompatibilityState(
       currentMainView,
@@ -303,7 +304,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
   },
 
   handleClickToday: () => {
-    const now = window.moment();
+    const now = obsidianMoment();
     const state = applyNavigationPatch(get, set, {
       date: now,
       displayMode: DISPLAY_MODE.FOCUS,
@@ -348,7 +349,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
 
   isToday: () => {
     const { date, granularity } = get();
-    return date.isSame(window.moment(), GRANULARITY_CONFIG[granularity].unit);
+    return date.isSame(obsidianMoment(), GRANULARITY_CONFIG[granularity].unit);
   },
 
   isReadOnly: () => {
@@ -375,7 +376,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
 
   getEffectiveDate: () => {
     const { date, displayMode } = get();
-    return isTimelineView(displayMode) ? window.moment() : date;
+    return isTimelineView(displayMode) ? obsidianMoment() : date;
   },
 });
 

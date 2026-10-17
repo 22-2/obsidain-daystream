@@ -1,6 +1,7 @@
 import { wrap, type Remote } from "comlink";
 import type { DBServiceOptions, IDBService } from "src/core/db/interfaces/IDBService";
 import ScanWorkerFactory from "src/core/db/scan.worker?worker&inline";
+import { toError } from "src/core/errors";
 
 const DEFAULT_WORKER_REQUEST_TIMEOUT_MS = 5_000;
 
@@ -28,7 +29,7 @@ export function withWorkerTimeout<T>(
       },
       (error) => {
         window.clearTimeout(timer);
-        reject(error);
+        reject(toError(error));
       },
     );
   });

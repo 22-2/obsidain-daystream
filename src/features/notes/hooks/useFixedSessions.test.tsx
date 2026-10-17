@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { TFile } from "obsidian";
 import React from "react";
@@ -46,7 +47,7 @@ describe("useFixedSessions", () => {
   beforeEach(() => {
     vi.useRealTimers();
     vi.resetAllMocks();
-    localStorage.clear();
+    window.localStorage.clear();
     files = new Map([
       [
         path,
@@ -123,7 +124,7 @@ describe("useFixedSessions", () => {
     await waitFor(() => expect(result.current.sessionCount).toBe(3));
 
     await act(async () => {
-      await result.current.handleDeleteSession(result.current.groupedSessions.pinned[0]!);
+      await result.current.handleDeleteSession(result.current.groupedSessions.pinned[0]);
     });
 
     expect(store.getState().fixedSessionNumber).toBe(3);
@@ -145,7 +146,7 @@ describe("useFixedSessions", () => {
     await waitFor(() => expect(result.current.sessionCount).toBe(3));
 
     await act(async () => {
-      await result.current.handleDeleteSession(result.current.groupedSessions.pinned[0]!);
+      await result.current.handleDeleteSession(result.current.groupedSessions.pinned[0]);
     });
 
     expect(mocked.shell.modifyVaultFile).not.toHaveBeenCalled();
@@ -248,8 +249,8 @@ describe("useFixedSessions", () => {
         id: "editing-post",
         threadRootId: null,
         path,
-        timestamp: window.moment(),
-        noteDate: window.moment(),
+        timestamp: obsidianMoment(),
+        noteDate: obsidianMoment(),
         message: "編集中の投稿",
         metadata: {},
         offset: 0,
@@ -358,7 +359,8 @@ describe("useFixedSessions", () => {
     });
 
     expect(getSession(result.current, 2)).toMatchObject({ title: "Session 2", pinned: true });
-    expect(JSON.parse(files.get(metaPath)!)[2]).not.toHaveProperty("name");
+    const meta = JSON.parse(files.get(metaPath)!) as Record<string, Record<string, unknown>>;
+    expect(meta[2]).not.toHaveProperty("name");
   });
 
   it("名前変更をキャンセルしたら保存も再取得も行わない", async () => {

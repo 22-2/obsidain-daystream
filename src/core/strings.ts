@@ -1,5 +1,3 @@
-import type { RegExpMatchedArray } from "src/core/types";
-
 export function excludeWikiLink(text: string): string {
   return text.replace(/\[\[[^\]]+\|(.*?)]]/g, "$1").replace(/\[\[([^\]]+)]]/g, "$1");
 }
@@ -12,17 +10,11 @@ export function parseMarkdownList(text: string): {
   prefix: string;
   content: string;
 } {
-  const match = Array.from(text.matchAll(/^(?<prefix>[ \t]*([-*] (\[.] |)|))(?<content>.*)$/gs)).at(
-    0,
-  );
+  const groups = text.match(/^(?<prefix>[ \t]*([-*] (\[.] |)|))(?<content>.*)$/s)?.groups;
 
-  if (!match) {
+  if (!groups) {
     return { prefix: "", content: text };
   }
-
-  const { groups } = match as unknown as {
-    groups: { prefix: string; content: string };
-  };
 
   return { prefix: groups.prefix, content: groups.content };
 }
@@ -39,10 +31,8 @@ export function replaceDayToJa(text: string): string {
 }
 
 export function pickUrls(str: string): string[] {
-  const urlsMatches = Array.from(
-    str.matchAll(/(^| |\(|\n)(?<url>https?:\/\/[^ \n]+)/g),
-  ) as RegExpMatchedArray[];
-  return urlsMatches.map((x) => x.groups.url);
+  const urlMatches = Array.from(str.matchAll(/(^| |\(|\n)(?<url>https?:\/\/[^ \n]+)/g));
+  return urlMatches.flatMap((match) => match.groups?.url ?? []);
 }
 
 export function sjis2String(sjisBuffer: ArrayBuffer): string {

@@ -32,7 +32,7 @@ export class EditableTitleBar {
   }
 
   public render(): void {
-    if (!(this.titleEl instanceof HTMLElement) || !(this.titleContainerEl instanceof HTMLElement)) {
+    if (!(this.titleEl.instanceOf(HTMLElement)) || !(this.titleContainerEl.instanceOf(HTMLElement))) {
       return;
     }
 

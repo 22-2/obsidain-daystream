@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { TFile } from "obsidian";
 import { resolveNoteSource } from "src/core/note-source";
 import { toText } from "src/core/post-utils";
@@ -8,7 +9,7 @@ import type { MomentLike } from "src/core/domain/post";
 
 export interface ActivityPromptSaveResult {
   notePath: string;
-  indexError: unknown | null;
+  indexError: unknown;
 }
 
 interface SaveActivityPromptResponseOptions {
@@ -52,7 +53,7 @@ export async function saveActivityPromptResponse({
   shell,
   settings,
   input,
-  now = window.moment(),
+  now = obsidianMoment(),
 }: SaveActivityPromptResponseOptions): Promise<ActivityPromptSaveResult> {
   const text = toText(input, false, "day", now);
   if (!text) {
@@ -62,7 +63,7 @@ export async function saveActivityPromptResponse({
   const note = await resolveOrCreateDailyNote(shell, settings, now);
   const newContent = await shell.insertTextAfterEnsuringMarker(note, text, settings.insertAfter);
 
-  let indexError: unknown | null = null;
+  let indexError: unknown = null;
   try {
     await indexNoteContent(shell, note, settings, newContent);
   } catch (error) {

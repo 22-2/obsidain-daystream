@@ -21,8 +21,8 @@ async function waitForPluginReady(obsidian: ObsidianAPI) {
 
 async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
-    if (!app.vault.getAbstractFileByPath("dstr")) {
-      await app.vault.createFolder("dstr");
+    if (!window.app.vault.getAbstractFileByPath("dstr")) {
+      await window.app.vault.createFolder("dstr");
     }
   });
 
@@ -66,7 +66,7 @@ async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
 
 async function reopenCurrentDSTRLeaf(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
-    const currentLeaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const currentLeaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!currentLeaf) {
       throw new Error("dstr-view leaf not found");
     }
@@ -74,13 +74,13 @@ async function reopenCurrentDSTRLeaf(obsidian: ObsidianAPI) {
     const currentState = currentLeaf.view.getState();
     currentLeaf.detach();
 
-    const nextLeaf = app.workspace.getLeaf(true);
+    const nextLeaf = window.app.workspace.getLeaf(true);
     await nextLeaf.setViewState({
       type: "dstr-view",
       active: true,
       state: currentState,
     });
-    app.workspace.revealLeaf(nextLeaf);
+    await window.app.workspace.revealLeaf(nextLeaf);
   });
 }
 
@@ -92,7 +92,7 @@ async function reloadAndRevealDSTRView(obsidian: ObsidianAPI) {
   // 意図: 再読込直後は固定ノートの leaf 復元（markdown から dstr-view への変換）が
   // 終わっていないことがあるため、leaf が現れるまで待つ。
   await expect
-    .poll(() => obsidian.evaluateApp(() => app.workspace.getLeavesOfType("dstr-view").length), {
+    .poll(() => obsidian.evaluateApp(() => window.app.workspace.getLeavesOfType("dstr-view").length), {
       timeout: 15000,
     })
     .toBeGreaterThan(0)
@@ -111,7 +111,7 @@ async function reloadAndRevealDSTRView(obsidian: ObsidianAPI) {
 async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
   // One evaluation reads the view state and the list text together, so both describe the same moment.
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
       throw new Error("dstr-view leaf not found");
     }

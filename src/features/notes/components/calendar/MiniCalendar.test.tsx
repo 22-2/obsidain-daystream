@@ -1,6 +1,9 @@
 import { cleanup, fireEvent, render } from "@testing-library/react";
-import moment from "moment";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import { DSTRStorage } from "src/core/storage";
+import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { createLocalStorageHost } from "src/__mocks__/local-storage-host";
 import { MiniCalendar } from "src/features/notes/components/calendar/MiniCalendar";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { AppStoreProvider } from "src/features/workspace/store/appStore";
@@ -8,7 +11,8 @@ import { initializeTasksStore } from "src/features/tasks/store/tasksStore";
 import { initializeSettingsStore, settingsStore } from "src/features/workspace/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("obsidian", () => ({
+vi.mock("obsidian", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("obsidian")>()),
   setTooltip: (el: HTMLElement, tooltip: string) =>
     el.setAttribute("aria-label", tooltip),
   setIcon: vi.fn(),
@@ -57,11 +61,11 @@ describe("MiniCalendar", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    initializeSettingsStore(DEFAULT_SETTINGS, {
-      get: vi.fn(),
-      set: vi.fn(),
-    } as any);
-    initializeTasksStore({} as any);
+    initializeSettingsStore(
+      DEFAULT_SETTINGS,
+      new DSTRStorage(createLocalStorageHost("mini-calendar-test")),
+    );
+    initializeTasksStore({} as ObsidianAppShell);
   });
   afterEach(() => {
     cleanup();
@@ -69,7 +73,7 @@ describe("MiniCalendar", () => {
 
   it("renders without crashing", () => {
     settingsStore.setState({
-      date: moment("2026-03-09T00:00:00.000Z"),
+      date: obsidianMoment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
       dateFilter: "today",
       activeTopic: "",
@@ -82,7 +86,7 @@ describe("MiniCalendar", () => {
 
   it("calculates range accurately for 7d dateFilter", () => {
     settingsStore.setState({
-      date: moment("2026-03-09T00:00:00.000Z"),
+      date: obsidianMoment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
       dateFilter: "7d",
       activeTopic: "",
@@ -106,7 +110,7 @@ describe("MiniCalendar", () => {
 
   it("タイムライン表示中に日付セルを押すとフォーカス表示へ戻る", () => {
     settingsStore.setState({
-      date: moment("2026-03-09T00:00:00.000Z"),
+      date: obsidianMoment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
       dateFilter: "today",
       displayMode: DISPLAY_MODE.TIMELINE,
@@ -126,7 +130,7 @@ describe("MiniCalendar", () => {
 
   it("年・月ラベルは粒度を変えずに範囲を切り替え、再クリックでHomeへ戻る", () => {
     settingsStore.setState({
-      date: moment("2026-03-09T00:00:00.000Z"),
+      date: obsidianMoment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
       dateFilter: "today",
       displayMode: DISPLAY_MODE.FOCUS,
@@ -155,7 +159,7 @@ describe("MiniCalendar", () => {
 
   it("選択済みの週番号を再クリックするとhandleClickHome相当の状態に戻る", () => {
     settingsStore.setState({
-      date: moment("2026-03-09T00:00:00.000Z"),
+      date: obsidianMoment("2026-03-09T00:00:00.000Z"),
       granularity: "day",
       dateFilter: "this_week",
       displayMode: DISPLAY_MODE.FOCUS,
@@ -163,7 +167,7 @@ describe("MiniCalendar", () => {
     });
 
     const { container } = renderMiniCalendar();
-    const selectedWeek = moment("2026-03-09T00:00:00.000Z").isoWeek().toString();
+    const selectedWeek = obsidianMoment("2026-03-09T00:00:00.000Z").isoWeek().toString();
     const weekButtons = Array.from(container.querySelectorAll(".mini-calendar__week-number"));
     const selectedWeekButton = weekButtons.find((el) => el.textContent?.trim() === selectedWeek);
 

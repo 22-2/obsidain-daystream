@@ -20,5 +20,5 @@ export function initializeSettingsStore(
 
 export function useSettingsStore<T>(selector: (state: SettingsSlice & DSTRStore) => T): T {
   const store = useRequiredAppStore();
-  return useStore(store, selector as (state: DSTRStore) => T);
+  return useStore(store, selector);
 }

@@ -51,28 +51,39 @@ interface ReactViewDebugSnapshot extends MemoDatabaseSnapshot {
 /** Reads the view state and the list DOM in one evaluation, so both describe the same moment. */
 async function getReactViewViewState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
-    const activeFile = app.workspace.getActiveFile();
-    const viewState = (leaf?.view as DSTRView | undefined)?.getState?.();
-    const viewDateValue = viewState?.date;
-    const viewDate =
-      viewDateValue &&
-      typeof viewDateValue === "object" &&
-      "format" in viewDateValue &&
-      typeof viewDateValue.format === "function"
-        ? viewDateValue.format("YYYY-MM-DD")
-        : null;
-    const debugState = (leaf?.view as DSTRView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
-    const listEl = document.querySelector(".list") as HTMLElement | null;
+    const obsidianApp = window.app;
+    const leaf = obsidianApp.workspace.getLeavesOfType("dstr-view")[0];
+    const activeFile = obsidianApp.workspace.getActiveFile();
+    const rawViewState: unknown = (leaf?.view as DSTRView | undefined)?.getState?.();
+    const viewState =
+      typeof rawViewState === "object" && rawViewState !== null
+        ? (rawViewState as Record<string, unknown>)
+        : undefined;
+    const dateValue = viewState?.date;
+    const formatDate =
+      typeof dateValue === "object" &&
+      dateValue !== null &&
+      "format" in dateValue &&
+      typeof dateValue.format === "function"
+        ? (dateValue.format as (format: string) => string)
+        : undefined;
+    const viewDate = formatDate?.("YYYY-MM-DD") ?? null;
+    const rawDebugState: unknown =
+      (leaf?.view as DSTRView | undefined)?.actionDelegates.onGetDebugStateForTesting?.();
+    const debugState =
+      typeof rawDebugState === "object" && rawDebugState !== null
+        ? (rawDebugState as Record<string, unknown>)
+        : undefined;
+    const listEl = document.querySelector<HTMLElement>(".list");
 
     return {
       activeFilePath: activeFile?.path ?? null,
-      dstrLeafCount: app.workspace.getLeavesOfType("dstr-view").length,
-      displayMode: viewState?.displayMode ?? null,
+      dstrLeafCount: obsidianApp.workspace.getLeavesOfType("dstr-view").length,
+      displayMode: typeof viewState?.displayMode === "string" ? viewState.displayMode : null,
       viewDate,
-      viewActiveTopic: viewState?.activeTopic ?? null,
-      settingsDateIso: debugState?.settingsDateIso ?? null,
-      settingsDisplayMode: debugState?.displayMode ?? null,
+      viewActiveTopic: typeof viewState?.activeTopic === "string" ? viewState.activeTopic : null,
+      settingsDateIso: typeof debugState?.settingsDateIso === "string" ? debugState.settingsDateIso : null,
+      settingsDisplayMode: typeof debugState?.displayMode === "string" ? debugState.displayMode : null,
       nowDate: window.moment().format("YYYY-MM-DD HH:mm:ss"),
       listText: listEl?.innerText ?? "",
       markdownRenderedCount: document.querySelectorAll(".list .markdown-rendered").length,
@@ -87,7 +98,8 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
 /** Reads the memo rows that the view stores in IndexedDB. The database name comes from the app id. */
 async function getMemoDatabaseState(obsidian: ObsidianAPI): Promise<MemoDatabaseSnapshot> {
   const appId = await obsidian.evaluateApp(() => {
-    const plugin = app.plugins.getPlugin("dstr") as {
+    const obsidianApp = window.app;
+    const plugin = obsidianApp.plugins.getPlugin("dstr") as {
       shell?: { getAppId?: () => string };
     } | null;
     return plugin?.shell?.getAppId?.() ?? null;
@@ -155,7 +167,7 @@ async function getReactViewDebugSnapshot(obsidian: ObsidianAPI): Promise<ReactVi
 /** The only value polled while waiting: the list's visible text. */
 function readListText(obsidian: ObsidianAPI): Promise<string> {
   return obsidian.page.evaluate(
-    () => (document.querySelector(".list") as HTMLElement | null)?.innerText ?? "",
+    () => document.querySelector<HTMLElement>(".list")?.innerText ?? "",
   );
 }
 
