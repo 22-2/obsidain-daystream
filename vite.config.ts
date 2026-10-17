@@ -2,34 +2,34 @@ import react from "@vitejs/plugin-react";
 import { copyFileSync } from "fs";
 import { builtinModules } from "module";
 import path from "path";
-import { defineConfig, loadEnv, type UserConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import analyzer from "vite-bundle-analyzer";
 import inspect from "vite-plugin-inspect";
 
+const copyObsidianManifestPlugin: Plugin = {
+  name: "copy-obsidian-manifest",
+  writeBundle(options) {
+    const outDir = options.dir ?? path.resolve(import.meta.dirname, "dist");
+    copyFileSync(
+      path.resolve(import.meta.dirname, "manifest.json"),
+      path.resolve(outDir, "manifest.json"),
+    );
+  },
+};
+
 export default defineConfig(async ({ mode }) => {
   const { resolve } = path;
-  const env = loadEnv(mode, process.cwd(), "");
-
   const isAnalyze = process.argv.includes("--analyze");
   const isWatch = process.argv.includes("--watch");
   const isDev = mode === "development" || isWatch;
   const isProd = !isDev;
-  const onMyPc = env.ON_MY_PC === "true";
-
   return {
     devtools: isAnalyze,
     plugins: [
       isAnalyze && inspect({open: true, outputDir: "inspect"}),
       isAnalyze && analyzer(),
       react(),
-      // 意図: Obsidian が読み込む dist/ に manifest.json を置き、E2E がそのまま plugin として使えるようにする。
-      {
-        name: "copy-obsidian-manifest",
-        writeBundle(options) {
-          const outDir = options.dir ?? resolve(import.meta.dirname, "dist");
-          copyFileSync(resolve(import.meta.dirname, "manifest.json"), resolve(outDir, "manifest.json"));
-        },
-      },
+      copyObsidianManifestPlugin,
     ],
     resolve: {
       alias: {
@@ -81,5 +81,5 @@ export default defineConfig(async ({ mode }) => {
         ],
       },
     },
-  } as UserConfig;
+  };
 });
