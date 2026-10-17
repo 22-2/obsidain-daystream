@@ -117,6 +117,11 @@ export class TagIndexer {
     await WorkerClient.runWithRecovery((dbService) => dbService.scanAllNotes(validNotes), 120_000);
   }
 
+  /** DB に記録された最終フルスキャン日時。DB が空（未スキャン）なら undefined。 */
+  async getLastFullScanAt(): Promise<string | undefined> {
+    return WorkerClient.runWithRecovery((dbService) => dbService.getMeta("lastFullScanAt"));
+  }
+
   // -------------------------------------------------------------------------
   // Incremental updates
   // -------------------------------------------------------------------------

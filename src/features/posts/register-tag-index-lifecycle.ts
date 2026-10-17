@@ -1,13 +1,18 @@
 import { TFile } from "obsidian";
-import { DSTRStorage } from "src/core/storage";
 import type { PluginLifecycleContext } from "src/core/plugin-host";
 import type { Settings } from "src/core/domain/settings";
 import { createTagIndexExtension } from "src/core/db/tag-index-extension";
 
+/** intervalHours が 0 の場合は、常に(起動のたびに)スキャンを実行する */
+export function shouldRunFullScan(lastFullScanAt: string | undefined, intervalHours: number): boolean {
+  if (!lastFullScanAt) return true;
+  const diffHours = window.moment().diff(window.moment(lastFullScanAt), "hours", true);
+  return diffHours >= intervalHours;
+}
+
 export function registerTagIndexLifecycle(
   context: PluginLifecycleContext<Settings>,
   appId: string,
-  storage: DSTRStorage,
 ): void {
   const tagIndexExtension = createTagIndexExtension(appId);
 
@@ -19,24 +24,13 @@ export function registerTagIndexLifecycle(
   context.app.workspace.onLayoutReady(async () => {
     try {
       const settings = context.getSettings();
-      const intervalHours = settings.fullScanIntervalHours ?? 24;
+      // 意図: 最終スキャン日時は DB 自身の meta を正とする。localStorage に持つと、
+      // IndexedDB だけが消えた（削除・再作成・別端末同期など）ときに
+      // 「DB は空なのに記録上はスキャン済み」となり、間隔が過ぎるまで再スキャンされない。
+      const last = await tagIndexExtension.getLastFullScanAt();
+      if (!shouldRunFullScan(last, settings.fullScanIntervalHours ?? 24)) return;
 
-      const last = storage.get<string | null>("lastFullScanAt", null);
-      let shouldScan = false;
-
-      if (!last) {
-        shouldScan = true;
-      } else {
-        // intervalHours が 0 の場合は、常に(起動のたびに)スキャンを実行する
-        const diffHours = window.moment().diff(window.moment(last), "hours", true);
-        shouldScan = diffHours >= intervalHours;
-      }
-
-      if (!shouldScan) {
-        return;
-      }
       await tagIndexExtension.fullScan(context.shell, settings);
-      storage.set("lastFullScanAt", window.moment().toISOString());
     } catch (e) {
       console.error("Failed to run conditional full scan:", e);
     }
