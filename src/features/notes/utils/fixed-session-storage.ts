@@ -12,7 +12,7 @@ export interface FixedSessionLocalMeta {
 
 export type FixedSessionMetaMap = Record<string, FixedSessionLocalMeta>;
 
-const FIXED_SESSION_META_FILE_SUFFIX = ".dstr.fixed-session-meta.json";
+const FIXED_SESSION_META_FILE_SUFFIX = ".fixed-session-meta.json";
 
 function getFixedSessionMetaStorageKey(file: string | null): string {
   if (!file) {
@@ -32,10 +32,11 @@ function getFixedSessionLastOpenedStorageKey(file: string | null): string {
 
 function getFixedSessionMetaFilePath(file: string): string {
   const lowerFile = file.toLowerCase();
-  const suffix = [FILENAME_SUFFIX, LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix].find((value) =>
-    lowerFile.endsWith(value),
-  );
-  const normalized = suffix ? file.slice(0, -suffix.length) : file.replace(/\.md$/i, "");
+  const legacySuffix = LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix;
+  const currentFile = lowerFile.endsWith(legacySuffix)
+    ? `${file.slice(0, -legacySuffix.length)}${FILENAME_SUFFIX}`
+    : file;
+  const normalized = currentFile.replace(/\.md$/i, "");
   return `${normalized}${FIXED_SESSION_META_FILE_SUFFIX}`;
 }
 
