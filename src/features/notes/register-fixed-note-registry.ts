@@ -1,5 +1,6 @@
 import type { WorkspaceLeaf } from "obsidian";
 import { TFile } from "obsidian";
+import { reportError } from "src/core/error-report";
 import { isDSTRFixedNotePath } from "src/core/fixed-note";
 import type { PluginLifecycleContext } from "src/core/plugin-host";
 import type { Settings } from "src/core/domain/settings";
@@ -31,7 +32,13 @@ export function registerFixedNoteRegistry(context: PluginLifecycleContext<Settin
         context.app.workspace.iterateAllLeaves((leaf) => {
           leaves.push(leaf);
         });
-        void forgetDeletedFixedNote(leaves, file.path);
+        void forgetDeletedFixedNote(leaves, file.path).catch((error) =>
+          reportError({
+            context: "Failed to forget deleted fixed note",
+            error,
+            details: { path: file.path },
+          }),
+        );
       }
 
       const settings = context.getSettings();

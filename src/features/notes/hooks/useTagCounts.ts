@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { subscribeToDBUpdates } from "src/core/db/updates";
 import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
+import { reportError } from "src/core/error-report";
 
 export interface TagCountItem {
   tag: string;
@@ -28,7 +29,7 @@ export function useTagCounts(): TagCountItem[] | null {
           .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ja"));
         if (mounted) setItems(sorted);
       } catch (error) {
-        console.error("Failed to fetch tag stats:", error);
+        reportError({ context: "Failed to fetch tag stats", error });
       }
     };
 

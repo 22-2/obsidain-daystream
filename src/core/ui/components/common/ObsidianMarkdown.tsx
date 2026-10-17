@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Box } from "src/core/ui/components/primitives";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
+import { reportError } from "src/core/error-report";
 
 interface Props {
   content: string;
@@ -27,7 +28,9 @@ export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
       rootRef.current,
       sourcePath ?? "",
       component,
-    ).catch((e) => console.error("Failed to render markdown", e));
+    ).catch((error) =>
+      reportError({ context: "Failed to render markdown", error, details: { sourcePath } }),
+    );
   }, [content, sourcePath, shell, component]);
 
   return (

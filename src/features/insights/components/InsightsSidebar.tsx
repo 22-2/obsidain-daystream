@@ -13,6 +13,7 @@ import { HStack, Spinner, Text, VStack } from "src/core/ui/components/primitives
 import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
+import { reportError } from "src/core/error-report";
 
 const ACTIVITY_BAR_COUNT = 32;
 const ACTIVITY_FETCH_LIMIT = 10_000;
@@ -77,7 +78,7 @@ export const InsightsSidebar: React.FC = () => {
         if (!mounted) return;
         setSummary(buildActivitySummary(records, activeTag, tagStats.length));
       } catch (error) {
-        console.error("Failed to fetch activity summary:", error);
+        reportError({ context: "Failed to fetch activity summary", error });
         if (mounted) setSummary(null);
       } finally {
         if (mounted) setLoading(false);

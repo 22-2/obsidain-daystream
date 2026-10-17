@@ -1,7 +1,7 @@
 import type { Locator } from "@playwright/test";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
-import { createStorageKey, getStorageKeyPrefix } from "src/core/storage";
+import { createStorageKey, getStorageKeyPrefix } from "src/core/storage-keys";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { DSTRView } from "src/features/workspace/views/DSTRView";

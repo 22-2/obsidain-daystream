@@ -3,6 +3,7 @@ import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { FILENAME_SUFFIX } from "src/core/fixed-note";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
+import { reportError } from "src/core/error-report";
 
 export interface FixedSessionLocalMeta {
   createdAt?: string;
@@ -98,7 +99,11 @@ async function readFixedSessionMetaFromFile(
         try {
           await writeFixedSessionMetaToFile(shell, file, sanitized);
         } catch (error) {
-          console.error("Failed to migrate fixed-session sidecar:", error);
+          reportError({
+            context: "Failed to migrate fixed-session sidecar",
+            error,
+            details: { path: file },
+          });
         }
       }
       return sanitized;
