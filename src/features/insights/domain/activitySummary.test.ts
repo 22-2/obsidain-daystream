@@ -96,6 +96,6 @@ describe("buildActivitySummary", () => {
   it("日付キーを表示用フォーマットへ変換できる", () => {
     expect(normalizeActivityDate("2026-08-10")).toBe("2026-08-10");
     expect(normalizeActivityDate("invalid-date")).toBeNull();
-    expect(formatActivityDate("2026-08-10", "yyyy/MM/dd")).toBe("2026/08/10");
+    expect(formatActivityDate("2026-08-10", "YYYY/MM/DD")).toBe("2026/08/10");
   });
 });

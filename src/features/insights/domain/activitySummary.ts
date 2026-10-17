@@ -1,7 +1,8 @@
-import { format, isValid, parseISO } from "date-fns";
+import type { Moment } from "moment";
 import type { MemoRecord } from "src/core/db/dstr-db";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 
-const ACTIVITY_DATE_FORMAT = "yyyy-MM-dd";
+const ACTIVITY_DATE_FORMAT = "YYYY-MM-DD";
 
 export interface ActivitySummary {
   dailyCounts: Record<string, number>;
@@ -12,15 +13,25 @@ export interface ActivitySummary {
   latestDate: string | null;
 }
 
+/** ISO 8601 の日時／日付をローカル時刻の Moment として解釈する。無効な値は isValid() が false になる。 */
+export function parseActivityDate(value: string): Moment {
+  return obsidianMoment(value, obsidianMoment.ISO_8601);
+}
+
+/** 2つの日付のカレンダー上の日数差。時刻や DST の影響を受けない。 */
+export function calendarDaysBetween(later: Moment, earlier: Moment): number {
+  return later.clone().startOf("day").diff(earlier.clone().startOf("day"), "days");
+}
+
 /** ISO日時／日付文字列を、表示するローカル日のキーへ正規化する。 */
 export function normalizeActivityDate(value: string | null | undefined): string | null {
   if (!value) return null;
 
-  const parsed = parseISO(value);
-  return isValid(parsed) ? format(parsed, ACTIVITY_DATE_FORMAT) : null;
+  const parsed = parseActivityDate(value);
+  return parsed.isValid() ? parsed.format(ACTIVITY_DATE_FORMAT) : null;
 }
 
-/** 集計の日付キーを指定フォーマットで表示する。 */
+/** 集計の日付キーを指定フォーマット（Moment のトークン）で表示する。 */
 export function formatActivityDate(
   value: string | null | undefined,
   dateFormat = ACTIVITY_DATE_FORMAT,
@@ -28,7 +39,7 @@ export function formatActivityDate(
   const normalized = normalizeActivityDate(value);
   if (!normalized) return null;
 
-  return format(parseISO(normalized), dateFormat);
+  return parseActivityDate(normalized).format(dateFormat);
 }
 
 /** 表示対象の投稿から、右サイドバー用の軽量な集計を作る。 */
