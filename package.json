@@ -64,7 +64,6 @@
     "clsx": "^2.1.1",
     "comlink": "^4.4.2",
     "consola": "^3.4.2",
-    "date-fns": "^4.4.0",
     "monkey-around": "^3.0.0",
     "p-queue": "^9.3.3",
     "preact": "^10.29.8",

@@ -1,13 +1,14 @@
 import type React from "react";
 // 意図: Insightsのサイドバー表示をInsights feature内にまとめる。
-import { differenceInCalendarDays, isValid, parseISO } from "date-fns";
 import { setTooltip } from "obsidian";
 import { useEffect, useMemo, useState } from "react";
 import { subscribeToDBUpdates } from "src/core/db/updates";
 import { PanelDivider, PanelSection } from "src/features/workspace/components/layout/PanelPrimitives";
 import {
   buildActivitySummary,
+  calendarDaysBetween,
   formatActivityDate,
+  parseActivityDate,
   type ActivitySummary,
 } from "src/features/insights/domain/activitySummary";
 import { HStack, Spinner, Text, VStack } from "src/core/ui/components/primitives";
@@ -19,7 +20,7 @@ import { reportError } from "src/core/error-report";
 const ACTIVITY_BAR_COUNT = 32;
 const ACTIVITY_FETCH_LIMIT = 10_000;
 
-function formatDate(value: string | null, dateFormat = "yyyy-MM"): string {
+function formatDate(value: string | null, dateFormat = "YYYY-MM"): string {
   return formatActivityDate(value, dateFormat) ?? "—";
 }
 
@@ -28,23 +29,23 @@ function buildActivityBars(summary: ActivitySummary | null) {
     return Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
   }
 
-  const start = parseISO(summary.firstDate);
-  const end = parseISO(summary.latestDate);
-  if (!isValid(start) || !isValid(end)) {
+  const start = parseActivityDate(summary.firstDate);
+  const end = parseActivityDate(summary.latestDate);
+  if (!start.isValid() || !end.isValid()) {
     return Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
   }
 
-  const spanDays = Math.max(1, differenceInCalendarDays(end, start) + 1);
+  const spanDays = Math.max(1, calendarDaysBetween(end, start) + 1);
   const bucketSize = Math.max(1, Math.ceil(spanDays / ACTIVITY_BAR_COUNT));
   const bars = Array.from({ length: ACTIVITY_BAR_COUNT }, () => 0);
 
   for (const [date, count] of Object.entries(summary.dailyCounts)) {
-    const activityDate = parseISO(date);
-    if (!isValid(activityDate)) continue;
+    const activityDate = parseActivityDate(date);
+    if (!activityDate.isValid()) continue;
 
     const index = Math.min(
       ACTIVITY_BAR_COUNT - 1,
-      Math.max(0, Math.floor(differenceInCalendarDays(activityDate, start) / bucketSize)),
+      Math.max(0, Math.floor(calendarDaysBetween(activityDate, start) / bucketSize)),
     );
     bars[index] += count;
   }
@@ -135,7 +136,7 @@ export const InsightsSidebar: React.FC = () => {
           <StatRow label="タグ" value={summary?.tagCount ?? 0} loading={loading} />
           <StatRow
             label="開始日"
-            value={formatDate(summary?.firstDate ?? null, "yyyy-MM-dd")}
+            value={formatDate(summary?.firstDate ?? null, "YYYY-MM-DD")}
             loading={loading}
           />
         </VStack>
