@@ -1,9 +1,10 @@
 import { TFile } from "obsidian";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import { describe, expect, it, vi } from "vitest";
 
-const VIEW_TYPE_DSTR = "mfdi-view";
+const VIEW_TYPE_DSTR = "dstr-view";
 
 // 意図: server.deps.inline で @22-2/obsidian-magical-editor が Vite 経由で処理されると
 // obsidian モックの全エクスポートが解決される必要がある。importOriginal でグローバルモックを
@@ -147,8 +148,8 @@ describe("builtin registry", () => {
       registerEvent.mock.invocationCallOrder[0]!,
     );
 
-    // Daystream / editor の2つが登録される
-    expect(registerView).toHaveBeenCalledTimes(2);
+    // 現行ビューと、保存済みレイアウト移行用の旧ビューが登録される
+    expect(registerView).toHaveBeenCalledTimes(4);
     const [viewType, viewCreator] = registerView.mock.calls[0] as [
       string,
       (leaf: unknown) => unknown,
@@ -160,9 +161,31 @@ describe("builtin registry", () => {
       string,
       (leaf: unknown) => unknown,
     ];
-    expect(editorViewType).toBe("mfdi-editor-view");
+    expect(editorViewType).toBe("dstr-editor-view");
     expect(editorViewCreator({ id: "leaf-2" })).toEqual({
       leaf: { id: "leaf-2" },
+    });
+
+    const [legacyViewType, legacyViewCreator] = registerView.mock.calls[2] as [
+      string,
+      (leaf: unknown) => unknown,
+    ];
+    expect(legacyViewType).toBe(LEGACY_DAYSTREAM_IDENTIFIERS.viewType);
+    expect(legacyViewCreator({ id: "legacy-leaf" })).toEqual({
+      leaf: { id: "legacy-leaf" },
+    });
+    expect(createDSTRView).toHaveBeenCalledWith(
+      { id: "legacy-leaf" },
+      LEGACY_DAYSTREAM_IDENTIFIERS.viewType,
+    );
+
+    const [legacyEditorViewType, legacyEditorViewCreator] = registerView.mock.calls[3] as [
+      string,
+      (leaf: unknown) => unknown,
+    ];
+    expect(legacyEditorViewType).toBe(LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType);
+    expect(legacyEditorViewCreator({ id: "legacy-editor-leaf" })).toEqual({
+      leaf: { id: "legacy-editor-leaf" },
     });
 
     expect(addRibbonIcon).toHaveBeenCalledWith(

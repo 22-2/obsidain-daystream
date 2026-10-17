@@ -220,7 +220,7 @@ describe("editorSlice", () => {
     (noteMode) => {
       const store = createAppStore();
       const date = window.moment("2026-08-01");
-      const file = noteMode === "fixed" ? "MFDI/a.mfdi.md" : null;
+      const file = noteMode === "fixed" ? "dstr/a.dstr.md" : null;
       const { storage } = createMockStorage({
         [STORAGE_KEYS.GRANULARITY]: "month",
         [STORAGE_KEYS.DATE]: date.toISOString(),
@@ -267,7 +267,7 @@ describe("editorSlice", () => {
   });
 
   it("view切替時にperiodic/fixedで入力復元を分離する", () => {
-    const fixedPathA = "MFDI/a.mfdi.md";
+    const fixedPathA = "dstr/a.dstr.md";
     const store = createAppStore();
     const { storage, set: setStorage } = createMockStorage({
       [STORAGE_KEYS.INPUT_PERIODIC]: "periodic draft",
@@ -295,8 +295,8 @@ describe("editorSlice", () => {
   });
 
   it("fixedノート間の切替で入力復元をファイル単位に分離する", () => {
-    const fixedPathA = "MFDI/a.mfdi.md";
-    const fixedPathB = "MFDI/b.mfdi.md";
+    const fixedPathA = "dstr/a.dstr.md";
+    const fixedPathB = "dstr/b.dstr.md";
     const store = createAppStore();
     const { storage, set: setStorage } = createMockStorage({
       [getInputStorageKey("fixed", fixedPathA)]: "draft-a",
@@ -325,7 +325,7 @@ describe("editorSlice", () => {
   });
 
   it("fixed session 切替で draft と metadata を session 単位に分離する", () => {
-    const fixedPath = "MFDI/a.mfdi.md";
+    const fixedPath = "dstr/a.dstr.md";
     const store = createAppStore();
     const { storage, set: setStorage } = createMockStorage({
       [getInputStorageKey("fixed", fixedPath, 2)]: "draft-session-2",
@@ -362,7 +362,7 @@ describe("editorSlice", () => {
   });
 
   it("setViewContext は fixed ノート restore 時に session もまとめて復元する", () => {
-    const fixedPath = "MFDI/a.mfdi.md";
+    const fixedPath = "dstr/a.dstr.md";
     const store = createAppStore();
     const { storage, set: setStorage } = createMockStorage({
       [getInputStorageKey("fixed", fixedPath, 4)]: "draft-session-4",
@@ -401,7 +401,7 @@ describe("editorSlice", () => {
   });
 
   it("initializeAppStore は restore 済み fixed session の入力を直接 hydrate する", () => {
-    const fixedPath = "MFDI/a.mfdi.md";
+    const fixedPath = "dstr/a.dstr.md";
     const store = createAppStore();
     const { storage } = createMockStorage({
       [getInputStorageKey("fixed", fixedPath, 4)]: "draft-session-4",

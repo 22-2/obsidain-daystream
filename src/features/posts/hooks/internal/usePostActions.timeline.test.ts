@@ -358,7 +358,7 @@ describe("timeline note resolution", () => {
       "## Thino",
     );
     expect(mockInsertTextAfter.mock.calls[0][1]).toContain("- 23:59:59 timeline post");
-    expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain("[mfdiId::");
+    expect(mockInsertTextAfter.mock.calls[0][1]).not.toContain("[dstrId::");
     expect(mockInsertTextAfter.mock.calls[0][1]).toContain("[posted::");
     expect(mockRefreshPosts).toHaveBeenCalledWith(yesterdayNote.path);
   });
@@ -569,11 +569,11 @@ describe("timeline note resolution", () => {
     expect(fid).toMatch(/^[a-f0-9]{8}$/);
     expect(mockReplaceRange.mock.calls[0][3]).toContain("- 12:00:00 parent");
     expect(mockReplaceRange.mock.calls[0][3]).not.toContain("- 23:59:59 parent");
-    // 置換されたテキストに実際の mfdiId が含まれていることを確認
+    // 置換されたテキストに実際の dstrId が含まれていることを確認
     expect(mockReplaceRange.mock.calls[0][3]).toContain(`[${THREAD_METADATA_KEYS.ID}::${fid}]`);
   });
 
-  it("スレッド作成は mfdiId がなくても最新オフセットを再発見して置換する", async () => {
+  it("スレッド作成は dstrId がなくても最新オフセットを再発見して置換する", async () => {
     const plainPost = {
       id: `${yesterdayNote.path}:0`,
       threadRootId: null,
@@ -797,7 +797,7 @@ note header
     expect(settingsStore.getState().threadFocusRootId).toBeNull();
   });
 
-  it("mfdiId がある投稿はオフセットがずれても最新位置で削除できる", async () => {
+  it("dstrId がある投稿はオフセットがずれても最新位置で削除できる", async () => {
     const rootPost = {
       id: "root-1",
       threadRootId: "root-1",

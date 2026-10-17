@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 import type { DSTRView } from "src/features/workspace/views/DSTRView";
 
 export const PLUGIN_ID = "dstr";
-export const DSTR_VIEW_TYPE = "mfdi-view";
+export const DSTR_VIEW_TYPE = "dstr-view";
 export const OPEN_VIEW_COMMAND = PLUGIN_ID + ":dstr-open-view";
-export const DSTR_LEAF = '.workspace-leaf-content[data-type="mfdi-view"]';
+export const DSTR_LEAF = '.workspace-leaf-content[data-type="dstr-view"]';
 export const LIVE_EDITOR = ".dstr-input-area .cm-content";
 
 // The built plugin is read from the repository's dist/ folder.
@@ -42,9 +42,9 @@ export async function collapseDSTRSidebars(obsidian: ObsidianAPI): Promise<void>
 /** Reads the live editor text through the Daystream view's test delegate. */
 export function getLiveEditorDelegateContent(obsidian: ObsidianAPI): Promise<string> {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
     const delegates = (leaf.view as DSTRView).actionDelegates;
     if (!delegates.onGetLiveEditorContentForTesting) {
@@ -57,9 +57,9 @@ export function getLiveEditorDelegateContent(obsidian: ObsidianAPI): Promise<str
 /** Sets the live editor text through the Daystream view's test delegate and waits until the delegate reports it. */
 export async function setLiveEditorDelegateContent(obsidian: ObsidianAPI, text: string): Promise<void> {
   await obsidian.evaluateApp((content) => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
     if (!(leaf.view as DSTRView).actionDelegates.onSetLiveEditorContentForTesting) {
       throw new Error("onSetLiveEditorContentForTesting is not ready");

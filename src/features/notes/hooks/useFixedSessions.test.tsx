@@ -36,8 +36,8 @@ vi.mock("src/features/workspace/hooks/useObsidianUi", () => ({
 }));
 
 describe("useFixedSessions", () => {
-  const path = "MFDI/fixed.md";
-  const metaPath = "MFDI/fixed.fixed-session-meta.json";
+  const path = "dstr/fixed.md";
+  const metaPath = "dstr/fixed.fixed-session-meta.json";
   let files: Map<string, string>;
   let store: ReturnType<typeof createAppStore>;
   let storage: DSTRStorage;

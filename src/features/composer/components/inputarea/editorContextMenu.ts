@@ -6,7 +6,7 @@ export function isEditorAlreadyInSeparateWindow(view: ComposerHostView): boolean
   // 意図: Daystream ビュー自体をポップアウトした場合も二重の別ウィンドウ操作を出さない。
   return (
     view.leaf.getContainer() instanceof WorkspaceWindow ||
-    view.app.workspace.getLeavesOfType("mfdi-editor-view").length > 0
+    view.app.workspace.getLeavesOfType("dstr-editor-view").length > 0
   );
 }
 

@@ -3,7 +3,7 @@ import type { EditorView } from "@codemirror/view";
 import { ViewPlugin, type ViewUpdate } from "@codemirror/view";
 import { createLogger } from "src/core/logger";
 
-const TARGET_VIEW_SELECTOR = '[data-type="mfdi-view"], [data-type="mfdi-editor-view"]';
+const TARGET_VIEW_SELECTOR = '[data-type="dstr-view"], [data-type="dstr-editor-view"]';
 const CONTENT_PADDING_PROPERTY = "padding-bottom";
 
 const logger = createLogger("dstr:cm-bottom-padding");

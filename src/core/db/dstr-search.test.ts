@@ -112,11 +112,11 @@ describe("DSTRDatabase Search", () => {
     await db.memos.bulkPut([
       createMemo({
         content: "thread root",
-        metadataJson: JSON.stringify({ mfdiId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "root-1" }),
       }),
       createMemo({
         content: "thread reply",
-        metadataJson: JSON.stringify({ mfdiId: "reply-1", parentId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-1", parentId: "root-1" }),
       }),
       createMemo({ content: "plain post", metadataJson: JSON.stringify({}) }),
     ]);
@@ -132,17 +132,17 @@ describe("DSTRDatabase Search", () => {
       createMemo({
         content: "apple root",
         noteDate: "2026-01-01",
-        metadataJson: JSON.stringify({ mfdiId: "root-2" }),
+        metadataJson: JSON.stringify({ dstrId: "root-2" }),
       }),
       createMemo({
         content: "apple reply",
         noteDate: "2026-01-02",
-        metadataJson: JSON.stringify({ mfdiId: "reply-2", parentId: "root-2" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-2", parentId: "root-2" }),
       }),
       createMemo({
         content: "banana root",
         noteDate: "2026-01-03",
-        metadataJson: JSON.stringify({ mfdiId: "root-3" }),
+        metadataJson: JSON.stringify({ dstrId: "root-3" }),
       }),
     ]);
 
@@ -164,7 +164,7 @@ describe("DSTRDatabase Search", () => {
         content: "pinned root",
         noteDate: "2026-01-01",
         pinned: 1,
-        metadataJson: JSON.stringify({ mfdiId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "root-1" }),
       }),
       createMemo({
         content: "unpinned root",
@@ -174,7 +174,7 @@ describe("DSTRDatabase Search", () => {
         content: "pinned reply",
         noteDate: "2026-01-03",
         pinned: 1,
-        metadataJson: JSON.stringify({ mfdiId: "reply-1", parentId: "root-1" }),
+        metadataJson: JSON.stringify({ dstrId: "reply-1", parentId: "root-1" }),
       }),
     ]);
 

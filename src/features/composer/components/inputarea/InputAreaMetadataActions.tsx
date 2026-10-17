@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, type FC } from "react";
-import { TAG_METADATA_KEY, serializeDSTRTags } from "src/core/tags";
+import { removeLegacyDSTRTags, TAG_METADATA_KEY, serializeDSTRTags } from "src/core/tags";
 import { IconButton } from "src/core/ui/components/common/IconButton";
 import { HStack } from "src/core/ui/components/primitives";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
@@ -53,6 +53,7 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
       if (nextValue === null) return;
 
       const nextMetadata = { ...draftMetadata };
+      removeLegacyDSTRTags(nextMetadata);
       const serializedTags = serializeDSTRTags(nextValue.split(","));
       if (serializedTags.length === 0) {
         // 意図: タグを空にした場合はキーごと消し、submit 時に残骸が残らないようにする。

@@ -15,7 +15,7 @@ const fixedState: DSTRViewState = {
   searchQuery: "",
   activeTopic: "",
   noteMode: "fixed",
-  file: "MFDI/Inbox.mfdi.md",
+  file: "dstr/Inbox.dstr.md",
 };
 
 describe("DSTRView external state revision", () => {

@@ -3,12 +3,13 @@ import { ItemView, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import type { Settings } from "src/core/domain/settings";
+import { VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { EditorOnlyReactView } from "src/features/composer/components/EditorOnlyReactView";
 import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
 import "src/core/ui/styles/global.css";
 import "src/core/ui/styles/dstr.css";
 
-export const VIEW_TYPE_DSTR_EDITOR = "mfdi-editor-view";
+export { VIEW_TYPE_DSTR_EDITOR };
 
 // popout ウィンドウへ渡すシリアライズ済みの状態
 // Post の Moment フィールドは ISO 文字列に変換して Record 互換にする
@@ -22,13 +23,15 @@ export interface DSTREditorViewState extends Record<string, unknown> {
 export class DSTREditorView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
+  private readonly viewType: string;
   private state: DSTREditorViewState | null = null;
   // popout ウィンドウでは navigation ヘッダが不要
   public navigation: boolean = false;
 
-  constructor(leaf: WorkspaceLeaf, settings: Settings) {
+  constructor(leaf: WorkspaceLeaf, settings: Settings, viewType = VIEW_TYPE_DSTR_EDITOR) {
     super(leaf);
     this.settings = settings;
+    this.viewType = viewType;
   }
 
   // -----------------------------------------------------------------------
@@ -40,7 +43,7 @@ export class DSTREditorView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_DSTR_EDITOR;
+    return this.viewType;
   }
 
   getDisplayText(): string {

@@ -1,5 +1,6 @@
 import { Notice } from "obsidian";
 import { useCallback } from "react";
+import { normalizeDSTRMetadata } from "src/core/metadata";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { createRefreshPosts } from "src/features/posts/hooks/internal/refreshPosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
@@ -128,7 +129,7 @@ export const usePostHelpers = () => {
         noteMode: settingsState.viewNoteMode,
         granularity: settingsState.granularity,
         post,
-        transformMetadata,
+        transformMetadata: (metadata) => normalizeDSTRMetadata(transformMetadata(metadata)),
       });
       if (!latestPost) {
         await notifyNotFoundAndRefresh(post.path);
@@ -157,7 +158,7 @@ export const usePostHelpers = () => {
         granularity: settingsState.granularity,
         posts,
         resolveLatest: findLatestPost,
-        buildMetadata,
+        buildMetadata: (post) => normalizeDSTRMetadata(buildMetadata(post)),
       });
       if (sortedPosts.length === 0) return;
 

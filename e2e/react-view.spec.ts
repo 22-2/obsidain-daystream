@@ -51,7 +51,7 @@ interface ReactViewDebugSnapshot extends MemoDatabaseSnapshot {
 /** Reads the view state and the list DOM in one evaluation, so both describe the same moment. */
 async function getReactViewViewState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     const activeFile = app.workspace.getActiveFile();
     const viewState = (leaf?.view as DSTRView | undefined)?.getState?.();
     const viewDateValue = viewState?.date;
@@ -67,7 +67,7 @@ async function getReactViewViewState(obsidian: ObsidianAPI) {
 
     return {
       activeFilePath: activeFile?.path ?? null,
-      dstrLeafCount: app.workspace.getLeavesOfType("mfdi-view").length,
+      dstrLeafCount: app.workspace.getLeavesOfType("dstr-view").length,
       displayMode: viewState?.displayMode ?? null,
       viewDate,
       viewActiveTopic: viewState?.activeTopic ?? null,
@@ -105,7 +105,7 @@ async function getMemoDatabaseState(obsidian: ObsidianAPI): Promise<MemoDatabase
     }
 
     try {
-      const dbName = `${currentAppId}-mfdi-db`;
+      const dbName = `${currentAppId}-dstr-db`;
       const opened = await new Promise<IDBDatabase>((resolve, reject) => {
         const request = indexedDB.open(dbName);
         request.onsuccess = () => resolve(request.result);

@@ -1,5 +1,7 @@
 import type { DSTRStorage } from "src/core/storage";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import { FILENAME_SUFFIX } from "src/core/fixed-note";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 
 export interface FixedSessionLocalMeta {
@@ -10,7 +12,7 @@ export interface FixedSessionLocalMeta {
 
 export type FixedSessionMetaMap = Record<string, FixedSessionLocalMeta>;
 
-const FIXED_SESSION_META_FILE_SUFFIX = ".fixed-session-meta.json";
+const FIXED_SESSION_META_FILE_SUFFIX = ".dstr.fixed-session-meta.json";
 
 function getFixedSessionMetaStorageKey(file: string | null): string {
   if (!file) {
@@ -29,11 +31,19 @@ function getFixedSessionLastOpenedStorageKey(file: string | null): string {
 }
 
 function getFixedSessionMetaFilePath(file: string): string {
-  if (file.toLowerCase().endsWith(".md")) {
-    return `${file.slice(0, -3)}${FIXED_SESSION_META_FILE_SUFFIX}`;
-  }
+  const lowerFile = file.toLowerCase();
+  const suffix = [FILENAME_SUFFIX, LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix].find((value) =>
+    lowerFile.endsWith(value),
+  );
+  const normalized = suffix ? file.slice(0, -suffix.length) : file.replace(/\.md$/i, "");
+  return `${normalized}${FIXED_SESSION_META_FILE_SUFFIX}`;
+}
 
-  return `${file}${FIXED_SESSION_META_FILE_SUFFIX}`;
+function getLegacyFixedSessionMetaFilePath(file: string): string {
+  if (file.toLowerCase().endsWith(".md")) {
+    return `${file.slice(0, -3)}.fixed-session-meta.json`;
+  }
+  return `${file}.fixed-session-meta.json`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -74,15 +84,29 @@ async function readFixedSessionMetaFromFile(
   shell: ObsidianAppShell,
   file: string,
 ): Promise<FixedSessionMetaMap | null> {
-  const filePath = getFixedSessionMetaFilePath(file);
+  const currentPath = getFixedSessionMetaFilePath(file);
+  const legacyPath = getLegacyFixedSessionMetaFilePath(file);
+  const candidatePaths = [...new Set([currentPath, legacyPath])];
 
-  try {
-    const raw = await shell.loadFile(filePath);
-    const parsed = JSON.parse(raw) as unknown;
-    return sanitizeFixedSessionMetaMap(parsed);
-  } catch {
-    return null;
+  for (const filePath of candidatePaths) {
+    try {
+      const raw = await shell.loadFile(filePath);
+      const parsed = JSON.parse(raw) as unknown;
+      const sanitized = sanitizeFixedSessionMetaMap(parsed);
+      if (filePath !== currentPath && Object.keys(sanitized).length > 0) {
+        try {
+          await writeFixedSessionMetaToFile(shell, file, sanitized);
+        } catch (error) {
+          console.error("Failed to migrate fixed-session sidecar:", error);
+        }
+      }
+      return sanitized;
+    } catch {
+      // Try the previous sidecar name when the DSTR sidecar is not present.
+    }
   }
+
+  return null;
 }
 
 async function writeFixedSessionMetaToFile(

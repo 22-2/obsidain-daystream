@@ -1,4 +1,5 @@
 import type { WorkspaceLeaf } from "obsidian";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import {
   createFixedNoteViewExtension,
   findExistingDSTRLeaf,
@@ -11,12 +12,12 @@ describe("fixed note view extension", () => {
 
     const result = extension.convertMarkdownViewState({
       type: "markdown",
-      state: { file: "MFDI/Inbox.mfdi.md" },
+      state: { file: "dstr/Inbox.dstr.md" },
     });
 
-    expect(result.type).toBe("mfdi-view");
+    expect(result.type).toBe("dstr-view");
     expect(result.state.noteMode).toBe("fixed");
-    expect(result.state.file).toBe("MFDI/Inbox.mfdi.md");
+    expect(result.state.file).toBe("dstr/Inbox.dstr.md");
   });
 
   it("restores fixedSessionNumber from incoming markdown state", () => {
@@ -24,10 +25,13 @@ describe("fixed note view extension", () => {
 
     const result = extension.convertMarkdownViewState({
       type: "markdown",
-      state: { file: "MFDI/Inbox.mfdi.md", fixedSessionNumber: 4 },
+      state: {
+        file: `dstr/Inbox${LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix}`,
+        fixedSessionNumber: 4,
+      },
     });
 
-    expect(result.type).toBe("mfdi-view");
+    expect(result.type).toBe("dstr-view");
     expect(result.state.fixedSessionNumber).toBe(4);
   });
 
@@ -37,7 +41,7 @@ describe("fixed note view extension", () => {
     });
     const state = {
       type: "markdown",
-      state: { file: "MFDI/Missing.mfdi.md" },
+      state: { file: "dstr/Missing.dstr.md" },
     };
 
     expect(extension.convertMarkdownViewState(state)).toBe(state);
@@ -50,10 +54,10 @@ describe("fixed note view extension", () => {
 
     const result = extension.convertMarkdownViewState({
       type: "markdown",
-      state: { file: "MFDI/Inbox.mfdi.md" },
+      state: { file: "dstr/Inbox.dstr.md" },
     });
 
-    expect(result.type).toBe("mfdi-view");
+    expect(result.type).toBe("dstr-view");
     expect(result.state.fixedSessionNumber).toBe(6);
   });
 
@@ -62,7 +66,7 @@ describe("fixed note view extension", () => {
     const state = {
       type: "markdown",
       state: {
-        file: "MFDI/Inbox.mfdi.md",
+        file: "dstr/Inbox.dstr.md",
         __dstr_force_markdown: true,
       },
     };
@@ -73,13 +77,13 @@ describe("fixed note view extension", () => {
   it("finds an existing fixed leaf by fixed path", () => {
     const leaf = {
       view: {
-        getState: () => ({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }) as any,
+        getState: () => ({ noteMode: "fixed", file: "dstr/Inbox.dstr.md" }) as any,
       },
     } as WorkspaceLeaf;
 
     const result = findExistingDSTRLeaf([leaf], {
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     });
 
     expect(result).toBe(leaf);
@@ -93,7 +97,7 @@ describe("fixed note view extension", () => {
     const leaves = [
       {
         view: {
-          file: { path: "MFDI/Inbox.mfdi.md" },
+          file: { path: "dstr/Inbox.dstr.md" },
           getState: () => ({ noteMode: "periodic", file: null }) as any,
         },
       } as any,
@@ -104,7 +108,7 @@ describe("fixed note view extension", () => {
     expect(attachDSTRView).toHaveBeenCalledWith(
       expect.objectContaining({
         noteMode: "fixed",
-        file: "MFDI/Inbox.mfdi.md",
+        file: "dstr/Inbox.dstr.md",
         fixedSessionNumber: 5,
       }),
       leaves[0],
@@ -117,14 +121,14 @@ describe("fixed note view extension", () => {
     const leaves = [
       {
         view: {},
-        getViewState: () => ({ type: "markdown", state: { file: "MFDI/Inbox.mfdi.md" } }),
+        getViewState: () => ({ type: "markdown", state: { file: "dstr/Inbox.dstr.md" } }),
       } as any,
     ];
 
     await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });
 
     expect(attachDSTRView).toHaveBeenCalledWith(
-      expect.objectContaining({ noteMode: "fixed", file: "MFDI/Inbox.mfdi.md" }),
+      expect.objectContaining({ noteMode: "fixed", file: "dstr/Inbox.dstr.md" }),
       leaves[0],
     );
   });

@@ -44,7 +44,7 @@ test("タブ復帰とビューの開き直しで左右の開閉状態を維持�
 
   // 意図: store の再作成と保存状態の復元まで通し、初回の幅測定でも上書きしないことを確認する。
   await obsidian.evaluateApp(() =>
-    app.workspace.getLeavesOfType("mfdi-view")[0].detach(),
+    app.workspace.getLeavesOfType("dstr-view")[0].detach(),
   );
   await openDSTRView(obsidian);
   await expect(root).toBeVisible();

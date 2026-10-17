@@ -60,14 +60,14 @@ describe("syncStoreFromDSTRViewState", () => {
       searchQuery: "",
       activeTopic: "",
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     };
 
     syncStoreFromDSTRViewState(store, viewState);
 
     expect(state.fixedSessionNumber).toBe(4);
     expect(state.viewNoteMode).toBe("fixed");
-    expect(state.file).toBe("MFDI/Inbox.mfdi.md");
+    expect(state.file).toBe("dstr/Inbox.dstr.md");
     expect(state.displayMode).toBe("focus");
     expect(state.granularity).toBe("day");
     expect(state.dateFilter).toBe("all");
@@ -78,7 +78,7 @@ describe("syncStoreFromDSTRViewState", () => {
     expect(state.threadFocusRootId).toBeNull();
     expect(state.setViewContext).toHaveBeenCalledWith({
       noteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
       fixedSessionNumber: 4,
     });
   });
@@ -87,7 +87,7 @@ describe("syncStoreFromDSTRViewState", () => {
     const { state, store } = createMockStore({
       fixedSessionNumber: 8,
       viewNoteMode: "fixed",
-      file: "MFDI/Inbox.mfdi.md",
+      file: "dstr/Inbox.dstr.md",
     });
     const viewState: DSTRViewState = {
       displayMode: "timeline",

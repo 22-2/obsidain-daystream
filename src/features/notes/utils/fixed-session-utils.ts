@@ -3,6 +3,7 @@ import { resolveTimestamp } from "src/core/post-utils";
 import type { MomentLike, Post } from "src/core/domain/post";
 import type { FixedSessionMetaMap } from "src/features/notes/utils/fixed-session-storage";
 import { buildPostFromEntry, resolvePostId, resolveThreadRootId } from "src/features/posts/utils/thread-utils";
+import { getDSTRThreadId } from "src/core/metadata";
 
 export interface FixedSessionSummary {
   sessionNumber: number;
@@ -50,7 +51,7 @@ export function groupSessionsByActivity(sessions: FixedSessionSummary[]): {
 }
 
 export function isThreadRootMetadata(metadata: Record<string, string>): boolean {
-  const threadId = metadata.mfdiId;
+  const threadId = getDSTRThreadId(metadata);
   const parentId = metadata.parentId;
   return !!threadId && !parentId;
 }

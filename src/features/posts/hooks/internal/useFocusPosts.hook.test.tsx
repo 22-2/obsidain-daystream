@@ -145,12 +145,12 @@ describe("useFocusPosts hook integration", () => {
 
   it("fixedモードではtopicIdを渡さず file で投稿を絞る", async () => {
     mocked.settings.viewNoteMode = "fixed";
-    mocked.settings.file = "MFDI/Inbox.mfdi.md";
+    mocked.settings.file = "dstr/Inbox.dstr.md";
     mocked.settings.searchQuery = "";
     mocked.settings.threadOnly = false;
 
     mocked.loadFile.mockResolvedValue(
-      ["## Thino", "- 12:00:00 from-fixed [mfdiId::root-1]", "- 12:01:00 from-other"].join("/n"),
+      ["## Thino", "- 12:00:00 from-fixed [dstrId::root-1]", "- 12:01:00 from-other"].join("/n"),
     );
 
     const { result } = renderHook(() => useFocusPosts(), {
@@ -166,7 +166,7 @@ describe("useFocusPosts hook integration", () => {
 
     expect(mocked.getMemos).not.toHaveBeenCalled();
     expect(mocked.getDb).not.toHaveBeenCalled();
-    expect(mocked.loadFile).toHaveBeenCalledWith("MFDI/Inbox.mfdi.md");
+    expect(mocked.loadFile).toHaveBeenCalledWith("dstr/Inbox.dstr.md");
   });
 
   it("periodicモードではactiveTopicで取得し path絞り込みしない", async () => {
@@ -203,7 +203,7 @@ describe("useFocusPosts hook integration", () => {
     mocked.loadFile.mockResolvedValue(
       [
         "## Thino",
-        "- 09:00:00 from-month-note [mfdiId::month-1]",
+        "- 09:00:00 from-month-note [dstrId::month-1]",
         "- 09:01:00 another month entry",
       ].join("/n"),
     );
@@ -265,7 +265,7 @@ describe("useFocusPosts hook integration", () => {
     mocked.loadFile.mockResolvedValue(
       [
         "## Thino",
-        "- 09:00:00 from-year-note [mfdiId::year-1]",
+        "- 09:00:00 from-year-note [dstrId::year-1]",
         "- 09:01:00 another year entry",
       ].join("/n"),
     );
@@ -293,7 +293,7 @@ describe("useFocusPosts hook integration", () => {
     mocked.loadFile.mockResolvedValue(
       [
         "## Thino",
-        "- 09:00:00 from-quarter-note [mfdiId::quarter-1]",
+        "- 09:00:00 from-quarter-note [dstrId::quarter-1]",
         "- 09:01:00 another quarter entry",
       ].join("/n"),
     );
@@ -316,15 +316,15 @@ describe("useFocusPosts hook integration", () => {
     mocked.settings.viewNoteMode = "fixed";
     mocked.settings.activeTopic = "";
     mocked.settings.dateFilter = "all";
-    mocked.settings.file = "home/着ぐるみ購入についてあれこれ.mfdi.md";
+    mocked.settings.file = "home/着ぐるみ購入についてあれこれ.dstr.md";
     mocked.settings.threadOnly = true;
     mocked.settings.searchQuery = "wanted";
 
     mocked.loadFile.mockResolvedValue(
       [
         "## Thino",
-        "- 18:33:04 wanted [posted::2026-03-29T09:33:04.314Z] [mfdiId::root-1]",
-        "- 18:34:00 wanted reply [posted::2026-03-29T09:34:00.000Z] [mfdiId::reply-1] [parentId::root-1]",
+        "- 18:33:04 wanted [posted::2026-03-29T09:33:04.314Z] [dstrId::root-1]",
+        "- 18:34:00 wanted reply [posted::2026-03-29T09:34:00.000Z] [dstrId::reply-1] [parentId::root-1]",
         "- 18:35:00 other [posted::2026-03-29T09:35:00.000Z]",
       ].join("/n"),
     );
@@ -339,6 +339,6 @@ describe("useFocusPosts hook integration", () => {
 
     expect(mocked.getMemos).not.toHaveBeenCalled();
     expect(mocked.getDb).not.toHaveBeenCalled();
-    expect(mocked.loadFile).toHaveBeenCalledWith("home/着ぐるみ購入についてあれこれ.mfdi.md");
+    expect(mocked.loadFile).toHaveBeenCalledWith("home/着ぐるみ購入についてあれこれ.dstr.md");
   });
 });

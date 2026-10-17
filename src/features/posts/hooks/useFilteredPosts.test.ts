@@ -3,6 +3,7 @@ import moment from "moment";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useFilteredPosts } from "src/features/posts/hooks/useFilteredPosts";
 import type { Post } from "src/core/domain/post";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 function createPost(overrides: Partial<Post>): Post {
@@ -88,7 +89,10 @@ describe("useFilteredPosts", () => {
 
   test("スレッド表示中は activeTag が残っていても対象スレッドを表示する", () => {
     const posts = [
-      createPost({ id: "plain-1", metadata: { mfditags: "IT" } }),
+      createPost({
+        id: "plain-1",
+        metadata: { [LEGACY_DAYSTREAM_IDENTIFIERS.tagsMetadataKey]: "IT" },
+      }),
       createPost({ id: "root-1", threadRootId: "root-1", metadata: {} }),
       createPost({
         id: "reply-1",
@@ -117,8 +121,8 @@ describe("useFilteredPosts", () => {
 
   test("activeTag があるとタグ一致の投稿だけ返す", () => {
     const posts = [
-      createPost({ id: "it-1", metadata: { mfditags: "IT, Later" } }),
-      createPost({ id: "writing-1", metadata: { mfditags: "writing" } }),
+      createPost({ id: "it-1", metadata: { dstrtags: "IT, Later" } }),
+      createPost({ id: "writing-1", metadata: { dstrtags: "writing" } }),
       createPost({ id: "plain-1", startOffset: 30 }),
     ];
 
@@ -257,7 +261,7 @@ describe("useFilteredPosts", () => {
       createPost({
         id: "older-tagged",
         timestamp: moment("2026-03-18T08:00:00.000Z"),
-        metadata: { mfditags: "IT" },
+        metadata: { dstrtags: "IT" },
       }),
     ];
 

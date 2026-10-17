@@ -2,6 +2,7 @@ import type { WorkspaceLeaf } from "obsidian";
 import { ItemView, Menu, Scope } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
+import { VIEW_TYPE_DSTR } from "src/core/view-types";
 import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -18,8 +19,7 @@ import {
   getDSTRViewCapabilities,
 } from "src/features/workspace/views/state";
 
-// Keep the persisted Obsidian type so saved workspace leaves still restore after the rebrand.
-export const VIEW_TYPE_DSTR = "mfdi-view";
+export { VIEW_TYPE_DSTR };
 
 export class DSTRView extends ItemView {
   private root: Root | null = null;
@@ -27,6 +27,7 @@ export class DSTRView extends ItemView {
   private state: DSTRViewState = { ...DEFAULT_DSTR_VIEW_STATE };
   private externalStateRevision = 0;
   private readonly fixedNoteTitle: DSTRFixedNoteTitle;
+  private readonly viewType: string;
   private reactReadyPromise: Promise<void>;
   private resolveReactReady: (() => void) | null = null;
   private hasOpened = false;
@@ -38,9 +39,11 @@ export class DSTRView extends ItemView {
     leaf: WorkspaceLeaf,
     settings: Settings,
     private readonly persistEditorExpansionMode?: (mode: EditorExpansionMode) => Promise<void>,
+    viewType = VIEW_TYPE_DSTR,
   ) {
     super(leaf);
     this.settings = settings;
+    this.viewType = viewType;
     this.fixedNoteTitle = new DSTRFixedNoteTitle(
       this,
       () => this.state,
@@ -58,7 +61,7 @@ export class DSTRView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_DSTR;
+    return this.viewType;
   }
 
   getDisplayText(): string {

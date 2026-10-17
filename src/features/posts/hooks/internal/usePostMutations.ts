@@ -1,6 +1,7 @@
 import type { MarkdownView } from "obsidian";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
+import { normalizeDSTRMetadata } from "src/core/metadata";
 import { toText } from "src/core/post-utils";
 import { serializeDSTRTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
@@ -283,10 +284,10 @@ export const usePostMutations = () => {
         false,
         settingsState.granularity,
         getSerializedTimestamp(latestPost.timestamp, latestPost.noteDate),
-        {
+        normalizeDSTRMetadata({
           ...latestPost.metadata,
           [THREAD_METADATA_KEYS.ID]: rootId,
-        },
+        }),
       );
 
       await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);

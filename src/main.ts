@@ -21,13 +21,15 @@ import {
   normalizeCtrlEnterSendMode,
 } from "src/core/domain/settings";
 import { DSTRSettingTab } from "src/features/settings/DSTRSettingTab";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
+import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { watchElectronPowerState } from "src/core/platform/electron-power";
 import { restoreAndFocusElectronWindow } from "src/core/platform/electron-window";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { showInputModal } from "src/features/composer/modals/InputModal";
 import { TopicManagerModal } from "src/features/notes/modals/TopicManagerModal";
 import { DSTREditorView } from "src/features/composer/views/DSTREditorView";
-import { DSTRView, VIEW_TYPE_DSTR } from "src/features/workspace/views/DSTRView";
+import { DSTRView } from "src/features/workspace/views/DSTRView";
 import type { DSTRViewState } from "src/features/workspace/views/state";
 import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
@@ -70,7 +72,7 @@ export default class DSTRPlugin extends Plugin {
     this.addSettingTab(new DSTRSettingTab(this.app, this));
 
     // 意図: workspace 復元時に custom view/type 変換が既に登録済みでないと、
-    // 起動直後の leaf 復元で mfdi-view を解決できず、固定ノートタブを取りこぼす。
+    // 起動直後の leaf 復元で custom view を解決できず、固定ノートタブを取りこぼす。
     this.activateBuiltinRegistry();
 
     await this.loadSettings();
@@ -97,7 +99,29 @@ export default class DSTRPlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       // Worker 初期化は非同期に開始（失敗はログのみ）。
       void this.initializeWorker();
+      void this.migrateLegacyWorkspaceViews().catch((error) => {
+        console.error("Failed to migrate saved Daystream views:", error);
+      });
     });
+  }
+
+  private async migrateLegacyWorkspaceViews(): Promise<void> {
+    const workspace = this.app.workspace;
+    const viewTypeMigrations = [
+      [LEGACY_DAYSTREAM_IDENTIFIERS.viewType, VIEW_TYPE_DSTR],
+      [LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType, VIEW_TYPE_DSTR_EDITOR],
+    ] as const;
+
+    for (const [legacyType, currentType] of viewTypeMigrations) {
+      for (const leaf of [...workspace.getLeavesOfType(legacyType)]) {
+        const state = leaf.getViewState();
+        await leaf.setViewState({
+          ...state,
+          type: currentType,
+          active: workspace.activeLeaf === leaf,
+        });
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -142,18 +166,19 @@ export default class DSTRPlugin extends Plugin {
       getDSTRSubmitCallback: () => this.getActiveDSTRView()?.actionDelegates.onSubmit,
       getDSTRInputSnapshot: () =>
         this.getActiveDSTRView()?.actionDelegates.onGetInputSnapshot?.() ?? "",
-      createDSTRView: (leaf) => {
+      createDSTRView: (leaf, viewType) => {
         const view = new DSTRView(leaf, this.settings, async (mode) => {
           this.settings.editorExpansionMode = mode;
           await this.saveSettings();
           this.rerenderView();
-        });
+        }, viewType);
         this.views.add(view);
         this.view = view;
         this.setupViewCallbacks(view);
         return view;
       },
-      createDSTREditorView: (leaf) => new DSTREditorView(leaf, this.settings),
+      createDSTREditorView: (leaf, viewType) =>
+        new DSTREditorView(leaf, this.settings, viewType),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
       attachDSTRView: (state, preferredLeaf) => this.attachDSTRView(state, preferredLeaf),
     };

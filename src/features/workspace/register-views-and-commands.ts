@@ -1,11 +1,16 @@
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
-import { VIEW_TYPE_DSTR_EDITOR } from "src/features/composer/views/DSTREditorView";
-
-const VIEW_TYPE_DSTR = "mfdi-view";
+import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 
 export function registerWorkspaceViews(context: BuiltinMainContext): void {
   context.registerView(VIEW_TYPE_DSTR, (leaf) => context.createDSTRView(leaf));
   context.registerView(VIEW_TYPE_DSTR_EDITOR, (leaf) => context.createDSTREditorView(leaf));
+  context.registerView(LEGACY_DAYSTREAM_IDENTIFIERS.viewType, (leaf) =>
+    context.createDSTRView(leaf, LEGACY_DAYSTREAM_IDENTIFIERS.viewType),
+  );
+  context.registerView(LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType, (leaf) =>
+    context.createDSTREditorView(leaf, LEGACY_DAYSTREAM_IDENTIFIERS.editorViewType),
+  );
 }
 
 export function registerWorkspaceRibbon(context: BuiltinMainContext): void {
@@ -39,7 +44,7 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
     name: "Daystream: 投稿を送信",
     checkCallback: (checking) => {
       const activeView = context.app.workspace.activeLeaf?.view;
-      if (activeView?.getViewType() !== "mfdi-view") {
+      if (activeView?.getViewType() !== VIEW_TYPE_DSTR) {
         return false;
       }
 

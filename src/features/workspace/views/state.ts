@@ -2,6 +2,8 @@ import { DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants
 import type { Granularity } from "src/core/domain/granularity";
 import type { DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
 import type { DSTRNoteMode } from "src/core/domain/note-mode";
+import { FILENAME_SUFFIX } from "src/core/fixed-note";
+import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 
 export type { DSTRNoteMode } from "src/core/domain/note-mode";
 
@@ -107,5 +109,9 @@ export function createFixedNoteViewState(filePath: string): DSTRViewState {
 export function getFixedNoteTitle(path: string | null): string {
   if (!path) return "Fixed Note";
   const segments = path.replace(/\\/g, "/").split("/");
-  return segments[segments.length - 1].replace(/\.mfdi\.md$/i, "") || "Fixed Note";
+  const filename = segments[segments.length - 1];
+  const suffix = [FILENAME_SUFFIX, LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix].find((value) =>
+    filename.toLowerCase().endsWith(value),
+  );
+  return (suffix ? filename.slice(0, -suffix.length) : filename) || "Fixed Note";
 }

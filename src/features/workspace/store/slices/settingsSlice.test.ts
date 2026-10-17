@@ -90,7 +90,7 @@ describe("settingsSlice", () => {
     settingsStore.setState({
       date: yesterday.clone(),
       viewNoteMode: "fixed",
-      file: "MFDI/fixed.md",
+      file: "dstr/fixed.md",
     });
 
     expect(settingsStore.getState().isReadOnly()).toBe(false);

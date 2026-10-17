@@ -8,7 +8,7 @@ import {
 } from "./support";
 
 const HOST_FILE_PATH = "dstr-e2e-fixed-restore-host.md";
-const FIXED_NOTE_PATH = "MFDI/RestoreTarget.mfdi.md";
+const FIXED_NOTE_PATH = "dstr/RestoreTarget.dstr.md";
 
 test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 
@@ -21,8 +21,8 @@ async function waitForPluginReady(obsidian: ObsidianAPI) {
 
 async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
-    if (!app.vault.getAbstractFileByPath("MFDI")) {
-      await app.vault.createFolder("MFDI");
+    if (!app.vault.getAbstractFileByPath("dstr")) {
+      await app.vault.createFolder("dstr");
     }
   });
 
@@ -30,10 +30,10 @@ async function ensureFixedNoteFixture(obsidian: ObsidianAPI) {
     FIXED_NOTE_PATH,
     [
       "## Thino session 1",
-      "- 09:00:00 session-one [mfdiId::session-1]",
+      "- 09:00:00 session-one [dstrId::session-1]",
       "",
       "## Thino session 2",
-      "- 10:00:00 session-two [mfdiId::session-2]",
+      "- 10:00:00 session-two [dstrId::session-2]",
       "",
     ].join("\n"),
   );
@@ -66,9 +66,9 @@ async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
 
 async function reopenCurrentDSTRLeaf(obsidian: ObsidianAPI) {
   await obsidian.evaluateApp(async () => {
-    const currentLeaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const currentLeaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!currentLeaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
 
     const currentState = currentLeaf.view.getState();
@@ -76,7 +76,7 @@ async function reopenCurrentDSTRLeaf(obsidian: ObsidianAPI) {
 
     const nextLeaf = app.workspace.getLeaf(true);
     await nextLeaf.setViewState({
-      type: "mfdi-view",
+      type: "dstr-view",
       active: true,
       state: currentState,
     });
@@ -89,16 +89,16 @@ async function reloadAndRevealDSTRView(obsidian: ObsidianAPI) {
   // 意図: reload は既定で saveLayout の完了を待つため、遅延保存で配置を失わない。
   await obsidian.reload({ saveLayout: true });
 
-  // 意図: 再読込直後は固定ノートの leaf 復元（markdown から mfdi-view への変換）が
+  // 意図: 再読込直後は固定ノートの leaf 復元（markdown から dstr-view への変換）が
   // 終わっていないことがあるため、leaf が現れるまで待つ。
   await expect
-    .poll(() => obsidian.evaluateApp(() => app.workspace.getLeavesOfType("mfdi-view").length), {
+    .poll(() => obsidian.evaluateApp(() => app.workspace.getLeavesOfType("dstr-view").length), {
       timeout: 15000,
     })
     .toBeGreaterThan(0)
     .catch(async (error: unknown) => {
       throw new Error(
-        `mfdi-view leaf was not restored. Leaves:\n${await obsidian.describeLeaves()}`,
+        `dstr-view leaf was not restored. Leaves:\n${await obsidian.describeLeaves()}`,
         { cause: error },
       );
     });
@@ -111,9 +111,9 @@ async function reloadAndRevealDSTRView(obsidian: ObsidianAPI) {
 async function getFixedSessionSnapshot(obsidian: ObsidianAPI) {
   // One evaluation reads the view state and the list text together, so both describe the same moment.
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
 
     const viewState = leaf.view.getState() as {

@@ -1,5 +1,6 @@
 import type { WorkspaceLeaf } from "obsidian";
 import { isDSTRFixedNotePath, normalizeFixedNotePath } from "src/core/fixed-note";
+import { VIEW_TYPE_DSTR } from "src/core/view-types";
 import type { DSTRViewState } from "src/features/workspace/views/state";
 import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
 
@@ -12,7 +13,7 @@ type DSTRViewStateWrapper = {
   state: DSTRViewState;
 };
 
-const DSTR_VIEW_TYPE = "mfdi-view";
+const DSTR_VIEW_TYPE = VIEW_TYPE_DSTR;
 
 function isViewStatefulLeaf(leaf: WorkspaceLeaf): leaf is LeafWithState {
   const view = (leaf as LeafWithState).view;

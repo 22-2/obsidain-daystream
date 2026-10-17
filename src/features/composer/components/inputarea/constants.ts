@@ -10,12 +10,12 @@ export const FULL_EXPANSION_STYLE = `
   }
 
   /* 上部バーを畳む。 */
-  [data-type="mfdi-view"]:has(.dstr-input-area.mod-maxmized) .view-header {
+  [data-type="dstr-view"]:has(.dstr-input-area.mod-maxmized) .view-header {
     display: none;
   }
 
   /* コンテンツのパディングをリセット */
-  [data-type="mfdi-view"]:has(.dstr-input-area.mod-maxmized) .view-content {
+  [data-type="dstr-view"]:has(.dstr-input-area.mod-maxmized) .view-content {
     padding: 0!important;
   }
 

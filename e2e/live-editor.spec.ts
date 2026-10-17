@@ -25,7 +25,7 @@ test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 // 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
 async function getDSTRDisplayMode(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
   });
 }
@@ -94,9 +94,9 @@ async function setLiveEditorContent(obsidian: ObsidianAPI, text: string) {
 
 async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
 
     const content = leaf.view.containerEl.querySelector(".dstr-input-area .cm-content");
@@ -110,9 +110,9 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
 
 async function getLiveEditorDebugState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("mfdi-view")[0];
+    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
-      throw new Error("mfdi-view leaf not found");
+      throw new Error("dstr-view leaf not found");
     }
 
     if (!(leaf.view as DSTRView).actionDelegates.onGetDebugStateForTesting) {
