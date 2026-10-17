@@ -25,7 +25,6 @@ type UpdateSessionInputOptions = {
 
 export type {
   DraftMetadata,
-  PersistedDraftMetadataState,
   PersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
 

@@ -3,7 +3,7 @@ import { parseFixedSessionSections } from "src/core/fixed-sessions";
 import { resolveTimestamp } from "src/core/post-utils";
 import type { MomentLike, Post } from "src/core/domain/post";
 import type { FixedSessionMetaMap } from "src/features/notes/utils/fixed-session-storage";
-import { buildPostFromEntry, resolvePostId, resolveThreadRootId } from "src/features/posts/utils/thread-utils";
+import { buildPostFromEntry } from "src/features/posts/utils/thread-utils";
 import { getDSTRThreadId } from "src/core/metadata";
 
 export interface FixedSessionSummary {
@@ -216,28 +216,4 @@ export function buildFixedSessionPosts(params: {
           });
         });
     });
-}
-
-export function resolveFixedSessionForPost(params: {
-  content: string;
-  insertAfter: string;
-  path: string;
-  postId: string;
-}): number | null {
-  const { content, insertAfter, path, postId } = params;
-  const sections = parseFixedSessionSections(content, insertAfter);
-
-  for (const section of sections) {
-    const found = section.entries.find((entry) => {
-      const resolvedId = resolvePostId(entry.metadata, path, entry.startOffset);
-      const threadRootId = resolveThreadRootId(entry.metadata);
-      return resolvedId === postId || threadRootId === postId;
-    });
-
-    if (found) {
-      return section.sessionNumber;
-    }
-  }
-
-  return null;
 }

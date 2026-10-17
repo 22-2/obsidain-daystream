@@ -13,8 +13,8 @@ declare global {
 
 export const PLUGIN_ID = "dstr";
 export const DSTR_VIEW_TYPE = "dstr-view";
-export const OPEN_VIEW_COMMAND = PLUGIN_ID + ":dstr-open-view";
-export const DSTR_LEAF = '.workspace-leaf-content[data-type="dstr-view"]';
+const OPEN_VIEW_COMMAND = PLUGIN_ID + ":dstr-open-view";
+const DSTR_LEAF = '.workspace-leaf-content[data-type="dstr-view"]';
 export const LIVE_EDITOR = ".dstr-input-area .cm-content";
 
 // The built plugin is read from the repository's dist/ folder.

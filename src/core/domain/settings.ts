@@ -2,7 +2,7 @@ import type { Topic } from "src/core/topic";
 import { DEFAULT_TOPIC } from "src/core/topic";
 
 // 意図: 設定の保存契約と正規化をUIやDBから独立させ、どの層も同じ値を扱う。
-export type OpenInNewWindowMode = "disabled" | "always";
+type OpenInNewWindowMode = "disabled" | "always";
 export type EditorExpansionMode = "full" | "default";
 export type CtrlEnterSendMode = "collapsed_only" | "disabled";
 
@@ -55,7 +55,4 @@ export function normalizeCtrlEnterSendMode(value: unknown): CtrlEnterSendMode {
   return value === true || value === "collapsed_only" ? "collapsed_only" : "disabled";
 }
 
-export const postFormatMap = {
-  Thino: { type: "thino" },
-} as const;
-export type PostFormatOption = keyof typeof postFormatMap;
+type PostFormatOption = "Thino";

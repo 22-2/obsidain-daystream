@@ -20,8 +20,6 @@ import {
   getDSTRViewCapabilities,
 } from "src/features/workspace/views/state";
 
-export { VIEW_TYPE_DSTR };
-
 export class DSTRView extends ItemView {
   private root: Root | null = null;
   private settings: Settings;
