@@ -5,6 +5,7 @@ describe("tag index extension adapter", () => {
   it("delegates all lifecycle methods to the underlying indexer", async () => {
     const indexer = {
       scanAllNotes: vi.fn(async () => {}),
+      getLastFullScanAt: vi.fn(async () => "2026-03-15T00:00:00.000Z"),
       onFileChanged: vi.fn(async () => {}),
       onFileRenamed: vi.fn(async () => {}),
       onFileDeleted: vi.fn(async () => {}),
@@ -16,6 +17,7 @@ describe("tag index extension adapter", () => {
     const settings = { topics: [] } as any;
 
     await extension.fullScan(shell, settings);
+    await expect(extension.getLastFullScanAt()).resolves.toBe("2026-03-15T00:00:00.000Z");
     await extension.handleFileChanged(shell, file, settings);
     await extension.handleFileRenamed(shell, file, "old.md", settings);
     await extension.handleFileDeleted(file.path);

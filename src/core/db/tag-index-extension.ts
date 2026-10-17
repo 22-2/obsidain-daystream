@@ -6,6 +6,7 @@ import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 
 export interface TagIndexExtension {
   fullScan: (shell: ObsidianAppShell, settings: Settings) => Promise<void>;
+  getLastFullScanAt: () => Promise<string | undefined>;
   handleFileChanged: (shell: ObsidianAppShell, file: TFile, settings: Settings) => Promise<void>;
   handleFileRenamed: (
     shell: ObsidianAppShell,
@@ -19,12 +20,13 @@ export interface TagIndexExtension {
 
 type TagIndexerLike = Pick<
   TagIndexer,
-  "scanAllNotes" | "onFileChanged" | "onFileRenamed" | "onFileDeleted" | "dispose"
+  "scanAllNotes" | "getLastFullScanAt" | "onFileChanged" | "onFileRenamed" | "onFileDeleted" | "dispose"
 >;
 
 export function adaptTagIndexer(indexer: TagIndexerLike): TagIndexExtension {
   return {
     fullScan: (shell, settings) => indexer.scanAllNotes(shell, settings),
+    getLastFullScanAt: () => indexer.getLastFullScanAt(),
     handleFileChanged: (shell, file, settings) => indexer.onFileChanged(shell, file, settings),
     handleFileRenamed: (shell, file, oldPath, settings) =>
       indexer.onFileRenamed(shell, file, oldPath, settings),

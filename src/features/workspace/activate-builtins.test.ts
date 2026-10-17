@@ -31,6 +31,7 @@ const mocks = vi.hoisted(() => {
     storageSet: vi.fn(),
     tagIndexExtension: {
       fullScan: vi.fn(async () => {}),
+      getLastFullScanAt: vi.fn(async (): Promise<string | undefined> => undefined),
       handleFileChanged: vi.fn(async () => {}),
       handleFileRenamed: vi.fn(async () => {}),
       handleFileDeleted: vi.fn(async () => {}),
@@ -222,8 +223,9 @@ describe("builtin registry", () => {
     expect(layoutReadyCallback).toBeDefined();
     for (const callback of layoutReadyCallbacks) await callback();
     expect(getLeavesOfType).toHaveBeenCalledWith("markdown");
+    // DB が未スキャン（meta なし）ならフルスキャンする
+    expect(mocks.tagIndexExtension.getLastFullScanAt).toHaveBeenCalledTimes(1);
     expect(mocks.tagIndexExtension.fullScan).toHaveBeenCalledWith(context.shell, settings);
-    expect(mocks.storageSet).toHaveBeenCalledWith("lastFullScanAt", expect.any(String));
 
     const file = Object.assign(new TFile(), {
       path: "new.md",
