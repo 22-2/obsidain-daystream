@@ -14,6 +14,7 @@ import { getEffectiveSearchState } from "src/features/workspace/utils/search-sta
 import { buildPostFromEntry, memoRecordToPost } from "src/features/posts/utils/thread-utils";
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";
+import { reportError } from "src/core/error-report";
 
 /**
  * フォーカスモード（特定期間の1回読み切り）のデータ取得を担当するHook。
@@ -169,8 +170,13 @@ export const useFocusPosts = () => {
           });
           const dailyPosts = dailyRecords.map(memoRecordToPost);
           return [...periodicPosts, ...dailyPosts];
-        } catch {
-          console.error("Failed to load periodic note file:", periodicNoteFile.path);
+        } catch (error) {
+          reportError({
+            context: "Failed to load periodic note file",
+            error,
+            notice: "期間ノートの投稿を読み込めませんでした",
+            details: { path: periodicNoteFile.path },
+          });
           return [];
         }
       }

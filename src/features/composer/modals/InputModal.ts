@@ -1,5 +1,6 @@
 import type { App } from "obsidian";
 import { DSTRBaseModal } from "src/features/composer/modals/DSTRBaseModal";
+import { reportError } from "src/core/error-report";
 
 export interface InputModalArgs {
   title: string;
@@ -77,7 +78,8 @@ class InputModal extends DSTRBaseModal<string | null> {
       this.submitted = true;
       this.close();
     } catch (error) {
-      console.error("Failed to submit input modal:", error);
+      // 意図: 失敗時はモーダルを閉じずに入力を残し、再試行できるようにする。
+      reportError({ context: "Failed to submit input modal", error, notice: "入力を保存できませんでした" });
     } finally {
       this.isSubmitting = false;
       if (this.modalEl.isConnected) {

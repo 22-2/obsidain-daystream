@@ -18,6 +18,7 @@ import { THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import { resolveWriteDate, resolveWriteGranularity } from "src/features/workspace/utils/write-context";
 import { useShallow } from "zustand/shallow";
+import { reportError } from "src/core/error-report";
 
 /** 新規投稿・編集確定のみを担う hook。InputArea / InputAreaFooter / ReactView が利用する。 */
 export const useSubmitAction = () => {
@@ -100,10 +101,12 @@ export const useSubmitAction = () => {
       } catch (error) {
         // Markdown への保存自体は完了している。入力を残すと再送で重複投稿に
         // なり得るため、保存済みであることを明示して投稿処理は完了させる。
-        console.error("Failed to update DB index after saving post:", error);
-        new Notice(
-          "投稿はノートに保存されましたが、一覧の更新に失敗しました。再読み込みしてください",
-        );
+        reportError({
+          context: "Failed to update DB index after saving post",
+          error,
+          notice: "投稿はノートに保存されましたが、一覧の更新に失敗しました。再読み込みしてください",
+          details: { path: note.path },
+        });
       }
     },
     [shell, settings],

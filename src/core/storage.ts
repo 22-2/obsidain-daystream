@@ -1,12 +1,6 @@
+import { reportError } from "src/core/error-report";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
-
-export function getStorageKeyPrefix(appId: string): string {
-  return `dstr-${appId}-`;
-}
-
-export function createStorageKey(appId: string, key: string): string {
-  return `${getStorageKeyPrefix(appId)}${key}`;
-}
+import { createStorageKey } from "src/core/storage-keys";
 
 export class DSTRStorage {
   private appId: string;
@@ -28,7 +22,7 @@ export class DSTRStorage {
       localStorage.setItem(this.getKey(key), JSON.stringify(value));
       localStorage.removeItem(this.getLegacyKey(key));
     } catch (e) {
-      console.error("Failed to save to localStorage", e);
+      reportError({ context: "Failed to save to localStorage", error: e, details: { key } });
     }
   }
 
@@ -46,7 +40,11 @@ export class DSTRStorage {
       localStorage.removeItem(legacyKey);
       return JSON.parse(legacyValue) as T;
     } catch (e) {
-      console.warn(`Failed to parse localStorage value for ${key}, using default`, e);
+      reportError({
+        context: "Failed to parse localStorage value, using default",
+        error: e,
+        details: { key },
+      });
       return defaultValue;
     }
   }

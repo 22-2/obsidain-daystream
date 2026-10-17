@@ -1,8 +1,9 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
 import type { WorkspaceLeaf } from "obsidian";
-import { Notice, Plugin } from "obsidian";
+import { apiVersion, Notice, Platform, Plugin } from "obsidian";
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
+import { reportError } from "src/core/error-report";
 import { setConsolaLevel } from "src/core/logger";
 import { createFixedNoteFromInput } from "src/core/note-source";
 import type { Topic } from "src/core/topic";
@@ -20,6 +21,7 @@ import {
   DEFAULT_SETTINGS,
   normalizeCtrlEnterSendMode,
 } from "src/core/domain/settings";
+import { registerDiagnosticsCommands } from "src/features/diagnostics/register-diagnostics-commands";
 import { DSTRSettingTab } from "src/features/settings/DSTRSettingTab";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { VIEW_TYPE_DSTR, VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
@@ -38,6 +40,18 @@ import {
 } from "src/features/workspace/views/DSTRView";
 import type { DSTRViewState } from "src/features/workspace/views/state";
 import { createFixedNoteViewState, DEFAULT_DSTR_VIEW_STATE } from "src/features/workspace/views/state";
+
+function describePlatform(): string {
+  const osCandidates: Array<[boolean, string]> = [
+    [Platform.isMacOS, "macOS"],
+    [Platform.isWin, "Windows"],
+    [Platform.isLinux, "Linux"],
+    [Platform.isIosApp, "iOS"],
+    [Platform.isAndroidApp, "Android"],
+  ];
+  const os = osCandidates.find(([matches]) => matches)?.[1] ?? "unknown";
+  return `${os} (${Platform.isMobile ? "mobile" : "desktop"})`;
+}
 
 export default class DSTRPlugin extends Plugin {
   shell: ObsidianAppShell;
@@ -63,7 +77,11 @@ export default class DSTRPlugin extends Plugin {
     try {
       await WorkerClient.initialize({ appId: this.shell.getAppId() });
     } catch (e) {
-      console.error("Failed to initialize DB worker:", e);
+      reportError({
+        context: "Failed to initialize DB worker",
+        error: e,
+        notice: "投稿の検索用データベースを初期化できませんでした。Obsidian を再起動してください",
+      });
     }
   }
 
@@ -80,6 +98,15 @@ export default class DSTRPlugin extends Plugin {
     // 意図: workspace 復元時に custom view/type 変換が既に登録済みでないと、
     // 起動直後の leaf 復元で custom view を解決できず、固定ノートタブを取りこぼす。
     this.activateBuiltinRegistry();
+    registerDiagnosticsCommands(
+      (command) => this.addCommand(command),
+      () => ({
+        pluginVersion: this.manifest.version,
+        obsidianApiVersion: apiVersion,
+        platform: describePlatform(),
+        debugMode: this.settings.debugMode,
+      }),
+    );
 
     await this.loadSettings();
     setConsolaLevel(this.settings.debugMode ? 4 : 0);
@@ -103,10 +130,14 @@ export default class DSTRPlugin extends Plugin {
     this.restartActivityPromptNotifications();
 
     this.app.workspace.onLayoutReady(() => {
-      // Worker 初期化は非同期に開始（失敗はログのみ）。
+      // Worker 初期化は非同期に開始（失敗は initializeWorker 内で通知する）。
       void this.initializeWorker();
       void this.migrateLegacyWorkspaceViews().catch((error) => {
-        console.error("Failed to migrate saved Daystream views:", error);
+        reportError({
+          context: "Failed to migrate saved Daystream views",
+          error,
+          notice: "保存されていた Daystream のタブを復元できませんでした",
+        });
       });
     });
   }
@@ -283,8 +314,11 @@ export default class DSTRPlugin extends Plugin {
 
     new Notice(ACTIVITY_PROMPT_TEXT);
     const composerPromise = this.showActivityPromptComposer().catch((error) => {
-      console.error("Failed to open activity prompt composer:", error);
-      new Notice("コンポーザを開けませんでした");
+      reportError({
+        context: "Failed to open activity prompt composer",
+        error,
+        notice: "コンポーザを開けませんでした",
+      });
     });
     this.activityPromptComposerPromise = composerPromise;
     void composerPromise.finally(() => {
