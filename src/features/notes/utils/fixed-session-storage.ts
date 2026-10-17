@@ -169,7 +169,7 @@ export async function readFixedSessionMeta(
   return readAndMigrateFromLegacyStorage(shell, storage, file);
 }
 
-export async function writeFixedSessionMeta(
+async function writeFixedSessionMeta(
   shell: ObsidianAppShell,
   storage: DSTRStorage | null,
   file: string | null,

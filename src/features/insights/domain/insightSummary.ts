@@ -254,7 +254,7 @@ function buildCacheKey(
   return `${activeTag ?? ""}:${wordTokens ? "sudachi" : "fallback"}:${records.length}:${hash}`;
 }
 
-export function filterInsightRecords(
+function filterInsightRecords(
   records: MemoRecord[],
   activeTag: string | null,
 ): MemoRecord[] {
@@ -411,9 +411,3 @@ export function clearInsightCache(): void {
   parsedRecordCache.clear();
   summaryCache.clear();
 }
-
-export function getInsightCacheStats(): { parsed: number; summaries: number } {
-  return { parsed: parsedRecordCache.size, summaries: summaryCache.size };
-}
-
-export { WORD_LIMIT };

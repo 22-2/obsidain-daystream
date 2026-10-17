@@ -26,7 +26,7 @@ export interface DSTRActionDelegate {
   onSearchInputClose?: () => void;
 }
 
-export interface DSTRDebugDelegates {
+interface DSTRDebugDelegates {
   onGetInputSnapshot?: () => string;
   onSetLiveEditorContentForTesting?: (content: string) => void;
   onGetLiveEditorContentForTesting?: () => string;

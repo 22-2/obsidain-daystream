@@ -11,9 +11,7 @@ interface AppContextValue {
   settings: Settings;
 }
 
-// AppContext を export することで paper-cut など外部コンシューマが
-// AppContextProvider を使わずに独自の値を直接注入できるようにする。
-export const AppContext = createContext<AppContextValue | null>(null);
+const AppContext = createContext<AppContextValue | null>(null);
 
 export function useAppContext(): AppContextValue {
   const ctx = useContext(AppContext);

@@ -4,7 +4,7 @@ import { ensureExtension } from "src/core/path";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 
 export const FILENAME_SUFFIX = ".dstr.md";
-export const UNTITLED_FILENAME = `Untitled`;
+const UNTITLED_FILENAME = `Untitled`;
 
 // --- ユーティリティ ---
 const norm = (p: string) => normalizePath(p.trim()).replace(/\/$/, "");

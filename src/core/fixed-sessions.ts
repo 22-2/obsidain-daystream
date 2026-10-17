@@ -53,11 +53,11 @@ function getSessionHeadingMatch(
   };
 }
 
-export function buildFixedSessionHeading(insertAfter: string, sessionNumber: number): string {
+function buildFixedSessionHeading(insertAfter: string, sessionNumber: number): string {
   return `${normalizeSessionHeading(insertAfter)} session ${sessionNumber}`;
 }
 
-export function appendFixedSessionHeading(content: string, headingLine: string): string {
+function appendFixedSessionHeading(content: string, headingLine: string): string {
   const trimmedContent = content.trimEnd();
   if (!trimmedContent) {
     return `${headingLine}\n`;
@@ -110,18 +110,6 @@ export function parseFixedSessionSections(
       sectionEndOffset,
       entries,
     };
-  });
-}
-
-export function flattenFixedSessionEntries(
-  content: string,
-  insertAfter: string,
-): Array<ThinoEntry & { sessionNumber: number }> {
-  return parseFixedSessionSections(content, insertAfter).flatMap((section) => {
-    return section.entries.map((entry) => ({
-      ...entry,
-      sessionNumber: section.sessionNumber,
-    }));
   });
 }
 

@@ -4,8 +4,6 @@ import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from "src/core/domain/date
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
 
-export { resolveMemoTimestamp } from "src/core/memo-timestamp";
-
 function isFencedCodeBlockStart(line: string): boolean {
   return /^[ \t]*(```|~~~)/.test(line);
 }

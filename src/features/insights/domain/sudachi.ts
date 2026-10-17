@@ -6,7 +6,7 @@ import {
   type InsightWordTokenMap,
 } from "src/features/insights/domain/insightSummary";
 
-export const SUDACHI_ENDPOINT = "http://127.0.0.1:24545/api/sudachi/tokenize";
+const SUDACHI_ENDPOINT = "http://127.0.0.1:24545/api/sudachi/tokenize";
 const TOKEN_CACHE_LIMIT = 20_000;
 
 interface SudachiResponse {

@@ -8,7 +8,7 @@ import { buildFixedSessionPosts } from "src/features/notes/utils/fixed-session-u
 import { buildPostFromEntry } from "src/features/posts/utils/thread-utils";
 
 /** 意図: ノートの最新内容とoffset再特定をReact状態から分離し、保存契約を一箇所に保つ。 */
-export async function readLatestPostsForPath(params: {
+async function readLatestPostsForPath(params: {
   shell: ObsidianAppShell;
   insertAfter: string;
   noteMode: DSTRNoteMode;

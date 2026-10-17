@@ -8,10 +8,10 @@ declare global {
   }
 }
 
-export type ObsidianRuntimeWindow = Pick<Window, "app" | "moment" | "activeDocument">;
+type ObsidianRuntimeWindow = Pick<Window, "app" | "moment" | "activeDocument">;
 
 /** Obsidian の実行環境で提供される型付きの window を返す。 */
-export function getObsidianWindow(): ObsidianRuntimeWindow {
+function getObsidianWindow(): ObsidianRuntimeWindow {
   return window;
 }
 
