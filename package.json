@@ -13,8 +13,9 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "check": "pnpm tsc6 --noEmit -skipLibCheck",
-    "format": "pnpx organize-imports-cli tsconfig.json && vp format --write ./src && vp lint --fix",
+    "check": "tsc --noEmit -skipLibCheck",
+    "format": "pnpx organize-imports-cli tsconfig.json && vp format --write ./src && eslint . --fix",
+    "lint": "eslint .",
     "pre:push": "pnpm check && pnpm run test",
     "ci": "pnpm install && pnpm run build && pnpm run test",
     "release": "pnpm ci && pnpm version-bump.mts ${VERSION} && git add package.json manifest.json versions.json pnpm.lockb && git commit -m ${VERSION} && git tag ${VERSION} && git push --tags && git push"
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@codemirror/state": "6.7.6",
     "@codemirror/view": "6.43.13",
+    "@eslint/js": "9.39.4",
     "@obsidian-typings/obsidian-public-latest": "^6.38.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
@@ -39,6 +41,8 @@
     "@vitejs/plugin-react": "^6.1.1",
     "electron": "44.4.5",
     "es-toolkit": "^1.52.0",
+    "eslint": "9.39.4",
+    "eslint-plugin-obsidianmd": "^0.4.2",
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.12.0",
     "jiti": "^2.7.0",
@@ -50,15 +54,16 @@
     "prettier": "^3.9.9",
     "shadcn": "^4.21.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.2",
     "vite": "^8.3.1",
     "vite-bundle-analyzer": "^1.3.9",
     "vite-plugin-inspect": "12.0.2",
     "vitest": "^5.0.2"
   },
   "dependencies": {
-    "@22-2/obsidian-magical-editor": "1.0.19",
     "@22-2/obsidian-daily-notes-kit": "workspace:*",
+    "@22-2/obsidian-magical-editor": "1.0.19",
     "clsx": "^2.1.1",
     "comlink": "^4.4.2",
     "consola": "^3.4.2",
@@ -87,7 +92,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.4.1",
+      "version": "12.14.0",
       "onFail": "download"
     }
   }

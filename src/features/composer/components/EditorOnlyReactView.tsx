@@ -80,7 +80,8 @@ const EditorOnlyAppRoot: React.FC<{
     store.getState().replaceInput(message);
     store.getState().setDraftMetadata(draftMetadata);
     store.getState().setDraftMetadataBase(draftMetadataBase);
-  }, [store]); // oxlint-disable-line react-hooks/exhaustive-deps
+  // 意図: 初期下書きの復元はマウント時の一度だけ行い、props の変化には追従しない。
+  }, [store]);
 
   return <>{children}</>;
 };
