@@ -1,15 +1,9 @@
 // @vitest-environment jsdom
 import { toText } from "src/core/post-utils";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 
-// window.moment() を使用しているコードがあるため環境によっては、テストの前にシステム時間を固定すること
-
-beforeEach(() => {
-  // Fix "now" to a specific date for tests that use window.moment()
-  // ここを変更すると、テスト内の日時表現も変わるので注意
-  // TODO: どの環境でも必ず同じ日時になるようにする
-  vi.setSystemTime(new Date("2026-03-02T16:00:00.000+09:00"));
-});
+// 現在時刻（2026-03-02T16:00:00+09:00）とタイムゾーン（Asia/Tokyo）は
+// vitest.setup.ts / vitest.config.ts で固定している。期待値の日時表現はこれに依存する。
 
 describe("toText", () => {
   test("thino format - day granularity uses only time", () => {
