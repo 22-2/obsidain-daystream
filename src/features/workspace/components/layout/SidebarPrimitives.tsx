@@ -1,3 +1,4 @@
+import type React from "react";
 import { Box, HStack, Text } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
 

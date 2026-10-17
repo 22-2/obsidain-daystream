@@ -42,9 +42,7 @@ export interface ActivityPromptNotificationScheduler {
 
 function getGlobalNotification(): ActivityPromptNotificationConstructor | undefined {
   return (
-    globalThis as typeof globalThis & {
-      Notification?: ActivityPromptNotificationConstructor;
-    }
+    window
   ).Notification;
 }
 

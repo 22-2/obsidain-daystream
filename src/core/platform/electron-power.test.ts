@@ -10,7 +10,7 @@ describe("electron power state watcher", () => {
   it("registers inactive and active power events", () => {
     const listeners = new Map<PowerStateEvent, () => void>();
     const powerMonitor: ElectronPowerMonitorLike = {
-      on: vi.fn((event, listener) => {
+      on: vi.fn((event: PowerStateEvent, listener: () => void) => {
         listeners.set(event, listener);
       }),
       removeListener: vi.fn(),

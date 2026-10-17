@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useAppContext } from "src/core/ui/context/AppContext";
+import { reportError } from "src/core/error-report";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
@@ -92,7 +93,15 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
 
   useEffect(() => {
     if (!view) return;
-    view.actionDelegates.onOpenDailyNoteAction = handleClickOpenDailyNote;
+    view.actionDelegates.onOpenDailyNoteAction = () => {
+      handleClickOpenDailyNote().catch((error: unknown) => {
+        reportError({
+          context: "Failed to open daily note",
+          error,
+          notice: "デイリーノートを開けませんでした",
+        });
+      });
+    };
     return () => {
       view.actionDelegates.onOpenDailyNoteAction = undefined;
     };

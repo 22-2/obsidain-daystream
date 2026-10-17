@@ -13,5 +13,5 @@ export function initializeTasksStore(shell: ObsidianAppShell, store: AppStoreApi
 
 export function useTasksStore<T>(selector: (state: TasksSlice & DSTRStore) => T): T {
   const store = useRequiredAppStore();
-  return useStore(store, selector as (state: DSTRStore) => T);
+  return useStore(store, selector);
 }

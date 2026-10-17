@@ -12,20 +12,22 @@ import {
 } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
+import { isComposerHostView } from "src/features/composer/types/composer-host";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useEditorFocus } from "src/features/composer/hooks/useEditorFocus";
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
+import { reportSubmitFailure } from "src/features/composer/utils/composer-failure";
 import { useShallow } from "zustand/shallow";
 
+function useHostLeaf(): WorkspaceLeaf {
+  return useObsidianComponent(isComposerHostView).leaf;
+}
+
 export const InputArea: FC = memo(() => {
-  // 意図: DSTRView と DSTREditorView どちらから呼ばれても動くよう、
-  // leaf だけを要求する最小限の構造型にキャストする。
-  const component = useObsidianComponent() as unknown as {
-    leaf: WorkspaceLeaf;
-  };
+  const leaf = useHostLeaf();
   const { shell } = useAppContext();
   const { inputRef, scrollContainerRef } = useEditorRefs();
   const {
@@ -109,12 +111,14 @@ export const InputArea: FC = memo(() => {
       {isMinimized ? null : (
         <ObsidianLiveEditor
           ref={inputRef}
-          leaf={component.leaf}
+          leaf={leaf}
           app={shell.getRawApp()}
           initialValue={inputSnapshot}
           externalVersion={inputSnapshotVersion}
           onChange={syncInputSession}
-          onSubmit={handleSubmit}
+          onSubmit={() => {
+            handleSubmit().catch(reportSubmitFailure);
+          }}
           className="dstr-editor-wrapper mx-[var(--size-4-4)]"
           placeholder={PLACEHOLDER_TEXT}
           isReadOnly={isReadOnly}

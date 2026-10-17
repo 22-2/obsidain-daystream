@@ -1,26 +1,28 @@
 import "fake-indexeddb/auto";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { afterEach, beforeEach, vi } from "vitest";
 
 // タイムゾーン（Asia/Tokyo）は vitest.config.ts で固定している。
 
-const windowAny = window as any;
-windowAny.moment = moment;
-windowAny.activeDocument = document;
+Reflect.set(window, "moment", obsidianMoment);
+Reflect.set(window, "activeDocument", document);
 
 // Provide a minimal Worker stub for the test environment so imports
 // that rely on `Worker` (e.g. Vite inline workers) don't throw in Node/JSDOM.
-if (typeof windowAny.Worker === "undefined") {
+if (typeof window.Worker === "undefined") {
   class TestWorker {
-    onmessage: ((e: any) => void) | null = null;
-    onerror: ((e: any) => void) | null = null;
+    onmessage: ((event: MessageEvent<unknown>) => void) | null = null;
+    onerror: ((event: ErrorEvent) => void) | null = null;
     constructor(_script: string | Blob) {}
     postMessage(_msg: unknown) {}
-    addEventListener(_type: string, _listener: any) {}
-    removeEventListener(_type: string, _listener: any) {}
+    addEventListener(_type: string, _listener: EventListenerOrEventListenerObject) {}
+    removeEventListener(_type: string, _listener: EventListenerOrEventListenerObject) {}
     terminate() {}
   }
-  windowAny.Worker = TestWorker as any;
+  Object.defineProperty(window, "Worker", {
+    configurable: true,
+    value: TestWorker,
+  });
 }
 
 // Default fake timers + deterministic system time for most tests.

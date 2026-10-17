@@ -1,7 +1,7 @@
-import type { MarkdownView } from "obsidian";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
 import { normalizeDSTRMetadata } from "src/core/metadata";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { toText } from "src/core/post-utils";
 import { serializeDSTRTags, TAG_METADATA_KEY } from "src/core/tags";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
@@ -65,7 +65,7 @@ export const usePostMutations = () => {
   /** 投稿を削除（削除フラグを付与して上書き） */
   const deletePost = useCallback(
     async (post: Post) => {
-      const now = window.moment();
+      const now = obsidianMoment();
 
       if (isThreadRoot(post)) {
         const latestThreadPosts = await findLatestThreadPosts(post);
@@ -152,7 +152,7 @@ export const usePostMutations = () => {
   /** 投稿をアーカイブ（アーカイブフラグを付与して上書き） */
   const archivePost = useCallback(
     async (post: Post) => {
-      const now = window.moment();
+      const now = obsidianMoment();
       await replacePostAndRefresh(post, (prev) => ({
         ...prev,
         archived: now.format("YYYYMMDDHHmmss"),
@@ -221,7 +221,7 @@ export const usePostMutations = () => {
         return;
       }
 
-      const now = window.moment();
+      const now = obsidianMoment();
       const metadata = { ...latestPost.metadata };
       if (!nextDay.isSame(now, "day")) metadata.posted = now.toISOString();
 
@@ -309,35 +309,36 @@ export const usePostMutations = () => {
   );
 
   const handleHighlightSource = useCallback(
-    (post: Post) => {
-      (async () => {
-        const latestPost = await findLatestPost(post);
-        if (!latestPost) {
-          await notifyNotFoundAndRefresh(post.path);
-          return;
-        }
+    async (post: Post) => {
+      const latestPost = await findLatestPost(post);
+      if (!latestPost) {
+        await notifyNotFoundAndRefresh(post.path);
+        return;
+      }
 
-        const noteFile = shell.getAbstractFileByPath(latestPost.path);
-        if (!(noteFile instanceof TFile)) return;
+      const noteFile = shell.getAbstractFileByPath(latestPost.path);
+      if (!(noteFile instanceof TFile)) return;
 
-        const leaf = shell.getLeaf(true);
-        await shell.revealLeaf(leaf);
-        await openMarkdownNote(leaf, noteFile.path);
+      const leaf = shell.getLeaf(true);
+      await shell.revealLeaf(leaf);
+      await openMarkdownNote(leaf, noteFile.path);
 
-        const editor = shell.getWorkspace().activeEditor as MarkdownView;
-        const startPos = editor.editor!.offsetToPos(latestPost.bodyStartOffset);
-        const endPos = editor.editor!.offsetToPos(
-          latestPost.bodyStartOffset + latestPost.message.length,
-        );
-        queueMicrotask(() => {
-          editor.editMode!.highlightSearchMatches([
-            {
-              from: { line: startPos.line, ch: startPos.ch },
-              to: { line: endPos.line, ch: endPos.ch },
-            },
-          ]);
-        });
-      })();
+      const markdownView = shell.getActiveMarkdownView();
+      if (!markdownView) return;
+
+      const editor = markdownView.editor;
+      const startPos = editor.offsetToPos(latestPost.bodyStartOffset);
+      const endPos = editor.offsetToPos(
+        latestPost.bodyStartOffset + latestPost.message.length,
+      );
+      queueMicrotask(() => {
+        markdownView.editMode.highlightSearchMatches([
+          {
+            from: { line: startPos.line, ch: startPos.ch },
+            to: { line: endPos.line, ch: endPos.ch },
+          },
+        ]);
+      });
     },
     [shell, findLatestPost, notifyNotFoundAndRefresh],
   );

@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { parseFixedSessionSections } from "src/core/fixed-sessions";
 import { resolveTimestamp } from "src/core/post-utils";
 import type { MomentLike, Post } from "src/core/domain/post";
@@ -19,8 +20,8 @@ function sortSessions(sessions: FixedSessionSummary[]): FixedSessionSummary[] {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
 
     // 意図: セッション並びは編集時刻の揺れに影響されないよう、作成時刻を唯一の基準に固定する。
-    const aTime = a.createdAt ? window.moment(a.createdAt).valueOf() : 0;
-    const bTime = b.createdAt ? window.moment(b.createdAt).valueOf() : 0;
+    const aTime = a.createdAt ? obsidianMoment(a.createdAt).valueOf() : 0;
+    const bTime = b.createdAt ? obsidianMoment(b.createdAt).valueOf() : 0;
     if (aTime !== bTime) return bTime - aTime;
 
     return a.sessionNumber - b.sessionNumber;
@@ -32,14 +33,14 @@ export function groupSessionsByActivity(sessions: FixedSessionSummary[]): {
   last7Days: FixedSessionSummary[];
   older: FixedSessionSummary[];
 } {
-  const threshold = window.moment().subtract(7, "days");
+  const threshold = obsidianMoment().subtract(7, "days");
   const sorted = sortSessions(sessions);
   const pinned = sorted.filter((session) => session.pinned);
   const unpinned = sorted.filter((session) => !session.pinned);
 
   const isRecent = (session: FixedSessionSummary): boolean => {
     if (!session.lastActiveAt) return false;
-    const t = window.moment(session.lastActiveAt);
+    const t = obsidianMoment(session.lastActiveAt);
     return t.isValid() && t.isSameOrAfter(threshold);
   };
 
@@ -65,7 +66,7 @@ function resolveSessionActivityIso(
   for (const entry of entries) {
     const posted = entry.metadata.posted?.trim();
     if (posted) {
-      const postedTime = window.moment(posted);
+      const postedTime = obsidianMoment(posted);
       if (
         postedTime.isValid() &&
         (latestTimestamp == null || postedTime.valueOf() > latestTimestamp)
@@ -77,7 +78,7 @@ function resolveSessionActivityIso(
     }
 
     if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(entry.time)) {
-      const fullTimestamp = window.moment(entry.time, "YYYY-MM-DD HH:mm:ss", true);
+      const fullTimestamp = obsidianMoment(entry.time, "YYYY-MM-DD HH:mm:ss", true);
       if (
         fullTimestamp.isValid() &&
         (latestTimestamp == null || fullTimestamp.valueOf() > latestTimestamp)
@@ -100,7 +101,7 @@ function resolveSessionCreatedAtIso(
   for (const entry of entries) {
     const posted = entry.metadata.posted?.trim();
     if (posted) {
-      const postedTime = window.moment(posted);
+      const postedTime = obsidianMoment(posted);
       if (
         postedTime.isValid() &&
         (earliestTimestamp == null || postedTime.valueOf() < earliestTimestamp)
@@ -112,7 +113,7 @@ function resolveSessionCreatedAtIso(
     }
 
     if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(entry.time)) {
-      const fullTimestamp = window.moment(entry.time, "YYYY-MM-DD HH:mm:ss", true);
+      const fullTimestamp = obsidianMoment(entry.time, "YYYY-MM-DD HH:mm:ss", true);
       if (
         fullTimestamp.isValid() &&
         (earliestTimestamp == null || fullTimestamp.valueOf() < earliestTimestamp)
@@ -155,11 +156,11 @@ export function buildFixedSessionSummaries(params: {
       const createdAt =
         meta.createdAt ??
         resolveSessionCreatedAtIso(section?.entries ?? []) ??
-        (sessionNumber === 1 ? window.moment().toISOString() : null);
+        (sessionNumber === 1 ? obsidianMoment().toISOString() : null);
       const lastActiveAt =
         resolveSessionActivityIso(section?.entries ?? []) ??
         createdAt ??
-        (sessionNumber === 1 ? window.moment().toISOString() : null);
+        (sessionNumber === 1 ? obsidianMoment().toISOString() : null);
 
       return {
         sessionNumber,

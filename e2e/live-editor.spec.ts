@@ -1,4 +1,5 @@
 import type { Locator } from "@playwright/test";
+import type { Modifier } from "obsidian";
 import type { ObsidianAPI } from "obsidian-e2e-toolkit";
 import { expect, test } from "obsidian-e2e-toolkit";
 import { createStorageKey, getStorageKeyPrefix } from "src/core/storage-keys";
@@ -25,7 +26,7 @@ test.use({ vaultOptions: dstrVaultOptions({ logLevel: "debug" }) });
 // 意図: 表示モードは画面上の文言ではなくviewの状態から判定し、UI文言の変更に左右されないようにする。
 async function getDSTRDisplayMode(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     return (leaf?.view.getState() as { displayMode?: string } | undefined)?.displayMode ?? null;
   });
 }
@@ -43,27 +44,24 @@ async function waitForDSTRReady(obsidian: ObsidianAPI) {
 async function registerAppScopeHotkeyCounter(
   obsidian: ObsidianAPI,
   counterKey: string,
-  modifiers: string[],
+  modifiers: Modifier[],
   key: string,
 ) {
   await obsidian.evaluateApp(
     ({ counterKey, modifiers, key }) => {
-      const globalState = window as Window & {
-        __dstrE2EHotkeys?: Record<string, { count: number; handler: unknown }>;
-      };
-      globalState.__dstrE2EHotkeys ??= {};
+      const hotkeys = (window.__dstrE2EHotkeys ??= {});
 
-      const existing = globalState.__dstrE2EHotkeys[counterKey];
+      const existing = hotkeys[counterKey];
       if (existing?.handler) {
-        app.scope.unregister(existing.handler as never);
+        window.app.scope.unregister(existing.handler);
       }
 
-      const handler = app.scope.register(modifiers as never, key, () => {
-        globalState.__dstrE2EHotkeys![counterKey].count += 1;
+      const handler = window.app.scope.register(modifiers, key, () => {
+        hotkeys[counterKey].count += 1;
         return false;
       });
 
-      globalState.__dstrE2EHotkeys[counterKey] = {
+      hotkeys[counterKey] = {
         count: 0,
         handler,
       };
@@ -74,15 +72,12 @@ async function registerAppScopeHotkeyCounter(
 
 async function getAppScopeHotkeyCount(obsidian: ObsidianAPI, counterKey: string) {
   return obsidian.evaluateApp((key) => {
-    const globalState = window as Window & {
-      __dstrE2EHotkeys?: Record<string, { count: number }>;
-    };
-    return globalState.__dstrE2EHotkeys?.[key]?.count ?? 0;
+    return window.__dstrE2EHotkeys?.[key]?.count ?? 0;
   }, counterKey);
 }
 
 function getActiveEditorValue(obsidian: ObsidianAPI): Promise<string | null> {
-  return obsidian.evaluateApp(() => app.workspace.activeEditor?.editor?.getValue() ?? null);
+  return obsidian.evaluateApp(() => window.app.workspace.activeEditor?.editor?.getValue() ?? null);
 }
 
 /** Sets the text through the view's delegate, then focuses the editor and checks Obsidian's active editor. */
@@ -94,7 +89,7 @@ async function setLiveEditorContent(obsidian: ObsidianAPI, text: string) {
 
 async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
       throw new Error("dstr-view leaf not found");
     }
@@ -110,7 +105,7 @@ async function getLiveEditorDOMContent(obsidian: ObsidianAPI) {
 
 async function getLiveEditorDebugState(obsidian: ObsidianAPI) {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
       throw new Error("dstr-view leaf not found");
     }
@@ -151,7 +146,7 @@ async function expectLiveEditorRestoreState(
 // copy from obsidian-advanced-cursor plugin:
 async function getLiveEditorSelectionCount(obsidian: ObsidianAPI): Promise<number> {
   return obsidian.evaluateApp(() => {
-    const editor = app.workspace.activeEditor?.editor;
+    const editor = window.app.workspace.activeEditor?.editor;
     if (!editor) {
       throw new Error("active editor not found");
     }
@@ -164,7 +159,7 @@ async function getLiveEditorSelectionCount(obsidian: ObsidianAPI): Promise<numbe
 // copy from obsidian-advanced-cursor plugin:
 async function createLiveEditorMulticursor(obsidian: ObsidianAPI): Promise<void> {
   await obsidian.evaluateApp(() => {
-    const editor = app.workspace.activeEditor?.editor;
+    const editor = window.app.workspace.activeEditor?.editor;
     if (!editor) {
       throw new Error("active editor not found");
     }
@@ -191,7 +186,7 @@ async function createLiveEditorMulticursor(obsidian: ObsidianAPI): Promise<void>
 
 /** localStorage の daystream 入力値を検証する */
 async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
-  const appId = await obsidian.evaluateApp(() => app.appId);
+  const appId = await obsidian.evaluateApp(() => window.app.appId);
   const periodicKey = createStorageKey(
     appId,
     getInputStorageKey("periodic", null),
@@ -204,18 +199,18 @@ async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
       obsidian.page.evaluate(({ expected, periodicKey, legacyKey, fixedPrefix }) => {
         const candidateValues: string[] = [];
 
-        const periodicInput = localStorage.getItem(periodicKey);
-        const legacyInput = localStorage.getItem(legacyKey);
+        const periodicInput = window.localStorage.getItem(periodicKey);
+        const legacyInput = window.localStorage.getItem(legacyKey);
 
         if (typeof periodicInput === "string") candidateValues.push(periodicInput);
         if (typeof legacyInput === "string") candidateValues.push(legacyInput);
 
         // 意図: fixed入力はファイルパスごとのキーなので、prefix一致で横断して検証する。
-        for (let i = 0; i < localStorage.length; i += 1) {
-          const key = localStorage.key(i);
+        for (let i = 0; i < window.localStorage.length; i += 1) {
+          const key = window.localStorage.key(i);
           if (!key) continue;
           if (!key.startsWith(fixedPrefix)) continue;
-          const value = localStorage.getItem(key);
+          const value = window.localStorage.getItem(key);
           if (typeof value === "string") {
             candidateValues.push(value);
           }
@@ -229,9 +224,9 @@ async function expectLocalStorage(obsidian: ObsidianAPI, expected: string) {
 
 /** 下書き一覧に保存された本文を返す */
 async function getStoredDrafts(obsidian: ObsidianAPI): Promise<string[]> {
-  const appId = await obsidian.evaluateApp(() => app.appId);
+  const appId = await obsidian.evaluateApp(() => window.app.appId);
   return obsidian.page.evaluate((key) => {
-    const raw = localStorage.getItem(key);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return [];
     // DSTRStorage は falsy な値を守るため { value } で包んで保存する。
     return (JSON.parse(raw) as { value: { content: string }[] }).value.map((draft) => draft.content);

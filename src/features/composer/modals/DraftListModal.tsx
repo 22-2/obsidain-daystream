@@ -1,10 +1,9 @@
-import type { App, Component } from "obsidian";
+import type { App } from "obsidian";
 import { Modal } from "obsidian";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { DraftListManager } from "src/features/composer/components/DraftListManager";
 import { AppContextProvider } from "src/core/ui/context/AppContext";
-import { ComponentContextProvider } from "src/core/ui/context/ComponentContext";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import { AppStoreProvider } from "src/features/workspace/store/appStore";
 export class DraftListModal extends Modal {
@@ -23,11 +22,9 @@ export class DraftListModal extends Modal {
     this.root = createRoot(contentEl);
     this.root.render(
       <AppContextProvider app={this.app} settings={this.store.getState().pluginSettings!}>
-        <ComponentContextProvider component={this as unknown as Component}>
-          <AppStoreProvider store={this.store}>
-            <DraftListManager onClose={() => this.close()} />
-          </AppStoreProvider>
-        </ComponentContextProvider>
+        <AppStoreProvider store={this.store}>
+          <DraftListManager onClose={() => this.close()} />
+        </AppStoreProvider>
       </AppContextProvider>,
     );
   }

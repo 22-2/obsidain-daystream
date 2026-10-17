@@ -1,8 +1,15 @@
 import { expect } from "obsidian-e2e-toolkit";
 import type { Locator } from "@playwright/test";
+import type { KeymapEventHandler } from "obsidian";
 import type { ObsidianAPI, VaultOptions } from "obsidian-e2e-toolkit";
 import { fileURLToPath } from "node:url";
 import type { DSTRView } from "src/features/workspace/views/DSTRView";
+
+declare global {
+  interface Window {
+    __dstrE2EHotkeys?: Record<string, { count: number; handler: KeymapEventHandler }>;
+  }
+}
 
 export const PLUGIN_ID = "dstr";
 export const DSTR_VIEW_TYPE = "dstr-view";
@@ -42,7 +49,7 @@ export async function collapseDSTRSidebars(obsidian: ObsidianAPI): Promise<void>
 /** Reads the live editor text through the Daystream view's test delegate. */
 export function getLiveEditorDelegateContent(obsidian: ObsidianAPI): Promise<string> {
   return obsidian.evaluateApp(() => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
       throw new Error("dstr-view leaf not found");
     }
@@ -50,14 +57,14 @@ export function getLiveEditorDelegateContent(obsidian: ObsidianAPI): Promise<str
     if (!delegates.onGetLiveEditorContentForTesting) {
       throw new Error("onGetLiveEditorContentForTesting is not ready");
     }
-    return delegates.onGetLiveEditorContentForTesting!();
+    return delegates.onGetLiveEditorContentForTesting();
   });
 }
 
 /** Sets the live editor text through the Daystream view's test delegate and waits until the delegate reports it. */
 export async function setLiveEditorDelegateContent(obsidian: ObsidianAPI, text: string): Promise<void> {
   await obsidian.evaluateApp((content) => {
-    const leaf = app.workspace.getLeavesOfType("dstr-view")[0];
+    const leaf = window.app.workspace.getLeavesOfType("dstr-view")[0];
     if (!leaf) {
       throw new Error("dstr-view leaf not found");
     }

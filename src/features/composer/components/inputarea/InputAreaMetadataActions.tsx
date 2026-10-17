@@ -4,6 +4,7 @@ import { IconButton } from "src/core/ui/components/common/IconButton";
 import { HStack } from "src/core/ui/components/primitives";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useEditorStore } from "src/features/composer/store/editorStore";
+import { reportComposerFailure } from "src/features/composer/utils/composer-failure";
 import { PINNED_METADATA_KEY, getRawTagMetadata, isPinned } from "src/core/domain/post-metadata";
 import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { useShallow } from "zustand/shallow";
@@ -80,7 +81,11 @@ export const InputAreaMetadataActions: FC<InputAreaMetadataActionsProps> = memo(
           <IconButton
             name="tag"
             tooltip="タグ編集"
-            onActivate={handleEditTags}
+            onActivate={() => {
+              handleEditTags().catch(
+                reportComposerFailure("Failed to edit tags", "タグを編集できませんでした"),
+              );
+            }}
             isDisabled={isReadOnly}
             size="1em"
             className="h-6 w-6"

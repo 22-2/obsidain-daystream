@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { CONTENT_VIEW, DISPLAY_MODE, INPUT_AREA_SIZE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
@@ -26,5 +27,5 @@ export const DEFAULT_LAYOUT_STATE = {
 
 export function createTimelineNavigationState() {
   // 意図: タイムラインの投稿先は今日の日次ノートとし、日付タブや別 view の保存状態を持ち込まない。
-  return { ...DEFAULT_VIEW_STATE, date: window.moment() };
+  return { ...DEFAULT_VIEW_STATE, date: obsidianMoment() };
 }

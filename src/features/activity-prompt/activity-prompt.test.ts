@@ -1,4 +1,5 @@
-import type { TFile } from "obsidian";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import { TFile } from "obsidian";
 import { saveActivityPromptResponse } from "src/features/activity-prompt/activity-prompt";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -22,7 +23,7 @@ vi.mock("src/core/db/indexer/tag-indexer", () => ({
 }));
 
 describe("saveActivityPromptResponse", () => {
-  const note = { path: "daily/2026-08-11.md" } as TFile;
+  const note = Object.assign(new TFile(), { path: "daily/2026-08-11.md" });
   const settings = {
     activeTopic: "work",
     insertAfter: "## Thino",
@@ -33,7 +34,7 @@ describe("saveActivityPromptResponse", () => {
     insertTextAfterEnsuringMarker,
     trigger,
   } as unknown as ObsidianAppShell;
-  const now = window.moment("2026-08-11T11:30:00+09:00");
+  const now = obsidianMoment("2026-08-11T11:30:00+09:00");
 
   beforeEach(() => {
     vi.clearAllMocks();

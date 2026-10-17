@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Notice, TFile } from "obsidian";
 import { useCallback, useEffect, useMemo } from "react";
 import { normalizeFixedNotePath } from "src/core/fixed-note";
@@ -118,7 +119,7 @@ export const useFixedSessions = () => {
     async (sessionNumber: number) => {
       await updateFixedSessionMeta(shell, storage, normalizedFixedPath, sessionNumber, (prev) => ({
         ...prev,
-        createdAt: prev.createdAt ?? window.moment().toISOString(),
+        createdAt: prev.createdAt ?? obsidianMoment().toISOString(),
         pinned: !(prev.pinned ?? false),
       }));
       await mutate();
@@ -147,7 +148,7 @@ export const useFixedSessions = () => {
         (prev) => {
           const nextMeta = {
             ...prev,
-            createdAt: prev.createdAt ?? window.moment().toISOString(),
+            createdAt: prev.createdAt ?? obsidianMoment().toISOString(),
             pinned: prev.pinned ?? false,
           };
 
@@ -255,7 +256,7 @@ export const useFixedSessions = () => {
 
     const insertAfter = settings.insertAfter.trim();
     if (!insertAfter) {
-      new Notice("fixed session を使うには insertAfter 見出しの設定が必要です");
+      new Notice("固定セッションを使うには、挿入位置の見出し設定が必要です");
       return;
     }
 
@@ -295,7 +296,7 @@ export const useFixedSessions = () => {
 
     await updateFixedSessionMeta(shell, storage, note.path, nextSessionNumber, (prev) => ({
       ...prev,
-      createdAt: prev.createdAt ?? window.moment().toISOString(),
+      createdAt: prev.createdAt ?? obsidianMoment().toISOString(),
       pinned: prev.pinned ?? false,
     }));
 

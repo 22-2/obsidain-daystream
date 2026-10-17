@@ -1,5 +1,7 @@
 import { Menu, Notice } from "obsidian";
+import type React from "react";
 import { useCallback } from "react";
+import { reportError } from "src/core/error-report";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import type { MomentLike, Post } from "src/core/domain/post";
 import type { DisplayMode } from "src/features/workspace/types";
@@ -15,13 +17,13 @@ type PostContextMenuCapabilities = {
 type UsePostContextMenuInput = {
   isReadOnly: boolean;
   capabilities: PostContextMenuCapabilities;
-  archivePost: (post: Post) => void;
-  createThread: (post: Post) => void;
-  deletePost: (post: Post) => void;
-  permanentlyDeletePost: (post: Post) => void;
-  movePostToTomorrow: (post: Post) => void;
-  handleHighlightPost: (post: Post) => void;
-  handleHighlightSource: (post: Post) => void;
+  archivePost: (post: Post) => Promise<void>;
+  createThread: (post: Post) => Promise<void>;
+  deletePost: (post: Post) => Promise<void>;
+  permanentlyDeletePost: (post: Post) => Promise<void>;
+  movePostToTomorrow: (post: Post) => Promise<void>;
+  handleHighlightPost: (post: Post) => Promise<void>;
+  handleHighlightSource: (post: Post) => Promise<void>;
   setDate: (date: MomentLike) => void;
   setDisplayMode: (mode: DisplayMode) => void;
   startEdit: (post: Post) => void;
@@ -33,9 +35,13 @@ type UsePostContextMenuInput = {
   }) => Promise<string | null>;
   confirmDeleteAction: (onConfirm: () => Promise<void>) => void;
   setPostTags: (post: Post, tags: string) => Promise<void>;
-  setPostPinned: (post: Post, pinned: boolean) => void;
-  copyBlockIdLink: (post: Post) => void;
+  setPostPinned: (post: Post, pinned: boolean) => Promise<void>;
+  copyBlockIdLink: (post: Post) => Promise<void>;
 };
+
+function runContextMenuAction(context: string, action: () => Promise<void>): void {
+  void action().catch((error: unknown) => reportError({ context, error }));
+}
 
 export function usePostContextMenu({
   isReadOnly,
@@ -74,7 +80,9 @@ export function usePostContextMenu({
             .setIcon("pin")
             .setDisabled(isReadOnly)
             .onClick(() => {
-              setPostPinned(post, !isPinned(post.metadata));
+              runContextMenuAction("Failed to update post pin state", () =>
+                setPostPinned(post, !isPinned(post.metadata)),
+              );
             }),
         );
 
@@ -84,7 +92,7 @@ export function usePostContextMenu({
             .setIcon("spool")
             .setDisabled(isReadOnly || isThreadReply(post))
             .onClick(() => {
-              createThread(post);
+              runContextMenuAction("Failed to create post thread", () => createThread(post));
             }),
         );
 
@@ -105,7 +113,9 @@ export function usePostContextMenu({
             .setIcon("fast-forward")
             .setDisabled(isReadOnly || !capabilities.supportsMovePostBetweenDays)
             .onClick(() => {
-              movePostToTomorrow(post);
+              runContextMenuAction("Failed to move post to tomorrow", () =>
+                movePostToTomorrow(post),
+              );
             }),
         );
 
@@ -114,18 +124,20 @@ export function usePostContextMenu({
             .setTitle("タグ付け")
             .setIcon("tag")
             .setDisabled(isReadOnly || !capabilities.supportsTags)
-            .onClick(async () => {
-              const nextValue = await showTextInput({
-                title: "タグを入力",
-                placeholder: "IT, Later",
-                defaultValue: getRawTagMetadata(post.metadata),
+            .onClick(() => {
+              runContextMenuAction("Failed to update post tags", async () => {
+                const nextValue = await showTextInput({
+                  title: "タグを入力",
+                  placeholder: "IT, Later",
+                  defaultValue: getRawTagMetadata(post.metadata),
+                });
+
+                if (nextValue === null) {
+                  return;
+                }
+
+                await setPostTags(post, nextValue);
               });
-
-              if (nextValue === null) {
-                return;
-              }
-
-              await setPostTags(post, nextValue);
             }),
         );
 
@@ -135,7 +147,7 @@ export function usePostContextMenu({
             .setIcon("link")
             .setDisabled(isReadOnly)
             .onClick(() => {
-              copyBlockIdLink(post);
+              runContextMenuAction("Failed to copy post block link", () => copyBlockIdLink(post));
             }),
         );
 
@@ -158,7 +170,7 @@ export function usePostContextMenu({
             .setTitle("投稿にジャンプ")
             .setIcon("clock")
             .onClick(() => {
-              handleHighlightPost(post);
+              runContextMenuAction("Failed to jump to post", () => handleHighlightPost(post));
             }),
         );
       }
@@ -168,7 +180,7 @@ export function usePostContextMenu({
           .setTitle("投稿のソースにジャンプ")
           .setIcon("code-xml")
           .onClick(() => {
-            handleHighlightSource(post);
+            runContextMenuAction("Failed to open post source", () => handleHighlightSource(post));
           }),
       );
 
@@ -188,9 +200,11 @@ export function usePostContextMenu({
         item
           .setTitle("コピー")
           .setIcon("copy")
-          .onClick(async () => {
-            await navigator.clipboard.writeText(post.message);
-            new Notice("copied");
+          .onClick(() => {
+            runContextMenuAction("Failed to copy post text", async () => {
+              await navigator.clipboard.writeText(post.message);
+              new Notice("Copied");
+            });
           }),
       );
 
@@ -202,7 +216,7 @@ export function usePostContextMenu({
           .setIcon("archive")
           .setDisabled(isReadOnly)
           .onClick(() => {
-            archivePost(post);
+            runContextMenuAction("Failed to archive post", () => archivePost(post));
           }),
       );
 
@@ -213,7 +227,7 @@ export function usePostContextMenu({
           .setWarning(true)
           .setDisabled(isReadOnly)
           .onClick(() => {
-            deletePost(post);
+            runContextMenuAction("Failed to delete post", () => deletePost(post));
           }),
       );
 
@@ -224,11 +238,7 @@ export function usePostContextMenu({
           .setWarning(true)
           .setDisabled(isReadOnly)
           .onClick(() => {
-            // 意図: confirmDeleteAction は () => Promise<void> を要求するが、
-            // permanentlyDeletePost が同期の可能性があるため async でラップする。
-            confirmDeleteAction(async () => {
-              permanentlyDeletePost(post);
-            });
+            confirmDeleteAction(() => permanentlyDeletePost(post));
           }),
       );
 

@@ -2,6 +2,12 @@
 import { act, renderHook as renderHookBase } from "@testing-library/react";
 import React from "react";
 import { Notice, TFile } from "obsidian";
+import type { App, Vault } from "obsidian";
+import type { Post } from "src/core/domain/post";
+import { DEFAULT_SETTINGS } from "src/core/domain/settings";
+import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
+import type { DSTRStorage } from "src/core/storage";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
 import { AppStoreProvider, appStore as editorStore } from "src/features/workspace/store/appStore";
@@ -34,7 +40,7 @@ vi.mock("src/core/ui/context/AppContext", () => ({
 // 空の posts を返すモックで代替する（copyBlockIdLink は posts を参照しない）。
 vi.mock("src/features/posts/hooks/usePosts", () => ({
   usePosts: () => ({ posts: [] }),
-  PostsProvider: ({ children }: { children: any }) => children,
+  PostsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // 意図: submit 直後の write-through インデックスはこのテストの関心外なので無効化する。
@@ -48,7 +54,7 @@ vi.mock("src/features/composer/context/EditorRefsContext", () => ({
     scrollContainerRef: { current: null },
     listHeaderRef: { current: null },
   }),
-  EditorRefsProvider: ({ children }: { children: any }) => children,
+  EditorRefsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 vi.mock("./refreshPosts", () => ({
@@ -64,41 +70,43 @@ vi.mock("obsidian", async () => {
 });
 
 describe("usePostActions - copyBlockIdLink", () => {
-  const today = window.moment("2026-03-15T09:00:00.000Z");
+  const today = obsidianMoment("2026-03-15T09:00:00.000Z");
   const testNote = Object.assign(new TFile(), {
     path: "test-note.md",
     basename: "test-note",
     extension: "md",
-  }) as any;
+  });
 
-  let mockApp: any;
-  let mockShell: any;
+  const getAbstractFileByPath = vi.fn<(path: string) => TFile | null>((path) =>
+    path === testNote.path ? testNote : null,
+  );
+  const generateMarkdownLink = vi.fn<(file: TFile, sourcePath: string, subpath?: string) => string>(
+    (file, _sourcePath, subpath) => `[[${file.basename}${subpath ?? ""}]]`,
+  );
+  const writeText = vi.fn<(text: string) => Promise<void>>(async () => {});
+  const loadFile = vi.fn<ObsidianAppShell["loadFile"]>(async () => "");
+  const replaceRange = vi.fn<ObsidianAppShell["replaceRange"]>(async () => "");
+
+  // 意図: ObsidianAppShell はクラスで内部状態を持つため、このテストが使う公開メソッドだけを持つ偽物を作り、境界で一度だけキャストする。
+  const createShell = (): ObsidianAppShell => {
+    const vault = { getAbstractFileByPath } as unknown as Vault;
+    const rawApp = { fileManager: { generateMarkdownLink } } as unknown as App;
+    return {
+      getVault: () => vault,
+      getRawApp: () => rawApp,
+      loadFile,
+      replaceRange,
+    } as unknown as ObsidianAppShell;
+  };
 
   beforeEach(() => {
     vi.useRealTimers();
 
-    mockApp = {
-      vault: {
-        getAbstractFileByPath: vi.fn((path: string) => (path === testNote.path ? testNote : null)),
-      },
-      fileManager: {
-        generateMarkdownLink: vi.fn((file, _path, subpath) => `[[${file.basename}${subpath}]]`),
-      },
-    };
-
-    mockShell = {
-      getVault: vi.fn(() => mockApp.vault),
-      getRawApp: vi.fn(() => mockApp),
-      loadFile: vi.fn(async () => ""),
-      replaceRange: vi.fn().mockResolvedValue(undefined),
-    };
-
-    (useAppContext as any).mockReturnValue({
-      shell: mockShell,
-      settings: {
-        insertAfter: "## Thino",
-        updateDateStrategy: "never",
-      },
+    vi.mocked(useAppContext).mockReturnValue({
+      shell: createShell(),
+      // 意図: このテストの対象は storage を参照しないため、空の値で代替する。
+      storage: {} as DSTRStorage,
+      settings: { ...DEFAULT_SETTINGS, insertAfter: "## Thino", updateDateStrategy: "never" },
     });
 
     settingsStore.setState({
@@ -109,9 +117,7 @@ describe("usePostActions - copyBlockIdLink", () => {
 
     // Mock navigator.clipboard
     Object.assign(navigator, {
-      clipboard: {
-        writeText: vi.fn().mockResolvedValue(undefined),
-      },
+      clipboard: { writeText },
     });
   });
 
@@ -121,16 +127,20 @@ describe("usePostActions - copyBlockIdLink", () => {
   });
 
   it("既存の blockId がある場合はそれを使用してコピーする", async () => {
-    const postWithId = {
+    const postWithId: Post = {
       id: "post-1",
+      threadRootId: null,
       message: "hello",
       metadata: { blockId: "existing123" },
       path: testNote.path,
       timestamp: today,
       noteDate: today,
+      offset: 0,
       startOffset: 0,
       endOffset: 10,
-    } as any;
+      bodyStartOffset: 0,
+      kind: "thino",
+    };
 
     const { result } = renderHook(() => usePostActions());
 
@@ -138,24 +148,28 @@ describe("usePostActions - copyBlockIdLink", () => {
       await result.current.copyBlockIdLink(postWithId);
     });
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("[[test-note#^existing123]]");
+    expect(writeText).toHaveBeenCalledWith("[[test-note#^existing123]]");
     expect(Notice).toHaveBeenCalledWith("ブロックIDリンクをコピーしました");
-    expect(mockShell.replaceRange).not.toHaveBeenCalled();
+    expect(replaceRange).not.toHaveBeenCalled();
   });
 
   it("blockId がない場合は新しく生成して保存してからコピーする", async () => {
-    const postWithoutId = {
+    const postWithoutId: Post = {
       id: "test-note.md:9",
+      threadRootId: null,
       message: "no id",
       metadata: {},
       path: testNote.path,
       timestamp: today,
       noteDate: today,
+      offset: 0,
       startOffset: 0,
       endOffset: 5,
-    } as any;
+      bodyStartOffset: 0,
+      kind: "thino",
+    };
 
-    mockShell.loadFile.mockResolvedValue("## Thino\n- 09:00:00 no id\n");
+    loadFile.mockResolvedValue("## Thino\n- 09:00:00 no id\n");
 
     const { result } = renderHook(() => usePostActions());
 
@@ -164,12 +178,13 @@ describe("usePostActions - copyBlockIdLink", () => {
     });
 
     // Verify blockId was generated and saved
-    expect(mockShell.replaceRange).toHaveBeenCalledOnce();
-    const savedText = mockShell.replaceRange.mock.calls[0][3];
+    expect(replaceRange).toHaveBeenCalledOnce();
+    const savedText = replaceRange.mock.calls[0][3];
     expect(savedText).toMatch(/\^([0-9a-z]{6})/);
 
-    const generatedId = savedText.match(/\^([0-9a-z]{6})/)[1];
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`[[test-note#^${generatedId}]]`);
+    const generatedId = /\^([0-9a-z]{6})/.exec(savedText)?.[1] ?? "";
+    expect(generatedId).toHaveLength(6);
+    expect(writeText).toHaveBeenCalledWith(`[[test-note#^${generatedId}]]`);
     expect(Notice).toHaveBeenCalledWith("ブロックIDリンクをコピーしました");
   });
 });

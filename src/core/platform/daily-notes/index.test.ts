@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { describe, expect, it, vi } from "vitest";
 import { getDateFromFilename, resolveTopicNotePath } from "src/core/platform/daily-notes";
@@ -17,12 +18,12 @@ function getShell() {
 
 describe("トピック付きノート", () => {
   it("トピックなしではファイル名に接頭辞を付けない", () => {
-    const path = resolveTopicNotePath(window.moment("2026-03-04"), "day", "", getShell());
+    const path = resolveTopicNotePath(obsidianMoment("2026-03-04"), "day", "", getShell());
     expect(path).toBe("Daily/2026-03-04.md");
   });
 
   it("トピックIDを `<topicId>-` の接頭辞としてファイル名に付ける", () => {
-    const path = resolveTopicNotePath(window.moment("2026-03-04"), "day", "novel", getShell());
+    const path = resolveTopicNotePath(obsidianMoment("2026-03-04"), "day", "novel", getShell());
     expect(path).toBe("Daily/novel-2026-03-04.md");
   });
 

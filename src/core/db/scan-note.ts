@@ -1,4 +1,4 @@
-import { resolveMemoTimestamp } from "src/core/post-utils";
+import { resolveMemoTimestamp } from "src/core/memo-timestamp";
 import { parseThinoEntries } from "src/core/thino";
 import type { MemoRecord } from "src/core/db/dstr-db";
 import { normalizeDSTRMetadata } from "src/core/metadata";

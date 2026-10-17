@@ -1,13 +1,15 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import type moment from "moment";
+import type { Moment } from "moment";
 import React from "react";
+import type { MemoRecord } from "src/core/db/dstr-db";
+import type { IDBService } from "src/core/db/interfaces/IDBService";
 import { useFocusPosts } from "src/features/posts/hooks/internal/useFocusPosts";
 import { SWRConfig } from "swr";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 interface MockSettingsState {
   activeTopic: string;
-  date: moment.Moment;
+  date: Moment;
   granularity: "day" | "week" | "month" | "quarter" | "year";
   dateFilter: string;
   searchQuery: string;
@@ -16,10 +18,13 @@ interface MockSettingsState {
   file: string | null;
 }
 
-const mocked = vi.hoisted(() => {
+type MockDatabase = Pick<IDBService, "getMemos">;
+
+const mocked = await vi.hoisted(async () => {
+  const { obsidianMoment } = await import("src/core/platform/obsidian-globals");
   const settings: MockSettingsState = {
     activeTopic: "work",
-    date: window.moment("2026-04-06T12:34:56.000Z"),
+    date: obsidianMoment("2026-04-06T12:34:56.000Z"),
     granularity: "day",
     dateFilter: "today",
     searchQuery: "",
@@ -29,10 +34,11 @@ const mocked = vi.hoisted(() => {
   };
 
   return {
-    getMemos: vi.fn(),
-    getDb: vi.fn(),
+    getMemos: vi.fn<MockDatabase["getMemos"]>(),
+    getDb: vi.fn<() => MockDatabase>(),
     loadFile: vi.fn(),
     settings,
+    moment: obsidianMoment,
   };
 });
 
@@ -54,7 +60,11 @@ vi.mock("src/core/ui/context/AppContext", () => ({
 }));
 
 vi.mock("src/core/note-source", () => ({
-  resolvePeriodicNote: (shell: unknown, date: any, granularity: string) => {
+  resolvePeriodicNote: (
+    _shell: unknown,
+    date: Moment,
+    granularity: MockSettingsState["granularity"],
+  ) => {
     if (granularity === "month") {
       return { path: date.format("YYYY-MM") + ".md" };
     }
@@ -78,29 +88,25 @@ vi.mock("src/features/workspace/store/settingsStore", () => ({
   useSettingsStore: <T,>(selector: (state: MockSettingsState) => T): T => selector(mocked.settings),
 }));
 
-type MemoRecordLike = {
-  id: string;
-  path: string;
-  content: string;
-  createdAt: string;
-  metadataJson: string;
-  startOffset: number;
-  endOffset: number;
-  bodyStartOffset: number;
-  noteGranularity: "day" | "week" | "month" | "quarter" | "year";
-};
-
-function createMemoRecord(overrides: Partial<MemoRecordLike>): MemoRecordLike {
+function createMemoRecord(overrides: Partial<MemoRecord>): MemoRecord {
   return {
     id: overrides.id ?? "memo-1",
     path: overrides.path ?? "daily/2026-04-06.md",
+    noteName: overrides.noteName ?? "2026-04-06",
+    topicId: overrides.topicId ?? "work",
+    noteGranularity: overrides.noteGranularity ?? "day",
     content: overrides.content ?? "message",
+    tags: overrides.tags ?? [],
     createdAt: overrides.createdAt ?? "2026-04-06T12:00:00.000Z",
+    noteDate: overrides.noteDate ?? "2026-04-06",
+    updatedAt: overrides.updatedAt ?? "2026-04-06T12:00:00.000Z",
     metadataJson: overrides.metadataJson ?? "{}",
     startOffset: overrides.startOffset ?? 10,
     endOffset: overrides.endOffset ?? 20,
     bodyStartOffset: overrides.bodyStartOffset ?? 12,
-    noteGranularity: overrides.noteGranularity ?? "day",
+    archived: overrides.archived ?? 0,
+    deleted: overrides.deleted ?? 0,
+    pinned: overrides.pinned ?? 0,
   };
 }
 
@@ -130,7 +136,7 @@ describe("useFocusPosts hook integration", () => {
     });
     mocked.getMemos.mockResolvedValue([]);
     mocked.settings.activeTopic = "work";
-    mocked.settings.date = window.moment("2026-04-06T12:34:56.000Z");
+    mocked.settings.date = mocked.moment("2026-04-06T12:34:56.000Z");
     mocked.settings.granularity = "day";
     mocked.settings.dateFilter = "today";
     mocked.settings.searchQuery = "";
@@ -197,7 +203,7 @@ describe("useFocusPosts hook integration", () => {
   it("month granularity は月次ノートと日次ノートの投稿を月内でまとめて表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "month";
-    mocked.settings.date = window.moment("2026-04-20T09:00:00.000Z");
+    mocked.settings.date = mocked.moment("2026-04-20T09:00:00.000Z");
     mocked.settings.activeTopic = "";
 
     mocked.loadFile.mockResolvedValue(
@@ -240,7 +246,7 @@ describe("useFocusPosts hook integration", () => {
   it("月次ノート内に別の月の投稿があっても選択月だけを表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "month";
-    mocked.settings.date = window.moment("2026-04-20T09:00:00.000Z");
+    mocked.settings.date = mocked.moment("2026-04-20T09:00:00.000Z");
     mocked.settings.activeTopic = "";
     mocked.loadFile.mockResolvedValue(
       [
@@ -259,7 +265,7 @@ describe("useFocusPosts hook integration", () => {
   it("year granularity は年次ノートの path の投稿だけを表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "year";
-    mocked.settings.date = window.moment("2026-07-20T09:00:00.000Z");
+    mocked.settings.date = mocked.moment("2026-07-20T09:00:00.000Z");
     mocked.settings.activeTopic = "";
 
     mocked.loadFile.mockResolvedValue(
@@ -287,7 +293,7 @@ describe("useFocusPosts hook integration", () => {
   it("quarter granularity は四半期ノートの path の投稿だけを表示する", async () => {
     mocked.settings.viewNoteMode = "periodic";
     mocked.settings.granularity = "quarter";
-    mocked.settings.date = window.moment("2026-05-20T09:00:00.000Z");
+    mocked.settings.date = mocked.moment("2026-05-20T09:00:00.000Z");
     mocked.settings.activeTopic = "";
 
     mocked.loadFile.mockResolvedValue(

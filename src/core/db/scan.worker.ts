@@ -4,8 +4,10 @@ import { isDev } from "src/core/constants";
 import { DexieDBService } from "src/core/db/impl/DexieDBService";
 import type { IDBService } from "src/core/db/interfaces/IDBService";
 import type { ScannableNote } from "src/core/db/worker-api";
+import { createLogger } from "src/core/logger";
 
 const TAG = "[scan.worker]";
+const logger = createLogger("scan.worker");
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,11 +34,11 @@ async function withLogging<T>(
     return await fn();
   }
 
-  console.log(TAG, `${method} called`, meta);
+  logger.info(`${method} called`, meta);
   const start = Date.now();
   try {
     const result = await fn();
-    console.log(TAG, `${method} completed`, { durationMs: Date.now() - start });
+    logger.info(`${method} completed`, { durationMs: Date.now() - start });
     return result;
   } catch (err) {
     console.error(TAG, `${method} failed:`, err);

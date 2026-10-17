@@ -38,7 +38,7 @@ export class DSTRStorage {
   get<T>(key: string, defaultValue: T): T {
     const raw: unknown = this.app.loadLocalStorage(toPluginStorageKey(key));
     if (isStoredValue(raw)) return raw.value as T;
-    return this.migratePreviousValue(key) ?? defaultValue;
+    return (this.migratePreviousValue(key) ?? defaultValue) as T;
   }
 
   remove(key: string): void {
@@ -50,13 +50,13 @@ export class DSTRStorage {
   // 意図: 以前のリリースは localStorage を直接使っており、その値は
   // loadLocalStorage では読めない。移行のためだけに localStorage を直接触る。
 
-  private migratePreviousValue<T>(key: string): T | null {
+  private migratePreviousValue(key: string): unknown {
     for (const previousKey of createPreviousStorageKeys(this.app.appId, key)) {
       const raw = window.localStorage.getItem(previousKey);
       if (raw === null) continue;
 
       try {
-        const value = JSON.parse(raw) as T;
+        const value: unknown = JSON.parse(raw);
         this.set(key, value);
         return value;
       } catch (error) {

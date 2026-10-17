@@ -45,4 +45,38 @@ export default defineConfig(
 		},
 	},
 	...obsidianmd.configs.recommended,
+	{
+		files: ['e2e/**/*.ts'],
+		rules: {
+			// E2E helpers execute in Node; this mobile compatibility rule applies to plugin code.
+			'obsidianmd/no-nodejs-modules': 'off',
+			// evaluateApp がコールバックを直列化するため、E2Eでは非推奨の window.app を直接使う。
+			'@typescript-eslint/no-deprecated': 'off',
+		},
+	},
+	{
+		files: ['src/features/workspace/register-views-and-commands.ts'],
+		rules: {
+			// 意図: これらのコマンドIDは既存ホットキーに保存されているため変更しない。
+			'obsidianmd/commands/no-plugin-id-in-command-id': 'off',
+		},
+	},
+	{
+		// 意図: テストは jsdom 上で動き Obsidian の createDiv / createEl を持たないため、標準 DOM API を使う。
+		files: ['**/*.test.{ts,tsx}'],
+		rules: {
+			'obsidianmd/prefer-create-el': 'off',
+		},
+	},
+	{
+		files: ['vite.config.ts', 'vitest.config.ts', 'playwright.config.ts'],
+		languageOptions: {
+			globals: {
+				...globals.node,
+			},
+		},
+		rules: {
+			'obsidianmd/no-nodejs-modules': 'off',
+		},
+	},
 );

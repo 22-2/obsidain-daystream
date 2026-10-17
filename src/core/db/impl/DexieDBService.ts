@@ -6,6 +6,7 @@ import { buildMemoRecordsForNote } from "src/core/db/scan-note";
 import type { ScannableNote } from "src/core/db/worker-api";
 import type { Granularity } from "src/core/domain/granularity";
 import { DB_UPDATE_CHANNEL_NAME, DB_UPDATED_MESSAGE_TYPE } from "src/core/db/updates";
+import { toError } from "src/core/errors";
 
 // 意図: 同一内容の再インデックスをスキップする判定用の軽量ハッシュ（djb2）。
 // 衝突耐性より速度を優先する。長さも併記して衝突リスクをさらに下げる。
@@ -51,7 +52,7 @@ export class DexieDBService implements IDBService {
         try {
           resolve(await task());
         } catch (e) {
-          reject(e);
+          reject(toError(e));
         }
       });
     });
@@ -59,7 +60,7 @@ export class DexieDBService implements IDBService {
 
   async initialize(options: DBServiceOptions): Promise<void> {
     if (this.db) {
-      this.db.close();
+      await this.db.close();
     }
     this.db = new DSTRDatabase(options.appId);
     this.memoRepo = new DexieMemoRepository(this.db);
@@ -90,20 +91,20 @@ export class DexieDBService implements IDBService {
 
       const preservedRecords: MemoRecord[] = [];
       for (const path of preservedPaths) {
-        preservedRecords.push(...(await this.memoRepo!.findByPath(path)));
+        preservedRecords.push(...(await this.memoRepo.findByPath(path)));
       }
 
-      await this.memoRepo!.clear();
-      await this.db!.meta.clear();
+      await this.memoRepo.clear();
+      await this.db.meta.clear();
 
       const freshRecords = freshNotes.flatMap(buildMemoRecordsForNote);
-      await this.memoRepo!.bulkPut([...freshRecords, ...preservedRecords]);
+      await this.memoRepo.bulkPut([...freshRecords, ...preservedRecords]);
 
       // tagStats は memos 全体から再構築する（保持分と置換分が混ざるため、
       // 差分計算より全再構築のほうが単純で整合が保証される）。
-      await this.tagStatsRepo!.rebuild();
+      await this.tagStatsRepo.rebuild();
 
-      await this.db!.meta.put({
+      await this.db.meta.put({
         key: "lastFullScanAt",
         value: new Date().toISOString(),
       });
@@ -131,12 +132,12 @@ export class DexieDBService implements IDBService {
 
       const records = buildMemoRecordsForNote(note);
 
-      const removed = await this.tagStatsRepo!.collectForPath(note.path);
-      await this.memoRepo!.deleteByPath(note.path);
-      if (records.length) await this.memoRepo!.bulkPut(records);
+      const removed = await this.tagStatsRepo.collectForPath(note.path);
+      await this.memoRepo.deleteByPath(note.path);
+      if (records.length) await this.memoRepo.bulkPut(records);
 
-      const added = this.tagStatsRepo!.collectFromRecords(records);
-      await this.tagStatsRepo!.applyDeltas(removed, added);
+      const added = this.tagStatsRepo.collectFromRecords(records);
+      await this.tagStatsRepo.applyDeltas(removed, added);
 
       // 意図: DB 書き込みが成功してからハッシュを記録する。先に記録すると、
       // 書き込み失敗時に同一内容の再送がハッシュで弾かれ、永久に反映されなくなる。
@@ -155,9 +156,9 @@ export class DexieDBService implements IDBService {
 
       this.lastIndexedHash.delete(path);
 
-      const removed = await this.tagStatsRepo!.collectForPath(path);
-      await this.memoRepo!.deleteByPath(path);
-      await this.tagStatsRepo!.applyDeltas(removed, new Map());
+      const removed = await this.tagStatsRepo.collectForPath(path);
+      await this.memoRepo.deleteByPath(path);
+      await this.tagStatsRepo.applyDeltas(removed, new Map());
 
       // 削除も「増分で最新化された」状態として記録し、
       // 実行中のフルスキャンの古いスナップショットがこのパスを復活させないようにする。
@@ -175,15 +176,15 @@ export class DexieDBService implements IDBService {
 
       this.lastIndexedHash.delete(oldPath);
 
-      const removed = await this.tagStatsRepo!.collectForPath(oldPath);
-      await this.memoRepo!.deleteByPath(oldPath);
-      await this.tagStatsRepo!.applyDeltas(removed, new Map());
+      const removed = await this.tagStatsRepo.collectForPath(oldPath);
+      await this.memoRepo.deleteByPath(oldPath);
+      await this.tagStatsRepo.applyDeltas(removed, new Map());
 
       // Then process the new note content
       const records = buildMemoRecordsForNote(note);
-      if (records.length) await this.memoRepo!.bulkPut(records);
-      const added = this.tagStatsRepo!.collectFromRecords(records);
-      await this.tagStatsRepo!.applyDeltas(new Map(), added);
+      if (records.length) await this.memoRepo.bulkPut(records);
+      const added = this.tagStatsRepo.collectFromRecords(records);
+      await this.tagStatsRepo.applyDeltas(new Map(), added);
 
       // 意図: 書き込み成功後にハッシュを記録する（onFileChanged と同じ理由）。
       // 旧パス・新パスとも増分更新済みとして記録し、フルスキャンの

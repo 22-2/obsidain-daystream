@@ -1,8 +1,9 @@
+import type React from "react";
 import type { App } from "obsidian";
 import { useEffect, useRef } from "react";
 import type { Settings } from "src/core/domain/settings";
 import { AppContextProvider, useAppContext } from "src/core/ui/context/AppContext";
-import { ComponentContextProvider, useObsidianComponent } from "src/core/ui/context/ComponentContext";
+import { ComponentContextProvider } from "src/core/ui/context/ComponentContext";
 import { EditorRefsProvider, useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useDbSync } from "src/features/workspace/hooks/useDbSync";
 import { useAppStoreInitialization } from "src/features/workspace/hooks/internal/useAppStoreInitialization";
@@ -11,6 +12,7 @@ import { useDSTRViewStateSync } from "src/features/workspace/hooks/internal/useD
 import { useNoteSync } from "src/features/notes/hooks/useNoteSync";
 import { invalidateInsightsCaches } from "src/features/insights/invalidate-caches";
 import { DSTRWorkspaceLayout } from "src/features/workspace/components/layout/DSTRWorkspaceLayout";
+import { useDSTRView } from "src/features/workspace/views/useDSTRView";
 import { PostsProvider } from "src/features/posts/hooks/usePosts";
 import type { AppStoreApi } from "src/features/workspace/store/appStore";
 import {
@@ -70,7 +72,7 @@ const DSTRAppRoot: React.FC<{
   initialViewState: DSTRViewState;
 }> = ({ children, initialViewState }) => {
   const { settings, storage, shell } = useAppContext();
-  const component = useObsidianComponent() as DSTRView;
+  const component = useDSTRView();
   const store = useRequiredAppStore();
   const { viewNoteMode, file } = useAppStore(
     useShallow((s) => ({
@@ -144,7 +146,7 @@ const DSTRAppRoot: React.FC<{
 
   useEffect(() => {
     if (!isReadOnly && inputRef.current) {
-      setTimeout(() => {
+      window.setTimeout(() => {
         const input = inputRef.current;
         const activeElement = component.containerEl.ownerDocument.activeElement;
 
@@ -193,10 +195,10 @@ const DSTRAppRoot: React.FC<{
   // Initial scroll position when note changes
   useEffect(() => {
     if (!currentDailyNote || !scrollContainerRef.current) return;
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       scrollContainerRef.current?.scrollTo({ top: 0 });
     }, 0);
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [currentDailyNote, scrollContainerRef]);
 
   return <>{children}</>;

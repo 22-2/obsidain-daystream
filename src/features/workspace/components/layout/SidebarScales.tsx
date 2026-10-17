@@ -1,4 +1,8 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { Moment } from "moment";
+import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { reportError } from "src/core/error-report";
 import { resolvePeriodicNote } from "src/core/note-source";
 import { parseThinoEntries } from "src/core/thino";
 import { NavButton } from "src/core/ui/components/common/NavButton";
@@ -17,11 +21,11 @@ interface Counts {
   tasks: number;
 }
 
-function buildScaleKey(date: moment.Moment, granularity: Granularity): string {
+function buildScaleKey(date: Moment, granularity: Granularity): string {
   return `${granularity}-${date.clone().startOf(granularity).format(GRANULARITY_CONFIG[granularity].inputFormat)}`;
 }
 
-function formatScaleLabel(date: moment.Moment, granularity: Granularity): string {
+function formatScaleLabel(date: Moment, granularity: Granularity): string {
   if (granularity === "quarter") {
     return date.clone().startOf("quarter").format(GRANULARITY_CONFIG.quarter.inputFormat);
   }
@@ -34,8 +38,8 @@ function formatScaleLabel(date: moment.Moment, granularity: Granularity): string
 }
 
 export const SidebarScales: React.FC<{
-  viewedDate?: moment.Moment;
-  onViewDateChange?: (next: moment.Moment) => void;
+  viewedDate?: Moment;
+  onViewDateChange?: (next: Moment) => void;
 }> = ({ viewedDate, onViewDateChange }) => {
   const shell = useAppStore((s) => s.shell);
   const {
@@ -60,7 +64,7 @@ export const SidebarScales: React.FC<{
   const monthStart = baseDate.clone().startOf("month");
   const monthEnd = baseDate.clone().endOf("month");
 
-  const weeks: moment.Moment[] = [];
+  const weeks: Moment[] = [];
   const cursor = monthStart.clone().startOf("isoWeek");
   while (cursor.isBefore(monthEnd) || cursor.isSame(monthEnd, "day")) {
     weeks.push(cursor.clone());
@@ -68,10 +72,9 @@ export const SidebarScales: React.FC<{
   }
 
   const [countsMap, setCountsMap] = useState<Record<string, Counts>>({});
-  const [loading, setLoading] = useState(false);
 
   const getCountsForPeriod = useCallback(
-    async (d: moment.Moment, g: "week" | "month" | "quarter" | "year") => {
+    async (d: Moment, g: "week" | "month" | "quarter" | "year") => {
       if (!shell) return { posts: 0, tasks: 0 };
       const note = resolvePeriodicNote(shell, d, g, activeTopic);
       if (!note) return { posts: 0, tasks: 0 };
@@ -87,7 +90,6 @@ export const SidebarScales: React.FC<{
   useEffect(() => {
     let isMounted = true;
     const fetchAllCounts = async () => {
-      setLoading(true);
       const newCounts: Record<string, Counts> = {};
 
       const [mCounts, qCounts, yCounts] = await Promise.all([
@@ -110,11 +112,12 @@ export const SidebarScales: React.FC<{
 
       if (isMounted) {
         setCountsMap(newCounts);
-        setLoading(false);
       }
     };
 
-    fetchAllCounts();
+    fetchAllCounts().catch((error: unknown) => {
+      reportError({ context: "Failed to load sidebar counts", error });
+    });
     return () => {
       isMounted = false;
     };
@@ -139,11 +142,11 @@ export const SidebarScales: React.FC<{
 
   const handleResetViewMonth = useCallback(() => {
     // 意図: 見出し中央クリックで現在月に戻し、左右移動後に素早くホーム位置へ復帰できるようにする。
-    onViewDateChange?.(window.moment());
+    onViewDateChange?.(obsidianMoment());
   }, [onViewDateChange]);
 
   // 意図: 既に現在月を表示中なら「戻す」操作は無効化し、誤操作感と不要な強調表示を避ける。
-  const isViewingCurrentMonth = baseDate.isSame(window.moment(), "month");
+  const isViewingCurrentMonth = baseDate.isSame(obsidianMoment(), "month");
 
   return (
     <PanelSection

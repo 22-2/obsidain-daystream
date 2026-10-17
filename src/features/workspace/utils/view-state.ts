@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { DEFAULT_VIEW_STATE } from "src/features/workspace/store/slices/settingsSlice";
 import type { SettingsSlice } from "src/features/workspace/store/slices/types";
@@ -45,7 +46,7 @@ export function isDefaultViewState(
 
 export function isHomeViewState(
   state: ResettableViewState & Pick<SettingsSlice, "date">,
-  now = window.moment(),
+  now = obsidianMoment(),
 ): boolean {
   // 意図: 表示条件だけでなく日付も Home の戻り先と比較し、別の月へ移動したときに色を切り替える。
   return isDefaultViewState(state, "month") && state.date.isSame(now, "month");

@@ -1,6 +1,11 @@
 import type { MemoRecord } from "src/core/db/dstr-db";
 import type { MomentLike, Post } from "src/core/domain/post";
-import { DSTR_THREAD_ID_METADATA_KEY, getDSTRThreadId } from "src/core/metadata";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import {
+  DSTR_THREAD_ID_METADATA_KEY,
+  getDSTRThreadId,
+  parseDSTRMetadataJson,
+} from "src/core/metadata";
 
 export const THREAD_METADATA_KEYS = {
   ID: DSTR_THREAD_ID_METADATA_KEY,
@@ -8,7 +13,7 @@ export const THREAD_METADATA_KEYS = {
 } as const;
 
 export function createThreadId(): string {
-  const randomUuid = globalThis.crypto?.randomUUID?.();
+  const randomUuid = window.crypto?.randomUUID?.();
   if (randomUuid) {
     return randomUuid.replace(/-/g, "").slice(0, 8);
   }
@@ -109,7 +114,7 @@ export function buildPostFromEntry(params: {
 }
 
 export function memoRecordToPost(record: MemoRecord): Post {
-  const metadata = JSON.parse(record.metadataJson) as Record<string, string>;
+  const metadata = parseDSTRMetadataJson(record.metadataJson) ?? {};
 
   // 意図: Post.id は UI のスレッド判定キーとして使われる。
   // ルート投稿で `id=record.id(path:offset)` のままだと `threadRootId(dstrId)` と一致せず
@@ -118,8 +123,8 @@ export function memoRecordToPost(record: MemoRecord): Post {
     id: resolvePostId(metadata, record.path, record.startOffset),
     threadRootId: resolveThreadRootId(metadata),
     noteGranularity: record.noteGranularity,
-    timestamp: window.moment(record.createdAt),
-    noteDate: window.moment(record.createdAt).startOf("day"),
+    timestamp: obsidianMoment(record.createdAt),
+    noteDate: obsidianMoment(record.createdAt).startOf("day"),
     message: record.content,
     metadata,
     offset: record.startOffset,

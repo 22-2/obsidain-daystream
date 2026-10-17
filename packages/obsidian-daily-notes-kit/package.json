@@ -12,5 +12,8 @@
   "peerDependencies": {
     "moment": "*",
     "obsidian": "*"
+  },
+  "devDependencies": {
+    "vitest": "5.0.2"
   }
 }

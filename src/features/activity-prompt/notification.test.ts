@@ -89,9 +89,7 @@ describe("activity prompt notifications", () => {
       onClick: vi.fn(),
       notification: Notification,
       setInterval,
-      clearInterval: vi.fn() as unknown as NonNullable<
-        ActivityPromptNotificationSchedulerOptions["clearInterval"]
-      >,
+      clearInterval: vi.fn(),
     });
 
     scheduler.start();

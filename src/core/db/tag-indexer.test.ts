@@ -1,6 +1,14 @@
 import { DEFAULT_TOPIC } from "src/core/topic";
+import type { TFile } from "obsidian";
 import { indexNoteContent, TagIndexer } from "src/core/db/indexer/tag-indexer";
+import type { IDBService } from "src/core/db/interfaces/IDBService";
 import { WorkerClient } from "src/core/db/worker-client";
+import {
+  createFakeDBService,
+  createFakeSettings,
+  createFakeShell,
+  createFakeTFile,
+} from "src/core/test-fixtures";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("src/core/db/worker-client", () => ({
@@ -10,31 +18,35 @@ vi.mock("src/core/db/worker-client", () => ({
   },
 }));
 
-function createShell(overrides: Record<string, unknown> = {}) {
-  return {
-    cachedReadFile: vi.fn(async () => "## Thino\n- 10:00:00 hello"),
+function createShell(
+  cachedReadFile = vi.fn(async (_file: TFile) => "## Thino\n- 10:00:00 hello"),
+) {
+  const shell = createFakeShell({
+    cachedReadFile,
     getCommunityPlugin: vi.fn(() => undefined),
     getInternalPluginById: vi.fn(() => undefined),
-    ...overrides,
-  } as any;
+  });
+  return { shell, cachedReadFile };
 }
 
-function createApiMock() {
+function createApiMocks() {
   return {
-    scanAllNotes: vi.fn(async () => []),
-    onFileChanged: vi.fn(async () => []),
-    onFileDeleted: vi.fn(async () => []),
-    onFileRenamed: vi.fn(async () => []),
-  } as any;
+    scanAllNotes: vi.fn<IDBService["scanAllNotes"]>(async () => {}),
+    onFileChanged: vi.fn<IDBService["onFileChanged"]>(async () => {}),
+    onFileDeleted: vi.fn<IDBService["onFileDeleted"]>(async () => {}),
+    onFileRenamed: vi.fn<IDBService["onFileRenamed"]>(async () => {}),
+  };
 }
 
 describe("TagIndexer", () => {
-  let api: any;
+  let apiMocks: ReturnType<typeof createApiMocks>;
+  let api: ReturnType<typeof createFakeDBService>;
 
   beforeEach(() => {
-    api = createApiMock();
-    vi.mocked(WorkerClient.get).mockReturnValue(api);
-    vi.mocked(WorkerClient.runWithRecovery).mockImplementation(async (operation) => operation(api));
+    apiMocks = createApiMocks();
+    api = createFakeDBService(apiMocks);
+    vi.mocked(WorkerClient).get.mockReturnValue(api);
+    vi.mocked(WorkerClient).runWithRecovery.mockImplementation(async (operation) => operation(api));
   });
 
   afterEach(() => {
@@ -43,19 +55,20 @@ describe("TagIndexer", () => {
 
   test("onFileChanged scans known note files", async () => {
     const indexer = new TagIndexer("vault-1");
-    const shell = createShell();
-    const file = {
-      path: "daily/writing-2026-03.md",
-      basename: "writing-2026-03",
-    } as any;
+    const { shell, cachedReadFile } = createShell();
+    const file = createFakeTFile("daily/writing-2026-03.md");
 
-    await indexer.onFileChanged(shell, file, {
-      topics: [DEFAULT_TOPIC, { id: "writing", title: "Writing" }],
-    } as any);
+    await indexer.onFileChanged(
+      shell,
+      file,
+      createFakeSettings({
+        topics: [DEFAULT_TOPIC, { id: "writing", title: "Writing" }],
+      }),
+    );
 
-    expect(shell.cachedReadFile).toHaveBeenCalledWith(file);
-    expect(api.onFileChanged).toHaveBeenCalledTimes(1);
-    expect(api.onFileChanged).toHaveBeenCalledWith(
+    expect(cachedReadFile).toHaveBeenCalledWith(file);
+    expect(apiMocks.onFileChanged).toHaveBeenCalledTimes(1);
+    expect(apiMocks.onFileChanged).toHaveBeenCalledWith(
       expect.objectContaining({
         path: "daily/writing-2026-03.md",
         noteName: "writing-2026-03",
@@ -68,16 +81,16 @@ describe("TagIndexer", () => {
 
   test("onFileChanged ignores non-note files", async () => {
     const indexer = new TagIndexer("vault-1");
-    const shell = createShell();
+    const { shell, cachedReadFile } = createShell();
 
     await indexer.onFileChanged(
       shell,
-      { path: "misc/random.md", basename: "random" } as any,
-      { topics: [DEFAULT_TOPIC] } as any,
+      createFakeTFile("misc/random.md"),
+      createFakeSettings({ topics: [DEFAULT_TOPIC] }),
     );
 
-    expect(shell.cachedReadFile).not.toHaveBeenCalled();
-    expect(api.onFileChanged).not.toHaveBeenCalled();
+    expect(cachedReadFile).not.toHaveBeenCalled();
+    expect(apiMocks.onFileChanged).not.toHaveBeenCalled();
   });
 
   test("onFileDeleted delegates to api", async () => {
@@ -85,7 +98,7 @@ describe("TagIndexer", () => {
 
     await indexer.onFileDeleted("daily/2026-03-23.md");
 
-    expect(api.onFileDeleted).toHaveBeenCalledWith("daily/2026-03-23.md");
+    expect(apiMocks.onFileDeleted).toHaveBeenCalledWith("daily/2026-03-23.md");
   });
 
   test("遅延した cachedRead が明示インデックスを巻き戻さない（パス単位直列化）", async () => {
@@ -93,21 +106,18 @@ describe("TagIndexer", () => {
     // 投稿直後の indexNoteContent(新内容) より後に worker へ届くと、
     // DB が空内容へ巻き戻って「投稿が反映されない」状態になっていた。
     const indexer = new TagIndexer("vault-1");
-    const file = {
-      path: "daily/2026-03-23.md",
-      basename: "2026-03-23",
-    } as any;
-    const settings = { topics: [DEFAULT_TOPIC] } as any;
+    const file = createFakeTFile("daily/2026-03-23.md");
+    const settings = createFakeSettings({ topics: [DEFAULT_TOPIC] });
 
     let releaseRead: (() => void) | undefined;
-    const shell = createShell({
-      cachedReadFile: vi.fn(
+    const { shell } = createShell(
+      vi.fn(
         () =>
           new Promise<string>((resolve) => {
             releaseRead = () => resolve("");
           }),
       ),
-    });
+    );
 
     // create イベント相当（read が保留のまま）
     const eventIndexing = indexer.onFileChanged(shell, file, settings);
@@ -119,27 +129,27 @@ describe("TagIndexer", () => {
     releaseRead?.();
     await Promise.all([eventIndexing, explicitIndexing]);
 
-    const contents = api.onFileChanged.mock.calls.map((call: any[]) => call[0].content);
+    const contents = apiMocks.onFileChanged.mock.calls.map(([note]) => note.content);
     // 最後に worker へ届くのは必ず新しい内容であること
     expect(contents).toEqual(["", "- 10:00:00 new post"]);
   });
 
   test("scanAllNotes delegates to api", async () => {
     const indexer = new TagIndexer("vault-1", { scanChunkSize: 1 });
-    const file = { basename: "2026-03-23", path: "daily/2026-03-23.md" };
-    const shell = createShell();
+    const file = createFakeTFile("daily/2026-03-23.md", "2026-03-23");
+    const { shell } = createShell();
 
     const dailyNotesModule = await import("src/core/platform/daily-notes");
     const getAllTopicNotesSpy = vi
       .spyOn(dailyNotesModule, "getAllTopicNotes")
-      .mockImplementation(
-        (_, granularity) =>
-          (granularity === "day" ? { day: file as any } : {}) as Record<string, any>,
-      );
+      .mockImplementation((_, granularity) => {
+        const notes: Record<string, TFile> = granularity === "day" ? { day: file } : {};
+        return notes;
+      });
 
-    await indexer.scanAllNotes(shell, { topics: [DEFAULT_TOPIC] } as any);
+    await indexer.scanAllNotes(shell, createFakeSettings({ topics: [DEFAULT_TOPIC] }));
 
-    expect(api.scanAllNotes).toHaveBeenCalledTimes(1);
+    expect(apiMocks.scanAllNotes).toHaveBeenCalledTimes(1);
     getAllTopicNotesSpy.mockRestore();
   });
 });

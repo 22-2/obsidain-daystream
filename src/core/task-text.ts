@@ -1,9 +1,10 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { MomentLike } from "src/core/domain/post";
 
 export function formatTaskText(input: string, time?: string): string {
   const normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   const t =
-    time ?? (typeof window !== "undefined" ? window.moment().format("HH:mm:ss") : "23:59:59");
+    time ?? (typeof window !== "undefined" ? obsidianMoment().format("HH:mm:ss") : "23:59:59");
 
   if (normalized.length === 0) {
     return `- [ ] ${t}`;
@@ -23,7 +24,7 @@ export function formatTaskText(input: string, time?: string): string {
   return `${head}\n${body}`;
 }
 export interface Task {
-  mark: " " | string;
+  mark: string;
   name: string;
   offset: number;
   path: string;

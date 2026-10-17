@@ -1,3 +1,4 @@
+import type React from "react";
 // 意図: Insightsのサイドバー表示をInsights feature内にまとめる。
 import { differenceInCalendarDays, isValid, parseISO } from "date-fns";
 import { setTooltip } from "obsidian";

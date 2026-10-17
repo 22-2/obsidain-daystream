@@ -1,30 +1,31 @@
+import type { Moment } from "moment";
 // ─────────────────────────────────────────────
 // 型定義
 // ─────────────────────────────────────────────
 
-export type Week = moment.Moment[];
+export type Week = Moment[];
 
 export interface DayCellProps {
-  day: moment.Moment;
+  day: Moment;
   isSelectedDay: boolean;
   isInSelectedRange: boolean;
   isCurrentMonth: boolean;
   hasPost: boolean;
-  onClick: (day: moment.Moment) => void;
+  onClick: (day: Moment) => void;
 }
 
 export interface WeekRowProps {
   week: Week;
   weekIndex: number;
-  date: moment.Moment;
+  date: Moment;
   granularity: string;
-  rangeStart: moment.Moment;
-  rangeEnd: moment.Moment;
-  viewDate: moment.Moment;
+  rangeStart: Moment;
+  rangeEnd: Moment;
+  viewDate: Moment;
   dateFilter: string;
   isDateTabActive: boolean;
   activityDates: Set<string>;
-  onSelectDay: (day: moment.Moment) => void;
-  onSelectWeek: (weekStart: moment.Moment) => void;
+  onSelectDay: (day: Moment) => void;
+  onSelectWeek: (weekStart: Moment) => void;
   onClickHome: () => void;
 }

@@ -54,7 +54,7 @@ export const TopicItem = ({
           .setIcon("pencil")
           .onClick(() => {
             onStartEdit(topic.id, topic.title);
-            setTimeout(() => editInputRef.current?.focus(), 50);
+            window.setTimeout(() => editInputRef.current?.focus(), 50);
           }),
       );
 

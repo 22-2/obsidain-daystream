@@ -1,5 +1,5 @@
 import type { App } from "obsidian";
-import type { ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 import { createContext, useContext, useMemo } from "react";
 import { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
@@ -29,7 +29,7 @@ interface AppContextProviderProps {
   children: ReactNode;
 }
 
-export const AppContextProvider: React.FC<AppContextProviderProps> = ({
+export const AppContextProvider: FC<AppContextProviderProps> = ({
   app,
   settings,
   children,

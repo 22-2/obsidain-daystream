@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
@@ -11,7 +12,7 @@ export function isPastDateReadOnly(params: {
 }) {
   const { date, granularity, allowEditingPastNotes } = params;
   if (allowEditingPastNotes) return false;
-  return date.isBefore(window.moment(), GRANULARITY_CONFIG[granularity].unit);
+  return date.isBefore(obsidianMoment(), GRANULARITY_CONFIG[granularity].unit);
 }
 
 export function isViewReadOnly(params: {

@@ -18,6 +18,7 @@ import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { MomentLike, Post } from "src/core/domain/post";
+import { reportError } from "src/core/error-report";
 import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { Virtualizer, type VirtualizerHandle } from "virtua";
 import { useShallow } from "zustand/shallow";
@@ -31,14 +32,13 @@ function isSamePostReference(left: Post, right: Post): boolean {
   );
 }
 
-export const PostListView: React.FC = memo(() => {
+export const PostListView = memo(() => {
   const { shell, settings: pluginSettings } = useAppContext();
   const { showTextInput, confirmDeleteAction, openBacklinkPreview } = useObsidianUi();
   const settings = useSettingsStore(
     useShallow((s) => ({
       activeTag: s.activeTag,
       granularity: s.granularity,
-      displayMode: s.displayMode,
       dateFilter: s.dateFilter,
       rightPanelOpen: s.rightPanelOpen ?? s.sidebarOpen,
       setDate: s.setDate,
@@ -106,7 +106,6 @@ export const PostListView: React.FC = memo(() => {
 
   const {
     granularity,
-    displayMode,
     dateFilter,
     isReadOnly,
     setDate,
@@ -197,7 +196,9 @@ export const PostListView: React.FC = memo(() => {
         targetPost: post,
         sourcePosts,
         onSelectPost: (sourcePost) => {
-          handleHighlightPost(sourcePost);
+          void handleHighlightPost(sourcePost).catch((error: unknown) =>
+            reportError({ context: "Failed to jump to a backlink source post", error }),
+          );
         },
       });
     },

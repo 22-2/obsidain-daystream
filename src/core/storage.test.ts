@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("src/core/error-report", () => ({ reportError: vi.fn() }));
 
 const APP_ID = "vault-1";
+// 旧実装との互換キーを直接検証するため、Obsidian の vault 単位保存を経由しない素の localStorage を使う。
+const rawStorage = window.localStorage;
 
 function createStorage() {
   const host = createLocalStorageHost(APP_ID);
@@ -14,7 +16,7 @@ function createStorage() {
 
 describe("DSTRStorage", () => {
   beforeEach(() => {
-    localStorage.clear();
+    rawStorage.clear();
   });
 
   it("app.saveLocalStorage へ dstr- 付きのキーで保存し、読み戻せる", () => {
@@ -23,7 +25,7 @@ describe("DSTRStorage", () => {
     storage.set("drafts", [{ content: "a" }]);
 
     expect(saveSpy).toHaveBeenCalledWith("dstr-drafts", { value: [{ content: "a" }] });
-    expect(localStorage.getItem(`${APP_ID}-dstr-drafts`)).toBe('{"value":[{"content":"a"}]}');
+    expect(rawStorage.getItem(`${APP_ID}-dstr-drafts`)).toBe('{"value":[{"content":"a"}]}');
     expect(storage.get("drafts", [])).toEqual([{ content: "a" }]);
   });
 
@@ -47,7 +49,7 @@ describe("DSTRStorage", () => {
 
     storage.set("activeTag", null);
 
-    expect(localStorage.getItem(`${APP_ID}-dstr-activeTag`)).toBeNull();
+    expect(rawStorage.getItem(`${APP_ID}-dstr-activeTag`)).toBeNull();
     expect(storage.get<string | null>("activeTag", null)).toBeNull();
   });
 
@@ -64,38 +66,38 @@ describe("DSTRStorage", () => {
     ["dstr-<appId>-<key>", `dstr-${APP_ID}-granularity`],
     ["mfdi-<appId>-<key>", `mfdi-${APP_ID}-granularity`],
   ])("以前のキー %s の値を新しいキーへ移行する", (_label, previousKey) => {
-    localStorage.setItem(previousKey, '"week"');
+    rawStorage.setItem(previousKey, '"week"');
     const { storage } = createStorage();
 
     expect(storage.get("granularity", "day")).toBe("week");
-    expect(localStorage.getItem(`${APP_ID}-dstr-granularity`)).toBe('{"value":"week"}');
-    expect(localStorage.getItem(previousKey)).toBeNull();
+    expect(rawStorage.getItem(`${APP_ID}-dstr-granularity`)).toBe('{"value":"week"}');
+    expect(rawStorage.getItem(previousKey)).toBeNull();
   });
 
   it("新しいキーの値を以前のキーより優先する", () => {
-    localStorage.setItem(`dstr-${APP_ID}-granularity`, '"week"');
-    localStorage.setItem(`${APP_ID}-dstr-granularity`, '{"value":"month"}');
+    rawStorage.setItem(`dstr-${APP_ID}-granularity`, '"week"');
+    rawStorage.setItem(`${APP_ID}-dstr-granularity`, '{"value":"month"}');
     const { storage } = createStorage();
 
     expect(storage.get("granularity", "day")).toBe("month");
   });
 
   it("保存時に以前のキーを消し、古い値が後から復活しないようにする", () => {
-    localStorage.setItem(`dstr-${APP_ID}-granularity`, '"week"');
-    localStorage.setItem(`mfdi-${APP_ID}-granularity`, '"year"');
+    rawStorage.setItem(`dstr-${APP_ID}-granularity`, '"week"');
+    rawStorage.setItem(`mfdi-${APP_ID}-granularity`, '"year"');
     const { storage } = createStorage();
 
     storage.set("granularity", "month");
 
-    expect(localStorage.getItem(`dstr-${APP_ID}-granularity`)).toBeNull();
-    expect(localStorage.getItem(`mfdi-${APP_ID}-granularity`)).toBeNull();
+    expect(rawStorage.getItem(`dstr-${APP_ID}-granularity`)).toBeNull();
+    expect(rawStorage.getItem(`mfdi-${APP_ID}-granularity`)).toBeNull();
   });
 
   it("壊れた以前の値は捨てて既定値を返す", () => {
-    localStorage.setItem(`dstr-${APP_ID}-granularity`, "{broken");
+    rawStorage.setItem(`dstr-${APP_ID}-granularity`, "{broken");
     const { storage } = createStorage();
 
     expect(storage.get("granularity", "day")).toBe("day");
-    expect(localStorage.getItem(`dstr-${APP_ID}-granularity`)).toBeNull();
+    expect(rawStorage.getItem(`dstr-${APP_ID}-granularity`)).toBeNull();
   });
 });

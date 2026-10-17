@@ -1,5 +1,27 @@
-import { DSTRDatabase } from "src/core/db/dstr-db";
+import { DSTRDatabase, type MemoRecord } from "src/core/db/dstr-db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+function createMemo(id: string, createdAt: string): MemoRecord {
+  return {
+    id,
+    path: "daily/2026-03-31.md",
+    noteName: "2026-03-31",
+    topicId: "",
+    noteGranularity: "day",
+    content: id,
+    tags: [],
+    metadataJson: "{}",
+    startOffset: 0,
+    endOffset: 0,
+    bodyStartOffset: 0,
+    createdAt,
+    noteDate: "2026-03-31",
+    updatedAt: createdAt,
+    archived: 0,
+    deleted: 0,
+    pinned: 0,
+  };
+}
 
 describe("IndexedDB prev bound test", () => {
   let db: DSTRDatabase;
@@ -12,20 +34,8 @@ describe("IndexedDB prev bound test", () => {
   });
 
   it("should return records in prev order using bound range", async () => {
-    await db.memos.put({
-      id: "1",
-      createdAt: "2026-03-31T10:00:00.000Z",
-      archived: 0,
-      deleted: 0,
-      pinned: 0,
-    } as any);
-    await db.memos.put({
-      id: "2",
-      createdAt: "2026-03-31T11:00:00.000Z",
-      archived: 0,
-      deleted: 0,
-      pinned: 0,
-    } as any);
+    await db.memos.put(createMemo("1", "2026-03-31T10:00:00.000Z"));
+    await db.memos.put(createMemo("2", "2026-03-31T11:00:00.000Z"));
 
     const startDate = "2026-03-31T00:00:00.000Z";
     const endDate = "2026-03-31T23:59:59.999Z";

@@ -3,7 +3,7 @@ import type { FC } from "react";
 import { Box } from "src/core/ui/components/primitives";
 import type { BoxProps } from "src/core/ui/components/primitives/Box";
 
-interface UnderlinedClickableProps extends BoxProps<"span"> {}
+type UnderlinedClickableProps = BoxProps<"span">;
 
 export const UnderlinedClickable: FC<UnderlinedClickableProps> = ({
   children,

@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { DSTRStorage } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
@@ -89,6 +90,20 @@ export function restoreEditorState(
   };
 }
 
+const isStringRecord = (value: unknown): value is Record<string, string> => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  return Object.values(value).every((item) => typeof item === "string");
+};
+
+// 意図: 保存値は metadata の文字列マップだけを想定し、形が違うものを any のまま Post に流さない。
+const parsePersistedMetadata = (raw: string): Record<string, string> => {
+  const parsed: unknown = JSON.parse(raw);
+  if (!isStringRecord(parsed)) {
+    throw new Error("Persisted editing post metadata is not a string record");
+  }
+  return parsed;
+};
+
 // 意図: popoutエディタビューが別JSコンテキストでstartEditに渡すPostを
 // 再構築できるよう、シリアライズ済みデータからPostを復元する。
 // 意図: 復元後も「元の本文と入力が違うか」で更新可否を判定するため、保存済みの元本文を優先する。
@@ -99,9 +114,9 @@ export const reconstructEditingPost = (
 ) => ({
   id: persisted.id,
   path: persisted.path,
-  timestamp: window.moment(persisted.timestampStr),
-  noteDate: window.moment(persisted.noteDateStr),
-  metadata: JSON.parse(persisted.metadataStr),
+  timestamp: obsidianMoment(persisted.timestampStr),
+  noteDate: obsidianMoment(persisted.noteDateStr),
+  metadata: parsePersistedMetadata(persisted.metadataStr),
   message,
   startOffset: persisted.offset,
   endOffset: persisted.offset + message.length, // 近似値

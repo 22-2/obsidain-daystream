@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { resolveTimelineBaseDate } from "src/features/posts/hooks/internal/timelinePosts";
 import { resolveTimelineCacheBucket } from "src/features/posts/hooks/internal/useInfiniteTimeline";
@@ -6,7 +7,7 @@ import { settingsStore } from "src/features/workspace/store/settingsStore";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("useInfiniteTimeline", () => {
-  const today = window.moment("2026-03-15T09:00:00.000Z");
+  const today = obsidianMoment("2026-03-15T09:00:00.000Z");
   const yesterday = today.clone().subtract(1, "day");
 
   beforeEach(() => {

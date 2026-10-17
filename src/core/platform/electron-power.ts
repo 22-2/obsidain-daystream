@@ -23,27 +23,35 @@ interface ElectronRemoteLike {
 
 type ElectronRequire = (moduleName: string) => unknown;
 
+type ElectronRuntimeWindow = Window & {
+  require?: ElectronRequire;
+};
+
+function getElectronRuntimeWindow(): ElectronRuntimeWindow {
+  return window;
+}
+
 function getElectronRequire(): ElectronRequire | null {
-  const runtime = globalThis as typeof globalThis & {
-    require?: ElectronRequire;
-    window?: {
-      require?: ElectronRequire;
-      electron?: ElectronModuleLike;
-    };
-  };
+  const runtime = getElectronRuntimeWindow();
 
   return runtime.window?.require ?? runtime.require ?? null;
 }
 
+function getNestedElectronModule(): ElectronModuleLike | undefined {
+  const nestedWindow: unknown = Reflect.get(getElectronRuntimeWindow(), "window");
+  if (typeof nestedWindow !== "object" || nestedWindow === null) return undefined;
+
+  const electron: unknown = Reflect.get(nestedWindow, "electron");
+  return typeof electron === "object" && electron !== null
+    ? electron
+    : undefined;
+}
+
 function getElectronPowerMonitor(): ElectronPowerMonitorLike | undefined {
-  const runtime = globalThis as typeof globalThis & {
-    window?: { electron?: ElectronModuleLike };
-  };
   const requireElectron = getElectronRequire();
 
   try {
-    const electron =
-      runtime.window?.electron ??
+    const electron = getNestedElectronModule() ??
       (requireElectron?.("electron") as ElectronModuleLike | undefined);
     if (!electron) return undefined;
     if (electron.powerMonitor) return electron.powerMonitor;

@@ -1,4 +1,12 @@
+import type MomentFn from "moment";
+import type { Plugin, TAbstractFile } from "obsidian";
+import { vi } from "vitest";
+
 export { debounce } from "es-toolkit";
+// 実機の obsidian と同じく、テストでも moment を obsidian 経由の値として提供する。
+const momentModule: { default: typeof MomentFn } = await import("moment");
+export const moment = momentModule.default;
+export const requestUrl = vi.fn<typeof import("obsidian").requestUrl>();
 export const normalizePath = (p: string) => p;
 export class TFile {
   basename: string;
@@ -7,14 +15,14 @@ export class TFile {
 }
 export class TFolder {}
 export const Vault = {
-  recurseChildren: (folder: any, callback: any) => {},
+  recurseChildren: (_folder: TFolder, _callback: (file: TAbstractFile) => void): void => {},
 };
 
 export class App {}
 export class PluginSettingTab {
   constructor(
-    public app: any,
-    public plugin: any,
+    public app: App,
+    public plugin: Plugin,
   ) {}
 }
 export class Setting {

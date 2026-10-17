@@ -1,4 +1,3 @@
-import type { WorkspaceLeaf } from "obsidian";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import {
   createFixedNoteViewExtension,
@@ -77,9 +76,9 @@ describe("fixed note view extension", () => {
   it("finds an existing fixed leaf by fixed path", () => {
     const leaf = {
       view: {
-        getState: () => ({ noteMode: "fixed", file: "dstr/Inbox.dstr.md" }) as any,
+        getState: () => ({ noteMode: "fixed", file: "dstr/Inbox.dstr.md" }),
       },
-    } as WorkspaceLeaf;
+    };
 
     const result = findExistingDSTRLeaf([leaf], {
       noteMode: "fixed",
@@ -98,9 +97,9 @@ describe("fixed note view extension", () => {
       {
         view: {
           file: { path: "dstr/Inbox.dstr.md" },
-          getState: () => ({ noteMode: "periodic", file: null }) as any,
+          getState: () => ({ noteMode: "periodic", file: null }),
         },
-      } as any,
+      },
     ];
 
     await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });
@@ -122,7 +121,7 @@ describe("fixed note view extension", () => {
       {
         view: {},
         getViewState: () => ({ type: "markdown", state: { file: "dstr/Inbox.dstr.md" } }),
-      } as any,
+      },
     ];
 
     await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });

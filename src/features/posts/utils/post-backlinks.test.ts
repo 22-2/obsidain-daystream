@@ -1,4 +1,4 @@
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { Post } from "src/core/domain/post";
 import {
   buildPostBacklinkCountMap,
@@ -8,13 +8,13 @@ import {
 import { describe, expect, test } from "vitest";
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-04-10T16:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-04-10T16:00:00.000Z");
 
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-04-10T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-04-10T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,
@@ -70,14 +70,14 @@ describe("post-backlinks", () => {
       id: "older-source",
       path: "daily/2026-04-10.md",
       startOffset: 20,
-      timestamp: moment("2026-04-10T08:00:00.000Z"),
+      timestamp: obsidianMoment("2026-04-10T08:00:00.000Z"),
       message: "[[2026-04-09#^a054d5|older]]",
     });
     const newerSource = createPost({
       id: "newer-source",
       path: "daily/2026-04-11.md",
       startOffset: 40,
-      timestamp: moment("2026-04-11T09:00:00.000Z"),
+      timestamp: obsidianMoment("2026-04-11T09:00:00.000Z"),
       message: "[[2026-04-09#^a054d5|new]]\n[[2026-04-09#^a054d5|dup]]",
     });
 

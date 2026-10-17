@@ -19,7 +19,6 @@ export class DSTRSettingTab extends PluginSettingTab {
 
   // Obsidian 1.12.x typings still require the legacy abstract method.
   // Obsidian 1.13+ renders the non-empty declarative definitions instead.
-  display(): void {}
 
   getSettingDefinitions() {
     return [
@@ -217,7 +216,7 @@ export class DSTRSettingTab extends PluginSettingTab {
     this.plugin.settings = {
       ...this.plugin.settings,
       [key]: nextValue,
-    } as Settings;
+    };
     await this.plugin.saveSettings();
     this.debouncedRerender();
     logger.debug("Setting updated", { key, value: nextValue });

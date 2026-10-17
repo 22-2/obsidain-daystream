@@ -1,5 +1,5 @@
 import type { Commands } from "@obsidian-typings/obsidian-public-latest";
-import type { App, Editor, TAbstractFile, WorkspaceLeaf } from "obsidian";
+import type { App, Editor, Events, TAbstractFile, WorkspaceLeaf } from "obsidian";
 import { MarkdownView, TFile } from "obsidian";
 import { joinWithSingleBoundaryNewline, skipImmediateLineBreak } from "src/core/post-utils";
 import { parseMarkdownList } from "src/core/strings";
@@ -17,12 +17,14 @@ interface UnsafeAppInterface {
   };
 }
 
+type WorkspaceEventCallback = (...args: unknown[]) => unknown;
+
 export class ObsidianAppShell {
   // Obsidian 依存をここに集約して、下位層へ生の App を漏らしにくくする。
   protected unsafeApp: App & UnsafeAppInterface;
 
   constructor(app: App) {
-    this.unsafeApp = app as App & UnsafeAppInterface;
+    this.unsafeApp = app;
   }
 
   getRawApp(): App {
@@ -45,16 +47,16 @@ export class ObsidianAppShell {
     this.getWorkspace().trigger(eventName, ...args);
   }
 
-  on(eventName: string, callback: (this: WorkspaceLeaf, ...args: unknown[]) => void) {
+  on(eventName: string, callback: WorkspaceEventCallback) {
     const w = this.getWorkspace();
-    // @ts-expect-error
-    w.on(eventName, callback.bind(w));
+    const emitter: Events = w;
+    emitter.on(eventName, callback.bind(w));
   }
 
-  off(eventName: string, callback: (this: WorkspaceLeaf, ...args: unknown[]) => void) {
+  off(eventName: string, callback: WorkspaceEventCallback) {
     const w = this.getWorkspace();
-    // @ts-expect-error
-    w.off(eventName, callback.bind(w));
+    const emitter: Events = w;
+    emitter.off(eventName, callback.bind(w));
   }
 
   getMetadataCache() {
@@ -120,7 +122,7 @@ export class ObsidianAppShell {
     return newContent;
   }
 
-  async setCheckMark(path: string, mark: "x" | " " | string, offset: number): Promise<void> {
+  async setCheckMark(path: string, mark: string, offset: number): Promise<void> {
     const origin = await this.loadFile(path);
     const markOffset = offset + origin.slice(offset).indexOf("[") + 1;
     await this.writeFile(
@@ -220,8 +222,10 @@ export class ObsidianAppShell {
     return (
       this.getMetadataCache()
         .getFileCache(file)
-        ?.listItems?.filter((x) => x.task != null)
-        .map((x) => {
+        ?.listItems?.flatMap((x): Task[] => {
+          const mark = x.task;
+          if (mark == null) return [];
+
           const startLine = x.position.start.line;
           const endLine = x.position.end.line;
 
@@ -239,13 +243,15 @@ export class ObsidianAppShell {
 
           const { displayName, timestamp } = parseTaskTimestamp(rawName, file.basename);
 
-          return {
-            mark: x.task!,
-            name: displayName,
-            offset: x.position.start.offset,
-            path: file.path,
-            timestamp,
-          };
+          return [
+            {
+              mark,
+              name: displayName,
+              offset: x.position.start.offset,
+              path: file.path,
+              timestamp,
+            },
+          ];
         }) ?? null
     );
   }

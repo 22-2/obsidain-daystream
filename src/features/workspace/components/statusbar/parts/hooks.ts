@@ -1,3 +1,5 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type React from "react";
 import { Menu } from "obsidian";
 import { useEffect, useMemo, useState } from "react";
 import { useDSTRDB } from "src/core/db/hooks/useDSTRDB";
@@ -16,7 +18,7 @@ import { useShallow } from "zustand/shallow";
 export function useDbTotalCount(activeTopic: string | undefined) {
   const db = useDSTRDB();
   const { data } = useSWR(db ? ["dbTotalCount", activeTopic] : null, () =>
-    db!.countMemos(activeTopic),
+    db.countMemos(activeTopic),
   );
   return data;
 }
@@ -96,13 +98,13 @@ export function useSettings() {
 }
 
 export function useCurrentTime(enabled: boolean) {
-  const [currentTime, setCurrentTime] = useState(() => window.moment());
+  const [currentTime, setCurrentTime] = useState(() => obsidianMoment());
 
   useEffect(() => {
     if (!enabled) return;
 
     const timer = window.setInterval(() => {
-      setCurrentTime(window.moment());
+      setCurrentTime(obsidianMoment());
     }, 30000);
 
     return () => window.clearInterval(timer);

@@ -1,4 +1,5 @@
-import { TFile, Vault } from "obsidian";
+import { TFile } from "obsidian";
+import type { TAbstractFile, TFolder, Vault } from "obsidian";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getAllNotes,
@@ -10,6 +11,10 @@ import {
 } from "./index";
 
 // Mock Obsidian module before importing anything
+const { recurseChildrenMock } = vi.hoisted(() => ({
+  recurseChildrenMock: vi.fn<(folder: TFolder, callback: (node: TAbstractFile) => void) => void>(),
+}));
+
 vi.mock("obsidian", () => ({
   normalizePath: (p: string) => p,
   TFile: class {
@@ -19,7 +24,7 @@ vi.mock("obsidian", () => ({
   },
   TFolder: class {},
   Vault: {
-    recurseChildren: vi.fn(),
+    recurseChildren: recurseChildrenMock,
   },
 }));
 
@@ -159,7 +164,7 @@ describe("obsidian-daily-notes-kit", () => {
         mockFile("2026-03-04", "txt"), // .md でない
       ];
 
-      vi.mocked(Vault.recurseChildren).mockImplementation((_folder, callback) => {
+      recurseChildrenMock.mockImplementation((_folder, callback) => {
         mockFiles.forEach((f) => callback(f));
       });
     });
@@ -183,7 +188,9 @@ describe("obsidian-daily-notes-kit", () => {
       f.basename = "2026-03-01";
       f.extension = "md";
 
-      vi.mocked(Vault.recurseChildren).mockImplementation((_folder, callback) => callback(f));
+      recurseChildrenMock.mockImplementation((_folder, callback) => {
+        callback(f);
+      });
 
       const found = getNote(host, window.moment("2026-03-01"), "day");
       expect(found?.basename).toBe("2026-03-01");

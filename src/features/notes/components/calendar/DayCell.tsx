@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type React from "react";
 import type { DayCellProps } from "src/features/notes/components/calendar/types";
 import { cn } from "src/core/ui/components/primitives/utils";
@@ -13,7 +14,7 @@ export const DayCell: React.FC<Props> = ({
   showRangeHighlight,
   onClick,
 }) => {
-  const isToday = day.isSame(window.moment(), "day");
+  const isToday = day.isSame(obsidianMoment(), "day");
   const isForeground = isCurrentMonth || isSelectedDay || isInSelectedRange || isToday;
   const effectiveInRange = showRangeHighlight && isInSelectedRange;
 

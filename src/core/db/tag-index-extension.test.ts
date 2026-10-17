@@ -1,4 +1,5 @@
 import { adaptTagIndexer } from "src/core/db/tag-index-extension";
+import { createFakeSettings, createFakeShell, createFakeTFile } from "src/core/test-fixtures";
 import { describe, expect, it, vi } from "vitest";
 
 describe("tag index extension adapter", () => {
@@ -11,10 +12,10 @@ describe("tag index extension adapter", () => {
       onFileDeleted: vi.fn(async () => {}),
       dispose: vi.fn(async () => {}),
     };
-    const extension = adaptTagIndexer(indexer as any);
-    const shell = {} as any;
-    const file = { path: "daily/2026-03-15.md" } as any;
-    const settings = { topics: [] } as any;
+    const extension = adaptTagIndexer(indexer);
+    const shell = createFakeShell({});
+    const file = createFakeTFile("daily/2026-03-15.md");
+    const settings = createFakeSettings({ topics: [] });
 
     await extension.fullScan(shell, settings);
     await expect(extension.getLastFullScanAt()).resolves.toBe("2026-03-15T00:00:00.000Z");

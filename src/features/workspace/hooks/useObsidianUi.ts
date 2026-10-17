@@ -1,11 +1,13 @@
-import type { WorkspaceLeaf } from "obsidian";
 import { useCallback, useMemo } from "react";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import {
   openBacklinkPreviewModal,
   type BacklinkPreviewModalOptions,
 } from "src/features/posts/modals/BacklinkPreviewModal";
-import { DeleteConfirmModal, showDeleteConfirmModal } from "src/features/composer/modals/DeleteConfirmModal";
+import {
+  DeleteConfirmModal,
+  showDeleteConfirmModal,
+} from "src/features/composer/modals/DeleteConfirmModal";
 import { DraftListModal } from "src/features/composer/modals/DraftListModal";
 import { showInputModal } from "src/features/composer/modals/InputModal";
 import type { DSTREditorModalOptions } from "src/features/composer/modals/DSTREditorModal";
@@ -26,16 +28,10 @@ export function useObsidianUi() {
   const openPopoutEditorView = useCallback(
     (state: DSTREditorViewState): boolean => {
       const app = shell.getRawApp();
-      // 意図: openPopoutLeaf は Obsidian デスクトップ専用 API のため型定義にない場合がある。
-      // unknown 経由でキャストして、存在しない環境（モバイル等）では何もしない。
-      const openPopout = (
-        app.workspace as unknown as {
-          openPopoutLeaf?: () => WorkspaceLeaf;
-        }
-      ).openPopoutLeaf;
-      if (!openPopout) return false;
+      // 意図: openPopoutLeaf は Obsidian デスクトップ専用 API のため、存在しない環境（モバイル等）では何もしない。
+      if (typeof app.workspace.openPopoutLeaf !== "function") return false;
 
-      const leaf = openPopout.call(app.workspace);
+      const leaf = app.workspace.openPopoutLeaf();
       void leaf.setViewState({
         type: VIEW_TYPE_DSTR_EDITOR,
         active: true,
@@ -56,7 +52,8 @@ export function useObsidianUi() {
   );
 
   const confirmDelete = useCallback(
-    (args: DeleteConfirmArgs) => showDeleteConfirmModal(shell.getRawApp(), args),
+    (args: DeleteConfirmArgs) =>
+      showDeleteConfirmModal(shell.getRawApp(), args),
     [shell],
   );
 

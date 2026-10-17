@@ -1,3 +1,4 @@
+import type React from "react";
 import { Menu } from "obsidian";
 import type { FC } from "react";
 import { UnderlinedClickable } from "src/features/workspace/components/statusbar/parts/UnderlinedClickable";

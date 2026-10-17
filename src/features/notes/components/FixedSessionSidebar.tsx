@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Menu } from "obsidian";
 import type React from "react";
 import { useCallback } from "react";
@@ -13,7 +14,7 @@ import type { FixedSessionSummary } from "src/features/notes/utils/fixed-session
 
 function formatLastActiveLabel(lastActiveAt: string | null): string {
   if (!lastActiveAt) return "No activity yet";
-  const t = window.moment(lastActiveAt);
+  const t = obsidianMoment(lastActiveAt);
   return t.isValid() ? t.fromNow() : "No activity yet";
 }
 

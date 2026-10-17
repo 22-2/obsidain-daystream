@@ -34,7 +34,7 @@ describe("SearchControls", () => {
         <SearchControls onClose={onClose} />
       </AppStoreProvider>,
     );
-    const input = screen.getByRole("searchbox") as HTMLInputElement;
+    const input = screen.getByRole<HTMLInputElement>("searchbox");
     await act(() => vi.runOnlyPendingTimersAsync());
     expect(document.activeElement).toBe(input);
     expect(input.value).toBe("saved");

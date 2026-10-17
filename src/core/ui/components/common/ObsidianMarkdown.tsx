@@ -1,5 +1,5 @@
 import { MarkdownRenderer } from "obsidian";
-import { useLayoutEffect, useRef } from "react";
+import { type FC, useLayoutEffect, useRef } from "react";
 import { Box } from "src/core/ui/components/primitives";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
@@ -10,7 +10,12 @@ interface Props {
   sourcePath?: string;
 }
 
-export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
+// ポップアウトウィンドウの要素は別の realm にあり instanceof HTMLElement では判定できないため、nodeType で確認する。
+function isElement(target: EventTarget | null): target is Element {
+  return target !== null && "nodeType" in target && target.nodeType === Node.ELEMENT_NODE;
+}
+
+export const ObsidianMarkdown: FC<Props> = ({ content, sourcePath }) => {
   const { shell } = useAppContext();
   const rootRef = useRef<HTMLDivElement>(null);
   const component = useObsidianComponent();
@@ -22,7 +27,7 @@ export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
 
     rootRef.current.empty();
 
-    MarkdownRenderer.render(
+    void MarkdownRenderer.render(
       shell.getRawApp(),
       content,
       rootRef.current,
@@ -38,11 +43,11 @@ export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
       ref={rootRef}
       className="markdown-rendered block dark:text-[var(--dstr-content-color-dark)]"
       onClick={(e) => {
-        const el = e.target as HTMLElement;
+        const el = e.target;
         // 応急処置
         // なぜかObsidianのMarkdownRendererはaタグにonClickをつけないとリンクが機能しない
 
-        if (el.tagName !== "A") {
+        if (!isElement(el) || el.tagName !== "A") {
           return;
         }
         if (!el.classList.contains("internal-link")) {
@@ -50,7 +55,7 @@ export const ObsidianMarkdown: React.FC<Props> = ({ content, sourcePath }) => {
         }
         e.preventDefault();
         const href = el.getAttribute("data-href");
-        shell
+        void shell
           .getRawApp()
           .workspace.getLeaf()
           .openLinkText(href ?? "", sourcePath ?? "");

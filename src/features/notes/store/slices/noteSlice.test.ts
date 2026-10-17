@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { resolveNoteSource } from "src/core/note-source";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { createAppStore } from "src/features/workspace/store/appStore";
@@ -17,7 +18,7 @@ describe("タイムラインの投稿先ノート", () => {
       ensureCurrentNote,
     } as never);
     const store = createAppStore();
-    store.setState({ granularity: "month", date: window.moment("2026-02-01") });
+    store.setState({ granularity: "month", date: obsidianMoment("2026-02-01") });
     const shell = {} as never;
 
     store.getState().updateCurrentDailyNote(shell);
@@ -31,7 +32,7 @@ describe("タイムラインの投稿先ノート", () => {
     expect(resolveNoteSource).toHaveBeenCalledTimes(2);
     for (const [params] of vi.mocked(resolveNoteSource).mock.calls) {
       expect(params.granularity).toBe("day");
-      expect(params.date.isSame(window.moment(), "day")).toBe(true);
+      expect(params.date.isSame(obsidianMoment(), "day")).toBe(true);
     }
     expect(store.getState().currentDailyNote).toBe(note);
   });

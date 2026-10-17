@@ -1,3 +1,4 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 // @vitest-environment jsdom
 import { DSTRStorage } from "src/core/storage";
 import { createLocalStorageHost } from "src/__mocks__/local-storage-host";
@@ -6,15 +7,11 @@ import { CONTENT_VIEW, DISPLAY_MODE, MAIN_VIEW } from "src/features/workspace/co
 import { createAppStore } from "src/features/workspace/store/appStore";
 import { resolveInitialSettingsState } from "src/features/workspace/store/slices/settingsPersistence";
 import { settingsStore } from "src/features/workspace/store/settingsStore";
-import {
-  createSettingsSlice,
-  isPastDateReadOnly,
-  isViewReadOnly,
-} from "src/features/workspace/store/slices/settingsSlice";
+import { isPastDateReadOnly, isViewReadOnly } from "src/features/workspace/store/slices/settingsSlice";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("settingsSlice", () => {
-  const today = window.moment("2026-03-16T09:00:00.000Z");
+  const today = obsidianMoment("2026-03-16T09:00:00.000Z");
   const yesterday = today.clone().subtract(1, "day");
 
   beforeEach(() => {
@@ -151,17 +148,12 @@ describe("settingsSlice", () => {
   });
 
   it("初期表示モードはタイムライン", () => {
-    const initial = createSettingsSlice(
-      () => {},
-      () => ({}) as any,
-      {} as any,
-    );
+    const initial = createAppStore().getState();
     expect(initial.displayMode).toBe(DISPLAY_MODE.TIMELINE);
     expect(initial.mainView).toBe(MAIN_VIEW.TIMELINE);
   });
 
   it("カレンダーで選んだ日付と表示条件を再起動後も復元できる", () => {
-    localStorage.clear();
     const storage = new DSTRStorage(createLocalStorageHost("calendar-navigation-test"));
     const store = createAppStore();
     store.setState({

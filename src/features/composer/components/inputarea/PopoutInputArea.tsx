@@ -12,7 +12,11 @@ import { usePosts } from "src/features/posts/hooks/usePosts";
 import { DiscardConfirmModal } from "src/features/composer/modals/DiscardConfirmModal";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { DSTREditorView } from "src/features/composer/views/DSTREditorView";
+import {
+  reportComposerFailure,
+  reportSubmitFailure,
+} from "src/features/composer/utils/composer-failure";
+import { isComposerLeafHost } from "src/features/composer/types/composer-host";
 import { useShallow } from "zustand/shallow";
 
 /**
@@ -22,8 +26,8 @@ import { useShallow } from "zustand/shallow";
  * 投稿/更新後はウィンドウを閉じる。
  */
 export const PopoutInputArea: FC = memo(() => {
-  // 意図: leaf.detach() でウィンドウを閉じるため、ItemView としてキャストして leaf を参照する。
-  const view = useObsidianComponent() as unknown as DSTREditorView;
+  // 意図: leaf.detach() でポップアウトウィンドウを閉じる。
+  const view = useObsidianComponent(isComposerLeafHost);
   const { shell, storage } = useAppContext();
   const { inputRef } = useEditorRefs();
 
@@ -101,12 +105,14 @@ export const PopoutInputArea: FC = memo(() => {
 
   useEffect(() => {
     const closeAction = view.addAction("x", "閉じる", () => {
-      void handleCancel();
+      handleCancel().catch(
+        reportComposerFailure("Failed to close popout editor", "閉じる処理に失敗しました"),
+      );
     });
     closeAction.setAttr("data-dstr-popout-actions", "true");
 
     const submitAction = view.addAction("send-horizontal", "投稿", () => {
-      void handleSubmitAndClose();
+      handleSubmitAndClose().catch(reportSubmitFailure);
     });
     submitAction.setAttr("data-dstr-popout-actions", "true");
 
@@ -126,7 +132,9 @@ export const PopoutInputArea: FC = memo(() => {
         initialValue={inputSnapshot}
         externalVersion={inputSnapshotVersion}
         onChange={syncInputSession}
-        onSubmit={handleSubmitAndClose}
+        onSubmit={() => {
+          handleSubmitAndClose().catch(reportSubmitFailure);
+        }}
         className="dstr-popout-editor__editor flex-1 min-h-0 mx-[var(--size-4-4)]"
         placeholder={PLACEHOLDER_TEXT}
         isReadOnly={false}

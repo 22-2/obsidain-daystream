@@ -3,11 +3,12 @@ import type { PluginLifecycleContext } from "src/core/plugin-host";
 import type { Settings } from "src/core/domain/settings";
 import { createTagIndexExtension } from "src/core/db/tag-index-extension";
 import { reportError } from "src/core/error-report";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 
 /** intervalHours が 0 の場合は、常に(起動のたびに)スキャンを実行する */
 export function shouldRunFullScan(lastFullScanAt: string | undefined, intervalHours: number): boolean {
   if (!lastFullScanAt) return true;
-  const diffHours = window.moment().diff(window.moment(lastFullScanAt), "hours", true);
+  const diffHours = obsidianMoment().diff(obsidianMoment(lastFullScanAt), "hours", true);
   return diffHours >= intervalHours;
 }
 

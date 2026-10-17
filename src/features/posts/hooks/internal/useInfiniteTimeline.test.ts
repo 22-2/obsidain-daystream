@@ -1,25 +1,68 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
-import moment from "moment";
+import type { Moment } from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { MemoRecord } from "src/core/db/dstr-db";
+import type { TimelinePostsPage } from "src/features/posts/hooks/internal/timelinePosts";
 import { useInfiniteTimeline } from "src/features/posts/hooks/internal/useInfiniteTimeline";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const useSWRInfiniteMock = vi.fn();
-const mutateMock = vi.fn();
-const createTimelinePageFetcherMock = vi.fn();
-const fetchPageMock = vi.fn();
-const addPathsMock = vi.fn();
-const setPostsMock = vi.fn();
-const setDateMock = vi.fn();
+type InfiniteKeyLoader = (
+  pageIndex: number,
+  previousPageData: TimelinePostsPage | null,
+) => unknown;
+type InfiniteFetcher = (key: unknown[]) => Promise<TimelinePostsPage>;
+type InfiniteMockResponse = {
+  data: TimelinePostsPage[] | undefined;
+  size: number;
+  setSize: () => Promise<TimelinePostsPage[] | undefined>;
+  isValidating: boolean;
+  isLoading: boolean;
+};
+type InfiniteMockArgs = [
+  getKey: InfiniteKeyLoader,
+  fetcher: InfiniteFetcher,
+  options?: { revalidateAll?: boolean },
+];
+type MockDatabase = {
+  getMemos: (...args: unknown[]) => Promise<MemoRecord[]>;
+  getPinnedMemos?: (...args: unknown[]) => Promise<MemoRecord[]>;
+};
+type SwrMockArgs = [key: unknown, fetcher: (key: unknown[]) => Promise<unknown>];
+type SwrMockResponse = {
+  data: unknown;
+  mutate: (...args: unknown[]) => Promise<unknown>;
+  isValidating: boolean;
+  isLoading: boolean;
+  error: unknown;
+};
+
+const useSWRInfiniteMock = vi.fn((..._args: InfiniteMockArgs): InfiniteMockResponse => ({
+  data: undefined,
+  size: 1,
+  setSize: async () => undefined,
+  isValidating: false,
+  isLoading: false,
+}));
+const mutateMock = vi.fn<(...args: unknown[]) => unknown>();
+const addPathsMock = vi.fn<(paths: Set<string>) => void>();
+const setPostsMock = vi.fn<(...args: unknown[]) => void>();
+const setDateMock = vi.fn<(date: Moment) => void>();
 const loadFileMock = vi.fn(async (_path: string) => "");
 const cachedReadFileMock = vi.fn(async () => "");
-const workerGetMock = vi.fn();
-const useSWRMock = vi.fn();
+const workerGetMock = vi.fn<() => MockDatabase>();
+const useSWRMock = vi.fn((..._args: SwrMockArgs): SwrMockResponse => ({
+  data: undefined,
+  mutate: async () => undefined,
+  isValidating: false,
+  isLoading: false,
+  error: undefined,
+}));
 
 const settingsState = {
   activeTopic: "topic-a",
   displayMode: "timeline",
-  date: moment("2026-03-15T00:00:00.000Z"),
+  date: obsidianMoment("2026-03-15T00:00:00.000Z"),
   searchQuery: "",
   threadOnly: false,
   setDate: setDateMock,
@@ -27,13 +70,13 @@ const settingsState = {
 };
 
 vi.mock("swr", () => ({
-  default: (...args: unknown[]) => useSWRMock(...args),
+  default: (...args: Parameters<typeof useSWRMock>) => useSWRMock(...args),
   mutate: (...args: unknown[]) => mutateMock(...args),
 }));
 
 vi.mock("swr/infinite", () => {
   return {
-    default: (...args: unknown[]) => useSWRInfiniteMock(...args),
+    default: (...args: InfiniteMockArgs) => useSWRInfiniteMock(...args),
     unstable_serialize: (getKey: (pageIndex: number, previousPageData: null) => unknown) =>
       `$inf$${JSON.stringify(getKey(0, null))}`,
   };
@@ -77,13 +120,11 @@ vi.mock("src/features/workspace/utils/view-mode", () => ({
 }));
 
 vi.mock("./timelinePosts", () => ({
-  TIMELINE_CACHE_INVALIDATE_MS: 3 * 60 * 1000,
   resolveTimelineCacheBucket: vi.fn(() => 123),
   resolveTimelineBaseDate: vi.fn(
-    (pageParam: string | null, getEffectiveDate: () => moment.Moment) =>
-      pageParam ? moment(pageParam) : getEffectiveDate(),
+    (pageParam: string | null, getEffectiveDate: () => Moment) =>
+      pageParam ? obsidianMoment(pageParam) : getEffectiveDate(),
   ),
-  createTimelinePageFetcher: (...args: unknown[]) => createTimelinePageFetcherMock(...args),
 }));
 
 vi.mock("src/core/db/worker-client", () => ({
@@ -101,23 +142,16 @@ describe("useInfiniteTimeline", () => {
 
     settingsState.activeTopic = "topic-a";
     settingsState.displayMode = "timeline";
-    settingsState.date = moment("2026-03-15T00:00:00.000Z");
+    settingsState.date = obsidianMoment("2026-03-15T00:00:00.000Z");
 
-    fetchPageMock.mockResolvedValue({
-      posts: [],
-      paths: new Set<string>(),
-      hasMore: false,
-      lastSearchedDate: moment("2026-03-15T00:00:00.000Z"),
-    });
-    createTimelinePageFetcherMock.mockReturnValue(fetchPageMock);
     workerGetMock.mockReturnValue({
-      getMemos: vi.fn().mockResolvedValue([]),
-      getPinnedMemos: vi.fn().mockResolvedValue([]),
+      getMemos: vi.fn(async () => []),
+      getPinnedMemos: vi.fn(async () => []),
     });
 
     useSWRMock.mockReturnValue({
       data: undefined,
-      mutate: vi.fn(),
+      mutate: vi.fn(async () => undefined),
       isValidating: false,
       isLoading: false,
       error: undefined,
@@ -126,7 +160,7 @@ describe("useInfiniteTimeline", () => {
     useSWRInfiniteMock.mockReturnValue({
       data: undefined,
       size: 1,
-      setSize: vi.fn(),
+      setSize: vi.fn(async () => undefined),
       isValidating: false,
       isLoading: false,
     });
@@ -143,7 +177,7 @@ describe("useInfiniteTimeline", () => {
     const key = getKey(0, null);
     expect(key).toEqual(["posts", "topic-a", "timeline", "2026-03-15", "", false, null]);
 
-    settingsState.date = moment("2026-03-16T00:00:00.000Z");
+    settingsState.date = obsidianMoment("2026-03-16T00:00:00.000Z");
     rerender();
 
     const secondGetKey = useSWRInfiniteMock.mock.calls[1][0];
@@ -160,7 +194,7 @@ describe("useInfiniteTimeline", () => {
   });
 
   it("queryFn で getMemos が呼ばれる", async () => {
-    const getMemosMock = vi.fn().mockResolvedValue([]);
+    const getMemosMock = vi.fn(async () => []);
     workerGetMock.mockReturnValue({ getMemos: getMemosMock });
 
     renderHook(() => useInfiniteTimeline());
@@ -174,7 +208,7 @@ describe("useInfiniteTimeline", () => {
   it("pinned 投稿は DB から別取得される", async () => {
     const getPinnedMemosMock = vi.fn().mockResolvedValue([]);
     workerGetMock.mockReturnValue({
-      getMemos: vi.fn().mockResolvedValue([]),
+      getMemos: vi.fn(async () => []),
       getPinnedMemos: getPinnedMemosMock,
     });
 
@@ -192,7 +226,7 @@ describe("useInfiniteTimeline", () => {
   });
 
   it("タイムライン表示中に日付が変わったら setDate を呼ぶ", () => {
-    settingsState.date = moment("2026-03-15T00:00:00.000Z");
+    settingsState.date = obsidianMoment("2026-03-15T00:00:00.000Z");
     vi.setSystemTime(new Date("2026-03-16T00:01:00.000Z"));
 
     renderHook(() => useInfiniteTimeline());
@@ -203,6 +237,6 @@ describe("useInfiniteTimeline", () => {
 
     expect(setDateMock).toHaveBeenCalledTimes(1);
     const calledMoment = setDateMock.mock.calls[0][0];
-    expect(calledMoment.isSame(moment("2026-03-16T00:01:00.000Z"), "day")).toBe(true);
+    expect(calledMoment.isSame(obsidianMoment("2026-03-16T00:01:00.000Z"), "day")).toBe(true);
   });
 });

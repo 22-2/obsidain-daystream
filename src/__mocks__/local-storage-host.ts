@@ -9,20 +9,21 @@ export function createLocalStorageHost(appId: string): LocalStorageHost {
   return {
     appId,
     loadLocalStorage: (key) => {
-      const raw = localStorage.getItem(toKey(key));
+      const raw = window.localStorage.getItem(toKey(key));
       if (raw === null) return null;
       try {
-        return JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
+        return parsed;
       } catch {
         return null;
       }
     },
     saveLocalStorage: (key, data) => {
       if (!data) {
-        localStorage.removeItem(toKey(key));
+        window.localStorage.removeItem(toKey(key));
         return;
       }
-      localStorage.setItem(toKey(key), JSON.stringify(data));
+      window.localStorage.setItem(toKey(key), JSON.stringify(data));
     },
   };
 }

@@ -1,3 +1,4 @@
+import type React from "react";
 // 意図: Insightsの画面を機能単位で隣接させ、集計処理との関係を追いやすくする。
 import { useEffect, useMemo, useState } from "react";
 import { setTooltip } from "obsidian";

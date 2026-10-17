@@ -1,5 +1,6 @@
 import type { Granularity } from "src/core/domain/granularity";
 import type { Post } from "src/core/domain/post";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { DateFilter, TimeFilter } from "src/features/workspace/types";
 
 export function filterPostsByRelativeWindow(
@@ -12,7 +13,7 @@ export function filterPostsByRelativeWindow(
   },
 ): Post[] {
   const { dateFilter, timeFilter, asTask, granularity } = params;
-  const now = window.moment();
+  const now = obsidianMoment();
 
   // fixedノートは単一ノート全件を保持するため、期間は現在時刻からの相対窓で絞る。
   const dateFilteredPosts = posts.filter((post) => {

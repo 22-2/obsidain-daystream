@@ -1,3 +1,4 @@
+import type React from "react";
 import type { App, ItemView } from "obsidian";
 import { useLayoutEffect, useRef } from "react";
 import type { Settings } from "src/core/domain/settings";

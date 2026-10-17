@@ -1,3 +1,5 @@
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { Moment } from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getPeriodicNoteDate, listPeriodicNotes } from "src/core/note-source";
 import type { Week } from "src/features/notes/components/calendar/types";
@@ -14,10 +16,10 @@ import { useShallow } from "zustand/shallow";
 // ─────────────────────────────────────────────
 // 純粋な計算関数 (変更なし)
 // ─────────────────────────────────────────────
-function buildWeeksInMonth(viewDate: moment.Moment): Week[] {
+function buildWeeksInMonth(viewDate: Moment): Week[] {
   const startDay = viewDate.clone().startOf("month").startOf("isoWeek");
   const endDay = viewDate.clone().endOf("month").endOf("isoWeek");
-  const days: moment.Moment[] = [];
+  const days: Moment[] = [];
 
   const cursor = startDay.clone();
   while (cursor.isSameOrBefore(endDay, "day")) {
@@ -70,7 +72,7 @@ export function useMiniCalendar() {
     },
   );
 
-  const [viewDate, setViewDate] = useState(() => window.moment(date).startOf("month"));
+  const [viewDate, setViewDate] = useState(() => obsidianMoment(date).startOf("month"));
 
   const prevDateRef = useRef(date);
   const skipNextViewUpdate = useRef(false);
@@ -82,7 +84,7 @@ export function useMiniCalendar() {
       return;
     }
     if (!date.isSame(prevDateRef.current, "month")) {
-      setViewDate(window.moment(date).startOf("month"));
+      setViewDate(obsidianMoment(date).startOf("month"));
     }
     prevDateRef.current = date;
   }, [date]);
@@ -95,7 +97,7 @@ export function useMiniCalendar() {
     setViewDate((prev) => prev.clone().add(1, "month"));
   };
 
-  const handleSelectDay = (day: moment.Moment) => {
+  const handleSelectDay = (day: Moment) => {
     if (!day.isSame(viewDate, "month")) {
       skipNextViewUpdate.current = true;
     }
@@ -105,7 +107,7 @@ export function useMiniCalendar() {
     );
   };
 
-  const handleSelectWeek = (weekStart: moment.Moment) => {
+  const handleSelectWeek = (weekStart: Moment) => {
     if (!weekStart.isSame(viewDate, "month")) {
       skipNextViewUpdate.current = true;
     }
@@ -161,7 +163,7 @@ export function useMiniCalendar() {
   }, [shell, activeTopic, dbActiveDates]);
 
   const weeks = useMemo(() => buildWeeksInMonth(viewDate), [viewDate]);
-  const { rangeStart, rangeEnd } = getGranularityRange(date, granularity, dateFilter as string);
+  const { rangeStart, rangeEnd } = getGranularityRange(date, granularity, dateFilter);
 
   return {
     date,

@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useFilteredPosts } from "src/features/posts/hooks/useFilteredPosts";
 import type { Post } from "src/core/domain/post";
@@ -7,12 +7,12 @@ import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-03-15T10:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-03-15T10:00:00.000Z");
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-03-15T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-03-15T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,
@@ -58,14 +58,14 @@ describe("useFilteredPosts", () => {
       createPost({
         id: "reply-2",
         threadRootId: "root-1",
-        timestamp: moment("2026-03-16T01:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-16T01:00:00.000Z"),
         startOffset: 60,
       }),
       createPost({ id: "root-1", threadRootId: "root-1" }),
       createPost({
         id: "reply-1",
         threadRootId: "root-1",
-        timestamp: moment("2026-03-15T12:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T12:00:00.000Z"),
         startOffset: 20,
       }),
     ];
@@ -146,17 +146,17 @@ describe("useFilteredPosts", () => {
     const posts = [
       createPost({
         id: "plain-latest",
-        timestamp: moment("2026-03-15T12:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T12:00:00.000Z"),
       }),
       createPost({
         id: "pinned-earlier",
-        timestamp: moment("2026-03-15T09:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T09:00:00.000Z"),
         metadata: { pinned: "1" },
         startOffset: 20,
       }),
       createPost({
         id: "pinned-latest",
-        timestamp: moment("2026-03-15T11:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T11:00:00.000Z"),
         metadata: { pinned: "1" },
         startOffset: 40,
       }),
@@ -186,12 +186,12 @@ describe("useFilteredPosts", () => {
     const posts = [
       createPost({
         id: "older-pinned",
-        timestamp: moment("2026-03-15T09:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T09:00:00.000Z"),
         metadata: { pinned: "1" },
       }),
       createPost({
         id: "latest-plain",
-        timestamp: moment("2026-03-15T12:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-15T12:00:00.000Z"),
         startOffset: 20,
       }),
     ];
@@ -219,15 +219,15 @@ describe("useFilteredPosts", () => {
     const posts = [
       createPost({
         id: "today-1",
-        timestamp: moment("2026-03-18T10:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-18T10:00:00.000Z"),
       }),
       createPost({
         id: "within-3d",
-        timestamp: moment("2026-03-16T09:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-16T09:00:00.000Z"),
       }),
       createPost({
         id: "outside-3d",
-        timestamp: moment("2026-03-14T23:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-14T23:00:00.000Z"),
       }),
     ];
 
@@ -255,12 +255,12 @@ describe("useFilteredPosts", () => {
     const posts = [
       createPost({
         id: "recent-plain",
-        timestamp: moment("2026-03-18T11:30:00.000Z"),
+        timestamp: obsidianMoment("2026-03-18T11:30:00.000Z"),
         metadata: {},
       }),
       createPost({
         id: "older-tagged",
-        timestamp: moment("2026-03-18T08:00:00.000Z"),
+        timestamp: obsidianMoment("2026-03-18T08:00:00.000Z"),
         metadata: { dstrtags: "IT" },
       }),
     ];

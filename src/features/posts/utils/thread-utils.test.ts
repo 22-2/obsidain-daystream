@@ -1,4 +1,4 @@
-import moment from "moment";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { MemoRecord } from "src/core/db/dstr-db";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import type { Post } from "src/core/domain/post";
@@ -16,12 +16,12 @@ import {
 import { describe, expect, test } from "vitest";
 
 function createPost(overrides: Partial<Post>): Post {
-  const timestamp = overrides.timestamp ?? moment("2026-03-15T10:00:00.000Z");
+  const timestamp = overrides.timestamp ?? obsidianMoment("2026-03-15T10:00:00.000Z");
   return {
     id: overrides.id ?? "post-1",
     threadRootId: overrides.threadRootId ?? null,
     timestamp,
-    noteDate: overrides.noteDate ?? moment("2026-03-15T00:00:00.000Z"),
+    noteDate: overrides.noteDate ?? obsidianMoment("2026-03-15T00:00:00.000Z"),
     message: overrides.message ?? "message",
     metadata: overrides.metadata ?? {},
     offset: overrides.offset ?? 0,
@@ -66,18 +66,18 @@ describe("thread-utils", () => {
     const root = createPost({
       id: "root-1",
       threadRootId: "root-1",
-      timestamp: moment("2026-03-15T10:00:00.000Z"),
+      timestamp: obsidianMoment("2026-03-15T10:00:00.000Z"),
     });
     const laterReply = createPost({
       id: "reply-2",
       threadRootId: "root-1",
-      timestamp: moment("2026-03-16T01:00:00.000Z"),
+      timestamp: obsidianMoment("2026-03-16T01:00:00.000Z"),
       startOffset: 40,
     });
     const earlierReply = createPost({
       id: "reply-1",
       threadRootId: "root-1",
-      timestamp: moment("2026-03-15T11:00:00.000Z"),
+      timestamp: obsidianMoment("2026-03-15T11:00:00.000Z"),
       startOffset: 20,
     });
 

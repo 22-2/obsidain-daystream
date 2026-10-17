@@ -1,5 +1,8 @@
+import type React from "react";
 import { Menu } from "obsidian";
 import { memo, useCallback, useMemo } from "react";
+import { reportError } from "src/core/error-report";
+import type { Task } from "src/core/task-text";
 import { Box } from "src/core/ui/components/primitives";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { TaskView } from "src/features/tasks/components/tasks/TaskView";
@@ -8,6 +11,20 @@ import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
+
+// 意図: タスク操作は UI のイベントから待たずに実行されるため、失敗はここで記録して利用者へ知らせる。
+const reportCheckFailure = (error: unknown) =>
+  reportError({
+    context: "Failed to update task check mark",
+    error,
+    notice: "タスクを変更できませんでした",
+  });
+const reportOpenFailure = (error: unknown) =>
+  reportError({
+    context: "Failed to open task in editor",
+    error,
+    notice: "ノートを開けませんでした",
+  });
 
 export const TaskListView: React.FC = memo(() => {
   const { confirmDeleteAction } = useObsidianUi();
@@ -28,6 +45,20 @@ export const TaskListView: React.FC = memo(() => {
 
   const { updateTaskChecked, openTaskInEditor, deleteTask } = useTaskActions();
 
+  const handleTaskChecked = useCallback(
+    (task: Task, checked: boolean) => {
+      updateTaskChecked(task, checked).catch(reportCheckFailure);
+    },
+    [updateTaskChecked],
+  );
+
+  const handleOpenTask = useCallback(
+    (task: Task) => {
+      openTaskInEditor(task).catch(reportOpenFailure);
+    },
+    [openTaskInEditor],
+  );
+
   const showTaskContextMenu = useCallback(
     (task: (typeof tasks)[number], e: React.MouseEvent) => {
       e.preventDefault();
@@ -35,9 +66,9 @@ export const TaskListView: React.FC = memo(() => {
 
       const menu = new Menu();
       menu.addItem((item) =>
-        item.setTitle("タスクにジャンプ").onClick(() => openTaskInEditor(task)),
+        item.setTitle("タスクにジャンプ").onClick(() => handleOpenTask(task)),
       );
-      menu.addItem((item) => item.setTitle("編集").onClick(() => openTaskInEditor(task)));
+      menu.addItem((item) => item.setTitle("編集").onClick(() => handleOpenTask(task)));
       menu.addItem((item) =>
         item
           .setTitle("削除")
@@ -48,7 +79,7 @@ export const TaskListView: React.FC = memo(() => {
       );
       menu.showAtMouseEvent(e.nativeEvent);
     },
-    [confirmDeleteAction, deleteTask, isReadOnly, openTaskInEditor],
+    [confirmDeleteAction, deleteTask, handleOpenTask, isReadOnly],
   );
 
   const incompleteTasks = useMemo(() => tasks.filter((x) => x.mark === " "), [tasks]);
@@ -66,7 +97,7 @@ export const TaskListView: React.FC = memo(() => {
             task={task}
             granularity={granularity}
             timeFilter={timeFilter}
-            onChange={(c) => updateTaskChecked(task, c)}
+            onChange={(c) => handleTaskChecked(task, c)}
             onContextMenu={showTaskContextMenu}
             disabled={isReadOnly}
           />

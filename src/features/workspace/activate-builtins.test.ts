@@ -80,11 +80,11 @@ describe("builtin registry", () => {
     const register = vi.fn();
     const registerView = vi.fn();
     const addRibbonIcon = vi.fn();
-    const addCommand = vi.fn((command) => command);
+    const addCommand = vi.fn((command: unknown) => command);
     const getDSTRSubmitCallback = vi.fn(() => undefined);
     const getDSTRInputSnapshot = vi.fn(() => "");
-    const createDSTRView = vi.fn((leaf) => ({ leaf }));
-    const createDSTREditorView = vi.fn((leaf) => ({ leaf }));
+    const createDSTRView = vi.fn((leaf: unknown) => ({ leaf }));
+    const createDSTREditorView = vi.fn((leaf: unknown) => ({ leaf }));
     const createAndOpenFixedNote = vi.fn(async () => {});
     const attachDSTRView = vi.fn(async () => ({ id: "leaf" }));
     const saveSettings = vi.fn(async () => {});
@@ -137,16 +137,16 @@ describe("builtin registry", () => {
     activateBuiltins(context, "app-1");
 
     expect(registerView.mock.invocationCallOrder[0]).toBeLessThan(
-      addRibbonIcon.mock.invocationCallOrder[0]!,
+      addRibbonIcon.mock.invocationCallOrder[0],
     );
     expect(addRibbonIcon.mock.invocationCallOrder[0]).toBeLessThan(
-      addCommand.mock.invocationCallOrder[0]!,
+      addCommand.mock.invocationCallOrder[0],
     );
     expect(addCommand.mock.invocationCallOrder[2]).toBeLessThan(
-      register.mock.invocationCallOrder[0]!,
+      register.mock.invocationCallOrder[0],
     );
     expect(register.mock.invocationCallOrder[0]).toBeLessThan(
-      registerEvent.mock.invocationCallOrder[0]!,
+      registerEvent.mock.invocationCallOrder[0],
     );
 
     // 現行ビューと、保存済みレイアウト移行用の旧ビューが登録される

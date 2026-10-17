@@ -1,5 +1,6 @@
 import { setTooltip } from "obsidian";
 import React, { useEffect, useState } from "react";
+import { reportError } from "src/core/error-report";
 import type { HTMLMeta, ImageMeta, TwitterMeta } from "src/core/meta";
 import { createMeta } from "src/core/meta";
 import { pickUrls } from "src/core/strings";
@@ -202,17 +203,22 @@ const usePostMetadata = (message: string, enabled: boolean) => {
 
     let isMounted = true;
 
-    (async function () {
+    void (async () => {
       setIsLoading(true);
-      const urls = pickUrls(message);
-      const results = (await Promise.all(urls.map(createMeta))).filter(isPresent);
+      try {
+        const urls = pickUrls(message);
+        const results = (await Promise.all(urls.map(createMeta))).filter(isPresent);
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      setHtmlMetas(results.filter((result): result is HTMLMeta => result.type === "html"));
-      setImageMetas(results.filter((result): result is ImageMeta => result.type === "image"));
-      setTwitterMetas(results.filter((result): result is TwitterMeta => result.type === "twitter"));
-      setIsLoading(false);
+        setHtmlMetas(results.filter((result): result is HTMLMeta => result.type === "html"));
+        setImageMetas(results.filter((result): result is ImageMeta => result.type === "image"));
+        setTwitterMetas(results.filter((result): result is TwitterMeta => result.type === "twitter"));
+      } catch (error) {
+        if (isMounted) reportError({ context: "Failed to load post preview metadata", error });
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
     })();
 
     return () => {

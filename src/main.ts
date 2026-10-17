@@ -1,6 +1,6 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
 import type { WorkspaceLeaf } from "obsidian";
-import { apiVersion, Notice, Platform, Plugin } from "obsidian";
+import { apiVersion, Notice, Platform, Plugin, View } from "obsidian";
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { reportError } from "src/core/error-report";
@@ -155,7 +155,7 @@ export default class DSTRPlugin extends Plugin {
         await leaf.setViewState({
           ...state,
           type: currentType,
-          active: workspace.activeLeaf === leaf,
+          active: workspace.getActiveViewOfType(View) === leaf.view,
         });
       }
     }
@@ -180,7 +180,7 @@ export default class DSTRPlugin extends Plugin {
     await this.saveSettings();
 
     const leaf = await this.attachDSTRView(createFixedNoteViewState(fixedNote.path));
-    if (leaf) this.app.workspace.revealLeaf(leaf);
+    if (leaf) await this.app.workspace.revealLeaf(leaf);
   }
 
   // ---------------------------------------------------------------------------
@@ -251,7 +251,7 @@ export default class DSTRPlugin extends Plugin {
   }
 
   private getActiveDSTRView(): DSTRView | undefined {
-    const activeView = this.app.workspace.activeLeaf?.view;
+    const activeView = this.app.workspace.getActiveViewOfType(View);
     if (!activeView) return undefined;
 
     const viewType = activeView.getViewType();
@@ -332,7 +332,7 @@ export default class DSTRPlugin extends Plugin {
     const leaf = await this.attachDSTRView({});
     if (!leaf) return;
 
-    this.app.workspace.revealLeaf(leaf);
+    await this.app.workspace.revealLeaf(leaf);
 
     await (leaf.view as DSTRView).waitForReactReady();
     restoreAndFocusElectronWindow();

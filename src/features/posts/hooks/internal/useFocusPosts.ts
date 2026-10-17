@@ -76,7 +76,7 @@ export const useFocusPosts = () => {
     mutate,
     isValidating,
     error,
-  } = useSWR<Post[]>(
+  } = useSWR<Post[], Error>(
     [
       "posts",
       "focus",
