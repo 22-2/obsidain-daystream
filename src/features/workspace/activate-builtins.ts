@@ -12,7 +12,7 @@ import {
 // 意図: 初期化順が機能要件そのものなので、一般化せず直列で明示する。
 // main.onloadからsettings読込より先に呼び、workspace復元で必要なviewを先に登録する。
 export function activateBuiltins(context: BuiltinMainContext, appId: string): void {
-  const storage = new DSTRStorage(appId);
+  const storage = new DSTRStorage(context.app);
 
   registerWorkspaceViews(context);
   registerWorkspaceRibbon(context);

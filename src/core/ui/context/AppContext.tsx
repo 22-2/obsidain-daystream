@@ -35,7 +35,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   children,
 }) => {
   const shell = useMemo(() => new ObsidianAppShell(app), [app]);
-  const storage = useMemo(() => new DSTRStorage(shell.getAppId()), [shell]);
+  const storage = useMemo(() => new DSTRStorage(shell.getRawApp()), [shell]);
   const value = useMemo<AppContextValue>(
     // 一般ロジックから raw app を見えなくして、依存の漏れを型で止める。
     () => ({ shell, storage, settings }),

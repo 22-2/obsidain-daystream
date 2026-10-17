@@ -233,7 +233,8 @@ async function getStoredDrafts(obsidian: ObsidianAPI): Promise<string[]> {
   return obsidian.page.evaluate((key) => {
     const raw = localStorage.getItem(key);
     if (!raw) return [];
-    return (JSON.parse(raw) as { content: string }[]).map((draft) => draft.content);
+    // DSTRStorage は falsy な値を守るため { value } で包んで保存する。
+    return (JSON.parse(raw) as { value: { content: string }[] }).value.map((draft) => draft.content);
   }, createStorageKey(appId, "drafts"));
 }
 
