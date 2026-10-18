@@ -23,6 +23,7 @@ export type PostCardProps = {
   message: string;
   sourcePath?: string;
   timestamp: MomentLike;
+  showYear?: boolean;
   noteGranularity?: Granularity;
   showGranularityBadge?: boolean;
   granularity: Granularity;
@@ -48,6 +49,7 @@ export const PostCard = React.memo(
     message,
     sourcePath,
     timestamp,
+    showYear = false,
     noteGranularity,
     showGranularityBadge = false,
     granularity,
@@ -126,6 +128,7 @@ export const PostCard = React.memo(
       >
         <CardContent
           timestamp={timestamp}
+          showYear={showYear}
           noteGranularity={noteGranularity}
           showGranularityBadge={showGranularityBadge}
           granularity={granularity}

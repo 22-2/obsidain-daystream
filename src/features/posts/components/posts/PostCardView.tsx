@@ -4,7 +4,7 @@ import { isPastDateReadOnly } from "src/features/workspace/store/slices/settings
 import type { Granularity } from "src/core/domain/granularity";
 import type { Post } from "src/core/domain/post";
 import type { DateFilter } from "src/features/workspace/types";
-import { getPostTags } from "src/core/domain/post-metadata";
+import { getPostTags, isPinned } from "src/core/domain/post-metadata";
 import { isThreadRoot } from "src/features/posts/utils/thread-utils";
 
 /**
@@ -58,6 +58,7 @@ export const PostCardView = React.memo(
         message={post.message}
         sourcePath={post.path}
         timestamp={post.timestamp}
+        showYear={isPinned(post.metadata)}
         noteGranularity={post.noteGranularity}
         showGranularityBadge={showGranularityBadge}
         granularity={granularity}

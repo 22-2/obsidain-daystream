@@ -8,6 +8,7 @@ import type { DateFilter } from "src/features/workspace/types";
 
 interface BaseCardProps {
   timestamp: MomentLike;
+  showYear?: boolean;
   noteGranularity?: Granularity;
   showGranularityBadge?: boolean;
   granularity: Granularity;
@@ -22,6 +23,7 @@ interface BaseCardProps {
 
 export const CardContent: React.FC<BaseCardProps> = ({
   timestamp,
+  showYear = false,
   noteGranularity,
   showGranularityBadge = false,
   granularity,
@@ -33,9 +35,9 @@ export const CardContent: React.FC<BaseCardProps> = ({
   footerAddon,
   footerRightAddon,
 }) => {
-  const timestampFormat = timestamp.isSame(obsidianMoment(), "year")
-    ? DISPLAY_DATE_TIME_FORMAT
-    : DISPLAY_YEAR_DATE_TIME_FORMAT;
+  const timestampFormat = showYear || !timestamp.isSame(obsidianMoment(), "year")
+    ? DISPLAY_YEAR_DATE_TIME_FORMAT
+    : DISPLAY_DATE_TIME_FORMAT;
   const dimClass = isDimmed ? "opacity-60 filter grayscale" : "";
 
   return (
