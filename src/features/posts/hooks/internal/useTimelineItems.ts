@@ -9,7 +9,8 @@ export type TimelineItem =
       key: string;
       groupKey: string;
       collapsed: boolean;
-    };
+    }
+  | { type: "pinned-end"; key: string };
 
 type UseTimelineItemsInput = {
   filteredPosts: Post[];
@@ -53,6 +54,11 @@ export function useTimelineItems({
             key: `post-${post.timestamp.valueOf()}-${post.offset}`,
           });
         });
+
+        // 意図: ピン留めの範囲が分かるよう、通常投稿との境目に終端を置く。
+        if (unpinnedPosts.length > 0) {
+          list.push({ type: "pinned-end", key: "divider-pinned-end" });
+        }
       }
     }
 
