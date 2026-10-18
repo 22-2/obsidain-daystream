@@ -23,16 +23,6 @@ type UpdateSessionInputOptions = {
   persistMode?: PersistMode;
 };
 
-export type {
-  DraftMetadata,
-  PersistedEditingPost,
-} from "src/features/composer/store/slices/editorPersistence";
-
-// 編集中投稿のセッション情報を1オブジェクトにまとめて永続化する
-// settingsSlice が granularity / noteDateStr を参照するため両フィールドを含む
-
-export { reconstructEditingPost } from "src/features/composer/store/slices/editorPersistence";
-
 export function mergeDraftMetadataForSubmit(params: {
   latestMetadata: DraftMetadata;
   draftMetadataBase: DraftMetadata;

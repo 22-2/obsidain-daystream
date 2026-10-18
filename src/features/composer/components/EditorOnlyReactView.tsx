@@ -14,7 +14,7 @@ import {
   useRequiredAppStore,
   type AppStoreApi,
 } from "src/features/workspace/store/appStore";
-import { reconstructEditingPost } from "src/features/composer/store/slices/editorSlice";
+import { reconstructEditingPost } from "src/features/composer/store/slices/editorPersistence";
 import type { DSTREditorViewState } from "src/features/composer/views/DSTREditorView";
 
 // 意図: Paper Cut など他プラグインのエディタビューからも再利用できるよう、
