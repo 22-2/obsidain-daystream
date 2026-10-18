@@ -78,10 +78,6 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     filteredPosts,
     collapsedGroupSet,
     canCollapseDividers,
-    displayMode: settings.displayMode,
-    granularity: settings.granularity,
-    dateFilter: settings.dateFilter,
-    viewNoteMode: settings.viewNoteMode,
   });
 
   const value = React.useMemo(

@@ -1,91 +1,30 @@
 import { Menu } from "obsidian";
 import type { MouseEvent } from "react";
 import { useCallback } from "react";
-import { reportError } from "src/core/error-report";
-import type { MomentLike } from "src/core/domain/post";
-
-type DividerContextMenuCapabilities = {
-  supportsDateNavigation: boolean;
-};
 
 type UseDividerContextMenuInput = {
   canCollapseDividers: boolean;
-  capabilities: DividerContextMenuCapabilities;
   areAllVisibleDividersCollapsed: boolean;
   areAllVisibleDividersExpanded: boolean;
   hasVisibleDividers: boolean;
-  handleClickDateDivider: (date: MomentLike) => void;
-  openDailyNoteSourceForDate: (date: MomentLike) => Promise<void>;
-  toggleCollapsedGroup: (groupKey: string) => void;
   collapseAll: () => void;
   expandAll: () => void;
 };
 
 export function useDividerContextMenu({
   canCollapseDividers,
-  capabilities,
   areAllVisibleDividersCollapsed,
   areAllVisibleDividersExpanded,
   hasVisibleDividers,
-  handleClickDateDivider,
-  openDailyNoteSourceForDate,
-  toggleCollapsedGroup,
   collapseAll,
   expandAll,
 }: UseDividerContextMenuInput) {
   const showDividerContextMenu = useCallback(
-    (
-      event: MouseEvent,
-      params?: {
-        date?: MomentLike;
-        groupKey?: string;
-        collapsed?: boolean;
-      },
-    ) => {
+    (event: MouseEvent) => {
       event.preventDefault();
       event.stopPropagation();
 
       const menu = new Menu();
-
-      if (params?.date) {
-        const targetDate = params.date;
-        menu.addItem((item) =>
-          item
-            .setTitle("この日にフォーカス")
-            .setIcon("calendar-range")
-            .setDisabled(!capabilities.supportsDateNavigation)
-            .onClick(() => {
-              handleClickDateDivider(targetDate);
-            }),
-        );
-
-        menu.addItem((item) =>
-          item
-            .setTitle("この日のソースを開く")
-            .setIcon("code-xml")
-            .setDisabled(!capabilities.supportsDateNavigation)
-            .onClick(() => {
-              openDailyNoteSourceForDate(targetDate).catch((error: unknown) =>
-                reportError({ context: "Failed to open daily note source", error }),
-              );
-            }),
-        );
-
-        if (params.groupKey) {
-          const targetGroupKey = params.groupKey;
-          menu.addItem((item) =>
-            item
-              .setTitle(params.collapsed ? "このdividerを展開する" : "このdividerを折りたたむ")
-              .setIcon(params.collapsed ? "rows" : "chevron-down")
-              .setDisabled(!canCollapseDividers)
-              .onClick(() => {
-                toggleCollapsedGroup(targetGroupKey);
-              }),
-          );
-        }
-
-        menu.addSeparator();
-      }
 
       menu.addItem((item) =>
         item
@@ -109,13 +48,9 @@ export function useDividerContextMenu({
     },
     [
       canCollapseDividers,
-      capabilities.supportsDateNavigation,
       areAllVisibleDividersCollapsed,
       areAllVisibleDividersExpanded,
       hasVisibleDividers,
-      handleClickDateDivider,
-      openDailyNoteSourceForDate,
-      toggleCollapsedGroup,
       collapseAll,
       expandAll,
     ],

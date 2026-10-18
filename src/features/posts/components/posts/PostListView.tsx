@@ -5,7 +5,6 @@ import { PostCardView } from "src/features/posts/components/posts/PostCardView";
 import { Box } from "src/core/ui/components/primitives/Box";
 import { FloatingButton } from "src/core/ui/components/primitives/FloatingButton";
 import { cn } from "src/core/ui/components/primitives/utils";
-import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useDividerContextMenu } from "src/features/posts/hooks/internal/useDividerContextMenu";
@@ -15,9 +14,9 @@ import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { usePostBacklinks } from "src/features/posts/hooks/usePostBacklinkCounts";
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useEditorStore } from "src/features/composer/store/editorStore";
-import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import type { MomentLike, Post } from "src/core/domain/post";
+import type { Post } from "src/core/domain/post";
+import { isPinned } from "src/core/domain/post-metadata";
 import { reportError } from "src/core/error-report";
 import { getDSTRViewCapabilities } from "src/features/workspace/views/state";
 import { Virtualizer, type VirtualizerHandle } from "virtua";
@@ -98,12 +97,6 @@ export const PostListView = memo(() => {
     copyBlockIdLink,
   } = usePostMutations();
 
-  const { openDailyNoteForDate } = useNoteStore(
-    useShallow((s) => ({
-      openDailyNoteForDate: s.openDailyNoteForDate,
-    })),
-  );
-
   const {
     granularity,
     dateFilter,
@@ -155,34 +148,6 @@ export const PostListView = memo(() => {
   const expandAll = useCallback(
     () => expandGroups(visibleDividerGroupKeys),
     [expandGroups, visibleDividerGroupKeys],
-  );
-
-  const handleClickDateDivider = useCallback(
-    (date: MomentLike) => {
-      if (!capabilities.supportsDateNavigation) return;
-      // 意図: dividerを現在日の起点として使い、投稿リストから即座に日付フォーカスへ遷移できるようにする。
-      setDate(date.clone());
-      setDisplayMode(DISPLAY_MODE.FOCUS);
-    },
-    [capabilities.supportsDateNavigation, setDate, setDisplayMode],
-  );
-
-  const openDailyNoteSourceForDate = useCallback(
-    async (date: MomentLike) => {
-      if (!capabilities.supportsDateNavigation) return;
-      // 意図: 右クリックから開く日付ノートとUI表示中の日付を一致させ、操作後の文脈ズレを防ぐ。
-      setDate(date.clone());
-      setDisplayMode(DISPLAY_MODE.FOCUS);
-      await openDailyNoteForDate(shell, pluginSettings, date.clone());
-    },
-    [
-      capabilities.supportsDateNavigation,
-      setDate,
-      setDisplayMode,
-      openDailyNoteForDate,
-      shell,
-      pluginSettings,
-    ],
   );
 
   const openBacklinkPreviewForPost = useCallback(
@@ -250,13 +215,9 @@ export const PostListView = memo(() => {
 
   const { showDividerContextMenu } = useDividerContextMenu({
     canCollapseDividers,
-    capabilities,
     areAllVisibleDividersCollapsed,
     areAllVisibleDividersExpanded,
     hasVisibleDividers,
-    handleClickDateDivider,
-    openDailyNoteSourceForDate,
-    toggleCollapsedGroup,
     collapseAll,
     expandAll,
   });
@@ -315,16 +276,10 @@ export const PostListView = memo(() => {
     }
   }, [timelineView, hasMore, loadMore, timelineItems.length, threadView]);
 
-  const countMap = useMemo(() => {
-    const map = new Map<string, number>();
-    Map.groupBy(filteredPosts, (post) => post.timestamp.format("YYYY-MM-DD")).forEach(
-      (group, date) => {
-        map.set(date, group.length);
-      },
-    );
-    map.set("pinned", filteredPosts.filter((post) => post.metadata.pinned).length);
-    return map;
-  }, [timelineItems]);
+  const pinnedPostCount = useMemo(
+    () => filteredPosts.filter((post) => isPinned(post.metadata)).length,
+    [filteredPosts],
+  );
 
   return (
     <Box className="list w-full relative">
@@ -335,34 +290,13 @@ export const PostListView = memo(() => {
         onScroll={(offset) => setShowScrollTop(offset > 200)}
       >
         {timelineItems.map((item) => {
-          if (item.type === "divider") {
-            return (
-              <Box key={item.key} style={{ paddingBottom: "1px" }}>
-                <DateDivider
-                  date={item.date}
-                  count={countMap.get(item.date.format("YYYY-MM-DD"))}
-                  onClick={() => toggleCollapsedGroup(item.groupKey)}
-                  collapsed={item.collapsed}
-                  showCollapseIcon={canCollapseDividers}
-                  onContextMenu={(event) =>
-                    showDividerContextMenu(event, {
-                      date: item.date,
-                      groupKey: item.groupKey,
-                      collapsed: item.collapsed,
-                    })
-                  }
-                />
-              </Box>
-            );
-          }
-
           if (item.type === "pinned-divider") {
             return (
               <Box key={item.key} style={{ paddingBottom: "1px" }}>
                 <DateDivider
                   label="ピン留め"
                   leadingIconName="pin"
-                  count={countMap.get("pinned")}
+                  count={pinnedPostCount}
                   collapsed={item.collapsed}
                   showCollapseIcon={canCollapseDividers}
                   onClick={

@@ -1,6 +1,7 @@
 import React from "react";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Flex, HStack, Tag } from "src/core/ui/components/primitives";
-import { DISPLAY_DATE_TIME_FORMAT } from "src/features/workspace/config/date-formats";
+import { DISPLAY_DATE_TIME_FORMAT, DISPLAY_YEAR_DATE_TIME_FORMAT } from "src/features/workspace/config/date-formats";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
 import type { DateFilter } from "src/features/workspace/types";
@@ -32,6 +33,9 @@ export const CardContent: React.FC<BaseCardProps> = ({
   footerAddon,
   footerRightAddon,
 }) => {
+  const timestampFormat = timestamp.isSame(obsidianMoment(), "year")
+    ? DISPLAY_DATE_TIME_FORMAT
+    : DISPLAY_YEAR_DATE_TIME_FORMAT;
   const dimClass = isDimmed ? "opacity-60 filter grayscale" : "";
 
   return (
@@ -43,8 +47,7 @@ export const CardContent: React.FC<BaseCardProps> = ({
       {/* 時刻は本文の起点として見つけやすい位置に固定する。 */}
       <HStack className="header gap-2 px-[var(--size-4-1)] pb-[var(--size-2-2)] text-[var(--text-muted)] text-[80%] items-start justify-start">
         <Tag className="text-xs px-0 py-0.5 rounded-full bg-[var(--tag-bg)] text-[var(--tag-fg)]">
-          {/* fixedノートは複数日が混在しうるので、時刻だけだと投稿の文脈を失う。 */}
-          {timestamp.format(DISPLAY_DATE_TIME_FORMAT)}
+          {timestamp.format(timestampFormat)}
         </Tag>
         {showGranularityBadge && (noteGranularity === "day" || noteGranularity === "month") && (
           <span
