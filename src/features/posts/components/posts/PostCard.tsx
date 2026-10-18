@@ -123,7 +123,6 @@ export const PostCard = React.memo(
         className={[className, isHighlighted ? "dstr-card--highlighted" : ""]
           .filter(Boolean)
           .join(" ")}
-        disableHoverBg={isHighlighted}
         style={style}
       >
         <CardContent

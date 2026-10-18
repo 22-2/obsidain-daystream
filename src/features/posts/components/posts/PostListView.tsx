@@ -317,7 +317,7 @@ export const PostListView = memo(() => {
             highlightedPost != null && isSamePostReference(item.post, highlightedPost);
 
           return (
-            <Box key={item.key} style={{ paddingBottom: "1px" }}>
+            <Box key={item.key} className="dstr-post-row">
               <PostCardView
                 post={item.post}
                 showGranularityBadge={showGranularityBadges}
