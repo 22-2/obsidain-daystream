@@ -28,6 +28,29 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
   fixedSessionNumber: 1,
   granularity: GRANULARITY_CONFIG.day.unit,
   date: obsidianMoment(),
+  dateSelection: null,
+  setDateSelection: (dateSelection) => {
+    const current = get();
+    // 意図: 空欄を含む条件は実在する単一の日付では表せないため、投稿先の日付と分けて保持する。
+    const date = current.date.clone().date(1);
+    if (dateSelection.year !== null) date.year(dateSelection.year);
+    if (dateSelection.month !== null) date.month(dateSelection.month - 1);
+    if (dateSelection.day !== null) date.date(Math.min(dateSelection.day, date.daysInMonth()));
+    const granularity = dateSelection.day !== null ? "day" : dateSelection.month !== null ? "month" : "year";
+    applyNavigationPatch(get, set, {
+      dateSelection,
+      date,
+      granularity,
+      dateFilter: DATE_FILTER_IDS.TODAY,
+      timeFilter: TIME_FILTER_IDS.ALL,
+      displayMode: DISPLAY_MODE.FOCUS,
+      contentView: CONTENT_VIEW.TIMELINE,
+      mainView: MAIN_VIEW.DATE,
+      asTask: false,
+      threadFocusRootId: null,
+    });
+    get().reloadInputAreaSize();
+  },
   timeFilter: TIME_FILTER_IDS.ALL,
   dateFilter: DATE_FILTER_IDS.TODAY,
   displayMode: DISPLAY_MODE.TIMELINE,
@@ -96,6 +119,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
 
   setGranularity: (granularity) => {
     set((state) => ({
+      dateSelection: null,
       granularity,
       threadFocusRootId: null,
       ...(granularity !== GRANULARITY_CONFIG.day.unit
@@ -111,6 +135,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     const state = get();
     persistNavigationState(state, {
       granularity,
+      dateSelection: null,
       displayMode: state.displayMode,
       mainView: state.mainView,
       contentView: state.contentView,
@@ -127,6 +152,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     // 意図: 日付ナビゲーターの選択は関連状態を一度に保存し、中間状態の表示と多重保存を避ける。
     const state = applyNavigationPatch(get, set, {
       date: nextDate,
+      dateSelection: null,
       dateFilter,
       granularity: nextGranularity,
       displayMode: DISPLAY_MODE.FOCUS,
@@ -139,7 +165,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
   },
 
   setDate: (date) => {
-    const state = applyNavigationPatch(get, set, { date, threadFocusRootId: null });
+    const state = applyNavigationPatch(get, set, { date, dateSelection: null, threadFocusRootId: null });
     state.reloadInputAreaSize();
   },
 
@@ -149,6 +175,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
 
   setDateFilter: (dateFilter: DateFilter) => {
     applyNavigationPatch(get, set, {
+      dateSelection: null,
       dateFilter,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
@@ -204,6 +231,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
                 threadFocusRootId: state.threadFocusRootId,
                 // 意図: 検索中の日付自動更新や絞り込み変更を、戻り先の日付表示へ持ち込まない。
                 date: state.date.clone(),
+                dateSelection: state.dateSelection,
                 granularity: state.granularity,
                 dateFilter: state.dateFilter,
                 timeFilter: state.timeFilter,
@@ -294,6 +322,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       ...mainViewCompatibility,
       mainView: currentMainView,
       date: homeDate,
+      dateSelection: null,
       granularity: "month",
       dateFilter: DEFAULT_VIEW_STATE.dateFilter,
       timeFilter: DEFAULT_VIEW_STATE.timeFilter,
@@ -307,6 +336,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     const now = obsidianMoment();
     const state = applyNavigationPatch(get, set, {
       date: now,
+      dateSelection: null,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
@@ -338,6 +368,7 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     const nextDate = GRANULARITY_CONFIG[granularity].parseInput(value);
     const state = applyNavigationPatch(get, set, {
       date: nextDate,
+      dateSelection: null,
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
@@ -409,6 +440,7 @@ function moveDate(
   const nextDate = date.clone()[direction](step, unit);
   const state = applyNavigationPatch(get, set, {
     date: nextDate,
+    dateSelection: null,
     displayMode: DISPLAY_MODE.FOCUS,
     threadFocusRootId: null,
   });

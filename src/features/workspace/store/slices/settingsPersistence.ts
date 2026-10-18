@@ -1,4 +1,5 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { DateSelection } from "src/features/workspace/utils/date-selection";
 import type { Settings } from "src/core/domain/settings";
 import {
   CONTENT_VIEW,
@@ -23,6 +24,7 @@ export interface PersistedNavigationState {
   dateFilter?: DateFilter;
   granularity?: Granularity;
   date?: MomentLike;
+  dateSelection?: DateSelection | null;
   displayMode?: DisplayMode;
   contentView?: ContentView;
   mainView?: MainView;
@@ -42,6 +44,7 @@ export function persistNavigationState(
   if ("dateFilter" in patch) storage.set(STORAGE_KEYS.DATE_FILTER, patch.dateFilter);
   // 意図: タイムライン内の一時的な日付・粒度は保存せず、日付タブの保存先も上書きしない。
   if (state.mainView !== MAIN_VIEW.TIMELINE) {
+    if ("dateSelection" in patch) storage.set(STORAGE_KEYS.DATE_SELECTION, patch.dateSelection);
     if ("granularity" in patch) storage.set(STORAGE_KEYS.GRANULARITY, patch.granularity);
     if ("date" in patch && patch.date) storage.set(STORAGE_KEYS.DATE, patch.date.toISOString());
   }
@@ -163,6 +166,9 @@ export function resolveInitialSettingsState(
     fixedSessionNumber: 1,
     granularity,
     date: validDate,
+    dateSelection: editingPost === null && viewNoteMode !== "fixed"
+      ? storage?.get<DateSelection | null>(STORAGE_KEYS.DATE_SELECTION, null) ?? null
+      : null,
     timeFilter:
       storage?.get<TimeFilter>(STORAGE_KEYS.TIME_FILTER, TIME_FILTER_IDS.ALL) ??
       TIME_FILTER_IDS.ALL,

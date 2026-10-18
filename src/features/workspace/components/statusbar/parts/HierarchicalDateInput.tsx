@@ -3,6 +3,8 @@ import { HStack, Input } from "src/core/ui/components/primitives";
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useObsidianTooltip } from "src/core/ui/hooks/useObsidianTooltip";
+import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import { getDateSelection, type DateSelection } from "src/features/workspace/utils/date-selection";
 import { useShallow } from "zustand/shallow";
 
 export function HierarchicalDateInput() {
@@ -10,35 +12,44 @@ export function HierarchicalDateInput() {
   const monthTooltipRef = useObsidianTooltip("月");
   const dayTooltipRef = useObsidianTooltip("日");
   const store = useRequiredAppStore();
-  const { date, granularity } = useSettingsStore(
-    useShallow((state) => ({ date: state.date, granularity: state.granularity })),
+  const { date, granularity, dateSelection } = useSettingsStore(
+    useShallow((state) => ({
+      date: state.date,
+      granularity: state.granularity,
+      dateSelection: state.dateSelection,
+    })),
   );
-  const [yearDraft, setYearDraft] = useState(String(date.year()));
+  const selection = dateSelection ?? getDateSelection(date, granularity);
+  const yearValue = selection.year === null ? "" : String(selection.year);
+  const [yearDraft, setYearDraft] = useState(yearValue);
   const yearIsDirty = useRef(false);
-  const monthValue = granularity === "year" ? "" : String(date.month() + 1);
-  const dayValue = granularity === "day" ? String(date.date()) : "";
-  const parsedYear = Number(yearDraft);
-  const hasValidYear = Number.isInteger(parsedYear) && parsedYear >= 1 && parsedYear <= 9999;
-  const daysInMonth = date
-    .clone()
-    .year(hasValidYear ? parsedYear : date.year())
-    .month(Number(monthValue || date.month() + 1) - 1)
-    .daysInMonth();
+  const monthValue = selection.month === null ? "" : String(selection.month);
+  const dayValue = selection.day === null ? "" : String(selection.day);
+  // 意図: 年未指定の2月はうるう年も検索でき、月未指定なら31日まで選べる。
+  const daysInMonth = selection.month === null ? 31 : obsidianMoment({
+    year: selection.year ?? 2000,
+    month: selection.month - 1,
+    date: 1,
+  }).daysInMonth();
 
   useEffect(() => {
-    setYearDraft(String(date.year()));
+    setYearDraft(yearValue);
     yearIsDirty.current = false;
-  }, [date]);
+  }, [yearValue]);
+
+  const changeSelection = (patch: Partial<DateSelection>) => {
+    const state = store.getState();
+    state.setDateSelection({
+      ...(state.dateSelection ?? getDateSelection(state.date, state.granularity)),
+      ...patch,
+    });
+  };
 
   const applyYear = (value: string): boolean => {
-    const year = Number(value);
-    if (!Number.isInteger(year) || year < 1 || year > 9999) return false;
-
+    const year = value === "" ? null : Number(value);
+    if (year !== null && (!Number.isInteger(year) || year < 1 || year > 9999)) return false;
     yearIsDirty.current = false;
-    const state = store.getState();
-    // 意図: 年を変えた直後は年月日のうち年だけを指定した状態にし、古い月日を引き継がない。
-    state.setDate(state.date.clone().year(year).startOf("year"));
-    state.setGranularity("year");
+    changeSelection({ year });
     return true;
   };
 
@@ -46,32 +57,8 @@ export function HierarchicalDateInput() {
     if (!yearIsDirty.current) return;
     if (!applyYear(yearDraft)) {
       yearIsDirty.current = false;
-      setYearDraft(String(store.getState().date.year()));
+      setYearDraft(yearValue);
     }
-  };
-
-  const changeMonth = (value: string) => {
-    const state = store.getState();
-    if (!value) {
-      state.setDate(state.date.clone().year(parsedYear).startOf("year"));
-      state.setGranularity("year");
-      return;
-    }
-
-    state.setDate(state.date.clone().year(parsedYear).month(Number(value) - 1).startOf("month"));
-    state.setGranularity("month");
-  };
-
-  const changeDay = (value: string) => {
-    const state = store.getState();
-    if (!value) {
-      state.setDate(state.date.clone().startOf("month"));
-      state.setGranularity("month");
-      return;
-    }
-
-    state.setDate(state.date.clone().date(Number(value)));
-    state.setGranularity("day");
   };
 
   return (
@@ -90,7 +77,7 @@ export function HierarchicalDateInput() {
           yearIsDirty.current = true;
           setYearDraft(nextYear);
           // 意図: 入力途中の数字では検索しない。4桁の年になった時点でフォーカスアウトを待たず反映する。
-          if (/^\d{4}$/.test(nextYear)) applyYear(nextYear);
+          if (nextYear === "" || /^\d{4}$/.test(nextYear)) applyYear(nextYear);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
@@ -102,10 +89,9 @@ export function HierarchicalDateInput() {
       <select
         ref={monthTooltipRef}
         className="dstr-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
-        disabled={!hasValidYear}
         value={monthValue}
         onClick={(event) => event.stopPropagation()}
-        onChange={(event) => changeMonth(event.target.value)}
+        onChange={(event) => changeSelection({ month: event.target.value ? Number(event.target.value) : null })}
       >
         <option value="">月</option>
         {Array.from({ length: 12 }, (_, index) => (
@@ -117,13 +103,12 @@ export function HierarchicalDateInput() {
       <select
         ref={dayTooltipRef}
         className="dstr-date-input h-8 w-[3.5em] px-1 text-[length:var(--font-ui-smaller)]"
-        disabled={!hasValidYear || !monthValue}
         value={dayValue}
         onClick={(event) => event.stopPropagation()}
-        onChange={(event) => changeDay(event.target.value)}
+        onChange={(event) => changeSelection({ day: event.target.value ? Number(event.target.value) : null })}
       >
         <option value="">日</option>
-        {Array.from({ length: daysInMonth }, (_, index) => (
+        {Array.from({ length: Math.max(daysInMonth, selection.day ?? 0) }, (_, index) => (
           <option key={index + 1} value={String(index + 1)}>
             {String(index + 1).padStart(2, "0")}日
           </option>

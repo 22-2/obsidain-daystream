@@ -7,7 +7,10 @@ import { useFocusPosts } from "src/features/posts/hooks/internal/useFocusPosts";
 import { SWRConfig } from "swr";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { DateSelection } from "src/features/workspace/utils/date-selection";
+
 interface MockSettingsState {
+  dateSelection?: DateSelection | null;
   activeTopic: string;
   date: Moment;
   granularity: "day" | "week" | "month" | "quarter" | "year";
@@ -135,6 +138,7 @@ describe("useFocusPosts hook integration", () => {
       getMemos: mocked.getMemos,
     });
     mocked.getMemos.mockResolvedValue([]);
+    mocked.settings.dateSelection = null;
     mocked.settings.activeTopic = "work";
     mocked.settings.date = mocked.moment("2026-04-06T12:34:56.000Z");
     mocked.settings.granularity = "day";
@@ -347,4 +351,30 @@ describe("useFocusPosts hook integration", () => {
     expect(mocked.getDb).not.toHaveBeenCalled();
     expect(mocked.loadFile).toHaveBeenCalledWith("home/着ぐるみ購入についてあれこれ.dstr.md");
   });
+  it.each([
+    [{ year: null, month: 10, day: 19 }, ["a", "b"]],
+    [{ year: null, month: null, day: 19 }, ["a", "b", "c"]],
+    [{ year: null, month: 10, day: null }, ["a", "b", "d"]],
+    [{ year: 2025, month: null, day: 19 }, ["b", "c"]],
+    [{ year: null, month: null, day: null }, ["a", "b", "c", "d"]],
+  ] satisfies [DateSelection, string[]][])("日付条件 %j で年をまたいだ投稿を取得する", async (selection, expected) => {
+    mocked.settings.dateSelection = selection;
+    mocked.settings.granularity = "month";
+    mocked.getMemos.mockResolvedValue([
+      createMemoRecord({ content: "a", createdAt: "2024-10-19T01:00:00Z" }),
+      createMemoRecord({ content: "b", createdAt: "2025-10-19T01:00:00Z" }),
+      createMemoRecord({ content: "c", createdAt: "2025-09-19T01:00:00Z" }),
+      createMemoRecord({ content: "d", createdAt: "2025-10-20T01:00:00Z" }),
+    ]);
+    const { result } = renderHook(() => useFocusPosts(), { wrapper: swrWrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.posts.map((post) => post.message)).toEqual(expected);
+    expect(mocked.loadFile).not.toHaveBeenCalled();
+    expect(mocked.getMemos).toHaveBeenCalledWith(expect.objectContaining({
+      topicId: "work",
+      limit: Number.MAX_SAFE_INTEGER,
+      ...(selection.year === null ? { startDate: undefined, endDate: undefined } : {}),
+    }));
+  });
+
 });

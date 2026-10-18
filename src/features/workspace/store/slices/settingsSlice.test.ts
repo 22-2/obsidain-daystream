@@ -11,6 +11,31 @@ import { isPastDateReadOnly, isViewReadOnly } from "src/features/workspace/store
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("settingsSlice", () => {
+  it("空欄を含む日付条件を保存・復元し、カレンダー選択で解除する", () => {
+    const storage = new DSTRStorage(createLocalStorageHost("date-selection-test"));
+    const store = createAppStore();
+    store.getState().setStorage(storage);
+    const selection = { year: null, month: 10, day: 19 };
+    store.getState().setDateSelection(selection);
+    expect(resolveInitialSettingsState(DEFAULT_SETTINGS, storage, "periodic", null).dateSelection)
+      .toEqual(selection);
+
+    store.getState().setCalendarSelection({ date: obsidianMoment("2026-10-20"), dateFilter: "today", granularity: "day" });
+    expect(store.getState().dateSelection).toBeNull();
+    expect(resolveInitialSettingsState(DEFAULT_SETTINGS, storage, "periodic", null).dateSelection)
+      .toBeNull();
+  });
+
+  it("検索から戻ったときに空欄を含む日付条件を復元する", () => {
+    const store = createAppStore();
+    const selection = { year: null, month: null, day: 19 };
+    store.getState().setDateSelection(selection);
+    store.getState().setMainView(MAIN_VIEW.SEARCH);
+    store.getState().setDate(obsidianMoment("2026-10-20"));
+    store.getState().closeSearch();
+    expect(store.getState().dateSelection).toEqual(selection);
+  });
+
   const today = obsidianMoment("2026-03-16T09:00:00.000Z");
   const yesterday = today.clone().subtract(1, "day");
 

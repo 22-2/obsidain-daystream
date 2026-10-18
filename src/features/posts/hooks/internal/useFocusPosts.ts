@@ -15,6 +15,7 @@ import { buildPostFromEntry, memoRecordToPost } from "src/features/posts/utils/t
 import useSWR from "swr";
 import { useShallow } from "zustand/shallow";
 import { reportError } from "src/core/error-report";
+import { matchesDateSelection } from "src/features/workspace/utils/date-selection";
 
 /**
  * フォーカスモード（特定期間の1回読み切り）のデータ取得を担当するHook。
@@ -27,6 +28,7 @@ export const useFocusPosts = () => {
     date,
     granularity,
     dateFilter,
+    dateSelection,
     searchQuery,
     threadOnly,
     viewNoteMode,
@@ -38,6 +40,7 @@ export const useFocusPosts = () => {
       date: s.date,
       granularity: s.granularity,
       dateFilter: s.dateFilter,
+      dateSelection: s.dateSelection,
       ...getEffectiveSearchState(s),
       viewNoteMode: s.viewNoteMode,
       // 意図: ストア側の `file` を参照して固定ノートのパスを得る（Obsidian のファイル選択値）。
@@ -49,7 +52,7 @@ export const useFocusPosts = () => {
   const isFixedMode = viewNoteMode === "fixed";
   const normalizedFixedPath = useMemo(() => normalizeFixedNotePath(file ?? ""), [file]);
   const periodicNoteFile = useMemo(() => {
-    if (isFixedMode) return null;
+    if (isFixedMode || dateSelection) return null;
     if (dateFilter === DATE_FILTER_IDS.THIS_MONTH || dateFilter === DATE_FILTER_IDS.THIS_YEAR) {
       return null;
     }
@@ -58,16 +61,24 @@ export const useFocusPosts = () => {
     }
     // 意図: granularity ごとの本文直読み判定を config に寄せて、quarter 追加時の分岐漏れを防ぐ。
     return resolvePeriodicNote(shell, date, granularity, activeTopic);
-  }, [isFixedMode, granularity, date, dateFilter, activeTopic, shell]);
+  }, [isFixedMode, granularity, date, dateFilter, dateSelection, activeTopic, shell]);
 
   const { startDate, endDate } = useMemo(() => {
+    if (!isFixedMode && dateSelection) {
+      // 意図: 年未指定なら全期間を取得し、ローカル日時の各項目で照合する。
+      const yearDate = dateSelection.year === null ? null : date.clone().year(dateSelection.year);
+      return {
+        startDate: yearDate?.clone().startOf("year").toISOString(),
+        endDate: yearDate?.clone().endOf("year").toISOString(),
+      };
+    }
     const { rangeStart, rangeEnd } = getGranularityRange(date, granularity, dateFilter);
 
     return {
       startDate: rangeStart.toISOString(),
       endDate: rangeEnd.toISOString(),
     };
-  }, [date, granularity, dateFilter]);
+  }, [date, granularity, dateFilter, dateSelection, isFixedMode]);
 
   const effectiveTopic = isFixedMode ? undefined : activeTopic;
 
@@ -91,6 +102,7 @@ export const useFocusPosts = () => {
       settings.insertAfter,
       periodicNoteFile?.path,
       date.toISOString(),
+      dateSelection,
     ],
     async () => {
       if (isFixedMode) {
@@ -154,7 +166,7 @@ export const useFocusPosts = () => {
             })
             // 意図: 月次・年次ノートに別期間の posted 日付が混在しても、選択期間外の投稿を表示しない。
             .filter(
-              (post) => !post.timestamp.isBefore(startDate) && !post.timestamp.isAfter(endDate),
+              (post) => (!startDate || !post.timestamp.isBefore(startDate)) && (!endDate || !post.timestamp.isAfter(endDate)),
             );
 
           if (granularity !== "month") return periodicPosts;
@@ -188,10 +200,13 @@ export const useFocusPosts = () => {
         endDate,
         query: searchQuery,
         threadOnly,
+        ...(dateSelection ? { limit: Number.MAX_SAFE_INTEGER } : {}),
       });
 
       const posts = records.map(memoRecordToPost);
-      return posts;
+      return dateSelection
+        ? posts.filter((post) => matchesDateSelection(post.timestamp, dateSelection))
+        : posts;
     },
   );
 

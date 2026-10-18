@@ -31,6 +31,7 @@ export const STORAGE_KEYS = {
   PANEL_SECTION_STATES: "panelSectionStates",
   GRANULARITY: "granularity",
   DATE: "date",
+  DATE_SELECTION: "dateSelection",
   DISPLAY_MODE: "displayMode",
   CONTENT_VIEW: "contentView",
   MAIN_VIEW: "mainView",

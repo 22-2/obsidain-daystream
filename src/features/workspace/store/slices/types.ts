@@ -1,4 +1,5 @@
 import type { Moment } from "moment";
+import type { DateSelection } from "src/features/workspace/utils/date-selection";
 import type { DSTRStorage } from "src/core/storage";
 import type { Settings } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -43,6 +44,8 @@ export interface NavigationSlice {
   fixedSessionNumber: number;
   granularity: Granularity;
   date: MomentLike;
+  dateSelection: DateSelection | null;
+  setDateSelection: (selection: DateSelection) => void;
   timeFilter: TimeFilter;
   dateFilter: DateFilter;
   displayMode: DisplayMode;
@@ -56,6 +59,7 @@ export interface NavigationSlice {
     | "asTask"
     | "threadFocusRootId"
     | "date"
+    | "dateSelection"
     | "granularity"
     | "dateFilter"
     | "timeFilter"
