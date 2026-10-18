@@ -269,12 +269,12 @@ export const PostListView = memo(() => {
   // 無限スクロールのトリガー (初期読み込みなどでリストが空の場合のケア)
   useEffect(() => {
     if (threadView) return;
-    if (!timelineView || !hasMore) return;
+    if (!hasMore) return;
 
     if (timelineItems.length === 0) {
       loadMore();
     }
-  }, [timelineView, hasMore, loadMore, timelineItems.length, threadView]);
+  }, [hasMore, loadMore, timelineItems.length, threadView]);
 
   const pinnedPostCount = useMemo(
     () => filteredPosts.filter((post) => isPinned(post.metadata)).length,
@@ -349,7 +349,7 @@ export const PostListView = memo(() => {
             </Box>
           );
         })}
-        {timelineView && !threadView && (
+        {(timelineView || hasMore) && !threadView && (
           <ListFooter key="footer" hasMore={!!hasMore} isLoading={isLoading} loadMore={loadMore} />
         )}
         <Box key="bottom-spacer" className="h-[24rem]" />
