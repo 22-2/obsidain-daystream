@@ -15,9 +15,10 @@ import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { mergeDraftMetadataForSubmit } from "src/features/composer/store/slices/editorSlice";
+import { resolvePostGranularity } from "src/features/posts/services/post-metadata-service";
 import { THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import { resolveWriteDate, resolveWriteGranularity } from "src/features/workspace/utils/write-context";
+import { resolveWriteDate } from "src/features/workspace/utils/write-context";
 import { useShallow } from "zustand/shallow";
 import { reportError } from "src/core/error-report";
 
@@ -29,7 +30,6 @@ export const useSubmitAction = () => {
   const settingsState = useSettingsStore(
     useShallow((s) => ({
       date: s.date,
-      granularity: s.granularity,
       activeTopic: s.activeTopic,
       asTask: s.asTask,
       threadFocusRootId: s.threadFocusRootId,
@@ -60,15 +60,15 @@ export const useSubmitAction = () => {
 
   const noteState = useNoteStore(useShallow((s) => ({ currentDailyNote: s.currentDailyNote })));
 
-  const { refreshPosts, getSerializedTimestamp, notifyNotFoundAndRefresh, findLatestPost } =
-    usePostHelpers();
-
   // 意図: Granularity は日付ビューの表示・投稿先を表す状態であり、
-  // 全件を横断するタイムラインでは常に日次ノートへ投稿する。
-  const writeGranularity = resolveWriteGranularity(
-    settingsState.displayMode,
-    settingsState.granularity,
-  );
+  // 全件を横断するタイムラインでは常に日次ノートへ投稿する（writeGranularity）。
+  const {
+    writeGranularity,
+    refreshPosts,
+    getSerializedTimestamp,
+    notifyNotFoundAndRefresh,
+    findLatestPost,
+  } = usePostHelpers();
 
   const ensureFixedSessionInsertMarker = useCallback(
     async (note: TFile): Promise<string | null> => {
@@ -143,7 +143,13 @@ export const useSubmitAction = () => {
         targetTs = now;
       }
 
-      const text = toText(currentInput, false, writeGranularity, targetTs, metadata);
+      const text = toText(
+        currentInput,
+        false,
+        resolvePostGranularity(latestPost, writeGranularity),
+        targetTs,
+        metadata,
+      );
 
       const newContent = await shell.replaceRange(
         latestPost.path,

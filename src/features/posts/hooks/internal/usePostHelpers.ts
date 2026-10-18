@@ -12,6 +12,7 @@ import {
   replaceLatestPostMetadata,
   replaceLatestPostsMetadata,
 } from "src/features/posts/services/post-metadata-service";
+import { resolveWriteGranularity } from "src/features/workspace/utils/write-context";
 import { useShallow } from "zustand/shallow";
 
 /**
@@ -38,6 +39,12 @@ export const usePostHelpers = () => {
       editingPost: s.editingPost,
       cancelEdit: s.cancelEdit,
     })),
+  );
+
+  // 意図: 投稿元ノートの粒度が分からない投稿は、新規投稿と同じ規則で書き込み先の粒度を決める。
+  const writeGranularity = resolveWriteGranularity(
+    settingsState.displayMode,
+    settingsState.granularity,
   );
 
   const refreshPosts = useCallback(
@@ -127,7 +134,7 @@ export const usePostHelpers = () => {
         shell,
         insertAfter: settings.insertAfter,
         noteMode: settingsState.viewNoteMode,
-        granularity: settingsState.granularity,
+        granularity: writeGranularity,
         post,
         transformMetadata: (metadata) => normalizeDSTRMetadata(transformMetadata(metadata)),
       });
@@ -143,7 +150,7 @@ export const usePostHelpers = () => {
       shell,
       settings.insertAfter,
       settingsState.viewNoteMode,
-      settingsState.granularity,
+      writeGranularity,
       cancelEditIfActive,
       notifyNotFoundAndRefresh,
       refreshPosts,
@@ -155,7 +162,7 @@ export const usePostHelpers = () => {
     async (posts: Post[], buildMetadata: (post: Post) => Record<string, string>) => {
       const sortedPosts = await replaceLatestPostsMetadata({
         shell,
-        granularity: settingsState.granularity,
+        granularity: writeGranularity,
         posts,
         resolveLatest: findLatestPost,
         buildMetadata: (post) => normalizeDSTRMetadata(buildMetadata(post)),
@@ -174,10 +181,11 @@ export const usePostHelpers = () => {
       const firstPath = sortedPosts[0]?.path;
       if (firstPath) await refreshPosts(firstPath);
     },
-    [shell, editorState, findLatestPost, refreshPosts, settingsState.granularity],
+    [shell, editorState, findLatestPost, refreshPosts, writeGranularity],
   );
 
   return {
+    writeGranularity,
     refreshPosts,
     getSerializedTimestamp,
     normalizeFileContent,

@@ -13,6 +13,7 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { openMarkdownNote } from "src/features/notes/utils/open-markdown-note";
 import { PINNED_METADATA_KEY } from "src/core/domain/post-metadata";
+import { resolvePostGranularity } from "src/features/posts/services/post-metadata-service";
 import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { useShallow } from "zustand/shallow";
 
@@ -23,7 +24,6 @@ export const usePostMutations = () => {
 
   const settingsState = useSettingsStore(
     useShallow((s) => ({
-      granularity: s.granularity,
       isReadOnly: s.isReadOnly(),
       viewNoteMode: s.viewNoteMode,
       threadFocusRootId: s.threadFocusRootId,
@@ -49,6 +49,7 @@ export const usePostMutations = () => {
   );
 
   const {
+    writeGranularity,
     refreshPosts,
     getSerializedTimestamp,
     normalizeFileContent,
@@ -226,14 +227,23 @@ export const usePostMutations = () => {
       if (!nextDay.isSame(now, "day")) metadata.posted = now.toISOString();
 
       const messageWithFrom = `${latestPost.message} (from ${latestPost.timestamp.format("YYYY-MM-DD")})`;
-      const text = toText(messageWithFrom, false, settingsState.granularity, nextDay, metadata);
+      const text = toText(messageWithFrom, false, writeGranularity, nextDay, metadata);
 
       await shell.insertTextAfter(nextNote, text, settings.insertAfter);
       await deletePost(latestPost);
 
       new Notice("明日に送りました");
     },
-    [shell, settings, settingsState, findLatestPost, notifyNotFoundAndRefresh, deletePost, store],
+    [
+      shell,
+      settings,
+      settingsState,
+      writeGranularity,
+      findLatestPost,
+      notifyNotFoundAndRefresh,
+      deletePost,
+      store,
+    ],
   );
 
   /** ブロックIDリンクをクリップボードにコピーする */
@@ -282,7 +292,7 @@ export const usePostMutations = () => {
       const text = toText(
         latestPost.message,
         false,
-        settingsState.granularity,
+        resolvePostGranularity(latestPost, writeGranularity),
         getSerializedTimestamp(latestPost.timestamp, latestPost.noteDate),
         normalizeDSTRMetadata({
           ...latestPost.metadata,
@@ -300,6 +310,7 @@ export const usePostMutations = () => {
     [
       shell,
       settingsState,
+      writeGranularity,
       findLatestPost,
       getSerializedTimestamp,
       cancelEditIfActive,
