@@ -72,6 +72,8 @@ const EditorOnlyAppRoot: React.FC<{
     if (postInfo) {
       const post = reconstructEditingPost(postInfo, message);
       store.getState().startEdit(post);
+      // 意図: startEdit は元の本文を入力へ入れるため、転送された編集途中の入力で上書きする。
+      store.getState().replaceInput(message);
       store.getState().setDraftMetadata(draftMetadata);
       store.getState().setDraftMetadataBase(draftMetadataBase);
       return;

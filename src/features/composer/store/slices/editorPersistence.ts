@@ -1,4 +1,6 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike, Post } from "src/core/domain/post";
 import type { DSTRStorage } from "src/core/storage";
 import { STORAGE_KEYS } from "src/features/workspace/config/constants";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
@@ -12,18 +14,47 @@ export type PersistedDraftMetadataState = {
 };
 
 // 編集中投稿のセッション情報を1オブジェクトにまとめて永続化する。
-// settingsSlice が granularity / noteDateStr を参照するため両フィールドを含める。
+// settingsPersistence が再起動後の表示を戻すため granularity / viewDateStr を参照する。
 export type PersistedEditingPost = {
   id: string;
   path: string;
   timestampStr: string;
   metadataStr: string;
+  /** 投稿元ノートの日付。旧バージョンの保存値では表示中の日付が入っていることがある。 */
   noteDateStr: string;
   offset: number;
+  /** 編集開始時に表示していた粒度。 */
   granularity: string;
+  /** 編集開始時に表示していた日付。旧バージョンの保存値には存在しない。 */
+  viewDateStr?: string;
+  /** 投稿元ノートの粒度。旧バージョンの保存値には存在しない。 */
+  noteGranularity?: Granularity;
   /** 編集開始時の本文。旧バージョンの保存値には存在しない。 */
   message?: string;
 };
+
+/**
+ * 編集中投稿の保存値を作る。
+ * 意図: 一覧からの編集・ポップアウトへの転送で同じ形を保存し、
+ * 元の本文やノートの日付が経路ごとに欠けたり意味が変わったりしないようにする。
+ */
+export function toPersistedEditingPost(
+  post: Post,
+  view: { date: MomentLike; granularity: Granularity },
+): PersistedEditingPost {
+  return {
+    id: post.id,
+    path: post.path,
+    timestampStr: post.timestamp.toISOString(),
+    metadataStr: JSON.stringify(post.metadata),
+    noteDateStr: post.noteDate.toISOString(),
+    offset: post.startOffset,
+    granularity: view.granularity,
+    viewDateStr: view.date.toISOString(),
+    noteGranularity: post.noteGranularity,
+    message: post.message,
+  };
+}
 
 export interface EditorPersistenceContext {
   storage: DSTRStorage | null;
@@ -111,11 +142,12 @@ export const reconstructEditingPost = (
   persisted: PersistedEditingPost,
   input: string,
   message = persisted.message ?? input,
-) => ({
+): Post => ({
   id: persisted.id,
   path: persisted.path,
   timestamp: obsidianMoment(persisted.timestampStr),
   noteDate: obsidianMoment(persisted.noteDateStr),
+  noteGranularity: persisted.noteGranularity,
   metadata: parsePersistedMetadata(persisted.metadataStr),
   message,
   startOffset: persisted.offset,

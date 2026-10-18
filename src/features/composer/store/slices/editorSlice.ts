@@ -6,11 +6,11 @@ import {
   persistInput as persistInputValue,
   reconstructEditingPost,
   restoreEditorState,
+  toPersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
 import type {
   DraftMetadata,
   PersistedDraftMetadataState,
-  PersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
 import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { EditorSlice } from "src/features/composer/store/types";
@@ -197,17 +197,7 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
       });
 
       // 編集セッション情報を1キーにまとめて保存する
-      const persisted: PersistedEditingPost = {
-        id: post.id,
-        path: post.path,
-        timestampStr: post.timestamp.toISOString(),
-        metadataStr: JSON.stringify(post.metadata),
-        noteDateStr: date.toISOString(),
-        offset: post.startOffset,
-        granularity,
-        message: post.message,
-      };
-      persistEditingPost(storage, persisted);
+      persistEditingPost(storage, toPersistedEditingPost(post, { date, granularity }));
 
       replaceInput(post.message);
     },

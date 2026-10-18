@@ -13,7 +13,7 @@ import { showInputModal } from "src/features/composer/modals/InputModal";
 import type { DSTREditorModalOptions } from "src/features/composer/modals/DSTREditorModal";
 import { DSTREditorModal } from "src/features/composer/modals/DSTREditorModal";
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
-import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
+import { toPersistedEditingPost } from "src/features/composer/store/slices/editorPersistence";
 import type { Post } from "src/core/domain/post";
 import type { DSTREditorViewState } from "src/features/composer/views/DSTREditorView";
 import { VIEW_TYPE_DSTR_EDITOR } from "src/features/composer/views/DSTREditorView";
@@ -85,15 +85,8 @@ export function useObsidianUi() {
   const openEditorInNewWindow = useCallback(
     (post: Post) => {
       const draftMetadata = { ...post.metadata };
-      const postInfo: PersistedEditingPost = {
-        id: post.id,
-        path: post.path,
-        timestampStr: post.timestamp.toISOString(),
-        metadataStr: JSON.stringify(post.metadata),
-        noteDateStr: post.noteDate.toISOString(),
-        offset: post.startOffset,
-        granularity: store.getState().granularity,
-      };
+      const { date, granularity } = store.getState();
+      const postInfo = toPersistedEditingPost(post, { date, granularity });
 
       const state: DSTREditorViewState = {
         postInfo,
@@ -114,15 +107,9 @@ export function useObsidianUi() {
       draftMetadataBase: Record<string, string>,
     ): boolean => {
       if (editingPost) {
-        const postInfo: PersistedEditingPost = {
-          id: editingPost.id,
-          path: editingPost.path,
-          timestampStr: editingPost.timestamp.toISOString(),
-          metadataStr: JSON.stringify(editingPost.metadata),
-          noteDateStr: editingPost.noteDate.toISOString(),
-          offset: editingPost.startOffset,
-          granularity: store.getState().granularity,
-        };
+        // 意図: message は編集途中の入力、postInfo.message は元の本文として別々に渡す。
+        const { date, granularity } = store.getState();
+        const postInfo = toPersistedEditingPost(editingPost, { date, granularity });
 
         return openPopoutEditorView({
           postInfo,

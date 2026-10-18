@@ -120,6 +120,7 @@ export function resolveInitialSettingsState(
       offset: number;
       granularity: string;
       noteDateStr: string;
+      viewDateStr?: string;
     } | null>(STORAGE_KEYS.EDITING_POST, null) ?? null;
 
   const granularity =
@@ -130,7 +131,8 @@ export function resolveInitialSettingsState(
 
   const savedDate =
     editingPost !== null
-      ? editingPost.noteDateStr
+      ? // 意図: 旧バージョンの保存値は表示日付を noteDateStr に持っていたため、それで補う。
+        (editingPost.viewDateStr ?? editingPost.noteDateStr)
       : (storage?.get<string | null>(STORAGE_KEYS.DATE, null) ?? null);
 
   const date = savedDate ? obsidianMoment(savedDate) : obsidianMoment();
