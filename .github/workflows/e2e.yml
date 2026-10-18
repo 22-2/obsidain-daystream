@@ -133,7 +133,8 @@ jobs:
                   CI: true
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
-              run: pnpm run test:e2e
+              # 意図: CI runner にはフォーカスを奪われる利用者がいないため、offstage-windows を通さない。
+              run: pnpm run test:e2e:ci
 
             - name: Upload Playwright report
               if: always()

@@ -15,7 +15,7 @@ export type FixedSessionMetaMap = Record<string, FixedSessionLocalMeta>;
 
 const FIXED_SESSION_META_FILE_SUFFIX = ".fixed-session-meta.json";
 
-function getFixedSessionMetaStorageKey(file: string | null): string {
+export function getFixedSessionMetaStorageKey(file: string | null): string {
   if (!file) {
     return STORAGE_KEYS.FIXED_SESSION_META;
   }
@@ -23,7 +23,7 @@ function getFixedSessionMetaStorageKey(file: string | null): string {
   return `${STORAGE_KEYS.FIXED_SESSION_META}:${encodeURIComponent(file)}`;
 }
 
-function getFixedSessionLastOpenedStorageKey(file: string | null): string {
+export function getFixedSessionLastOpenedStorageKey(file: string | null): string {
   if (!file) {
     return STORAGE_KEYS.FIXED_SESSION_LAST_OPENED;
   }
@@ -31,7 +31,7 @@ function getFixedSessionLastOpenedStorageKey(file: string | null): string {
   return `${STORAGE_KEYS.FIXED_SESSION_LAST_OPENED}:${encodeURIComponent(file)}`;
 }
 
-function getFixedSessionMetaFilePath(file: string): string {
+export function getFixedSessionMetaFilePath(file: string): string {
   const lowerFile = file.toLowerCase();
   const legacySuffix = LEGACY_DAYSTREAM_IDENTIFIERS.fixedNoteSuffix;
   const currentFile = lowerFile.endsWith(legacySuffix)
@@ -41,7 +41,7 @@ function getFixedSessionMetaFilePath(file: string): string {
   return `${normalized}${FIXED_SESSION_META_FILE_SUFFIX}`;
 }
 
-function getLegacyFixedSessionMetaFilePath(file: string): string {
+export function getLegacyFixedSessionMetaFilePath(file: string): string {
   if (file.toLowerCase().endsWith(".md")) {
     return `${file.slice(0, -3)}.fixed-session-meta.json`;
   }

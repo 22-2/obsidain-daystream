@@ -125,6 +125,16 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
 
   useEffect(() => {
     if (!view) return;
+    view.actionDelegates.onFixedNoteRenamed = (oldPath, newPath) => {
+      store.getState().followRenamedFile(oldPath, newPath);
+    };
+    return () => {
+      view.actionDelegates.onFixedNoteRenamed = undefined;
+    };
+  }, [view, store]);
+
+  useEffect(() => {
+    if (!view) return;
     view.actionDelegates.onChangeTopic = setActiveTopic;
     return () => {
       view.actionDelegates.onChangeTopic = undefined;

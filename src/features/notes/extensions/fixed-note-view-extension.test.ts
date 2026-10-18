@@ -131,4 +131,19 @@ describe("fixed note view extension", () => {
       leaves[0],
     );
   });
+
+  it("起動時の置き換えでも、存在しない固定ノートの leaf は置き換えない", async () => {
+    const extension = createFixedNoteViewExtension({ isFixedNoteAvailable: () => false });
+    const attachDSTRView = vi.fn(async () => undefined);
+    const leaves = [
+      {
+        view: {},
+        getViewState: () => ({ type: "markdown", state: { file: "dstr/Missing.dstr.md" } }),
+      },
+    ];
+
+    await extension.replaceOpenFixedMarkdownLeaves({ leaves, attachDSTRView });
+
+    expect(attachDSTRView).not.toHaveBeenCalled();
+  });
 });

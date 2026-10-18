@@ -110,6 +110,8 @@ function readConvertibleMarkdownView(
   if (!isRecord(viewState) || viewState.type !== "markdown") return null;
   const state = viewState.state;
   // フラグが付与されている場合は強制的にMarkdownビューとして開く意図がある。
+  // 意図: フラグはその場で開くときだけ有効にする。Markdown ビューの state には残らないため、
+  // 戻る/進むや再起動で開き直したときは固定ノートとして Daystream ビューで開く。
   if (!isRecord(state) || state.__dstr_force_markdown) return null;
   return { view: viewState, state };
 }
@@ -130,51 +132,48 @@ export function createFixedNoteViewExtension(
 ): FixedNoteViewExtension {
   const { isFixedNoteAvailable, getPreferredFixedSessionNumber } = params;
 
+  const convertMarkdownViewState = (viewState: unknown): DSTRViewStateWrapper => {
+    const convertible = readConvertibleMarkdownView(viewState);
+    if (!convertible) return passThroughViewState(viewState);
+    const { view, state } = convertible;
+    const filePath = readFilePath(state.file);
+    if (!isDSTRFixedNotePath(filePath)) return passThroughViewState(viewState);
+
+    // 意図: 削除済み固定ノートまで Daystream へ強制変換すると、空 state が復元されて誤解を招く。
+    // 存在確認が失敗した場合は markdown のまま返し、呼び出し側で通常の欠損ハンドリングに委ねる。
+    if (isFixedNoteAvailable && !isFixedNoteAvailable(filePath)) {
+      return passThroughViewState(viewState);
+    }
+
+    const fixedSessionNumber =
+      resolveFixedSessionNumber(state.fixedSessionNumber) ??
+      resolveFixedSessionNumber(getPreferredFixedSessionNumber?.(filePath)) ??
+      1;
+
+    return {
+      ...view,
+      type: DSTR_VIEW_TYPE,
+      state: {
+        ...DEFAULT_DSTR_VIEW_STATE,
+        ...createFixedNoteViewState(filePath),
+        fixedSessionNumber,
+      },
+    };
+  };
+
   return {
-    convertMarkdownViewState: (viewState) => {
-      const convertible = readConvertibleMarkdownView(viewState);
-      if (!convertible) return passThroughViewState(viewState);
-      const { view, state } = convertible;
-      const filePath = readFilePath(state.file);
-      if (!isDSTRFixedNotePath(filePath))
-        return passThroughViewState(viewState);
-
-      // 意図: 削除済み固定ノートまで Daystream へ強制変換すると、空 state が復元されて誤解を招く。
-      // 存在確認が失敗した場合は markdown のまま返し、呼び出し側で通常の欠損ハンドリングに委ねる。
-      if (isFixedNoteAvailable && !isFixedNoteAvailable(filePath)) {
-        return passThroughViewState(viewState);
-      }
-
-      const fixedSessionNumber =
-        resolveFixedSessionNumber(state.fixedSessionNumber) ??
-        resolveFixedSessionNumber(getPreferredFixedSessionNumber?.(filePath)) ??
-        1;
-
-      return {
-        ...view,
-        type: DSTR_VIEW_TYPE,
-        state: {
-          ...DEFAULT_DSTR_VIEW_STATE,
-          ...createFixedNoteViewState(filePath),
-          fixedSessionNumber,
-        },
-      };
-    },
+    convertMarkdownViewState,
 
     replaceOpenFixedMarkdownLeaves: async ({ leaves, attachDSTRView }) => {
       for (const leaf of leaves) {
-        const filePath = resolveLeafFilePath(leaf);
-        if (!isDSTRFixedNotePath(filePath)) continue;
-        await attachDSTRView(
-          {
-            ...createFixedNoteViewState(filePath),
-            fixedSessionNumber:
-              resolveFixedSessionNumber(
-                getPreferredFixedSessionNumber?.(filePath),
-              ) ?? 1,
-          },
-          leaf,
-        );
+        // 意図: setViewState での変換と同じ判定・state を使い、起動時だけ存在確認や
+        // セッション番号の決め方が食い違わないようにする。
+        const converted = convertMarkdownViewState({
+          type: "markdown",
+          state: { file: resolveLeafFilePath(leaf) },
+        });
+        if (converted.type !== DSTR_VIEW_TYPE) continue;
+        await attachDSTRView(converted.state, leaf);
       }
     },
   };

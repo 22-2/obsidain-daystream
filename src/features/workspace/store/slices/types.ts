@@ -25,6 +25,8 @@ export interface EnvironmentSlice {
     file: string | null;
     fixedSessionNumber?: number;
   }) => void;
+  /** 表示中の固定ノートの名前が変わったとき、入力を入れ替えずにパスだけを新しくする。 */
+  followRenamedFile: (oldPath: string, newPath: string) => void;
   initializeAppStore: (params: {
     shell: ObsidianAppShell;
     settings: Settings;

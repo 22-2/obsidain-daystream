@@ -4,7 +4,7 @@ import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { VIEW_TYPE_DSTR } from "src/core/view-types";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
-import { renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
+import { normalizeFixedNotePath, renameFixedNote as renameFixedNoteFile } from "src/core/fixed-note";
 import type { EditorExpansionMode, Settings } from "src/core/domain/settings";
 import { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { ReactView } from "src/features/workspace/components/ReactView";
@@ -232,15 +232,21 @@ export class DSTRView extends ItemView {
   }
 
   private async renameFixedNote(newTitle: string): Promise<void> {
-    const path = await renameFixedNoteFile(
-      new ObsidianAppShell(this.app),
-      this.state.file,
-      newTitle,
-    );
-    if (!path) return;
+    // 意図: 開いているビューや保存値の追従は vault の rename イベントでまとめて行う。
+    // ここで自分の state だけを書き換えると、同じノートを開いた他のタブと食い違う。
+    await renameFixedNoteFile(new ObsidianAppShell(this.app), this.state.file, newTitle);
+  }
 
-    this.state.file = path;
+  /** 表示中の固定ノートの名前が変わったとき、ビューの state と入力を新しいパスへ移す。 */
+  followRenamedFixedNote(oldPath: string, newPath: string): void {
+    if (this.state.noteMode !== "fixed" || !this.state.file) return;
+    if (normalizeFixedNotePath(this.state.file) !== normalizeFixedNotePath(oldPath)) return;
+
+    this.state = { ...this.state, file: newPath };
+    // React がまだ描画されていなければ、初期化時に新しい state から読まれる。
+    this.actionDelegates.onFixedNoteRenamed?.(oldPath, newPath);
     this.updateView();
+    this.app.workspace.requestSaveLayout();
   }
 
   private resetReactReady(): void {

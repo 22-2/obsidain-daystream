@@ -595,4 +595,40 @@ describe("editorSlice", () => {
     expect(store.getState().editingPost?.message).toBe(post.message);
     expect(store.getState().getInputValue()).toBe("periodic edited");
   });
+
+  it("固定ノートの名前が変わっても、入力中の本文を入れ替えずに新しいパスへ保存する", () => {
+    const oldPath = "dstr/before.dstr.md";
+    const newPath = "dstr/after.dstr.md";
+    const store = createAppStore();
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "fixed", file: oldPath, fixedSessionNumber: 2 });
+    store.getState().syncInputSession("typing");
+
+    store.getState().followRenamedFile(oldPath, newPath);
+    vi.runAllTimers();
+
+    expect(store.getState().file).toBe(newPath);
+    expect(store.getState().getInputValue()).toBe("typing");
+    expect(values.get(getInputStorageKey("fixed", newPath, 2))).toBe("typing");
+    expect(values.has(getInputStorageKey("fixed", oldPath, 2))).toBe(false);
+  });
+
+  it("固定ノートの名前が変わると、編集中投稿も新しいパスのキーへ移す", () => {
+    const oldPath = "dstr/before.dstr.md";
+    const newPath = "dstr/after.dstr.md";
+    const store = createAppStore();
+    const post = { ...buildPostFixture("fixed editing"), path: oldPath };
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "fixed", file: oldPath, fixedSessionNumber: 2 });
+    store.getState().startEdit(post);
+
+    store.getState().followRenamedFile(oldPath, newPath);
+
+    expect(store.getState().editingPost?.path).toBe(newPath);
+    expect(values.has(getEditingPostStorageKey("fixed", oldPath, 2))).toBe(false);
+    expect(values.get(getEditingPostStorageKey("fixed", newPath, 2))).toMatchObject({
+      id: post.id,
+      path: newPath,
+    });
+  });
 });

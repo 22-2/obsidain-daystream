@@ -100,6 +100,15 @@ export function persistEditingPost(
   context.storage?.set(editingPostKey(context), persisted);
 }
 
+/** 名前を変えたノートの編集中投稿を、新しいパスを指すように書き換える。 */
+export function renameEditingPostPath(
+  persisted: PersistedEditingPost,
+  oldPath: string,
+  newPath: string,
+): PersistedEditingPost {
+  return persisted.path === oldPath ? { ...persisted, path: newPath } : persisted;
+}
+
 export function clearEditingPost(context: EditorPersistenceContext): void {
   context.storage?.remove(editingPostKey(context));
 }
