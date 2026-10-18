@@ -503,4 +503,21 @@ describe("editorSlice", () => {
     expect(firstTab.getState().date.isSame(obsidianMoment(), "day")).toBe(true);
     expect(values.get(STORAGE_KEYS.GRANULARITY)).toBe("month");
   });
+
+  it("固定ノートの名前が変わっても、入力中の本文を入れ替えずに新しいパスへ保存する", () => {
+    const oldPath = "dstr/before.dstr.md";
+    const newPath = "dstr/after.dstr.md";
+    const store = createAppStore();
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "fixed", file: oldPath, fixedSessionNumber: 2 });
+    store.getState().syncInputSession("typing");
+
+    store.getState().followRenamedFile(oldPath, newPath);
+    vi.runAllTimers();
+
+    expect(store.getState().file).toBe(newPath);
+    expect(store.getState().getInputValue()).toBe("typing");
+    expect(values.get(getInputStorageKey("fixed", newPath, 2))).toBe("typing");
+    expect(values.has(getInputStorageKey("fixed", oldPath, 2))).toBe(false);
+  });
 });

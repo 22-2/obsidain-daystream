@@ -1,5 +1,7 @@
 import { createTimelineNavigationState } from "src/features/workspace/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
+import { normalizeFixedNotePath } from "src/core/fixed-note";
+import { moveEditingPostPath } from "src/features/composer/store/slices/editorPersistence";
 import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { EnvironmentSlice, DSTRStore } from "src/features/workspace/store/slices/types";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
@@ -85,6 +87,23 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
     if (hasInputContextChanged) {
       get().reloadInputAreaSize();
     }
+  },
+
+  followRenamedFile: (oldPath, newPath) => {
+    const { viewNoteMode, file, storage, editingPost, inputSnapshot } = get();
+    if (viewNoteMode !== "fixed" || !file) return;
+    if (normalizeFixedNotePath(file) !== normalizeFixedNotePath(oldPath)) return;
+
+    // 意図: 同じノートの名前が変わっただけなので、setViewContext のように入力を退避・復元せず、
+    // 入力中の本文と編集中の投稿をそのまま新しいパスへ引き継ぐ。
+    set({
+      file: newPath,
+      editingPost:
+        editingPost && editingPost.path === oldPath ? { ...editingPost, path: newPath } : editingPost,
+    });
+    moveEditingPostPath(storage, oldPath, newPath);
+    // 意図: 旧パスで予約された入力の保存を取り消し、新しいパスのキーへ保存し直す。
+    get().syncInputSession(inputSnapshot);
   },
 
   initializeAppStore: ({ shell, settings, storage, initialViewState }) => {

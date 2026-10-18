@@ -19,6 +19,6 @@ export function activateBuiltins(context: BuiltinMainContext, appId: string): vo
   registerWorkspaceCommands(context);
 
   registerTagIndexLifecycle(context, appId);
-  registerFixedNoteRegistry(context);
+  registerFixedNoteRegistry(context, storage);
   registerFixedNoteViewLifecycle(context, storage);
 }

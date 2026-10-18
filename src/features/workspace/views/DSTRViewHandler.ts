@@ -24,6 +24,7 @@ export interface DSTRActionDelegate {
   onOpenDraftList?: () => void;
   onSearchInputOpen?: () => void;
   onSearchInputClose?: () => void;
+  onFixedNoteRenamed?: (oldPath: string, newPath: string) => void;
 }
 
 interface DSTRDebugDelegates {

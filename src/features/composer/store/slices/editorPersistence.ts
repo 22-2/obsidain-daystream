@@ -62,6 +62,17 @@ export function persistEditingPost(
   storage?.set(STORAGE_KEYS.EDITING_POST, persisted);
 }
 
+/** 名前を変えたノートの編集中投稿を、新しいパスを指すように保存し直す。 */
+export function moveEditingPostPath(
+  storage: DSTRStorage | null,
+  oldPath: string,
+  newPath: string,
+): void {
+  const persisted = storage?.get<PersistedEditingPost | null>(STORAGE_KEYS.EDITING_POST, null);
+  if (!persisted || persisted.path !== oldPath) return;
+  storage?.set(STORAGE_KEYS.EDITING_POST, { ...persisted, path: newPath });
+}
+
 export function clearEditingPost(storage: DSTRStorage | null): void {
   storage?.remove(STORAGE_KEYS.EDITING_POST);
 }
