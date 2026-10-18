@@ -308,6 +308,14 @@ export const PostListView = memo(() => {
             );
           }
 
+          if (item.type === "pinned-end") {
+            return (
+              <Box key={item.key} style={{ paddingBottom: "1px" }}>
+                <DateDivider label="ここまでピン留め" />
+              </Box>
+            );
+          }
+
           // item.type === "post"
           const isEditing =
             editingPost != null
