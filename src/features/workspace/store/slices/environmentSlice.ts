@@ -1,6 +1,11 @@
 import { createTimelineNavigationState } from "src/features/workspace/store/slices/settingsDefaults";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
+import {
+  persistInputSession,
+  reconstructEditingPost,
+  restoreEditingPost,
+  restoreInputSession,
+} from "src/features/composer/store/slices/editorPersistence";
 import type { EnvironmentSlice, DSTRStore } from "src/features/workspace/store/slices/types";
 import { resolveMainViewCompatibilityState } from "src/features/workspace/utils/main-view-state";
 import { createDefaultDSTRViewState } from "src/features/workspace/views/state";
@@ -36,6 +41,8 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
       fixedSessionNumber: currentFixedSessionNumber,
       getInputValue,
       replaceInput,
+      draftMetadata,
+      draftMetadataBase,
     } = get();
 
     const nextFixedSessionNumber =
@@ -48,9 +55,14 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
 
     if (storage && hasInputContextChanged) {
       // 意図: periodic/fixed で編集中テキストを汚染しないよう、切替直前に現在ビューの入力を退避する。
-      storage.set(
-        getInputStorageKey(viewNoteMode, currentFixedNotePath, currentFixedSessionNumber),
-        getInputValue(),
+      persistInputSession(
+        {
+          storage,
+          viewNoteMode,
+          file: currentFixedNotePath,
+          fixedSessionNumber: currentFixedSessionNumber,
+        },
+        { input: getInputValue(), draftMetadata, draftMetadataBase },
       );
     }
 
@@ -64,21 +76,24 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
 
     if (storage && hasInputContextChanged) {
       // 意図: 切替先ビュー専用の入力だけを復元し、前ビューの未送信入力が混ざるのを防ぐ。
-      const restoredInput = storage.get<string>(
-        getInputStorageKey(noteMode, file, nextFixedSessionNumber),
-        "",
-      );
-      const restoredDraftMetadata = storage.get<{
-        draftMetadata: Record<string, string>;
-        draftMetadataBase: Record<string, string>;
-      }>(getDraftMetadataStorageKey(noteMode, file, nextFixedSessionNumber), {
-        draftMetadata: {},
-        draftMetadataBase: {},
-      });
-      replaceInput(restoredInput);
+      const nextContext = {
+        storage,
+        viewNoteMode: noteMode,
+        file,
+        fixedSessionNumber: nextFixedSessionNumber,
+      };
+      const restored = restoreInputSession(nextContext);
+      // 意図: 編集中の投稿も切替先の組のものに差し替え、前ビューの編集対象へ別ノートの入力で
+      // 送信しないようにする。前ビューの編集状態は保存済みなので、戻れば続きから編集できる。
+      const persistedEditingPost = restoreEditingPost(nextContext);
+      replaceInput(restored.input);
       set({
-        draftMetadata: restoredDraftMetadata.draftMetadata,
-        draftMetadataBase: restoredDraftMetadata.draftMetadataBase,
+        draftMetadata: restored.draftMetadata,
+        draftMetadataBase: restored.draftMetadataBase,
+        editingPost: persistedEditingPost
+          ? reconstructEditingPost(persistedEditingPost, restored.input)
+          : null,
+        editingPostOffset: persistedEditingPost?.offset ?? null,
       });
     }
 

@@ -6,11 +6,11 @@ import {
   persistInput as persistInputValue,
   reconstructEditingPost,
   restoreEditorState,
+  toPersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
 import type {
   DraftMetadata,
   PersistedDraftMetadataState,
-  PersistedEditingPost,
 } from "src/features/composer/store/slices/editorPersistence";
 import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { EditorSlice } from "src/features/composer/store/types";
@@ -22,16 +22,6 @@ type UpdateSessionInputOptions = {
   updateEditor?: boolean;
   persistMode?: PersistMode;
 };
-
-export type {
-  DraftMetadata,
-  PersistedEditingPost,
-} from "src/features/composer/store/slices/editorPersistence";
-
-// 編集中投稿のセッション情報を1オブジェクトにまとめて永続化する
-// settingsSlice が granularity / noteDateStr を参照するため両フィールドを含む
-
-export { reconstructEditingPost } from "src/features/composer/store/slices/editorPersistence";
 
 export function mergeDraftMetadataForSubmit(params: {
   latestMetadata: DraftMetadata;
@@ -176,7 +166,17 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
     },
 
     startEdit: (post) => {
-      const { date, granularity, inputAreaSize, setAsTask, replaceInput, storage } = get();
+      const {
+        date,
+        granularity,
+        inputAreaSize,
+        setAsTask,
+        replaceInput,
+        storage,
+        viewNoteMode,
+        file,
+        fixedSessionNumber,
+      } = get();
       // 意図: 編集開始時に minimized だと入力欄が見えないので default に戻す。
       // maximized は編集対象を切り替えても維持し、ユーザーの表示状態を意図せず変えない。
       // set() を直接使い storage へは書き込まない。
@@ -197,27 +197,20 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
       });
 
       // 編集セッション情報を1キーにまとめて保存する
-      const persisted: PersistedEditingPost = {
-        id: post.id,
-        path: post.path,
-        timestampStr: post.timestamp.toISOString(),
-        metadataStr: JSON.stringify(post.metadata),
-        noteDateStr: date.toISOString(),
-        offset: post.startOffset,
-        granularity,
-        message: post.message,
-      };
-      persistEditingPost(storage, persisted);
+      persistEditingPost(
+        { storage, viewNoteMode, file, fixedSessionNumber },
+        toPersistedEditingPost(post, { date, granularity }),
+      );
 
       replaceInput(post.message);
     },
 
     cancelEdit: () => {
-      const { storage, clearInput } = get();
+      const { storage, viewNoteMode, file, fixedSessionNumber, clearInput } = get();
 
       set({ editingPost: null, editingPostOffset: null });
       set({ draftMetadata: {}, draftMetadataBase: {} });
-      clearEditingPost(storage);
+      clearEditingPost({ storage, viewNoteMode, file, fixedSessionNumber });
       clearInput();
     },
 

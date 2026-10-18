@@ -5,10 +5,15 @@ import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/features/workspace
 import { createAppStore } from "src/features/workspace/store/appStore";
 import {
   getDraftMetadataStorageKey,
+  getEditingPostStorageKey,
   getInputAreaSizeStorageKey,
   getInputStorageKey,
 } from "src/features/composer/store/slices/inputStorage";
 import type { Post } from "src/core/domain/post";
+import {
+  reconstructEditingPost,
+  toPersistedEditingPost,
+} from "src/features/composer/store/slices/editorPersistence";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type MockStorageHandle = {
@@ -502,5 +507,92 @@ describe("editorSlice", () => {
     expect(firstTab.getState().granularity).toBe("day");
     expect(firstTab.getState().date.isSame(obsidianMoment(), "day")).toBe(true);
     expect(values.get(STORAGE_KEYS.GRANULARITY)).toBe("month");
+  });
+
+  it("編集開始時に投稿のノート日付と表示日付を分けて保存する", () => {
+    const store = createAppStore();
+    const post = { ...buildPostFixture("editing post"), noteGranularity: "day" as const };
+    const viewDate = obsidianMoment("2026-03-20T00:00:00.000Z");
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, date: viewDate.clone(), granularity: "week" });
+
+    store.getState().startEdit(post);
+
+    expect(values.get(STORAGE_KEYS.EDITING_POST)).toMatchObject({
+      noteDateStr: post.noteDate.toISOString(),
+      viewDateStr: viewDate.toISOString(),
+      granularity: "week",
+      noteGranularity: "day",
+      message: post.message,
+    });
+  });
+
+  it("再起動時は編集開始時の表示日付へ戻す", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("editing post");
+    const viewDate = obsidianMoment("2026-03-20T00:00:00.000Z");
+    const { storage } = createMockStorage({
+      [STORAGE_KEYS.EDITING_POST]: toPersistedEditingPost(post, {
+        date: viewDate,
+        granularity: "day",
+      }),
+    });
+    store.setState({ pluginSettings: DEFAULT_SETTINGS, storage });
+
+    store.getState().hydrateSettingsState();
+
+    expect(store.getState().date.toISOString()).toBe(viewDate.toISOString());
+  });
+
+  it("ポップアウトへ移した編集途中の入力は、元の本文と比べて送信できる", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("original");
+    const { storage } = createMockStorage();
+    store.setState({ storage });
+    const postInfo = toPersistedEditingPost(post, { date: obsidianMoment(), granularity: "day" });
+
+    // EditorOnlyReactView と同じ順で、元の投稿を編集対象にしてから編集途中の入力を戻す。
+    store.getState().startEdit(reconstructEditingPost(postInfo, "edited"));
+    store.getState().replaceInput("edited");
+
+    expect(store.getState().editingPost?.message).toBe("original");
+    expect(store.getState().getInputValue()).toBe("edited");
+    expect(store.getState().canSubmit([])).toBe(true);
+  });
+
+  it("固定ノートの編集中投稿は、定期ノートとは別のキーへ保存する", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("fixed editing");
+    const fixedPath = "dstr/a.dstr.md";
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "fixed", file: fixedPath, fixedSessionNumber: 2 });
+
+    store.getState().startEdit(post);
+
+    expect(values.has(STORAGE_KEYS.EDITING_POST)).toBe(false);
+    expect(values.get(getEditingPostStorageKey("fixed", fixedPath, 2))).toMatchObject({
+      id: post.id,
+    });
+  });
+
+  it("ビューを切り替えると編集中投稿も切替先のものに差し替え、戻ると続きから編集できる", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("periodic editing");
+    const fixedPath = "dstr/a.dstr.md";
+    const { storage } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "periodic" });
+    store.getState().startEdit(post);
+    store.getState().replaceInput("periodic edited");
+
+    store.getState().setViewContext({ noteMode: "fixed", file: fixedPath });
+
+    expect(store.getState().editingPost).toBeNull();
+    expect(store.getState().getInputValue()).toBe("");
+
+    store.getState().setViewContext({ noteMode: "periodic", file: null });
+
+    expect(store.getState().editingPost?.id).toBe(post.id);
+    expect(store.getState().editingPost?.message).toBe(post.message);
+    expect(store.getState().getInputValue()).toBe("periodic edited");
   });
 });

@@ -9,9 +9,9 @@ import {
   type PersistedNavigationState,
 } from "src/features/workspace/store/slices/settingsPersistence";
 import {
-  persistFixedSessionDraft,
-  restoreFixedSessionDraft,
-} from "src/features/composer/store/fixedSessionDraftPersistence";
+  persistInputSession,
+  restoreInputSession,
+} from "src/features/composer/store/slices/editorPersistence";
 import { isViewReadOnly } from "src/features/workspace/store/slices/settingsPredicates";
 import type { DSTRStore, NavigationSlice } from "src/features/workspace/store/slices/types";
 import type { ContentView, DateFilter, DisplayMode, MainView, TimeFilter } from "src/features/workspace/types";
@@ -92,23 +92,20 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       return;
     }
 
-    persistFixedSessionDraft(
-      { storage: get().storage, viewNoteMode, file },
-      currentFixedSessionNumber,
-      {
-        input: getInputValue(),
-        draftMetadata,
-        draftMetadataBase,
-      },
-    );
+    const storage = get().storage;
+    // 意図: セッション別の下書きは固定ノートだけが持つ。定期ノートでは番号だけを更新する。
+    const shouldSwapDraft = storage !== null && viewNoteMode === "fixed";
+    if (shouldSwapDraft) {
+      persistInputSession(
+        { storage, viewNoteMode, file, fixedSessionNumber: currentFixedSessionNumber },
+        { input: getInputValue(), draftMetadata, draftMetadataBase },
+      );
+    }
 
     set({ fixedSessionNumber, threadFocusRootId: null });
 
-    const restoredDraft = restoreFixedSessionDraft(
-      { storage: get().storage, viewNoteMode, file },
-      fixedSessionNumber,
-    );
-    if (get().storage && viewNoteMode === "fixed") {
+    if (shouldSwapDraft) {
+      const restoredDraft = restoreInputSession({ storage, viewNoteMode, file, fixedSessionNumber });
       replaceInput(restoredDraft.input);
       set({
         draftMetadata: restoredDraft.draftMetadata,

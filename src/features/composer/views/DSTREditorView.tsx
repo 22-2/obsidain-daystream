@@ -6,7 +6,7 @@ import type { Settings } from "src/core/domain/settings";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { VIEW_TYPE_DSTR_EDITOR } from "src/core/view-types";
 import { EditorOnlyReactView } from "src/features/composer/components/EditorOnlyReactView";
-import type { PersistedEditingPost } from "src/features/composer/store/slices/editorSlice";
+import type { PersistedEditingPost } from "src/features/composer/store/slices/editorPersistence";
 import "src/core/ui/styles/global.css";
 import "src/core/ui/styles/dstr.css";
 

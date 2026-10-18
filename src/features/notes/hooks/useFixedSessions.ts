@@ -8,7 +8,7 @@ import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
+import { removeInputSession } from "src/features/composer/store/slices/editorPersistence";
 import {
   readFixedSessionMeta,
   removeFixedSessionMeta,
@@ -221,8 +221,12 @@ export const useFixedSessions = () => {
 
       // 意図: current session 削除時は setFixedSessionNumber 内で旧sessionの下書きを退避し直すため、
       // 切替後に対象sessionの local state をもう一度消して削除結果を確定させる。
-      storage?.remove(getInputStorageKey("fixed", note.path, session.sessionNumber));
-      storage?.remove(getDraftMetadataStorageKey("fixed", note.path, session.sessionNumber));
+      removeInputSession({
+        storage,
+        viewNoteMode: "fixed",
+        file: note.path,
+        fixedSessionNumber: session.sessionNumber,
+      });
 
       await mutate();
     },

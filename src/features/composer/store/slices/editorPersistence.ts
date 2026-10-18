@@ -1,7 +1,12 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import type { Granularity } from "src/core/domain/granularity";
+import type { MomentLike, Post } from "src/core/domain/post";
 import type { DSTRStorage } from "src/core/storage";
-import { STORAGE_KEYS } from "src/features/workspace/config/constants";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
+import {
+  getDraftMetadataStorageKey,
+  getEditingPostStorageKey,
+  getInputStorageKey,
+} from "src/features/composer/store/slices/inputStorage";
 import type { DSTRNoteMode } from "src/features/workspace/views/state";
 
 export type DraftMetadata = Record<string, string>;
@@ -12,18 +17,47 @@ export type PersistedDraftMetadataState = {
 };
 
 // 編集中投稿のセッション情報を1オブジェクトにまとめて永続化する。
-// settingsSlice が granularity / noteDateStr を参照するため両フィールドを含める。
+// settingsPersistence が再起動後の表示を戻すため granularity / viewDateStr を参照する。
 export type PersistedEditingPost = {
   id: string;
   path: string;
   timestampStr: string;
   metadataStr: string;
+  /** 投稿元ノートの日付。旧バージョンの保存値では表示中の日付が入っていることがある。 */
   noteDateStr: string;
   offset: number;
+  /** 編集開始時に表示していた粒度。 */
   granularity: string;
+  /** 編集開始時に表示していた日付。旧バージョンの保存値には存在しない。 */
+  viewDateStr?: string;
+  /** 投稿元ノートの粒度。旧バージョンの保存値には存在しない。 */
+  noteGranularity?: Granularity;
   /** 編集開始時の本文。旧バージョンの保存値には存在しない。 */
   message?: string;
 };
+
+/**
+ * 編集中投稿の保存値を作る。
+ * 意図: 一覧からの編集・ポップアウトへの転送で同じ形を保存し、
+ * 元の本文やノートの日付が経路ごとに欠けたり意味が変わったりしないようにする。
+ */
+export function toPersistedEditingPost(
+  post: Post,
+  view: { date: MomentLike; granularity: Granularity },
+): PersistedEditingPost {
+  return {
+    id: post.id,
+    path: post.path,
+    timestampStr: post.timestamp.toISOString(),
+    metadataStr: JSON.stringify(post.metadata),
+    noteDateStr: post.noteDate.toISOString(),
+    offset: post.startOffset,
+    granularity: view.granularity,
+    viewDateStr: view.date.toISOString(),
+    noteGranularity: post.noteGranularity,
+    message: post.message,
+  };
+}
 
 export interface EditorPersistenceContext {
   storage: DSTRStorage | null;
@@ -55,15 +89,66 @@ export function persistDraftMetadata(
   );
 }
 
-export function persistEditingPost(
-  storage: DSTRStorage | null,
-  persisted: PersistedEditingPost,
-): void {
-  storage?.set(STORAGE_KEYS.EDITING_POST, persisted);
+function editingPostKey(context: EditorPersistenceContext): string {
+  return getEditingPostStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber);
 }
 
-export function clearEditingPost(storage: DSTRStorage | null): void {
-  storage?.remove(STORAGE_KEYS.EDITING_POST);
+export function persistEditingPost(
+  context: EditorPersistenceContext,
+  persisted: PersistedEditingPost,
+): void {
+  context.storage?.set(editingPostKey(context), persisted);
+}
+
+export function clearEditingPost(context: EditorPersistenceContext): void {
+  context.storage?.remove(editingPostKey(context));
+}
+
+export function restoreEditingPost(context: EditorPersistenceContext): PersistedEditingPost | null {
+  return context.storage?.get<PersistedEditingPost | null>(editingPostKey(context), null) ?? null;
+}
+
+/** 入力欄の未送信内容。ビュー・固定ノート・セッションの組ごとに保存する。 */
+export interface InputSessionDraft {
+  input: string;
+  draftMetadata: DraftMetadata;
+  draftMetadataBase: DraftMetadata;
+}
+
+/**
+ * 入力欄の未送信内容をまとめて退避する。
+ * 意図: ビューやセッションの切替で退避・復元の手順を一つにそろえ、
+ * 本文だけ・メタデータだけが別の組へ残る食い違いを防ぐ。
+ */
+export function persistInputSession(
+  context: EditorPersistenceContext,
+  draft: InputSessionDraft,
+): void {
+  persistInput(context, draft.input);
+  persistDraftMetadata(context, {
+    draftMetadata: draft.draftMetadata,
+    draftMetadataBase: draft.draftMetadataBase,
+  });
+}
+
+export function restoreInputSession(context: EditorPersistenceContext): InputSessionDraft {
+  const { storage, viewNoteMode, file, fixedSessionNumber } = context;
+  const metadata = storage?.get<PersistedDraftMetadataState>(
+    getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber),
+    { draftMetadata: {}, draftMetadataBase: {} },
+  ) ?? { draftMetadata: {}, draftMetadataBase: {} };
+
+  return {
+    input: storage?.get<string>(getInputStorageKey(viewNoteMode, file, fixedSessionNumber), "") ?? "",
+    draftMetadata: metadata.draftMetadata,
+    draftMetadataBase: metadata.draftMetadataBase,
+  };
+}
+
+export function removeInputSession(context: EditorPersistenceContext): void {
+  const { storage, viewNoteMode, file, fixedSessionNumber } = context;
+  storage?.remove(getInputStorageKey(viewNoteMode, file, fixedSessionNumber));
+  storage?.remove(getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber));
 }
 
 export function restoreEditorState(
@@ -71,22 +156,11 @@ export function restoreEditorState(
 ): PersistedEditorState | null {
   if (!context.storage) return null;
 
+  const { input, draftMetadata, draftMetadataBase } = restoreInputSession(context);
   return {
-    input: context.storage.get<string>(
-      getInputStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber),
-      "",
-    ),
-    draftMetadata: context.storage.get<PersistedDraftMetadataState>(
-      getDraftMetadataStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber),
-      {
-        draftMetadata: {},
-        draftMetadataBase: {},
-      },
-    ),
-    editingPost: context.storage.get<PersistedEditingPost | null>(
-      STORAGE_KEYS.EDITING_POST,
-      null,
-    ),
+    input,
+    draftMetadata: { draftMetadata, draftMetadataBase },
+    editingPost: restoreEditingPost(context),
   };
 }
 
@@ -111,11 +185,12 @@ export const reconstructEditingPost = (
   persisted: PersistedEditingPost,
   input: string,
   message = persisted.message ?? input,
-) => ({
+): Post => ({
   id: persisted.id,
   path: persisted.path,
   timestamp: obsidianMoment(persisted.timestampStr),
   noteDate: obsidianMoment(persisted.noteDateStr),
+  noteGranularity: persisted.noteGranularity,
   metadata: parsePersistedMetadata(persisted.metadataStr),
   message,
   startOffset: persisted.offset,

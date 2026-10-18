@@ -14,7 +14,7 @@ import {
   useRequiredAppStore,
   type AppStoreApi,
 } from "src/features/workspace/store/appStore";
-import { reconstructEditingPost } from "src/features/composer/store/slices/editorSlice";
+import { reconstructEditingPost } from "src/features/composer/store/slices/editorPersistence";
 import type { DSTREditorViewState } from "src/features/composer/views/DSTREditorView";
 
 // 意図: Paper Cut など他プラグインのエディタビューからも再利用できるよう、
@@ -72,6 +72,8 @@ const EditorOnlyAppRoot: React.FC<{
     if (postInfo) {
       const post = reconstructEditingPost(postInfo, message);
       store.getState().startEdit(post);
+      // 意図: startEdit は元の本文を入力へ入れるため、転送された編集途中の入力で上書きする。
+      store.getState().replaceInput(message);
       store.getState().setDraftMetadata(draftMetadata);
       store.getState().setDraftMetadataBase(draftMetadataBase);
       return;

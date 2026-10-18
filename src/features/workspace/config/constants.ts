@@ -43,6 +43,7 @@ export const STORAGE_KEYS = {
   INPUT_PERIODIC_DRAFT_METADATA: "inputPeriodicDraftMetadata",
   // 編集中投稿のセッション情報を1オブジェクトにまとめて保存する
   EDITING_POST: "editingPost",
+  DRAFTS: "drafts",
   THREAD_FOCUS_ROOT_ID: "threadFocusRootId",
   COLLAPSED_POST_GROUP_KEYS: "collapsedPostGroupKeys",
   INPUT_AREA_SIZE: "inputAreaSize",
