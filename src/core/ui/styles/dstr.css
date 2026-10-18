@@ -425,37 +425,16 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
   min-width: 0;
   --dstr-card-hover-border: color-mix(
     in srgb,
-    var(--text-normal) 70%,
+    var(--text-normal) 40%,
     var(--background-modifier-border-hover)
   );
-  border: 1px solid color-mix(
-    in srgb,
-    var(--background-modifier-border-hover) 75%,
-    var(--background-modifier-border)
-  );
+  /* 意図: 枠線は通常時は透明にして、ホバー時だけ色を付ける（高さは変えない）。 */
+  border: 1px solid transparent;
   transition: border-color 150ms;
-}
-
-/* 意図: 仮想リストの高さを変えず、隣接カードの境界線を1本だけ描く。 */
-.dstr-post-row + .dstr-post-row .dstr-card {
-  border-top-width: 0;
-}
-
-.dstr-post-row {
-  position: relative;
-}
-
-.dstr-post-row:hover {
-  z-index: 1;
 }
 
 .dstr-card:hover {
   border-color: var(--dstr-card-hover-border);
-}
-
-/* 意図: 上のカードが持つ共有境界線にホバー色を重ね、四辺を同じ色で強調する。 */
-.dstr-post-row + .dstr-post-row .dstr-card:hover {
-  box-shadow: 0 -1px 0 var(--dstr-card-hover-border);
 }
 
 @media (prefers-reduced-motion: reduce) {
