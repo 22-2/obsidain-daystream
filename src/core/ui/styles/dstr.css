@@ -321,6 +321,17 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
    スクロールエリア
    ============================================== */
 
+.dstr-scroll-container {
+  scrollbar-gutter: stable;
+}
+
+/* 意図: 重ねて表示されるスクロールバーからも右端の枠線を離す。 */
+.dstr-post-list {
+  box-sizing: border-box;
+  min-width: 0;
+  padding-inline-end: var(--size-4-3);
+}
+
 .dstr-scroll-area {
   overflow-y: scroll;
   scrollbar-width: thin;
@@ -409,6 +420,9 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
    ============================================== */
 
 .dstr-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   --dstr-card-hover-border: color-mix(
     in srgb,
     var(--text-normal) 70%,

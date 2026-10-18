@@ -282,7 +282,7 @@ export const PostListView = memo(() => {
   );
 
   return (
-    <Box className="list w-full relative">
+    <Box className="list dstr-post-list w-full relative">
       <Virtualizer
         ref={vRef}
         scrollRef={scrollContainerRef}
