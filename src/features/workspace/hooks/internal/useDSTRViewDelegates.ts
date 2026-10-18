@@ -3,7 +3,7 @@ import { useAppContext } from "src/core/ui/context/AppContext";
 import { reportError } from "src/core/error-report";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
-import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
+import { useSubmitAction } from "src/features/composer/hooks/useSubmitAction";
 import { INPUT_AREA_SIZE } from "src/features/workspace/config/constants";
 import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
@@ -62,7 +62,7 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
     })),
   );
 
-  const { handleSubmit } = usePostActions();
+  const { handleSubmit } = useSubmitAction();
   const handleClickOpenDailyNote = useCallback(() => {
     return store.getState().handleClickOpenDailyNote(shell, settings);
   }, [store, shell, settings]);

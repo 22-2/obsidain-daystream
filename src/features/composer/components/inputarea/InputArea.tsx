@@ -15,7 +15,7 @@ import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
 import { isComposerHostView } from "src/features/composer/types/composer-host";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useEditorFocus } from "src/features/composer/hooks/useEditorFocus";
-import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
+import { useSubmitAction } from "src/features/composer/hooks/useSubmitAction";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
@@ -57,7 +57,7 @@ export const InputArea: FC = memo(() => {
         ctrlEnterSends: s.pluginSettings?.ctrlEnterSends ?? "disabled",
       })),
     );
-  const { handleSubmit } = usePostActions();
+  const { handleSubmit } = useSubmitAction();
   const { openInputInNewWindow } = useObsidianUi();
   const isMinimized = inputAreaSize === INPUT_AREA_SIZE.MINIMIZED;
 

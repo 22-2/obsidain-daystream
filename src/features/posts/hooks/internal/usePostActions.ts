@@ -2,8 +2,9 @@ import { usePostMutations } from "src/features/posts/hooks/internal/usePostMutat
 import { useSubmitAction } from "src/features/composer/hooks/useSubmitAction";
 
 /**
- * テスト・コンポーネントの後方互換を保つバレル。
- * 実装は useSubmitAction / usePostMutations に分割されている。
+ * 投稿と一覧操作をまとめて検証するテスト用の束ね。
+ * 意図: コンポーネントは必要な方だけを使うよう useSubmitAction / usePostMutations を直接呼び、
+ * 使わない hook の購読を増やさない。
  */
 export const usePostActions = () => {
   const { handleSubmit } = useSubmitAction();

@@ -13,7 +13,7 @@ import { INPUT_AREA_SIZE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
-import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
+import { useSubmitAction } from "src/features/composer/hooks/useSubmitAction";
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useAppStore, useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useEditorStore } from "src/features/composer/store/editorStore";
@@ -62,7 +62,7 @@ export const InputAreaFooter: FC<{
   );
 
   const { inputRef } = useEditorRefs();
-  const { handleSubmit } = usePostActions();
+  const { handleSubmit } = useSubmitAction();
 
   const handleClick = useCallback(() => {
     inputRef.current?.focus();
