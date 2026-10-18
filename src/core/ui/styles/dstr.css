@@ -353,17 +353,22 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
    「続きを読む」ボタン
    ============================================== */
 
+/* 意図: 罫線や中央寄せにすると「ここまでピン留め」などの区切りと見分けにくく、
+   長い投稿の下にだけ線が並んで散らかって見えるため、本文に続く左揃えのリンクとして見せる。 */
 .dstr-read-more {
   display: block;
-  width: 100%;
-  padding: var(--size-2-2) var(--size-4-1);
-  text-align: center;
-  font-size: 80%;
+  width: fit-content;
+  padding-block: var(--size-2-1);
+  text-align: start;
+  font-size: var(--font-ui-smaller);
   color: var(--text-accent);
   cursor: pointer;
   background: none;
   border: none;
-  border-top: 1px solid var(--background-modifier-border);
+}
+
+.dstr-read-more:hover {
+  text-decoration: underline;
 }
 
 /* ==============================================
