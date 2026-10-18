@@ -8,6 +8,7 @@ import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import type { DSTRStorage } from "src/core/storage";
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import { indexNoteContent } from "src/core/db/indexer/tag-indexer";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
 import { AppStoreProvider, appStore as editorStore } from "src/features/workspace/store/appStore";
@@ -94,6 +95,7 @@ describe("usePostActions - copyBlockIdLink", () => {
     return {
       getVault: () => vault,
       getRawApp: () => rawApp,
+      getAbstractFileByPath,
       loadFile,
       replaceRange,
     } as unknown as ObsidianAppShell;
@@ -170,6 +172,7 @@ describe("usePostActions - copyBlockIdLink", () => {
     };
 
     loadFile.mockResolvedValue("## Thino\n- 09:00:00 no id\n");
+    replaceRange.mockResolvedValueOnce("written content");
 
     const { result } = renderHook(() => usePostActions());
 
@@ -184,6 +187,13 @@ describe("usePostActions - copyBlockIdLink", () => {
 
     const generatedId = /\^([0-9a-z]{6})/.exec(savedText)?.[1] ?? "";
     expect(generatedId).toHaveLength(6);
+    // 書き込んだ全文で、再検証より前にDBへ反映する。
+    expect(indexNoteContent).toHaveBeenCalledWith(
+      expect.anything(),
+      testNote,
+      expect.anything(),
+      "written content",
+    );
     expect(writeText).toHaveBeenCalledWith(`[[test-note#^${generatedId}]]`);
     expect(Notice).toHaveBeenCalledWith("ブロックIDリンクをコピーしました");
   });

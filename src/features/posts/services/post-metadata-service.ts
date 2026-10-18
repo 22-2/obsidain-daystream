@@ -81,6 +81,12 @@ export async function findLatestThreadPostsInNote(params: {
     .map((post) => ({ ...post, noteGranularity: rootPost.noteGranularity }));
 }
 
+/** 書き戻した投稿と、書き込み後のノート全文。全文はDBへの即時反映に使う。 */
+export interface PostWriteResult<T> {
+  posts: T;
+  content: string;
+}
+
 /** 最新offsetに対してmetadataを保存する。見つからない場合は副作用を行わずnullを返す。 */
 export async function replaceLatestPostMetadata(params: {
   shell: ObsidianAppShell;
@@ -89,7 +95,7 @@ export async function replaceLatestPostMetadata(params: {
   granularity: Granularity;
   post: Post;
   transformMetadata: (previous: Record<string, string>) => Record<string, string>;
-}): Promise<Post | null> {
+}): Promise<PostWriteResult<Post> | null> {
   const latestPost = await findLatestPostInNote(params);
   if (!latestPost) return null;
 
@@ -100,27 +106,33 @@ export async function replaceLatestPostMetadata(params: {
     latestPost.timestamp,
     params.transformMetadata({ ...latestPost.metadata }),
   );
-  await params.shell.replaceRange(
+  const content = await params.shell.replaceRange(
     latestPost.path,
     latestPost.startOffset,
     latestPost.endOffset,
     text,
   );
-  return latestPost;
+  return { posts: latestPost, content };
 }
 
-/** 複数投稿は現行offsetで並べ、後方から置換して後続offsetのずれを防ぐ。 */
+/**
+ * 複数投稿は現行offsetで並べ、後方から置換して後続offsetのずれを防ぐ。
+ * 呼び出し側はスレッドなど同じノート内の投稿だけを渡す前提で、最後に書いた全文を返す。
+ */
 export async function replaceLatestPostsMetadata(params: {
   shell: ObsidianAppShell;
   granularity: Granularity;
   posts: Post[];
   resolveLatest: (post: Post) => Promise<Post | null>;
   buildMetadata: (post: Post) => Record<string, string>;
-}): Promise<Post[]> {
+}): Promise<PostWriteResult<Post[]> | null> {
   const latestPosts = (await Promise.all(params.posts.map(params.resolveLatest))).filter(
     (post): post is Post => post !== null,
   );
   const sortedPosts = [...latestPosts].sort((a, b) => b.startOffset - a.startOffset);
+  if (sortedPosts.length === 0) return null;
+
+  let content = "";
 
   for (const post of sortedPosts) {
     // 意図: 単体更新と同じく投稿自身の日時で書き戻し、時刻を日付だけに丸めない。
@@ -134,8 +146,8 @@ export async function replaceLatestPostsMetadata(params: {
         ...params.buildMetadata(post),
       },
     );
-    await params.shell.replaceRange(post.path, post.startOffset, post.endOffset, text);
+    content = await params.shell.replaceRange(post.path, post.startOffset, post.endOffset, text);
   }
 
-  return sortedPosts;
+  return { posts: sortedPosts, content };
 }

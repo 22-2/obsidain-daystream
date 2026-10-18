@@ -50,7 +50,8 @@ export const usePostMutations = () => {
 
   const {
     writeGranularity,
-    refreshPosts,
+    indexSavedNote,
+    syncWrittenNote,
     getSerializedTimestamp,
     normalizeFileContent,
     cancelEditIfActive,
@@ -124,8 +125,7 @@ export const usePostMutations = () => {
 
         const filePath = sorted[0]?.path;
         if (filePath) {
-          await normalizeFileContent(filePath);
-          await refreshPosts(filePath);
+          await syncWrittenNote(filePath, await normalizeFileContent(filePath));
         }
 
         if (settingsState.threadFocusRootId === latestPost.threadRootId) {
@@ -136,8 +136,7 @@ export const usePostMutations = () => {
 
       // 単一投稿の削除
       await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, "");
-      await normalizeFileContent(latestPost.path);
-      await refreshPosts(latestPost.path);
+      await syncWrittenNote(latestPost.path, await normalizeFileContent(latestPost.path));
     },
     [
       shell,
@@ -145,7 +144,7 @@ export const usePostMutations = () => {
       findLatestThreadPosts,
       normalizeFileContent,
       notifyNotFoundAndRefresh,
-      refreshPosts,
+      syncWrittenNote,
       settingsState,
     ],
   );
@@ -229,7 +228,9 @@ export const usePostMutations = () => {
       const messageWithFrom = `${latestPost.message} (from ${latestPost.timestamp.format("YYYY-MM-DD")})`;
       const text = toText(messageWithFrom, false, writeGranularity, nextDay, metadata);
 
-      await shell.insertTextAfter(nextNote, text, settings.insertAfter);
+      const nextContent = await shell.insertTextAfter(nextNote, text, settings.insertAfter);
+      // 意図: 移動先は deletePost の再検証対象と別ノートなので、先にDBへ反映しておく。
+      await indexSavedNote(nextNote, nextContent);
       await deletePost(latestPost);
 
       new Notice("明日に送りました");
@@ -239,6 +240,7 @@ export const usePostMutations = () => {
       settings,
       settingsState,
       writeGranularity,
+      indexSavedNote,
       findLatestPost,
       notifyNotFoundAndRefresh,
       deletePost,
@@ -300,11 +302,16 @@ export const usePostMutations = () => {
         }),
       );
 
-      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);
+      const content = await shell.replaceRange(
+        latestPost.path,
+        latestPost.startOffset,
+        latestPost.endOffset,
+        text,
+      );
 
       cancelEditIfActive(latestPost);
       settingsState.setThreadFocusRootId(rootId, latestPost.noteDate);
-      await refreshPosts(latestPost.path);
+      await syncWrittenNote(latestPost.path, content);
       new Notice("スレッドを作成しました");
     },
     [
@@ -315,7 +322,7 @@ export const usePostMutations = () => {
       getSerializedTimestamp,
       cancelEditIfActive,
       notifyNotFoundAndRefresh,
-      refreshPosts,
+      syncWrittenNote,
     ],
   );
 
