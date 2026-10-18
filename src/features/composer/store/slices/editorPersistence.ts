@@ -97,23 +97,58 @@ export function clearEditingPost(storage: DSTRStorage | null): void {
   storage?.remove(STORAGE_KEYS.EDITING_POST);
 }
 
+/** 入力欄の未送信内容。ビュー・固定ノート・セッションの組ごとに保存する。 */
+export interface InputSessionDraft {
+  input: string;
+  draftMetadata: DraftMetadata;
+  draftMetadataBase: DraftMetadata;
+}
+
+/**
+ * 入力欄の未送信内容をまとめて退避する。
+ * 意図: ビューやセッションの切替で退避・復元の手順を一つにそろえ、
+ * 本文だけ・メタデータだけが別の組へ残る食い違いを防ぐ。
+ */
+export function persistInputSession(
+  context: EditorPersistenceContext,
+  draft: InputSessionDraft,
+): void {
+  persistInput(context, draft.input);
+  persistDraftMetadata(context, {
+    draftMetadata: draft.draftMetadata,
+    draftMetadataBase: draft.draftMetadataBase,
+  });
+}
+
+export function restoreInputSession(context: EditorPersistenceContext): InputSessionDraft {
+  const { storage, viewNoteMode, file, fixedSessionNumber } = context;
+  const metadata = storage?.get<PersistedDraftMetadataState>(
+    getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber),
+    { draftMetadata: {}, draftMetadataBase: {} },
+  ) ?? { draftMetadata: {}, draftMetadataBase: {} };
+
+  return {
+    input: storage?.get<string>(getInputStorageKey(viewNoteMode, file, fixedSessionNumber), "") ?? "",
+    draftMetadata: metadata.draftMetadata,
+    draftMetadataBase: metadata.draftMetadataBase,
+  };
+}
+
+export function removeInputSession(context: EditorPersistenceContext): void {
+  const { storage, viewNoteMode, file, fixedSessionNumber } = context;
+  storage?.remove(getInputStorageKey(viewNoteMode, file, fixedSessionNumber));
+  storage?.remove(getDraftMetadataStorageKey(viewNoteMode, file, fixedSessionNumber));
+}
+
 export function restoreEditorState(
   context: EditorPersistenceContext,
 ): PersistedEditorState | null {
   if (!context.storage) return null;
 
+  const { input, draftMetadata, draftMetadataBase } = restoreInputSession(context);
   return {
-    input: context.storage.get<string>(
-      getInputStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber),
-      "",
-    ),
-    draftMetadata: context.storage.get<PersistedDraftMetadataState>(
-      getDraftMetadataStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber),
-      {
-        draftMetadata: {},
-        draftMetadataBase: {},
-      },
-    ),
+    input,
+    draftMetadata: { draftMetadata, draftMetadataBase },
     editingPost: context.storage.get<PersistedEditingPost | null>(
       STORAGE_KEYS.EDITING_POST,
       null,
