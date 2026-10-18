@@ -13,6 +13,10 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { openMarkdownNote } from "src/features/notes/utils/open-markdown-note";
 import { PINNED_METADATA_KEY } from "src/core/domain/post-metadata";
+import {
+  removePostsFromNote,
+  resolvePostGranularity,
+} from "src/features/posts/services/post-metadata-service";
 import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { useShallow } from "zustand/shallow";
 
@@ -23,7 +27,6 @@ export const usePostMutations = () => {
 
   const settingsState = useSettingsStore(
     useShallow((s) => ({
-      granularity: s.granularity,
       isReadOnly: s.isReadOnly(),
       viewNoteMode: s.viewNoteMode,
       threadFocusRootId: s.threadFocusRootId,
@@ -49,9 +52,10 @@ export const usePostMutations = () => {
   );
 
   const {
-    refreshPosts,
+    writeGranularity,
+    indexSavedNote,
+    syncWrittenNote,
     getSerializedTimestamp,
-    normalizeFileContent,
     cancelEditIfActive,
     notifyNotFoundAndRefresh,
     findLatestPost,
@@ -114,18 +118,12 @@ export const usePostMutations = () => {
           return;
         }
 
-        // オフセットズレ対策のため後ろから削除
-        const sorted = latestThreadPosts.slice().sort((a, b) => b.startOffset - a.startOffset);
-
-        for (const p of sorted) {
-          await shell.replaceRange(p.path, p.startOffset, p.endOffset, "");
-        }
-
-        const filePath = sorted[0]?.path;
-        if (filePath) {
-          await normalizeFileContent(filePath);
-          await refreshPosts(filePath);
-        }
+        const content = await removePostsFromNote({
+          shell,
+          path: latestPost.path,
+          posts: latestThreadPosts,
+        });
+        await syncWrittenNote(latestPost.path, content);
 
         if (settingsState.threadFocusRootId === latestPost.threadRootId) {
           settingsState.setThreadFocusRootId(null);
@@ -134,17 +132,19 @@ export const usePostMutations = () => {
       }
 
       // 単一投稿の削除
-      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, "");
-      await normalizeFileContent(latestPost.path);
-      await refreshPosts(latestPost.path);
+      const content = await removePostsFromNote({
+        shell,
+        path: latestPost.path,
+        posts: [latestPost],
+      });
+      await syncWrittenNote(latestPost.path, content);
     },
     [
       shell,
       findLatestPost,
       findLatestThreadPosts,
-      normalizeFileContent,
       notifyNotFoundAndRefresh,
-      refreshPosts,
+      syncWrittenNote,
       settingsState,
     ],
   );
@@ -226,14 +226,26 @@ export const usePostMutations = () => {
       if (!nextDay.isSame(now, "day")) metadata.posted = now.toISOString();
 
       const messageWithFrom = `${latestPost.message} (from ${latestPost.timestamp.format("YYYY-MM-DD")})`;
-      const text = toText(messageWithFrom, false, settingsState.granularity, nextDay, metadata);
+      const text = toText(messageWithFrom, false, writeGranularity, nextDay, metadata);
 
-      await shell.insertTextAfter(nextNote, text, settings.insertAfter);
+      const nextContent = await shell.insertTextAfter(nextNote, text, settings.insertAfter);
+      // 意図: 移動先は deletePost の再検証対象と別ノートなので、先にDBへ反映しておく。
+      await indexSavedNote(nextNote, nextContent);
       await deletePost(latestPost);
 
       new Notice("明日に送りました");
     },
-    [shell, settings, settingsState, findLatestPost, notifyNotFoundAndRefresh, deletePost, store],
+    [
+      shell,
+      settings,
+      settingsState,
+      writeGranularity,
+      indexSavedNote,
+      findLatestPost,
+      notifyNotFoundAndRefresh,
+      deletePost,
+      store,
+    ],
   );
 
   /** ブロックIDリンクをクリップボードにコピーする */
@@ -282,7 +294,7 @@ export const usePostMutations = () => {
       const text = toText(
         latestPost.message,
         false,
-        settingsState.granularity,
+        resolvePostGranularity(latestPost, writeGranularity),
         getSerializedTimestamp(latestPost.timestamp, latestPost.noteDate),
         normalizeDSTRMetadata({
           ...latestPost.metadata,
@@ -290,21 +302,27 @@ export const usePostMutations = () => {
         }),
       );
 
-      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, text);
+      const content = await shell.replaceRange(
+        latestPost.path,
+        latestPost.startOffset,
+        latestPost.endOffset,
+        text,
+      );
 
       cancelEditIfActive(latestPost);
       settingsState.setThreadFocusRootId(rootId, latestPost.noteDate);
-      await refreshPosts(latestPost.path);
+      await syncWrittenNote(latestPost.path, content);
       new Notice("スレッドを作成しました");
     },
     [
       shell,
       settingsState,
+      writeGranularity,
       findLatestPost,
       getSerializedTimestamp,
       cancelEditIfActive,
       notifyNotFoundAndRefresh,
-      refreshPosts,
+      syncWrittenNote,
     ],
   );
 

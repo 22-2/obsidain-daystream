@@ -7,7 +7,7 @@ import { useAppContext } from "src/core/ui/context/AppContext";
 import { useObsidianComponent } from "src/core/ui/context/ComponentContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useEditorFocus } from "src/features/composer/hooks/useEditorFocus";
-import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
+import { useSubmitAction } from "src/features/composer/hooks/useSubmitAction";
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { DiscardConfirmModal } from "src/features/composer/modals/DiscardConfirmModal";
 import { useEditorStore } from "src/features/composer/store/editorStore";
@@ -48,7 +48,7 @@ export const PopoutInputArea: FC = memo(() => {
   const { posts } = usePosts();
   const canSubmit = useEditorStore((s) => s.canSubmit(posts));
 
-  const { handleSubmit } = usePostActions();
+  const { handleSubmit } = useSubmitAction();
 
   const ctrlEnterSends = useSettingsStore(
     (s) => s.pluginSettings?.ctrlEnterSends ?? "disabled",

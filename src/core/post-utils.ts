@@ -76,6 +76,10 @@ export function resolveTimestamp(
     ? obsidianMoment(time, DATE_TIME_FORMAT)
     : obsidianMoment(`${date.format(DATE_FORMAT)} ${time}`, DATE_TIME_FORMAT);
 }
+/** 4行以上の連続改行を3行に詰め、投稿やタスクの削除で空行がたまらないようにする。 */
+export function collapseExcessBlankLines(content: string): string {
+  return content.replace(/\n{4,}/g, "\n\n\n");
+}
 function trimLeadingLineBreaks(text: string): string {
   return text.replace(/^(?:\r\n|\r|\n)+/, "");
 }

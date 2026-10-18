@@ -5,7 +5,6 @@ import { ensureFixedSessionHeading } from "src/core/fixed-sessions";
 import { normalizeDSTRMetadata } from "src/core/metadata";
 import { resolveNoteSource } from "src/core/note-source";
 import { toText } from "src/core/post-utils";
-import { indexNoteContent } from "src/core/db/indexer/tag-indexer";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { usePostHelpers } from "src/features/posts/hooks/internal/usePostHelpers";
@@ -15,11 +14,11 @@ import { useEditorStore } from "src/features/composer/store/editorStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { mergeDraftMetadataForSubmit } from "src/features/composer/store/slices/editorSlice";
+import { resolvePostGranularity } from "src/features/posts/services/post-metadata-service";
 import { THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
-import { resolveWriteDate, resolveWriteGranularity } from "src/features/workspace/utils/write-context";
+import { resolveWriteDate } from "src/features/workspace/utils/write-context";
 import { useShallow } from "zustand/shallow";
-import { reportError } from "src/core/error-report";
 
 /** 新規投稿・編集確定のみを担う hook。InputArea / InputAreaFooter / ReactView が利用する。 */
 export const useSubmitAction = () => {
@@ -29,7 +28,6 @@ export const useSubmitAction = () => {
   const settingsState = useSettingsStore(
     useShallow((s) => ({
       date: s.date,
-      granularity: s.granularity,
       activeTopic: s.activeTopic,
       asTask: s.asTask,
       threadFocusRootId: s.threadFocusRootId,
@@ -60,15 +58,17 @@ export const useSubmitAction = () => {
 
   const noteState = useNoteStore(useShallow((s) => ({ currentDailyNote: s.currentDailyNote })));
 
-  const { refreshPosts, getSerializedTimestamp, notifyNotFoundAndRefresh, findLatestPost } =
-    usePostHelpers();
-
   // 意図: Granularity は日付ビューの表示・投稿先を表す状態であり、
-  // 全件を横断するタイムラインでは常に日次ノートへ投稿する。
-  const writeGranularity = resolveWriteGranularity(
-    settingsState.displayMode,
-    settingsState.granularity,
-  );
+  // 全件を横断するタイムラインでは常に日次ノートへ投稿する（writeGranularity）。
+  const {
+    writeGranularity,
+    refreshPosts,
+    indexSavedNote,
+    syncWrittenNote,
+    getSerializedTimestamp,
+    notifyNotFoundAndRefresh,
+    findLatestPost,
+  } = usePostHelpers();
 
   const ensureFixedSessionInsertMarker = useCallback(
     async (note: TFile): Promise<string | null> => {
@@ -93,24 +93,6 @@ export const useSubmitAction = () => {
       return headingLine;
     },
     [shell, settings.insertAfter, settingsState.fixedSessionNumber],
-  );
-
-  const indexSavedNote = useCallback(
-    async (note: TFile, content: string): Promise<void> => {
-      try {
-        await indexNoteContent(shell, note, settings, content);
-      } catch (error) {
-        // Markdown への保存自体は完了している。入力を残すと再送で重複投稿に
-        // なり得るため、保存済みであることを明示して投稿処理は完了させる。
-        reportError({
-          context: "Failed to update DB index after saving post",
-          error,
-          notice: "投稿はノートに保存されましたが、一覧の更新に失敗しました。再読み込みしてください",
-          details: { path: note.path },
-        });
-      }
-    },
-    [shell, settings],
   );
 
   // ── Sub-handlers ───────────────────────────────────────────────────────────
@@ -143,7 +125,13 @@ export const useSubmitAction = () => {
         targetTs = now;
       }
 
-      const text = toText(currentInput, false, writeGranularity, targetTs, metadata);
+      const text = toText(
+        currentInput,
+        false,
+        resolvePostGranularity(latestPost, writeGranularity),
+        targetTs,
+        metadata,
+      );
 
       const newContent = await shell.replaceRange(
         latestPost.path,
@@ -152,14 +140,7 @@ export const useSubmitAction = () => {
         text,
       );
       editorState.cancelEdit();
-      // 意図: vault イベント経由の非同期インデックスを待たず、書き込んだ内容で
-      // 即インデックスしてから再検証する。refreshPosts 時点で DB が古いままになり
-      // 反映が1テンポ遅れるレースを防ぐ。
-      const noteFile = shell.getAbstractFileByPath(latestPost.path);
-      if (noteFile instanceof TFile) {
-        await indexSavedNote(noteFile, newContent);
-      }
-      await refreshPosts(latestPost.path);
+      await syncWrittenNote(latestPost.path, newContent);
     },
     [
       shell,
@@ -168,8 +149,7 @@ export const useSubmitAction = () => {
       editorState,
       findLatestPost,
       notifyNotFoundAndRefresh,
-      refreshPosts,
-      indexSavedNote,
+      syncWrittenNote,
     ],
   );
 
@@ -226,9 +206,7 @@ export const useSubmitAction = () => {
       }
 
       const newContent = await shell.insertTextAfter(noteFile, text, insertMarker);
-      // 意図: 書き込んだ内容で即インデックスし、直後の再検証で確実に返信が載るようにする。
-      await indexSavedNote(noteFile, newContent);
-      await refreshPosts(rootPost.path);
+      await syncWrittenNote(rootPost.path, newContent);
 
       editorState.clearInput();
       scrollContainerRef.current?.scrollTo({ top: 0 });
@@ -241,8 +219,7 @@ export const useSubmitAction = () => {
       editorState,
       getSerializedTimestamp,
       writeGranularity,
-      refreshPosts,
-      indexSavedNote,
+      syncWrittenNote,
     ],
   );
 
