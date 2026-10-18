@@ -1,5 +1,5 @@
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
-import { resolveTimestamp, toText } from "src/core/post-utils";
+import { collapseExcessBlankLines, resolveTimestamp, toText } from "src/core/post-utils";
 import { parseThinoEntries } from "src/core/thino";
 import type { Post } from "src/core/domain/post";
 import type { Granularity } from "src/core/domain/granularity";
@@ -85,6 +85,26 @@ export async function findLatestThreadPostsInNote(params: {
 export interface PostWriteResult<T> {
   posts: T;
   content: string;
+}
+
+/**
+ * 同じノート内の投稿を取り除き、空行を詰めた全文を1回で書き込む。
+ * 意図: 削除と空行の整理を別々に書くと vault の変更イベントが重複して発火し、
+ * インデックスと再検証が連鎖するため、1 read + 1 write に畳む。
+ */
+export async function removePostsFromNote(params: {
+  shell: ObsidianAppShell;
+  path: string;
+  posts: Post[];
+}): Promise<string> {
+  const content = await params.shell.loadFile(params.path);
+  // 意図: 後ろの投稿から取り除き、前の投稿の offset がずれないようにする。
+  const removed = [...params.posts]
+    .sort((a, b) => b.startOffset - a.startOffset)
+    .reduce((text, post) => text.slice(0, post.startOffset) + text.slice(post.endOffset), content);
+  const nextContent = collapseExcessBlankLines(removed);
+  await params.shell.writeFile(params.path, nextContent);
+  return nextContent;
 }
 
 /** 最新offsetに対してmetadataを保存する。見つからない場合は副作用を行わずnullを返す。 */

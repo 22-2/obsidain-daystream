@@ -1,5 +1,6 @@
 import { Notice } from "obsidian";
 import { useCallback } from "react";
+import { collapseExcessBlankLines } from "src/core/post-utils";
 import type { Task } from "src/core/task-text";
 import { useAppStore } from "src/features/workspace/store/appStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
@@ -73,10 +74,11 @@ export const useTaskActions = () => {
       let end = origin.indexOf("\n", start);
       if (end === -1) end = origin.length;
       else end += 1;
-      await shell.replaceRange(path, start, end, "");
-      let newContent = await shell.loadFile(path);
-      newContent = newContent.replace(/\n{4,}/g, "\n\n\n");
-      await shell.writeFile(path, newContent);
+      // 意図: 行の削除と空行の整理を1回の書き込みにまとめ、変更イベントの重複を防ぐ。
+      await shell.writeFile(
+        path,
+        collapseExcessBlankLines(origin.slice(0, start) + origin.slice(end)),
+      );
       postsState.setTasks((await shell.getTasks(noteState.currentDailyNote)) ?? []);
     },
     [shell, noteState.currentDailyNote, isReadOnly, postsState.setTasks],

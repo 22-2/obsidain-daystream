@@ -108,17 +108,6 @@ export const usePostHelpers = () => {
     [],
   );
 
-  /** ファイルの連続改行（4行以上）を最大3行に正規化する */
-  const normalizeFileContent = useCallback(
-    async (filePath: string): Promise<string> => {
-      const content = await shell.loadFile(filePath);
-      const normalized = content.replace(/\n{4,}/g, "\n\n\n");
-      await shell.writeFile(filePath, normalized);
-      return normalized;
-    },
-    [shell],
-  );
-
   /** 投稿が現在編集中であれば編集をキャンセルする */
   const cancelEditIfActive = useCallback(
     (post: Post) => {
@@ -228,7 +217,6 @@ export const usePostHelpers = () => {
     indexSavedNote,
     syncWrittenNote,
     getSerializedTimestamp,
-    normalizeFileContent,
     cancelEditIfActive,
     notifyNotFoundAndRefresh,
     findLatestPost,

@@ -26,7 +26,7 @@ const postsFixture = vi.hoisted(() => ({ posts: [] as Post[] }));
 
 type ShellMethods = Pick<
   ObsidianAppShell,
-  "insertTextAfter" | "insertTextAfterEnsuringMarker" | "replaceRange" | "loadFile"
+  "insertTextAfter" | "insertTextAfterEnsuringMarker" | "replaceRange" | "loadFile" | "writeFile"
 >;
 type WriteFile = (path: string, content: string) => Promise<void>;
 
@@ -860,11 +860,10 @@ prefix
       storedContent = content;
     });
 
-    mockApp.vault.adapter.write = mockWrite;
-
     mockAppContext({
       replaceRange: mockReplaceRange,
       loadFile: mockLoadFile,
+      writeFile: mockWrite,
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -873,7 +872,8 @@ prefix
       await result.current.permanentlyDeletePost(targetPost);
     });
 
-    expect(mockReplaceRange).toHaveBeenCalledTimes(1);
+    expect(mockReplaceRange).not.toHaveBeenCalled();
+    expect(mockWrite).toHaveBeenCalledTimes(1);
     expect(storedContent).toBe(`## Thino
 - 09:00:00 keep before
 - 11:00:00 keep after
@@ -924,13 +924,12 @@ prefix
       storedContent = content;
     });
 
-    mockApp.vault.adapter.write = mockWrite;
-
     settingsStore.setState({ threadFocusRootId: "root-1" });
 
     mockAppContext({
       replaceRange: mockReplaceRange,
       loadFile: mockLoadFile,
+      writeFile: mockWrite,
     });
 
     const { result } = renderHook(() => usePostActions());
@@ -939,7 +938,8 @@ prefix
       await result.current.permanentlyDeletePost(rootPost);
     });
 
-    expect(mockReplaceRange).toHaveBeenCalledTimes(2);
+    expect(mockReplaceRange).not.toHaveBeenCalled();
+    expect(mockWrite).toHaveBeenCalledTimes(1);
     expect(storedContent).toBe(`## Thino
 - 09:00:00 keep before
 - 11:00:00 keep after

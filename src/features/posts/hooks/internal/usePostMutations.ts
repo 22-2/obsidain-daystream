@@ -13,7 +13,10 @@ import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { openMarkdownNote } from "src/features/notes/utils/open-markdown-note";
 import { PINNED_METADATA_KEY } from "src/core/domain/post-metadata";
-import { resolvePostGranularity } from "src/features/posts/services/post-metadata-service";
+import {
+  removePostsFromNote,
+  resolvePostGranularity,
+} from "src/features/posts/services/post-metadata-service";
 import { createThreadId, isThreadRoot, THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { useShallow } from "zustand/shallow";
 
@@ -53,7 +56,6 @@ export const usePostMutations = () => {
     indexSavedNote,
     syncWrittenNote,
     getSerializedTimestamp,
-    normalizeFileContent,
     cancelEditIfActive,
     notifyNotFoundAndRefresh,
     findLatestPost,
@@ -116,17 +118,12 @@ export const usePostMutations = () => {
           return;
         }
 
-        // オフセットズレ対策のため後ろから削除
-        const sorted = latestThreadPosts.slice().sort((a, b) => b.startOffset - a.startOffset);
-
-        for (const p of sorted) {
-          await shell.replaceRange(p.path, p.startOffset, p.endOffset, "");
-        }
-
-        const filePath = sorted[0]?.path;
-        if (filePath) {
-          await syncWrittenNote(filePath, await normalizeFileContent(filePath));
-        }
+        const content = await removePostsFromNote({
+          shell,
+          path: latestPost.path,
+          posts: latestThreadPosts,
+        });
+        await syncWrittenNote(latestPost.path, content);
 
         if (settingsState.threadFocusRootId === latestPost.threadRootId) {
           settingsState.setThreadFocusRootId(null);
@@ -135,14 +132,17 @@ export const usePostMutations = () => {
       }
 
       // 単一投稿の削除
-      await shell.replaceRange(latestPost.path, latestPost.startOffset, latestPost.endOffset, "");
-      await syncWrittenNote(latestPost.path, await normalizeFileContent(latestPost.path));
+      const content = await removePostsFromNote({
+        shell,
+        path: latestPost.path,
+        posts: [latestPost],
+      });
+      await syncWrittenNote(latestPost.path, content);
     },
     [
       shell,
       findLatestPost,
       findLatestThreadPosts,
-      normalizeFileContent,
       notifyNotFoundAndRefresh,
       syncWrittenNote,
       settingsState,
