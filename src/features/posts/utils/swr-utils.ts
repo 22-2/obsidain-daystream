@@ -3,7 +3,7 @@ import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import { mutate } from "swr";
 import { unstable_serialize as serializeInfiniteKey } from "swr/infinite";
 
-type RefreshPostsContext = {
+export type RefreshPostsContext = {
   activeTopic: string;
   displayMode: DisplayMode;
   timelineDayKey: string;
@@ -12,29 +12,33 @@ type RefreshPostsContext = {
 };
 
 /**
- * SWR のキーが 'posts' 関連であるか判定する。
- * SWR 2.x の useSWR (Array) と useSWRInfinite (String with $inf$ prefix) の両方に対応する。
+ * タイムラインの useSWRInfinite が使うページキーを組み立てる。
+ * 意図: 取得側と再検証側で同じ関数を使い、要素の追加・並べ替えで
+ * 再検証だけが別キーを指して更新されなくなるのを防ぐ。
  */
-export function isPostsKey(key: string | string[]): boolean {
-  return key.includes("posts");
-}
-
-function getTimelineInfinitePostsKey({
-  activeTopic,
-  displayMode,
-  timelineDayKey,
-  searchQuery,
-  threadOnly,
-}: RefreshPostsContext): string {
-  return serializeInfiniteKey(() => [
+export function buildTimelinePostsKey(
+  {
+    activeTopic,
+    displayMode,
+    timelineDayKey,
+    searchQuery,
+    threadOnly,
+  }: RefreshPostsContext,
+  pageParam: string | null,
+) {
+  return [
     "posts",
     activeTopic,
     displayMode,
     timelineDayKey,
     searchQuery,
     threadOnly,
-    null,
-  ]);
+    pageParam,
+  ] as const;
+}
+
+function getTimelineInfinitePostsKey(context: RefreshPostsContext): string {
+  return serializeInfiniteKey(() => buildTimelinePostsKey(context, null));
 }
 
 /**

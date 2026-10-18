@@ -11,7 +11,7 @@ import { useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { getEffectiveSearchState } from "src/features/workspace/utils/search-state";
-import { refreshAllPosts } from "src/features/posts/utils/swr-utils";
+import { buildTimelinePostsKey, refreshAllPosts } from "src/features/posts/utils/swr-utils";
 import { memoRecordToPost } from "src/features/posts/utils/thread-utils";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
 import useSWR from "swr";
@@ -103,15 +103,10 @@ export const useInfiniteTimeline = () => {
           ? null
           : previousPageData!.lastSearchedDate.clone().subtract(1, "day").format();
 
-      return [
-        "posts",
-        activeTopic,
-        displayMode,
-        timelineDayKey,
-        searchQuery,
-        threadOnly,
+      return buildTimelinePostsKey(
+        { activeTopic, displayMode, timelineDayKey, searchQuery, threadOnly },
         pageParam,
-      ];
+      );
     },
     async (key) => {
       const dbService = WorkerClient.get();

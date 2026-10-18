@@ -47,7 +47,8 @@ export const useUnifiedPosts = () => {
     } else {
       return {
         posts: focus.posts,
-        loadMore: () => {}, // フォーカスモードは無限スクロールなし
+        // 意図: フォーカス系のページングは取得結果を切り出す PostsProvider 側で行う。
+        loadMore: () => {},
         hasMore: false,
         isLoading: focus.isLoading,
         isValidating: focus.isValidating,
