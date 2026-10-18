@@ -2,6 +2,8 @@ import { createTimelineNavigationState } from "src/features/workspace/store/slic
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
 import {
   persistInputSession,
+  reconstructEditingPost,
+  restoreEditingPost,
   restoreInputSession,
 } from "src/features/composer/store/slices/editorPersistence";
 import type { EnvironmentSlice, DSTRStore } from "src/features/workspace/store/slices/types";
@@ -74,16 +76,24 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
 
     if (storage && hasInputContextChanged) {
       // 意図: 切替先ビュー専用の入力だけを復元し、前ビューの未送信入力が混ざるのを防ぐ。
-      const restored = restoreInputSession({
+      const nextContext = {
         storage,
         viewNoteMode: noteMode,
         file,
         fixedSessionNumber: nextFixedSessionNumber,
-      });
+      };
+      const restored = restoreInputSession(nextContext);
+      // 意図: 編集中の投稿も切替先の組のものに差し替え、前ビューの編集対象へ別ノートの入力で
+      // 送信しないようにする。前ビューの編集状態は保存済みなので、戻れば続きから編集できる。
+      const persistedEditingPost = restoreEditingPost(nextContext);
       replaceInput(restored.input);
       set({
         draftMetadata: restored.draftMetadata,
         draftMetadataBase: restored.draftMetadataBase,
+        editingPost: persistedEditingPost
+          ? reconstructEditingPost(persistedEditingPost, restored.input)
+          : null,
+        editingPostOffset: persistedEditingPost?.offset ?? null,
       });
     }
 

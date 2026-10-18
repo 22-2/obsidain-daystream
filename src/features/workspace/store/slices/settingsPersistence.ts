@@ -10,6 +10,7 @@ import {
 } from "src/features/workspace/config/constants";
 import { DATE_FILTER_IDS, TIME_FILTER_IDS } from "src/features/workspace/config/filter-config";
 import { GRANULARITY_CONFIG } from "src/features/workspace/config/granularity-config";
+import { restoreEditingPost } from "src/features/composer/store/slices/editorPersistence";
 import { getInputAreaSizeStorageKey } from "src/features/composer/store/slices/inputStorage";
 import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import type { Granularity } from "src/core/domain/granularity";
@@ -114,14 +115,12 @@ export function resolveInitialSettingsState(
   viewNoteMode: DSTRNoteMode,
   file: string | null,
 ) {
-  // 編集中投稿が復元できる場合はその粒度・日付を優先する
+  // 編集中投稿が復元できる場合はその粒度・日付を優先する。
+  // 意図: 粒度と日付を持つのは定期ノートの表示だけなので、固定ノートの編集状態は参照しない。
   const editingPost =
-    storage?.get<{
-      offset: number;
-      granularity: string;
-      noteDateStr: string;
-      viewDateStr?: string;
-    } | null>(STORAGE_KEYS.EDITING_POST, null) ?? null;
+    viewNoteMode === "periodic"
+      ? restoreEditingPost({ storage, viewNoteMode, file, fixedSessionNumber: 1 })
+      : null;
 
   const granularity =
     editingPost !== null

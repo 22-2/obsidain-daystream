@@ -5,6 +5,7 @@ import { INPUT_AREA_SIZE, MAIN_VIEW, STORAGE_KEYS } from "src/features/workspace
 import { createAppStore } from "src/features/workspace/store/appStore";
 import {
   getDraftMetadataStorageKey,
+  getEditingPostStorageKey,
   getInputAreaSizeStorageKey,
   getInputStorageKey,
 } from "src/features/composer/store/slices/inputStorage";
@@ -557,5 +558,41 @@ describe("editorSlice", () => {
     expect(store.getState().editingPost?.message).toBe("original");
     expect(store.getState().getInputValue()).toBe("edited");
     expect(store.getState().canSubmit([])).toBe(true);
+  });
+
+  it("固定ノートの編集中投稿は、定期ノートとは別のキーへ保存する", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("fixed editing");
+    const fixedPath = "dstr/a.dstr.md";
+    const { storage, values } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "fixed", file: fixedPath, fixedSessionNumber: 2 });
+
+    store.getState().startEdit(post);
+
+    expect(values.has(STORAGE_KEYS.EDITING_POST)).toBe(false);
+    expect(values.get(getEditingPostStorageKey("fixed", fixedPath, 2))).toMatchObject({
+      id: post.id,
+    });
+  });
+
+  it("ビューを切り替えると編集中投稿も切替先のものに差し替え、戻ると続きから編集できる", () => {
+    const store = createAppStore();
+    const post = buildPostFixture("periodic editing");
+    const fixedPath = "dstr/a.dstr.md";
+    const { storage } = createMockStorage();
+    store.setState({ storage, viewNoteMode: "periodic" });
+    store.getState().startEdit(post);
+    store.getState().replaceInput("periodic edited");
+
+    store.getState().setViewContext({ noteMode: "fixed", file: fixedPath });
+
+    expect(store.getState().editingPost).toBeNull();
+    expect(store.getState().getInputValue()).toBe("");
+
+    store.getState().setViewContext({ noteMode: "periodic", file: null });
+
+    expect(store.getState().editingPost?.id).toBe(post.id);
+    expect(store.getState().editingPost?.message).toBe(post.message);
+    expect(store.getState().getInputValue()).toBe("periodic edited");
   });
 });

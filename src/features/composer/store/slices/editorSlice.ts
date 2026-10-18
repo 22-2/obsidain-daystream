@@ -176,7 +176,17 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
     },
 
     startEdit: (post) => {
-      const { date, granularity, inputAreaSize, setAsTask, replaceInput, storage } = get();
+      const {
+        date,
+        granularity,
+        inputAreaSize,
+        setAsTask,
+        replaceInput,
+        storage,
+        viewNoteMode,
+        file,
+        fixedSessionNumber,
+      } = get();
       // 意図: 編集開始時に minimized だと入力欄が見えないので default に戻す。
       // maximized は編集対象を切り替えても維持し、ユーザーの表示状態を意図せず変えない。
       // set() を直接使い storage へは書き込まない。
@@ -197,17 +207,20 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
       });
 
       // 編集セッション情報を1キーにまとめて保存する
-      persistEditingPost(storage, toPersistedEditingPost(post, { date, granularity }));
+      persistEditingPost(
+        { storage, viewNoteMode, file, fixedSessionNumber },
+        toPersistedEditingPost(post, { date, granularity }),
+      );
 
       replaceInput(post.message);
     },
 
     cancelEdit: () => {
-      const { storage, clearInput } = get();
+      const { storage, viewNoteMode, file, fixedSessionNumber, clearInput } = get();
 
       set({ editingPost: null, editingPostOffset: null });
       set({ draftMetadata: {}, draftMetadataBase: {} });
-      clearEditingPost(storage);
+      clearEditingPost({ storage, viewNoteMode, file, fixedSessionNumber });
       clearInput();
     },
 

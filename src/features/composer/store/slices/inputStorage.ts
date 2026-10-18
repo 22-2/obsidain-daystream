@@ -41,6 +41,20 @@ export function getInputAreaSizeStorageKey(
   return `${STORAGE_KEYS.INPUT_AREA_SIZE}:periodic:${granularity}:${noteDateStr}`;
 }
 
+/**
+ * 編集中投稿の保存キー。入力と同じくビュー・固定ノート・セッションの組ごとに分ける。
+ * 意図: 定期ノートは旧バージョンと同じキーを使い、保存済みの編集状態をそのまま読めるようにする。
+ */
+export function getEditingPostStorageKey(
+  noteMode: DSTRNoteMode,
+  file: string | null,
+  fixedSessionNumber = 1,
+): string {
+  if (noteMode !== "fixed") return STORAGE_KEYS.EDITING_POST;
+  if (!file) return `${STORAGE_KEYS.EDITING_POST}:fixed`;
+  return `${STORAGE_KEYS.EDITING_POST}:fixed:${encodeURIComponent(file)}:${fixedSessionNumber}`;
+}
+
 export function getDraftMetadataStorageKey(
   noteMode: DSTRNoteMode,
   file: string | null,

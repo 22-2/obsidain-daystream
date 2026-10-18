@@ -2,8 +2,11 @@ import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike, Post } from "src/core/domain/post";
 import type { DSTRStorage } from "src/core/storage";
-import { STORAGE_KEYS } from "src/features/workspace/config/constants";
-import { getDraftMetadataStorageKey, getInputStorageKey } from "src/features/composer/store/slices/inputStorage";
+import {
+  getDraftMetadataStorageKey,
+  getEditingPostStorageKey,
+  getInputStorageKey,
+} from "src/features/composer/store/slices/inputStorage";
 import type { DSTRNoteMode } from "src/features/workspace/views/state";
 
 export type DraftMetadata = Record<string, string>;
@@ -86,15 +89,23 @@ export function persistDraftMetadata(
   );
 }
 
-export function persistEditingPost(
-  storage: DSTRStorage | null,
-  persisted: PersistedEditingPost,
-): void {
-  storage?.set(STORAGE_KEYS.EDITING_POST, persisted);
+function editingPostKey(context: EditorPersistenceContext): string {
+  return getEditingPostStorageKey(context.viewNoteMode, context.file, context.fixedSessionNumber);
 }
 
-export function clearEditingPost(storage: DSTRStorage | null): void {
-  storage?.remove(STORAGE_KEYS.EDITING_POST);
+export function persistEditingPost(
+  context: EditorPersistenceContext,
+  persisted: PersistedEditingPost,
+): void {
+  context.storage?.set(editingPostKey(context), persisted);
+}
+
+export function clearEditingPost(context: EditorPersistenceContext): void {
+  context.storage?.remove(editingPostKey(context));
+}
+
+export function restoreEditingPost(context: EditorPersistenceContext): PersistedEditingPost | null {
+  return context.storage?.get<PersistedEditingPost | null>(editingPostKey(context), null) ?? null;
 }
 
 /** 入力欄の未送信内容。ビュー・固定ノート・セッションの組ごとに保存する。 */
@@ -149,10 +160,7 @@ export function restoreEditorState(
   return {
     input,
     draftMetadata: { draftMetadata, draftMetadataBase },
-    editingPost: context.storage.get<PersistedEditingPost | null>(
-      STORAGE_KEYS.EDITING_POST,
-      null,
-    ),
+    editingPost: restoreEditingPost(context),
   };
 }
 
