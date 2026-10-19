@@ -20,7 +20,6 @@ const mocked = vi.hoisted(() => {
       setDate: vi.fn(),
       setDisplayMode: vi.fn(),
       setThreadFocusRootId: vi.fn(),
-      asTask: false,
       searchQuery: "",
       isReadOnly: vi.fn(() => false),
       timeFilter: "all" as const,

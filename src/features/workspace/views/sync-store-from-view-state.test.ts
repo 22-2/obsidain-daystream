@@ -14,7 +14,6 @@ function createMockStore(initialState?: Partial<ReturnType<AppStoreApi["getState
     granularity: "week",
     dateFilter: "today",
     timeFilter: "morning",
-    asTask: true,
     threadOnly: true,
     activeTag: "tag-a",
     threadFocusRootId: "root-1",
@@ -52,7 +51,6 @@ describe("syncStoreFromDSTRViewState", () => {
     const viewState: DSTRViewState = {
       displayMode: "focus",
       granularity: "day",
-      asTask: false,
       threadOnly: false,
       fixedSessionNumber: 4,
       timeFilter: "all",
@@ -72,7 +70,6 @@ describe("syncStoreFromDSTRViewState", () => {
     expect(state.granularity).toBe("day");
     expect(state.dateFilter).toBe("all");
     expect(state.timeFilter).toBe("all");
-    expect(state.asTask).toBe(false);
     expect(state.threadOnly).toBe(false);
     expect(state.activeTag).toBeNull();
     expect(state.threadFocusRootId).toBeNull();
@@ -92,7 +89,6 @@ describe("syncStoreFromDSTRViewState", () => {
     const viewState: DSTRViewState = {
       displayMode: "timeline",
       granularity: "day",
-      asTask: false,
       threadOnly: false,
       fixedSessionNumber: 8,
       timeFilter: "all",
@@ -120,7 +116,6 @@ describe("syncStoreFromDSTRViewState", () => {
     const viewState: DSTRViewState = {
       displayMode: "timeline",
       granularity: "day",
-      asTask: false,
       threadOnly: false,
       fixedSessionNumber: 1,
       timeFilter: "all",
@@ -136,7 +131,6 @@ describe("syncStoreFromDSTRViewState", () => {
 
     expect(state.mainView).toBe(MAIN_VIEW.DATE);
     expect(state.displayMode).toBe("focus");
-    expect(state.asTask).toBe(false);
     expect(store.setState).toHaveBeenCalledWith(
       expect.objectContaining({
         mainView: MAIN_VIEW.DATE,

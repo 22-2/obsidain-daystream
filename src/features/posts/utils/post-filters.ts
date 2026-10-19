@@ -8,11 +8,10 @@ export function filterPostsByRelativeWindow(
   params: {
     dateFilter: DateFilter;
     timeFilter: TimeFilter;
-    asTask: boolean;
     granularity: Granularity;
   },
 ): Post[] {
-  const { dateFilter, timeFilter, asTask, granularity } = params;
+  const { dateFilter, timeFilter, granularity } = params;
   const now = obsidianMoment();
 
   // fixedノートは単一ノート全件を保持するため、期間は現在時刻からの相対窓で絞る。
@@ -48,7 +47,7 @@ export function filterPostsByRelativeWindow(
     return !post.timestamp.isBefore(start) && !post.timestamp.isAfter(now);
   });
 
-  if (timeFilter === "all" || asTask || granularity !== "day") {
+  if (timeFilter === "all" || granularity !== "day") {
     return dateFilteredPosts;
   }
 

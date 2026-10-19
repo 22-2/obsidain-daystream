@@ -9,7 +9,6 @@ import type { ContentView, DateFilter, DisplayMode, InputAreaSize, MainView, Tim
 import type { DSTRNoteMode } from "src/features/workspace/views/state";
 import type { DraftSlice, EditorSlice } from "src/features/composer/store/types";
 import type { NoteSlice } from "src/features/notes/store/types";
-import type { TasksSlice } from "src/features/tasks/store/types";
 
 export interface EnvironmentSlice {
   shell: ObsidianAppShell | null;
@@ -58,7 +57,6 @@ export interface NavigationSlice {
     | "mainView"
     | "contentView"
     | "displayMode"
-    | "asTask"
     | "threadFocusRootId"
     | "date"
     | "dateSelection"
@@ -67,7 +65,6 @@ export interface NavigationSlice {
     | "timeFilter"
     | "activeTag"
   > | null;
-  asTask: boolean;
   threadOnly: boolean;
   threadFocusRootId: string | null;
   setActiveTopic: (topicId: string) => void;
@@ -86,7 +83,6 @@ export interface NavigationSlice {
   setContentView: (view: ContentView) => void;
   setMainView: (view: MainView) => void;
   closeSearch: () => void;
-  setAsTask: (asTask: boolean) => void;
   setThreadOnly: (threadOnly: boolean) => void;
   setThreadFocusRootId: (rootId: string | null, focusDate?: MomentLike) => void;
   handleClickHome: () => void;
@@ -126,7 +122,6 @@ export interface SettingsSlice extends NavigationSlice, LayoutSlice {
 
 export type DSTRStore = EnvironmentSlice &
   SettingsSlice &
-  TasksSlice &
   NoteSlice &
   EditorSlice &
   DraftSlice;

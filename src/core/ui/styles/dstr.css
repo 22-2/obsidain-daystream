@@ -247,10 +247,10 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
 }
 
 /* ==============================================
-   タスク / リスト
+   リスト
    ============================================== */
 
-[data-type="dstr-view"] :is(.task-list-container, .list) .markdown-rendered {
+[data-type="dstr-view"] .list .markdown-rendered {
   user-select: text !important;
 }
 

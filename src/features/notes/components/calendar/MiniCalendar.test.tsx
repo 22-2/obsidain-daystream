@@ -2,12 +2,10 @@ import { cleanup, fireEvent, render } from "@testing-library/react";
 import { DEFAULT_SETTINGS } from "src/core/domain/settings";
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { DSTRStorage } from "src/core/storage";
-import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
 import { createLocalStorageHost } from "src/__mocks__/local-storage-host";
 import { MiniCalendar } from "src/features/notes/components/calendar/MiniCalendar";
 import { DISPLAY_MODE } from "src/features/workspace/config/constants";
 import { AppStoreProvider } from "src/features/workspace/store/appStore";
-import { initializeTasksStore } from "src/features/tasks/store/tasksStore";
 import { initializeSettingsStore, settingsStore } from "src/features/workspace/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -65,7 +63,6 @@ describe("MiniCalendar", () => {
       DEFAULT_SETTINGS,
       new DSTRStorage(createLocalStorageHost("mini-calendar-test")),
     );
-    initializeTasksStore({} as ObsidianAppShell);
   });
   afterEach(() => {
     cleanup();

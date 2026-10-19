@@ -9,7 +9,6 @@ import { useShallow } from "zustand/shallow";
 export const StatusBarHome: FC = () => {
   const {
     activeTag,
-    asTask,
     date,
     dateFilter,
     displayMode,
@@ -23,7 +22,6 @@ export const StatusBarHome: FC = () => {
   } = useSettingsStore(
     useShallow((state) => ({
       activeTag: state.activeTag,
-      asTask: state.asTask,
       date: state.date,
       dateFilter: state.dateFilter,
       displayMode: state.displayMode,
@@ -44,7 +42,6 @@ export const StatusBarHome: FC = () => {
     granularity,
     dateFilter,
     timeFilter,
-    asTask,
     activeTag,
     threadFocusRootId,
     searchQuery,

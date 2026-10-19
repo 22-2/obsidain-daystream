@@ -7,34 +7,24 @@ import { describe, expect, test } from "vitest";
 
 describe("toText", () => {
   test("thino format - day granularity uses only time", () => {
-    const result = toText("test", false, "day");
+    const result = toText("test", "day");
     expect(result).toBe("- 16:00:00 test\n");
   });
 
   test("thino format - other granularity uses full date time", () => {
-    const result = toText("test", false, "week");
+    const result = toText("test", "week");
     expect(result).toBe("- 2026-03-02 16:00:00 test\n");
   });
 
-  test("task format - day granularity uses only time", () => {
-    const result = toText("test", true, "day");
-    expect(result).toBe("- [ ] 16:00:00 test\n");
-  });
-
-  test("task format - other granularity uses full date time", () => {
-    const result = toText("test", true, "week");
-    expect(result).toBe("- [ ] 2026-03-02 16:00:00 test\n");
-  });
-
   test("thino format - with metadata", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       other: "value",
     });
     expect(result).toBe("- 16:00:00 test\n    [other::value]\n");
   });
 
   test("thino format - should NOT filter hidden metadata", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       archived: "true",
       deleted: "20260101000000",
       posted: "2026-03-10T19:00:00.00Z",
@@ -46,14 +36,13 @@ describe("toText", () => {
   });
 
   test("thino format - trims redundant empty lines", () => {
-    const result = toText("test\n\n\n", false, "day");
+    const result = toText("test\n\n\n", "day");
     expect(result).toBe("- 16:00:00 test\n");
   });
 
   test("thino format - fenced code block starts on next indented line", () => {
     const result = toText(
       "```\nどす黒い作家性\n  ↓ 「これを人に伝えるには何の器が最適か」\n売れる公式（乗り物）を選ぶ\n  ↓\n作家性が公式の中で爆発する\n\n```",
-      false,
       "day",
     );
 
@@ -63,7 +52,7 @@ describe("toText", () => {
   });
 
   test("thino format - fenced code block keeps metadata out of the head line", () => {
-    const result = toText("```\ncode\n```", false, "day", undefined, {
+    const result = toText("```\ncode\n```", "day", undefined, {
       posted: "2026-03-10T10:18:13.546Z",
     });
 
@@ -73,7 +62,7 @@ describe("toText", () => {
   });
 
   test("thino format - appends metadata at the end of the post", () => {
-    const result = toText("ggg (from 2026-03-10)", false, "day", undefined, {
+    const result = toText("ggg (from 2026-03-10)", "day", undefined, {
       posted: "2026-03-10T10:18:13.546Z",
     });
     expect(result).toBe(
@@ -84,7 +73,6 @@ describe("toText", () => {
   test("thino format - multi-line with metadata", () => {
     const result = toText(
       "zustandを始めて使ったときは衝撃だったな\nむかしはcontextproviderの順番でやきもきしてたから",
-      false,
       "day",
       undefined,
       {
@@ -97,7 +85,7 @@ describe("toText", () => {
   });
 
   test("thino format - multiple metadata are written on separate lines", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       parentId: "cc73160c",
       posted: "2026-03-10T10:18:13.546Z",
     });
@@ -108,7 +96,7 @@ describe("toText", () => {
   });
 
   test("thino format - should NOT filter archived and deleted metadata", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       archived: "20260311195539",
       deleted: "20260311195539",
     });
@@ -117,7 +105,7 @@ describe("toText", () => {
   });
 
   test("thino format - appends blockId at the very end", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       key: "val",
       blockId: "abc123",
     });
@@ -125,7 +113,7 @@ describe("toText", () => {
   });
 
   test("thino format - appends blockId at the end even without other metadata", () => {
-    const result = toText("test", false, "day", undefined, {
+    const result = toText("test", "day", undefined, {
       blockId: "abc123",
     });
     expect(result).toBe("- 16:00:00 test\n    ^abc123\n");

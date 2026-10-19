@@ -121,7 +121,6 @@ export async function replaceLatestPostMetadata(params: {
 
   const text = toText(
     latestPost.message,
-    false,
     resolvePostGranularity(latestPost, params.granularity),
     latestPost.timestamp,
     params.transformMetadata({ ...latestPost.metadata }),
@@ -158,7 +157,6 @@ export async function replaceLatestPostsMetadata(params: {
     // 意図: 単体更新と同じく投稿自身の日時で書き戻し、時刻を日付だけに丸めない。
     const text = toText(
       post.message,
-      false,
       resolvePostGranularity(post, params.granularity),
       post.timestamp,
       {

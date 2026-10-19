@@ -55,7 +55,7 @@ export async function saveActivityPromptResponse({
   input,
   now = obsidianMoment(),
 }: SaveActivityPromptResponseOptions): Promise<ActivityPromptSaveResult> {
-  const text = toText(input, false, "day", now);
+  const text = toText(input, "day", now);
   if (!text) {
     throw new Error("空の活動記録は保存できません");
   }

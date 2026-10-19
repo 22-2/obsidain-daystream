@@ -31,7 +31,6 @@ export const usePostMutations = () => {
       viewNoteMode: s.viewNoteMode,
       threadFocusRootId: s.threadFocusRootId,
       setThreadFocusRootId: s.setThreadFocusRootId,
-      setAsTask: s.setAsTask,
       setThreadOnly: s.setThreadOnly,
       setActiveTag: s.setActiveTag,
       setSearchQuery: s.setSearchQuery,
@@ -226,7 +225,7 @@ export const usePostMutations = () => {
       if (!nextDay.isSame(now, "day")) metadata.posted = now.toISOString();
 
       const messageWithFrom = `${latestPost.message} (from ${latestPost.timestamp.format("YYYY-MM-DD")})`;
-      const text = toText(messageWithFrom, false, writeGranularity, nextDay, metadata);
+      const text = toText(messageWithFrom, writeGranularity, nextDay, metadata);
 
       const nextContent = await shell.insertTextAfter(nextNote, text, settings.insertAfter);
       // 意図: 移動先は deletePost の再検証対象と別ノートなので、先にDBへ反映しておく。
@@ -293,7 +292,6 @@ export const usePostMutations = () => {
       const rootId = createThreadId();
       const text = toText(
         latestPost.message,
-        false,
         resolvePostGranularity(latestPost, writeGranularity),
         getSerializedTimestamp(latestPost.timestamp, latestPost.noteDate),
         normalizeDSTRMetadata({
@@ -380,7 +378,6 @@ export const usePostMutations = () => {
         editorState.cancelEdit();
       }
 
-      settingsState.setAsTask(false);
       settingsState.setThreadOnly(false);
       settingsState.setActiveTag(null);
       settingsState.setSearchQuery("");

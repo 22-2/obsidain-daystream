@@ -45,7 +45,6 @@ async function openFixedNoteView(obsidian: ObsidianAPI, sessionNumber: number) {
     {
       displayMode: "focus",
       granularity: "day",
-      asTask: false,
       threadOnly: false,
       fixedSessionNumber: sessionNumber,
       timeFilter: "all",

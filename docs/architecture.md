@@ -2,7 +2,7 @@
 
 ## 境界
 
-`src/main.ts` は Obsidian プラグインの入口で、各機能の登録と接続を行います。`core/` は共有domain、DB、platform adapter、UI基盤を所有し、featureの実装へ依存しません。`features/` は workspace、notes、posts、composer、tasks、settings、insights、activity-prompt の機能実装を所有します。
+`src/main.ts` は Obsidian プラグインの入口で、各機能の登録と接続を行います。`core/` は共有domain、DB、platform adapter、UI基盤を所有し、featureの実装へ依存しません。`features/` は workspace、notes、posts、composer、settings、insights、activity-prompt の機能実装を所有します。
 
 StoreはDaystream viewごとに一つの状態を保ちます。`features/workspace/store/appStore.ts` がworkspaceの環境・設定sliceと各featureのsliceを合成し、各featureは自分のslice型・factory・selector hookを所有します。画面のcompositionは利用するfeatureのUIを直接importし、Storeの参照は各featureのStore moduleから行います。全機能を束ねる汎用barrelは設けません。
 

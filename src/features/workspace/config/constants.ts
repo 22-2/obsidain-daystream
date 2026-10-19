@@ -15,7 +15,6 @@ export const MAIN_VIEW = {
   DATE: "date",
   TIMELINE: "timeline",
   SEARCH: "search",
-  TASKS: "tasks",
   INSIGHTS: "insights",
 } as const;
 
@@ -35,7 +34,6 @@ export const STORAGE_KEYS = {
   DISPLAY_MODE: "displayMode",
   CONTENT_VIEW: "contentView",
   MAIN_VIEW: "mainView",
-  AS_TASK: "asTask",
   INPUT: "input",
   INPUT_PERIODIC: "inputPeriodic",
   INPUT_FIXED: "inputFixed",

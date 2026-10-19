@@ -5,7 +5,6 @@ export interface DSTRActionDelegate {
   onOpenDailyNoteAction?: () => void;
   onOpenComposer?: () => void;
   onChangeGranularity?: (g: Granularity) => void;
-  onChangeAsTask?: (asTask: boolean) => void;
   onChangeThreadOnly?: (threadOnly: boolean) => void;
   onChangeTimeFilter?: (f: TimeFilter) => void;
   onChangeDateFilter?: (f: DateFilter) => void;

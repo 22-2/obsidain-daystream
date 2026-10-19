@@ -66,10 +66,9 @@ export function usePastTodayPostCount(): {
   isLoading: boolean;
 } {
   const db = useDSTRDB();
-  const { activeTopic, asTask, date, dateFilter, granularity, viewNoteMode } = useSettingsStore(
+  const { activeTopic, date, dateFilter, granularity, viewNoteMode } = useSettingsStore(
     useShallow((state) => ({
       activeTopic: state.activeTopic,
-      asTask: state.asTask,
       date: state.date,
       dateFilter: state.dateFilter,
       granularity: state.granularity,
@@ -77,8 +76,7 @@ export function usePastTodayPostCount(): {
     })),
   );
 
-  const enabled =
-    viewNoteMode === "periodic" && granularity === "day" && dateFilter === "today" && !asTask;
+  const enabled = viewNoteMode === "periodic" && granularity === "day" && dateFilter === "today";
   const dateKey = date.format("YYYY-MM-DD");
 
   const { data, error, mutate } = useSWR<number, Error>(

@@ -170,7 +170,6 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
         date,
         granularity,
         inputAreaSize,
-        setAsTask,
         replaceInput,
         storage,
         viewNoteMode,
@@ -185,7 +184,6 @@ export const createEditorSlice: StateCreator<DSTRStore, [], [], EditorSlice> = (
         set({ inputAreaSize: INPUT_AREA_SIZE.DEFAULT });
       }
 
-      setAsTask(false);
       set({ editingPost: post, editingPostOffset: post.startOffset });
       set({
         draftMetadata: { ...post.metadata },

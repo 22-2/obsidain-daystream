@@ -68,13 +68,6 @@ function addViewMenuItems(menu: Menu, options: DSTRPaneMenuOptions): void {
         ),
     );
   }
-
-  menu.addItem((item) =>
-    item
-      .setTitle(state.asTask ? "タスクモード" : "メッセージモード")
-      .setIcon(state.asTask ? "toggle-left" : "toggle-right")
-      .onClick(() => options.actionDelegates.onChangeAsTask?.(!options.getState().asTask)),
-  );
 }
 
 function addCopyAllMessagesMenuItem(menu: Menu, actionDelegates: DSTRActionDelegate): void {

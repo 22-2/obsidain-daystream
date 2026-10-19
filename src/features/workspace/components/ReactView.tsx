@@ -22,7 +22,6 @@ import {
   useRequiredAppStore,
 } from "src/features/workspace/store/appStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
-import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { DSTRView } from "src/features/workspace/views/DSTRView";
 import type { DSTRViewState } from "src/features/workspace/views/state";
@@ -100,13 +99,12 @@ const DSTRAppRoot: React.FC<{
     store,
   );
 
-  const { date, granularity, activeTopic, dateFilter, asTask, isReadOnly } = useSettingsStore(
+  const { date, granularity, activeTopic, dateFilter, isReadOnly } = useSettingsStore(
     useShallow((state) => ({
       date: state.date,
       granularity: state.granularity,
       activeTopic: state.activeTopic,
       dateFilter: state.dateFilter,
-      asTask: state.asTask,
       isReadOnly: state.isReadOnly(),
     })),
   );
@@ -114,18 +112,6 @@ const DSTRAppRoot: React.FC<{
   const { currentDailyNote } = useNoteStore(
     useShallow((state) => ({
       currentDailyNote: state.currentDailyNote,
-    })),
-  );
-
-  const { updateTasks } = useTasksStore(
-    useShallow((state) => ({
-      updateTasks: state.updateTasks,
-    })),
-  );
-
-  const { searchQuery } = useSettingsStore(
-    useShallow((state) => ({
-      searchQuery: state.searchQuery,
     })),
   );
 
@@ -158,14 +144,7 @@ const DSTRAppRoot: React.FC<{
         input?.focus();
       });
     }
-  }, [component, date, granularity, activeTopic, dateFilter, asTask, isReadOnly, inputRef]);
-
-  useEffect(() => {
-    if (!currentDailyNote) return;
-
-    // 意図: 投稿一覧の取得は SWR が担うため、この effect はタスク更新だけを開始する。
-    void updateTasks(currentDailyNote);
-  }, [currentDailyNote, dateFilter, updateTasks, viewNoteMode, searchQuery]);
+  }, [component, date, granularity, activeTopic, dateFilter, isReadOnly, inputRef]);
 
   // Sync state/handlers with Obsidian View
   useDSTRViewStateSync(component);

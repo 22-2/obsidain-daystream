@@ -18,7 +18,6 @@ import { useShallow } from "zustand/shallow";
 
 interface Counts {
   posts: number;
-  tasks: number;
 }
 
 function buildScaleKey(date: Moment, granularity: Granularity): string {
@@ -75,14 +74,13 @@ export const SidebarScales: React.FC<{
 
   const getCountsForPeriod = useCallback(
     async (d: Moment, g: "week" | "month" | "quarter" | "year") => {
-      if (!shell) return { posts: 0, tasks: 0 };
+      if (!shell) return { posts: 0 };
       const note = resolvePeriodicNote(shell, d, g, activeTopic);
-      if (!note) return { posts: 0, tasks: 0 };
+      if (!note) return { posts: 0 };
 
       const content = await shell.cachedReadFile(note);
       const posts = parseThinoEntries(content).length;
-      const tasks = (await shell.getTasks(note))?.length || 0;
-      return { posts, tasks };
+      return { posts };
     },
     [shell, activeTopic],
   );
@@ -124,10 +122,10 @@ export const SidebarScales: React.FC<{
   }, [baseDate, activeTopic, getCountsForPeriod]);
 
   const renderCountBadge = (counts?: Counts) => {
-    if (!counts || (counts.posts === 0 && counts.tasks === 0)) return null;
+    if (!counts || counts.posts === 0) return null;
     return (
       <SidebarItemCount>
-        ({counts.posts}p / {counts.tasks}t)
+        ({counts.posts}p)
       </SidebarItemCount>
     );
   };
@@ -164,7 +162,7 @@ export const SidebarScales: React.FC<{
           {(["year", "quarter", "month"] as const).map((scaleGranularity) => {
             const key = buildScaleKey(baseDate, scaleGranularity);
             const counts = countsMap[key];
-            const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
+            const hasActivity = counts && counts.posts > 0;
             const isSelected = isCalendarScaleSelected(
               { date, granularity, dateFilter },
               baseDate,
@@ -206,7 +204,7 @@ export const SidebarScales: React.FC<{
               "week",
             );
             const counts = countsMap[buildScaleKey(w, "week")];
-            const hasActivity = counts && (counts.posts > 0 || counts.tasks > 0);
+            const hasActivity = counts && counts.posts > 0;
 
             return (
               <SidebarTextButton

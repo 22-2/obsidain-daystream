@@ -19,12 +19,6 @@ const TABS: Array<{
     periodicOnly: true,
   },
   {
-    value: MAIN_VIEW.TASKS,
-    label: "タスク",
-    icon: "list-checks",
-    periodicOnly: true,
-  },
-  {
     value: MAIN_VIEW.INSIGHTS,
     label: "インサイト",
     icon: "book-open",

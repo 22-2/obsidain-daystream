@@ -29,7 +29,6 @@ export interface PersistedNavigationState {
   displayMode?: DisplayMode;
   contentView?: ContentView;
   mainView?: MainView;
-  asTask?: boolean;
   threadFocusRootId?: string | null;
 }
 
@@ -52,7 +51,6 @@ export function persistNavigationState(
   if ("displayMode" in patch) storage.set(STORAGE_KEYS.DISPLAY_MODE, patch.displayMode);
   if ("contentView" in patch) storage.set(STORAGE_KEYS.CONTENT_VIEW, patch.contentView);
   if ("mainView" in patch) storage.set(STORAGE_KEYS.MAIN_VIEW, patch.mainView);
-  if ("asTask" in patch) storage.set(STORAGE_KEYS.AS_TASK, patch.asTask);
   if ("threadFocusRootId" in patch) {
     storage.set(STORAGE_KEYS.THREAD_FOCUS_ROOT_ID, patch.threadFocusRootId);
   }
@@ -147,18 +145,15 @@ export function resolveInitialSettingsState(
   const contentView =
     storage?.get<ContentView>(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.TIMELINE) ??
     CONTENT_VIEW.TIMELINE;
-  const asTask = storage?.get<boolean>(STORAGE_KEYS.AS_TASK, false) ?? false;
   const savedMainView = storage?.get<MainView | null>(STORAGE_KEYS.MAIN_VIEW, null) ?? null;
   // 意図: 既存ユーザーの保存値から同じ画面を復元しつつ、今後の遷移は mainView に一本化する。
   const mainView = Object.values(MAIN_VIEW).includes(savedMainView as MainView)
     ? (savedMainView as MainView)
     : contentView === CONTENT_VIEW.INSIGHTS
       ? MAIN_VIEW.INSIGHTS
-      : asTask
-        ? MAIN_VIEW.TASKS
-        : displayMode === DISPLAY_MODE.FOCUS
-          ? MAIN_VIEW.DATE
-          : MAIN_VIEW.TIMELINE;
+      : displayMode === DISPLAY_MODE.FOCUS
+        ? MAIN_VIEW.DATE
+        : MAIN_VIEW.TIMELINE;
   const mainViewCompatibility = resolveMainViewCompatibilityState(mainView, displayMode);
 
   return {
@@ -182,7 +177,6 @@ export function resolveInitialSettingsState(
     displayMode: mainViewCompatibility.displayMode,
     contentView: mainViewCompatibility.contentView,
     mainView,
-    asTask: mainViewCompatibility.asTask,
     threadOnly: false,
     searchQuery: "",
     searchInputOpen: false,

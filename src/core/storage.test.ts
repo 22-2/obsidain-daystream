@@ -55,11 +55,11 @@ describe("DSTRStorage", () => {
 
   it("remove でキーを消す", () => {
     const { storage } = createStorage();
-    storage.set("asTask", true);
+    storage.set("draftFlag", true);
 
-    storage.remove("asTask");
+    storage.remove("draftFlag");
 
-    expect(storage.get("asTask", false)).toBe(false);
+    expect(storage.get("draftFlag", false)).toBe(false);
   });
 
   it.each([

@@ -2,23 +2,6 @@ export function excludeWikiLink(text: string): string {
   return text.replace(/\[\[[^\]]+\|(.*?)]]/g, "$1").replace(/\[\[([^\]]+)]]/g, "$1");
 }
 
-export function pickTaskName(text: string): string {
-  return parseMarkdownList(text).content;
-}
-
-export function parseMarkdownList(text: string): {
-  prefix: string;
-  content: string;
-} {
-  const groups = text.match(/^(?<prefix>[ \t]*([-*] (\[.] |)|))(?<content>.*)$/s)?.groups;
-
-  if (!groups) {
-    return { prefix: "", content: text };
-  }
-
-  return { prefix: groups.prefix, content: groups.content };
-}
-
 export function replaceDayToJa(text: string): string {
   return text
     .replace("Sun", "日")

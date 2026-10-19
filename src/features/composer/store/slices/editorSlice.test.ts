@@ -458,7 +458,6 @@ describe("editorSlice", () => {
       mainView: MAIN_VIEW.DATE,
       displayMode: "focus",
       contentView: "timeline",
-      asTask: false,
     });
   });
 

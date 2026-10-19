@@ -21,7 +21,6 @@ describe("useInfiniteTimeline", () => {
       dateFilter: "today",
       sidebarOpen: true,
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: false,
       getEffectiveDate: () => today.clone(),
     });
   });

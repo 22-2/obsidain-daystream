@@ -12,7 +12,6 @@ import { describe, expect, it, vi } from "vitest";
 const fixedState: DSTRViewState = {
   displayMode: "focus",
   granularity: "day",
-  asTask: false,
   threadOnly: false,
   fixedSessionNumber: 2,
   timeFilter: "all",

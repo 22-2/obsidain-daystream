@@ -16,7 +16,6 @@ import { cn } from "src/core/ui/components/primitives/utils";
 import { SearchControls } from "src/features/posts/components/search/SearchControls";
 import { StatusBar } from "src/features/workspace/components/statusbar/StatusBar";
 import { PastTodayNotice } from "src/features/workspace/components/statusbar/parts/PastTodayNotice";
-import { TaskListView } from "src/features/tasks/components/tasks/TaskListView";
 import { INPUT_AREA_SIZE, MAIN_VIEW } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
@@ -24,8 +23,6 @@ import { useCSSLoaded } from "src/core/ui/hooks/useCSSLoaded";
 import { usePosts } from "src/features/posts/hooks/usePosts";
 import { useObsidianTooltip } from "src/core/ui/hooks/useObsidianTooltip";
 import { useAppStore } from "src/features/workspace/store/appStore";
-import { useNoteStore } from "src/features/notes/store/noteStore";
-import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import type { Post } from "src/core/domain/post";
 import { isTimelineView } from "src/features/workspace/utils/view-mode";
@@ -50,7 +47,6 @@ export const DSTRWorkspaceLayout = () => {
     useShallow((s) => ({
       activeTag: s.activeTag,
       granularity: s.granularity,
-      asTask: s.asTask,
       threadOnly: s.threadOnly,
       setSidebarOpen: s.setSidebarOpen,
       leftPanelOpen: s.leftPanelOpen,
@@ -70,13 +66,6 @@ export const DSTRWorkspaceLayout = () => {
   const { handleClickHome } = settings;
 
   const { filteredPosts, filteredPostsWithThreadReplies } = usePosts();
-  const { tasks } = useTasksStore(useShallow((s) => ({ tasks: s.tasks })));
-
-  const { currentDailyNote } = useNoteStore(
-    useShallow((s) => ({
-      currentDailyNote: s.currentDailyNote,
-    })),
-  );
 
   const { scrollContainerRef, listHeaderRef } = useEditorRefs();
   useEffect(() => {
@@ -114,7 +103,6 @@ export const DSTRWorkspaceLayout = () => {
 
   const {
     granularity,
-    asTask,
     setSidebarOpen,
     leftPanelOpen,
     rightPanelOpen,
@@ -180,7 +168,7 @@ export const DSTRWorkspaceLayout = () => {
     !isTimelineView(settings.displayMode) &&
     // 意図: 月表示は月次ノートがなくても日次ノートの投稿を集約するため、
     // 投稿一覧の空判定は取得済み投稿を正とし、現在ノートの有無だけで隠さない。
-    (asTask ? !currentDailyNote || tasks.length === 0 : filteredPosts.length === 0);
+    filteredPosts.length === 0;
 
   const content = useMemo(() => {
     if (!isCSSLoaded) {
@@ -191,13 +179,7 @@ export const DSTRWorkspaceLayout = () => {
       return <InsightView />;
     }
 
-    return isEmpty ? (
-      <EmptyState granularity={granularity} />
-    ) : mainView === MAIN_VIEW.TASKS ? (
-      <TaskListView />
-    ) : (
-      <PostListView />
-    );
+    return isEmpty ? <EmptyState granularity={granularity} /> : <PostListView />;
   }, [granularity, isCSSLoaded, isEmpty, mainView]);
 
   return (

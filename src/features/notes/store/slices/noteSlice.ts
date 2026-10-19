@@ -122,10 +122,9 @@ export const createNoteSlice: StateCreator<DSTRStore, [], [], NoteSlice> = (set,
   },
 
   handleChangeTopic: (topicId) => {
-    const { activeTopic, setActiveTopic, setTasks } = get();
+    const { activeTopic, setActiveTopic } = get();
     if (activeTopic === topicId) return;
     setActiveTopic(topicId);
     set({ currentDailyNote: null });
-    setTasks([]);
   },
 });

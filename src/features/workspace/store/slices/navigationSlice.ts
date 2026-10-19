@@ -46,7 +46,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
-      asTask: false,
       threadFocusRootId: null,
     });
     get().reloadInputAreaSize();
@@ -57,7 +56,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
   contentView: CONTENT_VIEW.TIMELINE,
   mainView: MAIN_VIEW.TIMELINE,
   searchReturnState: null,
-  asTask: false,
   threadOnly: false,
   threadFocusRootId: null,
 
@@ -123,7 +121,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
         ? {
             mainView: MAIN_VIEW.DATE,
             contentView: CONTENT_VIEW.TIMELINE,
-            asTask: false,
           }
         : {}),
       displayMode:
@@ -136,7 +133,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: state.displayMode,
       mainView: state.mainView,
       contentView: state.contentView,
-      asTask: state.asTask,
       threadFocusRootId: null,
     });
   },
@@ -155,7 +151,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
-      asTask: false,
       threadFocusRootId: null,
     });
     state.reloadInputAreaSize();
@@ -177,7 +172,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
-      asTask: false,
       threadFocusRootId: null,
     });
   },
@@ -192,7 +186,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView,
-      asTask: false,
       threadFocusRootId: null,
     });
   },
@@ -202,11 +195,9 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     const mainView =
       contentView === CONTENT_VIEW.INSIGHTS
         ? MAIN_VIEW.INSIGHTS
-        : state.asTask
-          ? MAIN_VIEW.TASKS
-          : state.displayMode === DISPLAY_MODE.FOCUS
-            ? MAIN_VIEW.DATE
-            : MAIN_VIEW.TIMELINE;
+        : state.displayMode === DISPLAY_MODE.FOCUS
+          ? MAIN_VIEW.DATE
+          : MAIN_VIEW.TIMELINE;
     applyNavigationPatch(get, set, { contentView, mainView });
   },
 
@@ -224,7 +215,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
                 mainView: state.mainView,
                 contentView: state.contentView,
                 displayMode: state.displayMode,
-                asTask: state.asTask,
                 threadFocusRootId: state.threadFocusRootId,
                 // 意図: 検索中の日付自動更新や絞り込み変更を、戻り先の日付表示へ持ち込まない。
                 date: state.date.clone(),
@@ -247,7 +237,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       mainView,
       contentView: patch.contentView,
       displayMode: patch.displayMode,
-      asTask: patch.asTask,
       threadFocusRootId: null,
     });
   },
@@ -263,20 +252,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
     };
     set({ ...restored, searchInputOpen: false, searchReturnState: null });
     persistNavigationState(get(), restored);
-  },
-
-  setAsTask: (asTask: boolean) => {
-    const state = get();
-    const mainView = asTask
-      ? MAIN_VIEW.TASKS
-      : state.displayMode === DISPLAY_MODE.FOCUS
-        ? MAIN_VIEW.DATE
-        : MAIN_VIEW.TIMELINE;
-    applyNavigationPatch(get, set, {
-      asTask,
-      contentView: CONTENT_VIEW.TIMELINE,
-      mainView,
-    });
   },
 
   setThreadOnly: (threadOnly: boolean) => {
@@ -337,7 +312,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
-      asTask: false,
       threadFocusRootId: null,
     });
     state.reloadInputAreaSize();
@@ -369,7 +343,6 @@ export const createNavigationSlice: StateCreator<DSTRStore, [], [], NavigationSl
       displayMode: DISPLAY_MODE.FOCUS,
       contentView: CONTENT_VIEW.TIMELINE,
       mainView: MAIN_VIEW.DATE,
-      asTask: false,
       threadFocusRootId: null,
     });
     state.reloadInputAreaSize();

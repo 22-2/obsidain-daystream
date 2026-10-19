@@ -1,10 +1,8 @@
 import { TFile } from "obsidian";
 import { useEffect } from "react";
-import { reportError } from "src/core/error-report";
 import { resolveNoteSource } from "src/core/note-source";
 import { useAppStore, useRequiredAppStore } from "src/features/workspace/store/appStore";
 import { useNoteStore } from "src/features/notes/store/noteStore";
-import { useTasksStore } from "src/features/tasks/store/tasksStore";
 import { useSettingsStore } from "src/features/workspace/store/settingsStore";
 import { useShallow } from "zustand/shallow";
 
@@ -37,13 +35,6 @@ export function useNoteSync() {
     })),
   );
 
-  const { setTasks, updateTasks } = useTasksStore(
-    useShallow((s) => ({
-      setTasks: s.setTasks,
-      updateTasks: s.updateTasks,
-    })),
-  );
-
   useEffect(() => {
     if (!shell) return;
 
@@ -60,19 +51,12 @@ export function useNoteSync() {
       if (!noteSource.matchesPath(file.path, currentDailyNote)) return;
 
       store.getState().updateCurrentDailyNote(shell);
-      // タスク（Markdownとしてのタスク）はシェルから直接取得するため、ここで更新する。
-      // ポスト（DB管理）の更新は Worker からの通知 (useDbSync) に任せることで
-      // DB更新前の古いデータをフェッチしてしまうレースコンディションを防ぐ。
-      updateTasks(file).catch((error: unknown) =>
-        reportError({ context: "Failed to update tasks", error, details: { path: file.path } }),
-      );
     };
 
     const handleDelete = (file: { path: string }) => {
       if (noteSource.mode === "fixed") {
         if (!noteSource.matchesPath(file.path, currentDailyNote)) return;
         store.getState().setCurrentDailyNote(null);
-        setTasks([]);
         return;
       }
 
@@ -80,7 +64,6 @@ export function useNoteSync() {
 
       if (file.path !== currentDailyNote?.path) return;
       setDate(date.clone());
-      setTasks([]);
     };
 
     const changedRef = shell.getMetadataCache().on("changed", handleChanged);
@@ -106,8 +89,6 @@ export function useNoteSync() {
     file,
     currentDailyNote,
     weekNotePaths,
-    setTasks,
-    updateTasks,
     store,
   ]);
 }

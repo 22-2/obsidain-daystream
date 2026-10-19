@@ -8,7 +8,6 @@ export function useDSTRViewStateSync(view: DSTRView | null): void {
   const {
     granularity,
     activeTopic,
-    asTask,
     threadOnly,
     timeFilter,
     dateFilter,
@@ -20,7 +19,6 @@ export function useDSTRViewStateSync(view: DSTRView | null): void {
     useShallow((state) => ({
       granularity: state.granularity,
       activeTopic: state.activeTopic,
-      asTask: state.asTask,
       threadOnly: state.threadOnly,
       timeFilter: state.timeFilter,
       dateFilter: state.dateFilter,
@@ -37,7 +35,6 @@ export function useDSTRViewStateSync(view: DSTRView | null): void {
     view.setStatePartial({
       granularity,
       activeTopic,
-      asTask,
       threadOnly,
       timeFilter,
       dateFilter,
@@ -51,7 +48,6 @@ export function useDSTRViewStateSync(view: DSTRView | null): void {
     view,
     granularity,
     activeTopic,
-    asTask,
     threadOnly,
     timeFilter,
     dateFilter,

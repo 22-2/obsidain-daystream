@@ -30,7 +30,6 @@ describe("main view persistence", () => {
     values.set(STORAGE_KEYS.MAIN_VIEW, MAIN_VIEW.SEARCH);
     values.set(STORAGE_KEYS.CONTENT_VIEW, CONTENT_VIEW.INSIGHTS);
     values.set(STORAGE_KEYS.DISPLAY_MODE, DISPLAY_MODE.FOCUS);
-    values.set(STORAGE_KEYS.AS_TASK, true);
 
     const state = resolveInitialSettingsState({ activeTopic: "" } as Settings, storage, "periodic", null);
 
@@ -38,7 +37,6 @@ describe("main view persistence", () => {
       mainView: MAIN_VIEW.SEARCH,
       contentView: CONTENT_VIEW.TIMELINE,
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: false,
     });
   });
 });

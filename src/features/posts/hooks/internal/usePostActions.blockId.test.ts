@@ -12,7 +12,6 @@ import { indexNoteContent } from "src/core/db/indexer/tag-indexer";
 import { useAppContext } from "src/core/ui/context/AppContext";
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
 import { AppStoreProvider, appStore as editorStore } from "src/features/workspace/store/appStore";
-import { tasksStore } from "src/features/tasks/store/tasksStore";
 import { settingsStore } from "src/features/workspace/store/settingsStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -114,8 +113,6 @@ describe("usePostActions - copyBlockIdLink", () => {
     settingsStore.setState({
       granularity: "day",
     });
-
-    tasksStore.setState({ tasks: [] });
 
     // Mock navigator.clipboard
     Object.assign(navigator, {

@@ -14,7 +14,6 @@ interface UseFilteredPostsProps {
   activeTag?: string | null;
   timeFilter: TimeFilter;
   dateFilter: DateFilter;
-  asTask: boolean;
   granularity: Granularity;
   displayMode: DisplayMode;
   threadFocusRootId: string | null;
@@ -48,7 +47,6 @@ function filterPostsForView({
   activeTag = null,
   timeFilter,
   dateFilter,
-  asTask,
   granularity,
   displayMode,
   threadFocusRootId,
@@ -88,7 +86,6 @@ function filterPostsForView({
       filterPostsByRelativeWindow(visibleRoots, {
         dateFilter,
         timeFilter,
-        asTask,
         granularity,
       }),
     );
@@ -103,7 +100,7 @@ function filterPostsForView({
     return sortPostsPinnedFirst(visibleRoots);
   }
 
-  if (timeFilter === "all" || asTask || granularity !== "day") {
+  if (timeFilter === "all" || granularity !== "day") {
     return sortPostsPinnedFirst(visibleRoots);
   }
 
@@ -127,7 +124,6 @@ export const useFilteredPosts = ({
   activeTag = null,
   timeFilter,
   dateFilter,
-  asTask,
   granularity,
   displayMode,
   threadFocusRootId,
@@ -141,7 +137,6 @@ export const useFilteredPosts = ({
         activeTag,
         timeFilter,
         dateFilter,
-        asTask,
         granularity,
         displayMode,
         threadFocusRootId,
@@ -153,7 +148,6 @@ export const useFilteredPosts = ({
       activeTag,
       timeFilter,
       dateFilter,
-      asTask,
       granularity,
       displayMode,
       threadFocusRootId,

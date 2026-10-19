@@ -20,7 +20,6 @@ interface DSTRViewCapabilities {
 export interface DSTRViewState extends Record<string, unknown> {
   displayMode: DisplayMode;
   granularity: Granularity;
-  asTask: boolean;
   threadOnly: boolean;
   fixedSessionNumber: number;
   timeFilter: TimeFilter;
@@ -36,7 +35,6 @@ export interface DSTRViewState extends Record<string, unknown> {
 export const DEFAULT_DSTR_VIEW_STATE: DSTRViewState = {
   displayMode: DISPLAY_MODE.FOCUS,
   granularity: "day",
-  asTask: false,
   threadOnly: false,
   fixedSessionNumber: 1,
   timeFilter: "all",

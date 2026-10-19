@@ -46,7 +46,6 @@ const useSWRInfiniteMock = vi.fn((..._args: InfiniteMockArgs): InfiniteMockRespo
 }));
 const mutateMock = vi.fn<(...args: unknown[]) => unknown>();
 const addPathsMock = vi.fn<(paths: Set<string>) => void>();
-const setPostsMock = vi.fn<(...args: unknown[]) => void>();
 const setDateMock = vi.fn<(date: Moment) => void>();
 const loadFileMock = vi.fn(async (_path: string) => "");
 const cachedReadFileMock = vi.fn(async () => "");
@@ -103,11 +102,6 @@ vi.mock("src/features/workspace/store/appStore", () => ({
   useRequiredAppStore: () => ({
     getState: () => settingsState,
   }),
-}));
-
-vi.mock("src/features/tasks/store/tasksStore", () => ({
-  useTasksStore: (selector: (state: { setPosts: typeof setPostsMock }) => unknown) =>
-    selector({ setPosts: setPostsMock }),
 }));
 
 vi.mock("src/features/notes/store/noteStore", () => ({

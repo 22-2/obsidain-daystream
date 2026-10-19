@@ -2,8 +2,6 @@ import { describe, expect, test } from "vitest";
 
 import {
   excludeWikiLink,
-  parseMarkdownList,
-  pickTaskName,
   pickUrls,
   replaceDayToJa,
   trimRedundantEmptyLines,
@@ -21,49 +19,6 @@ describe.each`
   test(`excludeWikiLink(${text}) = ${expected}`, () => {
     expect(excludeWikiLink(text)).toBe(expected);
   });
-});
-
-describe.each`
-  text                            | expected
-  ${"- [ ] task"}                 | ${"task"}
-  ${"- [x] task"}                 | ${"task"}
-  ${"- [x] [hoge](URL)"}          | ${"[hoge](URL)"}
-  ${"- [x] [[hogehoge]]"}         | ${"[[hogehoge]]"}
-  ${"- [x] [[link]] hoge (fuga)"} | ${"[[link]] hoge (fuga)"}
-`("pickTaskName", ({ text, expected }: { text: string; expected: string }) => {
-  test(`pickTaskName(${text}) = ${expected}`, () => {
-    expect(pickTaskName(text)).toBe(expected);
-  });
-});
-
-test.each([
-  ["", { prefix: "", content: "" }],
-  ["hoge", { prefix: "", content: "hoge" }],
-  ["- ", { prefix: "- ", content: "" }],
-  ["- hoge", { prefix: "- ", content: "hoge" }],
-  ["- [ ] hoge", { prefix: "- [ ] ", content: "hoge" }],
-  ["- [x] hoge", { prefix: "- [x] ", content: "hoge" }],
-  ["  hoge", { prefix: "  ", content: "hoge" }],
-  ["  - ", { prefix: "  - ", content: "" }],
-  ["  - hoge", { prefix: "  - ", content: "hoge" }],
-  ["  - [ ] hoge", { prefix: "  - [ ] ", content: "hoge" }],
-  ["  - [x] hoge", { prefix: "  - [x] ", content: "hoge" }],
-  ["* ", { prefix: "* ", content: "" }],
-  ["* hoge", { prefix: "* ", content: "hoge" }],
-  ["* [ ] hoge", { prefix: "* [ ] ", content: "hoge" }],
-  ["* [x] hoge", { prefix: "* [x] ", content: "hoge" }],
-  ["	- [ ] tab indent", { prefix: "	- [ ] ", content: "tab indent" }],
-  ["	- [x] tab indent", { prefix: "	- [x] ", content: "tab indent" }],
-  [
-    "- [ ] 16:37:23 On-Demand Plugins提出\n    community-pluginsの編集戦略見直し\n    消極的干渉\n\n",
-    {
-      prefix: "- [ ] ",
-      content:
-        "16:37:23 On-Demand Plugins提出\n    community-pluginsの編集戦略見直し\n    消極的干渉\n\n",
-    },
-  ],
-])(`parseMarkdownList("%s")`, (text: string, expected: ReturnType<typeof parseMarkdownList>) => {
-  expect(parseMarkdownList(text)).toEqual(expected);
 });
 
 describe.each`

@@ -2,9 +2,6 @@ import type { Commands } from "@obsidian-typings/obsidian-public-latest";
 import type { App, Editor, Events, TAbstractFile, WorkspaceLeaf } from "obsidian";
 import { MarkdownView, TFile } from "obsidian";
 import { joinWithSingleBoundaryNewline, skipImmediateLineBreak } from "src/core/post-utils";
-import { parseMarkdownList } from "src/core/strings";
-import { parseTaskTimestamp } from "src/core/task-parser";
-import type { Task } from "src/core/task-text";
 
 interface UnsafeAppInterface {
   appId: string;
@@ -213,46 +210,5 @@ export class ObsidianAppShell {
 
   getActiveMarkdownEditor(): Editor | null {
     return this.getActiveMarkdownView()?.editor ?? null;
-  }
-
-  async getTasks(file: TFile): Promise<Task[] | null> {
-    const content = await this.loadFile(file.path);
-    const lines = content.split("\n");
-
-    return (
-      this.getMetadataCache()
-        .getFileCache(file)
-        ?.listItems?.flatMap((x): Task[] => {
-          const mark = x.task;
-          if (mark == null) return [];
-
-          const startLine = x.position.start.line;
-          const endLine = x.position.end.line;
-
-          let lastLine = endLine;
-          for (let i = endLine + 1; i < lines.length; i++) {
-            const line = lines[i];
-            if (line.trim().length > 0 && !line.startsWith(" ") && !line.startsWith("\t")) {
-              break;
-            }
-            lastLine = i;
-          }
-
-          const taskContent = lines.slice(startLine, lastLine + 1).join("\n");
-          const { content: rawName } = parseMarkdownList(taskContent);
-
-          const { displayName, timestamp } = parseTaskTimestamp(rawName, file.basename);
-
-          return [
-            {
-              mark,
-              name: displayName,
-              offset: x.position.start.offset,
-              path: file.path,
-              timestamp,
-            },
-          ];
-        }) ?? null
-    );
   }
 }

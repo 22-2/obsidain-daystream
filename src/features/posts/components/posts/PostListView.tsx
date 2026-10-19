@@ -43,7 +43,6 @@ export const PostListView = memo(() => {
       setDate: s.setDate,
       setDisplayMode: s.setDisplayMode,
       setThreadFocusRootId: s.setThreadFocusRootId,
-      asTask: s.asTask,
       isReadOnly: s.isReadOnly(),
       timeFilter: s.timeFilter,
       threadFocusRootId: s.threadFocusRootId,

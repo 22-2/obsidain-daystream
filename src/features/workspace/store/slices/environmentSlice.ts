@@ -168,7 +168,6 @@ export const createEnvironmentSlice: StateCreator<DSTRStore, [], [], Environment
         granularity: fixedDefaults.granularity,
         dateFilter: fixedDefaults.dateFilter,
         timeFilter: fixedDefaults.timeFilter,
-        asTask: fixedDefaults.asTask,
         threadOnly: fixedDefaults.threadOnly,
         activeTag: null,
         threadFocusRootId: null,

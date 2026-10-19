@@ -66,7 +66,7 @@ describe("parseThinoEntries", () => {
     ].join("\n");
 
     const entries = parseThinoEntries(content);
-    // Checkbox-style lines should be ignored by Thino parser (handled as tasks elsewhere).
+    // Checkbox-style lines are not Thino entries and should be ignored by the Thino parser.
     expect(entries).toHaveLength(2);
     expect(entries[0].time).toBe("13:45:12");
     expect(entries[1].time).toBe("17:41:29");

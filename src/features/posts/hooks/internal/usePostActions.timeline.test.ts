@@ -16,7 +16,6 @@ import { createRefreshPosts } from "src/features/posts/hooks/internal/refreshPos
 import { usePostActions } from "src/features/posts/hooks/internal/usePostActions";
 import { AppStoreProvider, appStore as editorStore } from "src/features/workspace/store/appStore";
 import { noteStore } from "src/features/notes/store/noteStore";
-import { tasksStore } from "src/features/tasks/store/tasksStore";
 import { settingsStore } from "src/features/workspace/store/settingsStore";
 import { THREAD_METADATA_KEYS } from "src/features/posts/utils/thread-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -204,10 +203,7 @@ describe("timeline note resolution", () => {
       dateFilter: "today",
       sidebarOpen: true,
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: false,
     });
-
-    tasksStore.setState({ tasks: [] });
 
     editorStore.setState({
       inputSnapshot: "timeline post",
@@ -485,7 +481,6 @@ describe("timeline note resolution", () => {
       dateFilter: "7d",
       timeFilter: "latest",
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: true,
       threadOnly: true,
       searchQuery: "abc",
     });
@@ -513,7 +508,6 @@ describe("timeline note resolution", () => {
     expect(nextState.granularity).toBe("day");
     expect(nextState.dateFilter).toBe("today");
     expect(nextState.timeFilter).toBe("all");
-    expect(nextState.asTask).toBe(false);
     expect(nextState.threadOnly).toBe(false);
     expect(nextState.activeTag).toBeNull();
     expect(nextState.searchQuery).toBe("");

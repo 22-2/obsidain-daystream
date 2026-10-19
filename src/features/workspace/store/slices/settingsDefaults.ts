@@ -10,7 +10,6 @@ export const DEFAULT_VIEW_STATE = {
   granularity: GRANULARITY_CONFIG.day.unit,
   dateFilter: DATE_FILTER_IDS.TODAY,
   timeFilter: TIME_FILTER_IDS.ALL,
-  asTask: false,
   threadOnly: false,
   activeTag: null,
   threadFocusRootId: null,

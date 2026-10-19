@@ -28,7 +28,6 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
     setTimeFilter,
     setDateFilter,
     setActiveTopic,
-    setAsTask,
     setThreadOnly,
     setDisplayMode,
     setSearchQuery,
@@ -44,7 +43,6 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
       setTimeFilter: state.setTimeFilter,
       setDateFilter: state.setDateFilter,
       setActiveTopic: state.setActiveTopic,
-      setAsTask: state.setAsTask,
       setThreadOnly: state.setThreadOnly,
       setDisplayMode: state.setDisplayMode,
       setSearchQuery: state.setSearchQuery,
@@ -67,7 +65,7 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
     return store.getState().handleClickOpenDailyNote(shell, settings);
   }, [store, shell, settings]);
 
-  const { setCurrentDailyNote, setTasks } = store.getState();
+  const { setCurrentDailyNote } = store.getState();
 
   useEffect(() => {
     if (!view) return;
@@ -116,12 +114,11 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
         setDateFilter("today");
       }
       setCurrentDailyNote(null);
-      setTasks([]);
     };
     return () => {
       view.actionDelegates.onChangeGranularity = undefined;
     };
-  }, [view, setGranularity, setTimeFilter, setDateFilter, setCurrentDailyNote, setTasks]);
+  }, [view, setGranularity, setTimeFilter, setDateFilter, setCurrentDailyNote]);
 
   useEffect(() => {
     if (!view) return;
@@ -140,14 +137,6 @@ export function useDSTRViewDelegates(view: DSTRView | null): void {
       view.actionDelegates.onChangeTopic = undefined;
     };
   }, [view, setActiveTopic]);
-
-  useEffect(() => {
-    if (!view) return;
-    view.actionDelegates.onChangeAsTask = setAsTask;
-    return () => {
-      view.actionDelegates.onChangeAsTask = undefined;
-    };
-  }, [view, setAsTask]);
 
   useEffect(() => {
     if (!view) return;

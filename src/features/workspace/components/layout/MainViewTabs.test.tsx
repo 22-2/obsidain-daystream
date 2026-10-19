@@ -11,7 +11,7 @@ describe("MainViewTabs", () => {
     const onChange = vi.fn();
     render(<MainViewTabs value={MAIN_VIEW.DATE} noteMode="periodic" onChange={onChange} />);
 
-    expect(screen.getAllByRole("tab")).toHaveLength(4);
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
     expect(screen.queryByRole("tab", { name: "検索" })).toBeNull();
     expect(screen.getByRole("tab", { name: "日付" }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getAllByRole("tab")[0].textContent).toBe("タイムライン");

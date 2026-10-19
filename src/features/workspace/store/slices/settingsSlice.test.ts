@@ -183,8 +183,7 @@ describe("settingsSlice", () => {
     const store = createAppStore();
     store.setState({
       storage,
-      mainView: MAIN_VIEW.TASKS,
-      asTask: true,
+      mainView: MAIN_VIEW.TIMELINE,
       threadFocusRootId: "root-1",
     });
     store.getState().setCalendarSelection({
@@ -199,7 +198,6 @@ describe("settingsSlice", () => {
       mainView: MAIN_VIEW.DATE,
       contentView: CONTENT_VIEW.TIMELINE,
       displayMode: DISPLAY_MODE.FOCUS,
-      asTask: false,
       threadFocusRootId: null,
       dateFilter: "7d",
       granularity: "day",
@@ -216,16 +214,14 @@ describe("settingsSlice", () => {
       mainView: MAIN_VIEW.SEARCH,
       contentView: CONTENT_VIEW.TIMELINE,
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: false,
       searchInputOpen: true,
     });
 
-    settingsStore.getState().setMainView(MAIN_VIEW.TASKS);
+    settingsStore.getState().setMainView(MAIN_VIEW.TIMELINE);
     expect(settingsStore.getState()).toMatchObject({
-      mainView: MAIN_VIEW.TASKS,
+      mainView: MAIN_VIEW.TIMELINE,
       contentView: CONTENT_VIEW.TIMELINE,
       displayMode: DISPLAY_MODE.TIMELINE,
-      asTask: true,
       searchInputOpen: false,
       searchQuery: "wanted",
       threadOnly: true,
@@ -235,11 +231,10 @@ describe("settingsSlice", () => {
     expect(settingsStore.getState()).toMatchObject({
       mainView: MAIN_VIEW.INSIGHTS,
       contentView: CONTENT_VIEW.INSIGHTS,
-      asTask: false,
     });
   });
 
-  it.each([MAIN_VIEW.TIMELINE, MAIN_VIEW.DATE, MAIN_VIEW.TASKS, MAIN_VIEW.INSIGHTS])(
+  it.each([MAIN_VIEW.TIMELINE, MAIN_VIEW.DATE, MAIN_VIEW.INSIGHTS])(
     "%s から検索を開いて閉じると元の表示条件へ戻る",
     (mainView) => {
       settingsStore.getState().setMainView(mainView);
@@ -258,7 +253,6 @@ describe("settingsSlice", () => {
         mainView,
         displayMode: before.displayMode,
         contentView: before.contentView,
-        asTask: before.asTask,
         threadFocusRootId: "root-1",
         searchInputOpen: false,
         searchReturnState: null,
@@ -274,10 +268,10 @@ describe("settingsSlice", () => {
 
   it("検索中に別タブを選ぶと、古い戻り先で上書きしない", () => {
     settingsStore.getState().setMainView(MAIN_VIEW.SEARCH);
-    settingsStore.getState().setMainView(MAIN_VIEW.TASKS);
+    settingsStore.getState().setMainView(MAIN_VIEW.TIMELINE);
     settingsStore.getState().closeSearch();
     expect(settingsStore.getState()).toMatchObject({
-      mainView: MAIN_VIEW.TASKS,
+      mainView: MAIN_VIEW.TIMELINE,
       searchReturnState: null,
     });
   });

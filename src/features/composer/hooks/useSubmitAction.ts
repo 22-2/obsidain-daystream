@@ -29,7 +29,6 @@ export const useSubmitAction = () => {
     useShallow((s) => ({
       date: s.date,
       activeTopic: s.activeTopic,
-      asTask: s.asTask,
       threadFocusRootId: s.threadFocusRootId,
       viewNoteMode: s.viewNoteMode,
       displayMode: s.displayMode,
@@ -127,7 +126,6 @@ export const useSubmitAction = () => {
 
       const text = toText(
         currentInput,
-        false,
         resolvePostGranularity(latestPost, writeGranularity),
         targetTs,
         metadata,
@@ -181,7 +179,6 @@ export const useSubmitAction = () => {
 
       const text = toText(
         currentInput,
-        false,
         writeGranularity,
         getSerializedTimestamp(now, rootPost.noteDate),
         mergedMetadata,
@@ -247,13 +244,12 @@ export const useSubmitAction = () => {
 
       const text = toText(
         currentInput,
-        settingsState.asTask,
         writeGranularity,
         undefined,
         metadata,
       );
 
-      // テキストが空なら投稿しない（空タスクも不可）
+      // テキストが空なら投稿しない（空の投稿も不可）
       if (!text) {
         new Notice("空の投稿はできません");
         return;

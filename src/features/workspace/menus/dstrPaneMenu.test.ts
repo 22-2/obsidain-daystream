@@ -53,7 +53,6 @@ class TestMenu {
 const baseState: DSTRViewState = {
   displayMode: "focus",
   granularity: "day",
-  asTask: false,
   threadOnly: false,
   fixedSessionNumber: 1,
   timeFilter: "all",
@@ -74,12 +73,11 @@ describe("addDSTRPaneMenuItems", () => {
   it("adds periodic-view actions and invokes current-state callbacks", () => {
     const state = { ...baseState };
     const onChangeDisplayMode = vi.fn();
-    const onChangeAsTask = vi.fn();
     const menu = new TestMenu();
 
     addDSTRPaneMenuItems(menu as unknown as Menu, {
       getState: () => state,
-      actionDelegates: { onChangeDisplayMode, onChangeAsTask },
+      actionDelegates: { onChangeDisplayMode },
     });
 
     expect(getTitles(menu)).toEqual(
@@ -88,7 +86,6 @@ describe("addDSTRPaneMenuItems", () => {
         "すべてのメッセージをコピー",
         "下書きを管理",
         "フォーカスモード",
-        "メッセージモード",
       ]),
     );
     expect(getTitles(menu)).not.toContain("削除");
@@ -98,13 +95,6 @@ describe("addDSTRPaneMenuItems", () => {
     );
     displayModeItem?.callback?.();
     expect(onChangeDisplayMode).toHaveBeenCalledWith("timeline");
-
-    state.asTask = true;
-    const taskItem = menu.items.find(
-      (item): item is TestMenuItem => item !== "separator" && item.title === "メッセージモード",
-    );
-    taskItem?.callback?.();
-    expect(onChangeAsTask).toHaveBeenCalledWith(false);
   });
 
   it("keeps only fixed-note actions and omits view controls", () => {

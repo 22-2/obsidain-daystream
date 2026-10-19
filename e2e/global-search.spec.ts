@@ -12,7 +12,7 @@ test("全体検索をどのタブからでも開き、元の表示へ戻せる",
   const input = view.getByTestId("dstr-search-input");
   await expect(search).toBeVisible();
   await expect(view.getByRole("tab", { name: "検索", exact: true })).toHaveCount(0);
-  for (const name of ["タイムライン", "日付", "タスク", "インサイト"]) {
+  for (const name of ["タイムライン", "日付", "インサイト"]) {
     const tab = view.getByRole("tab", { name, exact: true });
     await tab.click();
     await search.click();

@@ -8,7 +8,6 @@ export function addPeriodMenuItems(
   menu: Menu,
   state: {
     granularity: Granularity;
-    asTask: boolean;
     timeFilter: TimeFilter;
     dateFilter: DateFilter;
     displayMode: DisplayMode;
@@ -18,8 +17,7 @@ export function addPeriodMenuItems(
     onChangeDateFilter?: (filter: DateFilter) => void;
   },
 ) {
-  const showFilter =
-    state.granularity === "day" && !state.asTask && !isTimelineView(state.displayMode);
+  const showFilter = state.granularity === "day" && !isTimelineView(state.displayMode);
 
   // --- 表示期間 ---
   menu.addSeparator();

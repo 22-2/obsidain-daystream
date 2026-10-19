@@ -4,7 +4,6 @@ import { createSettingsSlice } from "src/features/workspace/store/slices/setting
 import { createDraftSlice } from "src/features/composer/store/slices/draftSlice";
 import { createEditorSlice } from "src/features/composer/store/slices/editorSlice";
 import { createNoteSlice } from "src/features/notes/store/slices/noteSlice";
-import { createTasksSlice } from "src/features/tasks/store/slices/tasksSlice";
 import type { DSTRStore } from "src/features/workspace/store/slices/types";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
@@ -13,7 +12,6 @@ export function createAppStore() {
   return createStore<DSTRStore>((set, get, store) => ({
     ...createEnvironmentSlice(set, get, store),
     ...createSettingsSlice(set, get, store),
-    ...createTasksSlice(set, get, store),
     ...createNoteSlice(set, get, store),
     ...createEditorSlice(set, get, store),
     ...createDraftSlice(set, get, store),

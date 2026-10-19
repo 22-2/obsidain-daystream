@@ -9,7 +9,6 @@ type ResettableViewState = Pick<
   | "granularity"
   | "dateFilter"
   | "timeFilter"
-  | "asTask"
   | "threadFocusRootId"
   | "activeTag"
   | "searchQuery"
@@ -35,7 +34,6 @@ export function isDefaultViewState(
     state.granularity === defaultGranularity &&
     state.dateFilter === DEFAULT_VIEW_STATE.dateFilter &&
     state.timeFilter === DEFAULT_VIEW_STATE.timeFilter &&
-    state.asTask === DEFAULT_VIEW_STATE.asTask &&
     state.activeTag === DEFAULT_VIEW_STATE.activeTag &&
     state.threadFocusRootId === DEFAULT_VIEW_STATE.threadFocusRootId &&
     // 意図: 日付・タイムライン等の各タブでは検索条件を適用しないため、

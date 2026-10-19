@@ -58,9 +58,6 @@ export function syncStoreFromDSTRViewState(store: AppStoreApi, viewState: DSTRVi
   if (latestState.timeFilter !== fixedDefaults.timeFilter) {
     nextPatch.timeFilter = fixedDefaults.timeFilter;
   }
-  if (latestState.asTask !== fixedDefaults.asTask) {
-    nextPatch.asTask = fixedDefaults.asTask;
-  }
   if (latestState.contentView !== "timeline") {
     nextPatch.contentView = "timeline";
   }

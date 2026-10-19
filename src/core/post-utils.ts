@@ -1,5 +1,4 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
-import { formatTaskText } from "src/core/task-text";
 import { DATE_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT } from "src/core/domain/date-formats";
 import type { Granularity } from "src/core/domain/granularity";
 import type { MomentLike } from "src/core/domain/post";
@@ -10,7 +9,6 @@ function isFencedCodeBlockStart(line: string): boolean {
 
 export function toText(
   input: string,
-  asTask: boolean,
   granularity: Granularity,
   timestamp?: MomentLike,
   metadata: Record<string, string> = {},
@@ -21,10 +19,6 @@ export function toText(
 
   const now = timestamp ?? obsidianMoment();
   const timeStr = granularity === "day" ? now.format(TIME_FORMAT) : now.format(DATE_TIME_FORMAT);
-
-  if (asTask) {
-    return formatTaskText(input, timeStr) + "\n";
-  }
 
   const normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   const lines = normalized.split("\n");
@@ -76,7 +70,7 @@ export function resolveTimestamp(
     ? obsidianMoment(time, DATE_TIME_FORMAT)
     : obsidianMoment(`${date.format(DATE_FORMAT)} ${time}`, DATE_TIME_FORMAT);
 }
-/** 4行以上の連続改行を3行に詰め、投稿やタスクの削除で空行がたまらないようにする。 */
+/** 4行以上の連続改行を3行に詰め、投稿の削除で空行がたまらないようにする。 */
 export function collapseExcessBlankLines(content: string): string {
   return content.replace(/\n{4,}/g, "\n\n\n");
 }
