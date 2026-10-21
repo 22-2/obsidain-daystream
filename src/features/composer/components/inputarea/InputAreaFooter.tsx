@@ -7,7 +7,6 @@ import {
 } from "src/features/composer/components/inputarea/editorContextMenu";
 import { FULL_EXPANSION_STYLE } from "src/features/composer/components/inputarea/constants";
 import { InputAreaFooterBase } from "src/features/composer/components/inputarea/InputAreaFooterBase";
-import { InputAreaMetadataActions } from "src/features/composer/components/inputarea/InputAreaMetadataActions";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { INPUT_AREA_SIZE } from "src/features/workspace/config/constants";
 import { useAppContext } from "src/core/ui/context/AppContext";
@@ -165,7 +164,6 @@ export const InputAreaFooter: FC<{
       }}
       onCancel={editingPost ? cancelEdit : undefined}
       characterCount={inputSnapshot.length}
-      leadingActions={<InputAreaMetadataActions isReadOnly={isReadOnly} />}
       beforeSubmitAction={expandAction}
       submitAction={submitAction}
     >
