@@ -1,7 +1,7 @@
 {
   "id": "dstr",
-  "name": "Daystream",
-  "version": "2.0.3",
+  "name": "Daystream (tadashi-aikawa, 22-2)",
+  "version": "2.2.0",
   "minAppVersion": "1.13.0",
   "description": "A daily stream for notes, tasks, and insights in Obsidian.",
   "author": "tadashi-aikawa",
