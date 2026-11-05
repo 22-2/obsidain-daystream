@@ -113,6 +113,18 @@ describe("obsidian-daily-notes-kit", () => {
       expect(settings.folder).toBe("Periodic/Quarterly");
       expect(settings.format).toBe("YYYY-[Q]Q");
     });
+
+    it("週次の保存先が未設定なら daily と同じフォルダを使う", () => {
+      communityPlugins = { calendar: { options: { weeklyNoteFormat: "gggg-[W]ww" } } };
+
+      expect(getNoteSettings(host, "week").folder).toBe("Daily");
+    });
+
+    it("他の粒度の保存先が空なら daily と同じフォルダを使う", () => {
+      usePeriodicNotes("monthly", "YYYY-MM", " ");
+
+      expect(getNoteSettings(host, "month").folder).toBe("Daily");
+    });
   });
 
   describe("resolveNotePath", () => {

@@ -48,10 +48,11 @@ function getPeriodicNotesEntry(
 function normalizePeriodicSettings(
   entry: PeriodicNotesEntry | undefined,
   defaultFormat: string,
+  fallbackFolder: string,
 ): NoteSettings {
   return {
     format: entry?.format || defaultFormat,
-    folder: entry?.folder?.trim() || "",
+    folder: entry?.folder?.trim() || fallbackFolder,
     template: entry?.template?.trim() || "",
   };
 }
@@ -72,11 +73,12 @@ function getDailyNotesFallbackSettings(
 function getCalendarFallbackSettings(
   host: DailyNotesHost,
   defaultFormat: string,
+  fallbackFolder: string,
 ): NoteSettings {
   const calendarSettings = host.getCommunityPlugin<CalendarPlugin>("calendar")?.options;
   return {
     format: calendarSettings?.weeklyNoteFormat || defaultFormat,
-    folder: calendarSettings?.weeklyNoteFolder?.trim() || "",
+    folder: calendarSettings?.weeklyNoteFolder?.trim() || fallbackFolder,
     template: calendarSettings?.weeklyNoteTemplate?.trim() || "",
   };
 }
@@ -92,18 +94,19 @@ export function getNoteSettings(
     GRANULARITY_SETTINGS[granularity];
 
   try {
+    const dailyFolder = getDailyNotesFallbackSettings(host, defaultFormat).folder;
     const periodicEntry = getPeriodicNotesEntry(host, periodicity);
 
     if (source === "periodic-notes") {
-      return normalizePeriodicSettings(periodicEntry, defaultFormat);
+      return normalizePeriodicSettings(periodicEntry, defaultFormat, dailyFolder);
     }
 
     if (usePeriodicNotesWhenEnabled && periodicEntry?.enabled) {
-      return normalizePeriodicSettings(periodicEntry, defaultFormat);
+      return normalizePeriodicSettings(periodicEntry, defaultFormat, dailyFolder);
     }
 
     if (source === "calendar") {
-      return getCalendarFallbackSettings(host, defaultFormat);
+      return getCalendarFallbackSettings(host, defaultFormat, dailyFolder);
     }
 
     return getDailyNotesFallbackSettings(host, defaultFormat);
