@@ -1,4 +1,5 @@
 import { normalizePath, TFile } from "obsidian";
+import { createBoardContent } from "src/core/board";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import { ensureExtension } from "src/core/path";
 import type { ObsidianAppShell } from "src/core/platform/obsidian-shell";
@@ -114,3 +115,32 @@ export function buildFixedNotePathFromName(
 
 export const createNewFixedNote = (shell: ObsidianAppShell, folder: string) =>
   ensureFixedNote(shell, buildFixedNotePathFromName(folder, UNTITLED_FILENAME, shell));
+
+/** 空いている「Untitled n」(n は 1 から)の名前を返す。 */
+function buildUntitledBoardName(shell: ObsidianAppShell, folder: string): string {
+  const prefix = norm(folder) ? `${norm(folder)}/` : "";
+  for (let n = 1; ; n += 1) {
+    const name = `${UNTITLED_FILENAME} ${n}`;
+    const path = `${prefix}${name}${FILENAME_SUFFIX}`;
+    if (!shell.getAbstractFileByPath(path) && !shell.getAbstractFileByPath(toLegacyFixedNotePath(path))) {
+      return name;
+    }
+  }
+}
+
+/**
+ * session 管理なしでポストを積めるボード(フロントマター付き fixed ノート)を作る。
+ * 名前を省略すると「Untitled n」になる。名前の変更はサイドバーから行う。
+ */
+export async function createBoardNote(
+  shell: ObsidianAppShell,
+  folder: string,
+  name?: string,
+): Promise<TFile> {
+  const boardName = name?.trim() || buildUntitledBoardName(shell, folder);
+  const path = buildFixedNotePathFromName(folder, boardName, shell);
+  const folderPath = path.substring(0, path.lastIndexOf("/"));
+  if (folderPath) await ensureFolder(shell, folderPath);
+
+  return shell.createFile(path, createBoardContent());
+}

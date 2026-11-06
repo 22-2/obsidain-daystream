@@ -1,3 +1,4 @@
+import { getBoardInsertMarker, isBoardContent, parseBoardEntries } from "src/core/board";
 import { parseThinoEntries, type ThinoEntry } from "src/core/thino";
 
 export interface FixedSessionSection {
@@ -66,10 +67,27 @@ function appendFixedSessionHeading(content: string, headingLine: string): string
   return `${trimmedContent}\n\n${headingLine}\n`;
 }
 
+function buildBoardSection(content: string): FixedSessionSection {
+  const marker = getBoardInsertMarker(content);
+  return {
+    sessionNumber: 1,
+    headingLine: marker,
+    headingStartOffset: 0,
+    headingEndOffset: marker.length,
+    sectionEndOffset: content.length,
+    entries: parseBoardEntries(content),
+    isLegacyHeading: false,
+  };
+}
+
 export function parseFixedSessionSections(
   content: string,
   insertAfter: string,
 ): FixedSessionSection[] {
+  // 意図: ボードは session 見出しを持たないので、ファイル全体を session 1 の1区画として扱う。
+  // こうすると一覧・集計・投稿が fixed の既存経路のままボードにも使える。
+  if (isBoardContent(content)) return [buildBoardSection(content)];
+
   const lines = content.split("\n");
   const discoveredSections: Array<Omit<FixedSessionSection, "entries" | "sectionEndOffset">> = [];
 
@@ -122,6 +140,10 @@ export function ensureFixedSessionHeading(params: {
   headingLine: string;
 } {
   const { content, insertAfter, sessionNumber } = params;
+  if (isBoardContent(content)) {
+    return { nextContent: content, headingLine: getBoardInsertMarker(content) };
+  }
+
   const explicitSessionOneHeading = buildFixedSessionHeading(insertAfter, 1);
   const requestedHeading = buildFixedSessionHeading(insertAfter, sessionNumber);
   const sections = parseFixedSessionSections(content, insertAfter);

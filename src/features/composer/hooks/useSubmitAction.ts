@@ -1,6 +1,7 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { Notice, TFile } from "obsidian";
 import { useCallback } from "react";
+import { getBoardInsertMarker, isBoardContent } from "src/core/board";
 import { ensureFixedSessionHeading } from "src/core/fixed-sessions";
 import { normalizeDSTRMetadata } from "src/core/metadata";
 import { resolveNoteSource } from "src/core/note-source";
@@ -71,13 +72,16 @@ export const useSubmitAction = () => {
 
   const ensureFixedSessionInsertMarker = useCallback(
     async (note: TFile): Promise<string | null> => {
+      const content = await shell.loadFile(note.path);
+      // 意図: ボードは session 見出しを使わないので、挿入位置の設定がなくても投稿できる。
+      if (isBoardContent(content)) return getBoardInsertMarker(content);
+
       const insertAfter = settings.insertAfter.trim();
       if (!insertAfter) {
         new Notice("Fixed session を使うには挿入位置の設定が必要です");
         return null;
       }
 
-      const content = await shell.loadFile(note.path);
       const { nextContent, headingLine } = ensureFixedSessionHeading({
         content,
         insertAfter,

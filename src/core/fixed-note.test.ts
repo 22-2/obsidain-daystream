@@ -2,6 +2,7 @@ import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import { LEGACY_DAYSTREAM_IDENTIFIERS } from "src/core/legacy-identifiers";
 import {
   buildFixedNotePathFromName,
+  createBoardNote,
   createNewFixedNote,
   ensureFixedNote,
   isDSTRFixedNotePath,
@@ -17,6 +18,23 @@ import { describe, expect, it, vi } from "vitest";
 const mockFile = (path: string) => createFakeTFile(path);
 
 describe("fixed note utilities", () => {
+  it("ボードは名前を省略すると空いている「Untitled n」で作る", async () => {
+    const taken = new Set(["boards/Untitled 1.dstr.md", "boards/Untitled 2.dstr.md"]);
+    const createFile = vi.fn(async (path: string) => mockFile(path));
+    const shell = createFakeShell({
+      getAbstractFileByPath: vi.fn((p: string) => (taken.has(p) ? mockFile(p) : null)),
+      createFolder: vi.fn(),
+      createFile,
+    });
+
+    await createBoardNote(shell, "boards");
+
+    expect(createFile).toHaveBeenCalledWith(
+      "boards/Untitled 3.dstr.md",
+      expect.stringContaining("dstr-board: true"),
+    );
+  });
+
   it("パスの正規化と拡張子の判定", () => {
     // normalizeFixedNotePath (フォルダの正規化もここに含まれる)
     expect(normalizeFixedNotePath(" inbox/fixed-note ")).toBe("inbox/fixed-note.md");

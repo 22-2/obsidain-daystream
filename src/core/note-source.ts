@@ -2,6 +2,7 @@ import { obsidianMoment } from "src/core/platform/obsidian-globals";
 import type { TFile } from "obsidian";
 import {
   buildFixedNotePathFromName,
+  createBoardNote,
   createNewFixedNote,
   ensureFixedNote,
   normalizeFixedNotePath,
@@ -166,6 +167,14 @@ export async function createFixedNoteFromInput(
 
   const path = buildFixedNotePathFromName(folder, trimmedName, shell);
   return ensureFixedNote(shell, path);
+}
+
+export function createBoardFromInput(
+  shell: ObsidianAppShell,
+  folder: string,
+  name?: string,
+): Promise<TFile> {
+  return createBoardNote(shell, folder, name);
 }
 
 function createFixedNoteSource(context: NoteSourceContext): NoteSource {

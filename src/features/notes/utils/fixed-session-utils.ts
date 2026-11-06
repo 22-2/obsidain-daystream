@@ -1,4 +1,5 @@
 import { obsidianMoment } from "src/core/platform/obsidian-globals";
+import { isBoardContent } from "src/core/board";
 import { parseFixedSessionSections } from "src/core/fixed-sessions";
 import { resolveTimestamp } from "src/core/post-utils";
 import type { MomentLike, Post } from "src/core/domain/post";
@@ -192,6 +193,7 @@ export function buildFixedSessionPosts(params: {
     referenceDate,
   } = params;
   const query = searchQuery.trim().toLowerCase();
+  const inBoard = isBoardContent(content);
 
   return parseFixedSessionSections(content, insertAfter)
     .filter((section) => sessionNumber == null || section.sessionNumber === sessionNumber)
@@ -208,12 +210,13 @@ export function buildFixedSessionPosts(params: {
         })
         .map((entry) => {
           const timestamp = resolveTimestamp(entry.time, referenceDate, entry.metadata);
-          return buildPostFromEntry({
+          const post = buildPostFromEntry({
             ...entry,
             path,
             noteDate: timestamp.clone().startOf("day"),
             resolveTimestamp,
           });
+          return inBoard ? { ...post, inBoard } : post;
         });
     });
 }
