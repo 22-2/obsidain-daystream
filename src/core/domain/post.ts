@@ -19,4 +19,6 @@ export interface Post {
   bodyStartOffset: number;
   kind: "thino";
   path: string;
+  /** ボード(session 管理なしの fixed ノート)内の投稿。ファイル内の並びが表示順になる。 */
+  inBoard?: boolean;
 }

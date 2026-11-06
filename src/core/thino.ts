@@ -15,6 +15,8 @@ export interface ThinoEntry {
 type ParseThinoEntriesOptions = {
   headingMatcher?: (line: string) => boolean;
   offsetBase?: number;
+  /** 見出しを待たず、先頭からエントリ領域として読む。見出しでは打ち切らない。 */
+  startInSection?: boolean;
 };
 
 function getHeadingLevel(line: string): number | null {
@@ -160,7 +162,7 @@ export function parseThinoEntries(
 
   let offset = 0;
   let thinoHeadingLevel: number | null = null;
-  let inThinoSection = false;
+  let inThinoSection = options.startInSection ?? false;
 
   const entries: ThinoEntry[] = [];
   let current: {
