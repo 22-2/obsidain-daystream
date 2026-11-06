@@ -11,6 +11,7 @@ import {
   moveFixedNoteStorage,
 } from "src/features/notes/utils/follow-renamed-fixed-note";
 import { forgetDeletedFixedNote } from "src/features/notes/utils/forget-deleted-fixed-note";
+import { renameBoardInOrder } from "src/features/notes/utils/board-order";
 import {
   getFixedSessionMetaFilePath,
   getLegacyFixedSessionMetaFilePath,
@@ -64,6 +65,7 @@ export function registerFixedNoteRegistry(
       if (!(file instanceof TFile)) return;
 
       if (isDSTRFixedNotePath(oldPath)) {
+        renameBoardInOrder(storage, oldPath, file.path);
         void followRenamedFixedNote(context, storage, file, oldPath).catch((error) =>
           reportError({
             context: "Failed to follow renamed fixed note",
