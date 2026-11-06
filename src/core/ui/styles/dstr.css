@@ -160,9 +160,12 @@
   margin-bottom: 0;
 }
 
-[data-type="dstr-view"] .dstr-dashboard-root:has(.mod-editor-expanded) {
-  /* 親の上下 padding も下側だけ解除する。ユーティリティの !important に合わせる。 */
-  padding-bottom: 0 !important;
+/* 意図: py/px ユーティリティは utilities レイヤー内の !important なので、レイヤー外の
+   !important では負ける。同じレイヤーに置き、展開中は四辺の余白をすべて消す。 */
+@layer utilities {
+  [data-type="dstr-view"] .dstr-dashboard-root:has(.mod-editor-expanded) {
+    padding: 0 !important;
+  }
 }
 
 /* 意図: アクティブな Daystream の展開中だけ標準ステータスバーと予約高さを取り除き、
@@ -194,6 +197,9 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
 [data-type="dstr-view"] .dstr-scroll-container.mod-editor-expanded {
   overflow: hidden !important;
   overscroll-behavior: none;
+  /* 意図: .dstr-scroll-container の stable は !important 化されるため、同じ !important で上書きし、
+     隠したスクロールバー分の幅を右に残さない。 */
+  scrollbar-gutter: auto !important;
 }
 
 [data-type="dstr-view"] .dstr-input-area.mod-maxmized .dstr-editor-wrapper {
