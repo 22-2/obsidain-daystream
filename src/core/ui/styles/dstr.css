@@ -396,6 +396,36 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
   inset-block-end: 0;
 }
 
+/* サイドバーのボードへ投稿やボードをドロップするときの強調 */
+.dstr-board-item.is-drop-target {
+  background: var(--background-modifier-hover);
+  outline: 1px dashed var(--interactive-accent);
+  outline-offset: -1px;
+}
+
+/* ボードの並べ替えの線。項目どうしの隙間(4px)の中央に置く直線で、角丸には沿わない。 */
+.dstr-board-item {
+  position: relative;
+}
+
+.dstr-board-item:is(.is-drop-before, .is-drop-after)::after {
+  position: absolute;
+  inset-inline: 0;
+  z-index: 2;
+  height: 2px;
+  background: var(--interactive-accent);
+  content: "";
+  pointer-events: none;
+}
+
+.dstr-board-item.is-drop-before::after {
+  inset-block-start: -3px;
+}
+
+.dstr-board-item.is-drop-after::after {
+  inset-block-end: -3px;
+}
+
 .dstr-scroll-area {
   overflow-y: scroll;
   scrollbar-width: thin;
