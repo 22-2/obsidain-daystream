@@ -156,6 +156,15 @@ vi.mock("src/features/posts/hooks/usePostBacklinkCounts", () => ({
   }),
 }));
 
+vi.mock("src/features/posts/hooks/internal/useBoardPostDrag", () => ({
+  useBoardPostDrag: () => ({
+    handleDragStart: vi.fn(),
+    handleDragEnd: vi.fn(),
+    handleDragOver: vi.fn(),
+    handleDrop: vi.fn(),
+  }),
+}));
+
 vi.mock("src/features/posts/hooks/internal/usePostMutations", () => ({
   usePostMutations: () => ({
     handleHighlightPost: vi.fn(),
@@ -298,5 +307,19 @@ describe("PostListView", () => {
 
     expect(screen.getByText("読み込み中...")).toBeDefined();
     expect(screen.queryByText("これ以上投稿はありません")).toBeNull();
+  });
+
+  it("ボードの投稿にだけドラッグの取っ手を出す", () => {
+    mocked.posts = [
+      { ...createPost(), id: "board-post", inBoard: true },
+      { ...createPost(), id: "plain-post" },
+    ];
+
+    render(<PostListView />);
+
+    const handleOf = (id: string) =>
+      screen.getByTestId(id).parentElement?.querySelector(".dstr-board-drag-handle");
+    expect(handleOf("board-post")).not.toBeNull();
+    expect(handleOf("plain-post")).toBeNull();
   });
 });

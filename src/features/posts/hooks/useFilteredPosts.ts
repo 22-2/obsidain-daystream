@@ -82,6 +82,11 @@ function filterPostsForView({
   const visibleRoots = postsMatchingTag.filter(isVisibleRootPost);
 
   if (viewNoteMode === "fixed") {
+    // 意図: ボードはファイル内の並びが表示順なので、時刻順やピン留め順で並べ替えない。
+    if (visibleRoots.some((post) => post.inBoard)) {
+      return [...visibleRoots].sort((left, right) => left.startOffset - right.startOffset);
+    }
+
     return sortPostsPinnedFirst(
       filterPostsByRelativeWindow(visibleRoots, {
         dateFilter,

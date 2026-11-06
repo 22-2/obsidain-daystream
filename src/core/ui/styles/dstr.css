@@ -338,6 +338,64 @@ body:has(.workspace-leaf.mod-active [data-type="dstr-view"] .mod-editor-expanded
   padding-inline-end: var(--size-4-3);
 }
 
+/* ==============================================
+   ボード: ポストのドラッグ並べ替え
+   ============================================== */
+
+.dstr-post-row {
+  position: relative;
+}
+
+/* 意図: 取っ手はカードの外の左余白に置き、日付などカード内の表示と重ならないようにする。 */
+.dstr-post-row--board {
+  padding-inline-start: var(--size-4-5);
+}
+
+/* 意図: つかむ場所を専用の取っ手にして、カード内の文字選択やリンク操作を邪魔しない。 */
+.dstr-board-drag-handle {
+  position: absolute;
+  inset-block-start: var(--size-4-3);
+  inset-inline-start: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-4-5);
+  color: var(--text-faint);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 100ms ease-in-out;
+}
+
+.dstr-post-row:hover .dstr-board-drag-handle,
+.dstr-board-drag-handle:active {
+  opacity: 1;
+}
+
+.dstr-post-row.is-dragging {
+  opacity: 0.4;
+}
+
+/* 意図: 挿入位置の線は行の端に置く直線の疑似要素にする。角丸のカードに沿って曲がる
+   box-shadow は使わない。線を持つのはホバー中の1行だけなので、境目で2本にならない。 */
+.dstr-post-row:is(.is-drop-before, .is-drop-after)::after {
+  position: absolute;
+  inset-inline: 0;
+  z-index: 2;
+  height: 2px;
+  background: var(--interactive-accent);
+  content: "";
+  pointer-events: none;
+}
+
+.dstr-post-row.is-drop-before::after {
+  inset-block-start: 0;
+}
+
+.dstr-post-row.is-drop-after::after {
+  inset-block-end: 0;
+}
+
 .dstr-scroll-area {
   overflow-y: scroll;
   scrollbar-width: thin;

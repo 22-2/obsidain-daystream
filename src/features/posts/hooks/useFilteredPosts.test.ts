@@ -21,6 +21,7 @@ function createPost(overrides: Partial<Post>): Post {
     bodyStartOffset: overrides.bodyStartOffset ?? 2,
     kind: "thino",
     path: overrides.path ?? "2026-03-15.md",
+    inBoard: overrides.inBoard,
   };
 }
 
@@ -272,5 +273,41 @@ describe("useFilteredPosts", () => {
     );
 
     expect(result.current.map((post) => post.id)).toEqual(["recent-plain"]);
+  });
+
+  test("ボードの投稿は日付やピン留めに関係なくファイル内の並びで表示する", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-18T12:00:00.000Z"));
+
+    const posts = [
+      createPost({
+        id: "second",
+        startOffset: 200,
+        inBoard: true,
+        timestamp: obsidianMoment("2026-03-18T11:00:00.000Z"),
+      }),
+      createPost({
+        id: "first-old-pinned",
+        startOffset: 100,
+        inBoard: true,
+        timestamp: obsidianMoment("2020-01-01T00:00:00.000Z"),
+        metadata: { pinned: "true" },
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useFilteredPosts({
+        posts,
+        activeTag: null,
+        timeFilter: "2h",
+        dateFilter: "today",
+        granularity: "day",
+        displayMode: DISPLAY_MODE.FOCUS,
+        threadFocusRootId: null,
+        viewNoteMode: "fixed",
+      }),
+    );
+
+    expect(result.current.map((post) => post.id)).toEqual(["first-old-pinned", "second"]);
   });
 });

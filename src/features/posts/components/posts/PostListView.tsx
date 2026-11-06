@@ -1,3 +1,4 @@
+import type { DragEvent } from "react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { DateDivider } from "src/features/posts/components/posts/DateDivider";
@@ -10,6 +11,7 @@ import { useEditorRefs } from "src/features/composer/context/EditorRefsContext";
 import { useDividerContextMenu } from "src/features/posts/hooks/internal/useDividerContextMenu";
 import { usePostMutations } from "src/features/posts/hooks/internal/usePostMutations";
 import { usePostContextMenu } from "src/features/posts/hooks/internal/usePostContextMenu";
+import { useBoardPostDrag } from "src/features/posts/hooks/internal/useBoardPostDrag";
 import { useObsidianUi } from "src/features/workspace/hooks/useObsidianUi";
 import { usePostBacklinks } from "src/features/posts/hooks/usePostBacklinkCounts";
 import { usePosts } from "src/features/posts/hooks/usePosts";
@@ -170,6 +172,7 @@ export const PostListView = memo(() => {
   );
 
   const { openEditorInNewWindow } = useObsidianUi();
+  const boardDrag = useBoardPostDrag();
 
   const { inputAreaSize } = useSettingsStore(
     useShallow((s) => ({ inputAreaSize: s.inputAreaSize })),
@@ -324,7 +327,34 @@ export const PostListView = memo(() => {
             highlightedPost != null && isSamePostReference(item.post, highlightedPost);
 
           return (
-            <Box key={item.key} className="dstr-post-row">
+            <Box
+              key={item.key}
+              className={cn("dstr-post-row", item.post.inBoard && "dstr-post-row--board")}
+              onDragOver={
+                item.post.inBoard
+                  ? (event: DragEvent<HTMLElement>) =>
+                      boardDrag.handleDragOver(event, item.post)
+                  : undefined
+              }
+              onDrop={
+                item.post.inBoard
+                  ? (event: DragEvent<HTMLElement>) =>
+                      void boardDrag.handleDrop(event, item.post)
+                  : undefined
+              }
+            >
+              {item.post.inBoard && !isReadOnly && (
+                <Box
+                  className="dstr-board-drag-handle"
+                  draggable
+                  onDragStart={(event: DragEvent<HTMLElement>) =>
+                    boardDrag.handleDragStart(event, item.post)
+                  }
+                  onDragEnd={boardDrag.handleDragEnd}
+                >
+                  <ObsidianIcon name="grip-vertical" size="14px" />
+                </Box>
+              )}
               <PostCardView
                 post={item.post}
                 showGranularityBadge={showGranularityBadges}
