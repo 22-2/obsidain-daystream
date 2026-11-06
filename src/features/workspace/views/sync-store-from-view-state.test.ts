@@ -138,4 +138,34 @@ describe("syncStoreFromDSTRViewState", () => {
       }),
     );
   });
+
+  it("固定ノートから同じタブの periodic へ戻るときも表示状態を復元し直す", () => {
+    // 固定ノートでは mainView が timeline、displayMode が focus に上書きされている。
+    const { state, store } = createMockStore({
+      viewNoteMode: "fixed",
+      file: "boards/a.dstr.md",
+      displayMode: "focus",
+      mainView: MAIN_VIEW.TIMELINE,
+    });
+    const viewState: DSTRViewState = {
+      displayMode: "focus",
+      granularity: "day",
+      threadOnly: false,
+      fixedSessionNumber: 1,
+      timeFilter: "all",
+      dateFilter: "today",
+      searchQuery: "",
+      activeTopic: "",
+      noteMode: "periodic",
+      file: null,
+      mainView: MAIN_VIEW.TIMELINE,
+    };
+
+    syncStoreFromDSTRViewState(store, viewState);
+
+    expect(state.viewNoteMode).toBe("periodic");
+    expect(store.setState).toHaveBeenCalledWith(
+      expect.objectContaining({ mainView: MAIN_VIEW.TIMELINE, displayMode: "timeline" }),
+    );
+  });
 });

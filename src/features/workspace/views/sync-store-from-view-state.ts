@@ -9,6 +9,9 @@ export function syncStoreFromDSTRViewState(store: AppStoreApi, viewState: DSTRVi
   const nextFixedSessionNumber =
     viewState.noteMode === "fixed" ? (viewState.fixedSessionNumber ?? 1) : 1;
   const currentState = store.getState();
+  // 意図: ボードなどの固定ノートから戻るときは、固定ノート用に上書きされた表示状態を
+  // 復元済みのタブに合わせ直す。タブの値が同じでも設定し直す。
+  const isLeavingFixed = currentState.viewNoteMode === "fixed" && viewState.noteMode !== "fixed";
 
   if (
     currentState.viewNoteMode !== viewState.noteMode ||
@@ -23,7 +26,19 @@ export function syncStoreFromDSTRViewState(store: AppStoreApi, viewState: DSTRVi
   }
 
   if (viewState.noteMode !== "fixed") {
-    if (viewState.mainView !== undefined && currentState.mainView !== viewState.mainView) {
+    if (isLeavingFixed) {
+      // 意図: 固定ノート用に上書きされた粒度・期間などを、戻る先の view state に合わせ直す。
+      store.setState({
+        granularity: viewState.granularity,
+        dateFilter: viewState.dateFilter,
+        timeFilter: viewState.timeFilter,
+        threadOnly: viewState.threadOnly,
+      });
+    }
+    if (
+      viewState.mainView !== undefined &&
+      (isLeavingFixed || currentState.mainView !== viewState.mainView)
+    ) {
       // 意図: 上部タブは view ごとに独立させ、別タブの vault 全体設定で
       // 現在のタブが上書きされないよう、復元時は永続化せず view state を優先する。
       store.setState({
