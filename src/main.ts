@@ -1,11 +1,11 @@
 import { unpatchToggleSourceCommand } from "@22-2/obsidian-magical-editor";
-import type { WorkspaceLeaf } from "obsidian";
+import type { TFile, WorkspaceLeaf } from "obsidian";
 import { apiVersion, Notice, Platform, Plugin, View } from "obsidian";
 import { activateBuiltins } from "src/features/workspace/activate-builtins";
 import type { BuiltinMainContext } from "src/features/workspace/registration-context";
 import { reportError } from "src/core/error-report";
 import { setConsolaLevel } from "src/core/logger";
-import { createFixedNoteFromInput } from "src/core/note-source";
+import { createBoardFromInput, createFixedNoteFromInput } from "src/core/note-source";
 import type { Topic } from "src/core/topic";
 import { WorkerClient } from "src/core/db/worker-client";
 import { extension as dstrBottomPaddingExtension } from "src/features/composer/extensions/bottom-padding";
@@ -166,15 +166,25 @@ export default class DSTRPlugin extends Plugin {
   // ---------------------------------------------------------------------------
 
   private async createAndOpenFixedNote() {
+    await this.createAndOpenNote("固定ノートの名前を入力", createFixedNoteFromInput);
+  }
+
+  private async createAndOpenBoard() {
+    // 意図: ボードは名前を聞かずに「Untitled n」で作り、名前はサイドバーから付ける。
+    await this.createAndOpenNote(null, createBoardFromInput);
+  }
+
+  private async createAndOpenNote(
+    title: string | null,
+    create: (shell: ObsidianAppShell, folder: string, name: string) => Promise<TFile>,
+  ) {
     const folder = this.app.vault.config.newFileFolderPath || "/";
 
-    const name = await showInputModal(this.app, {
-      title: "固定ノートの名前を入力",
-      placeholder: "Untitled",
-    });
+    const name =
+      title === null ? "" : await showInputModal(this.app, { title, placeholder: "Untitled" });
     if (name === null) return;
 
-    const fixedNote = await createFixedNoteFromInput(this.shell, folder, name);
+    const fixedNote = await create(this.shell, folder, name);
 
     this.settings.files = [...this.settings.files, { path: fixedNote.path }];
     await this.saveSettings();
@@ -223,6 +233,7 @@ export default class DSTRPlugin extends Plugin {
           ? new LegacyDSTREditorView(leaf, this.settings)
           : new DSTREditorView(leaf, this.settings),
       createAndOpenFixedNote: () => this.createAndOpenFixedNote(),
+      createAndOpenBoard: () => this.createAndOpenBoard(),
       attachDSTRView: (state, preferredLeaf) => this.attachDSTRView(state, preferredLeaf),
     };
 

@@ -51,6 +51,20 @@ export function registerWorkspaceCommands(context: BuiltinMainContext): void {
     },
   });
 
+  context.addCommand({
+    id: "dstr-create-board",
+    name: "Create new board",
+    callback: () => {
+      context.createAndOpenBoard().catch((error: unknown) => {
+        reportError({
+          context: "Failed to create board",
+          error,
+          notice: "ボードを作成できませんでした",
+        });
+      });
+    },
+  });
+
   // 意図: Ctrl+Enter 設定が無効でもキーボードのみで投稿できるようにする。
   // Obsidian のホットキー設定から任意のショートカットを割り当てられる。
   context.addCommand({

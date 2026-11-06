@@ -4,7 +4,9 @@ import { reportError } from "src/core/error-report";
 import { EmptyState } from "src/features/workspace/components/EmptyState";
 import { InputArea } from "src/features/composer/components/inputarea/InputArea";
 import { InsightView } from "src/features/insights/components/InsightView";
-import { FixedSessionSidebar } from "src/features/notes/components/FixedSessionSidebar";
+import { FixedNoteSidebar } from "src/features/notes/components/FixedNoteSidebar";
+import { useBoardNavigation } from "src/features/notes/hooks/useBoardNavigation";
+import { useIsBoardFile } from "src/features/notes/hooks/useBoards";
 import { InsightsSidebar } from "src/features/insights/components/InsightsSidebar";
 import { MainViewTabs } from "src/features/workspace/components/layout/MainViewTabs";
 import { PeriodicSidebar } from "src/features/notes/components/PeriodicSidebar";
@@ -34,11 +36,14 @@ export const DSTRWorkspaceLayout = () => {
   const { settings: pluginSettings } = useAppContext();
   const component = useDSTRView();
   const isCSSLoaded = useCSSLoaded(component.containerEl);
-  const { viewNoteMode } = useAppStore(
+  const { viewNoteMode, file } = useAppStore(
     useShallow((s) => ({
       viewNoteMode: s.viewNoteMode,
+      file: s.file,
     })),
   );
+  const isBoard = useIsBoardFile(viewNoteMode === "fixed" ? file : null);
+  const { enterBoards, leaveBoards, showBoardsMenu } = useBoardNavigation();
   const capabilities = useMemo(
     () => getDSTRViewCapabilities({ noteMode: viewNoteMode }),
     [viewNoteMode],
@@ -190,7 +195,7 @@ export const DSTRWorkspaceLayout = () => {
       {/* Left Sidebar: calendar, tags, and period navigation */}
       {capabilities.supportsSidebar && (
         <SidebarContainer isOpen={effectivelyLeftOpen} side="left">
-          {viewNoteMode === "fixed" ? <FixedSessionSidebar /> : <PeriodicSidebar />}
+          {viewNoteMode === "fixed" ? <FixedNoteSidebar /> : <PeriodicSidebar />}
         </SidebarContainer>
       )}
 
@@ -227,7 +232,19 @@ export const DSTRWorkspaceLayout = () => {
                       : mainView
                   }
                   noteMode={viewNoteMode}
-                  onChange={setMainView}
+                  isBoard={isBoard}
+                  onChange={(next) => {
+                    // 意図: ボードからほかのタブへ戻るときは、同じタブの中で通常のビューへ切り替える。
+                    if (isBoard) {
+                      void leaveBoards(next);
+                      return;
+                    }
+                    setMainView(next);
+                  }}
+                  onSelectBoards={() => {
+                    void enterBoards();
+                  }}
+                  onBoardsContextMenu={showBoardsMenu}
                 />
                 <button
                   data-testid="dstr-global-search"

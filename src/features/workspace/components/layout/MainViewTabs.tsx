@@ -29,25 +29,54 @@ const TABS: Array<{
 export const MainViewTabs: React.FC<{
   value: MainView;
   noteMode: DSTRNoteMode;
+  /** 今開いているのがボードかどうか。ボードのときは「ボード」タブが選択される。 */
+  isBoard?: boolean;
   onChange: (value: MainView) => void;
-}> = ({ value, noteMode, onChange }) => {
-  const tabs = TABS.filter((tab) => noteMode === "periodic" || !tab.periodicOnly);
+  onSelectBoards?: () => void;
+  onBoardsContextMenu?: React.MouseEventHandler<HTMLButtonElement>;
+}> = ({ value, noteMode, isBoard = false, onChange, onSelectBoards, onBoardsContextMenu }) => {
+  // 意図: ボードは日付に依存しないが、ほかのタブへ戻れるよう periodic のタブも並べる。
+  // ボードでない固定ノートは従来どおりタイムラインだけを出す。
+  const showAllTabs = noteMode === "periodic" || isBoard;
+  const tabs = TABS.filter((tab) => showAllTabs || !tab.periodicOnly);
 
   return (
     <nav className="dstr-main-view-tabs" role="tablist">
-      {tabs.map((tab) => (
+      {tabs.map((tab) => {
+        const selected = !isBoard && value === tab.value;
+        return (
+          <button
+            key={tab.value}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            className={cn("dstr-main-view-tabs__tab", selected && "is-active")}
+            onClick={() => onChange(tab.value)}
+          >
+            <ObsidianIcon name={tab.icon} size="16px" className="pointer-events-none size-4 p-0" />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
+      {showAllTabs && onSelectBoards && (
         <button
-          key={tab.value}
           type="button"
           role="tab"
-          aria-selected={value === tab.value}
-          className={cn("dstr-main-view-tabs__tab", value === tab.value && "is-active")}
-          onClick={() => onChange(tab.value)}
+          aria-selected={isBoard}
+          className={cn("dstr-main-view-tabs__tab", isBoard && "is-active")}
+          onClick={() => {
+            if (!isBoard) onSelectBoards();
+          }}
+          onContextMenu={onBoardsContextMenu}
         >
-          <ObsidianIcon name={tab.icon} size="16px" className="pointer-events-none size-4 p-0" />
-          <span>{tab.label}</span>
+          <ObsidianIcon
+            name="sticky-note"
+            size="16px"
+            className="pointer-events-none size-4 p-0"
+          />
+          <span>ボード</span>
         </button>
-      ))}
+      )}
     </nav>
   );
 };

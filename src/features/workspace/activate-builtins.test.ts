@@ -86,6 +86,7 @@ describe("builtin registry", () => {
     const createDSTRView = vi.fn((leaf: unknown) => ({ leaf }));
     const createDSTREditorView = vi.fn((leaf: unknown) => ({ leaf }));
     const createAndOpenFixedNote = vi.fn(async () => {});
+    const createAndOpenBoard = vi.fn(async () => {});
     const attachDSTRView = vi.fn(async () => ({ id: "leaf" }));
     const saveSettings = vi.fn(async () => {});
 
@@ -131,6 +132,7 @@ describe("builtin registry", () => {
       createDSTRView,
       createDSTREditorView,
       createAndOpenFixedNote,
+      createAndOpenBoard,
       attachDSTRView,
     } as unknown as BuiltinMainContext;
 
@@ -194,7 +196,7 @@ describe("builtin registry", () => {
       "Daystream",
       expect.any(Function),
     );
-    expect(addCommand).toHaveBeenCalledTimes(3);
+    expect(addCommand).toHaveBeenCalledTimes(4);
 
     const ribbonCallback = addRibbonIcon.mock.calls[0]?.[2] as () => void;
     ribbonCallback();

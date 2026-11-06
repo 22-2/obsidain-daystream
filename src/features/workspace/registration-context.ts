@@ -15,6 +15,7 @@ export interface BuiltinMainContext extends PluginLifecycleContext<Settings> {
   createDSTRView: (leaf: WorkspaceLeaf, viewType?: string) => DSTRView;
   createDSTREditorView: (leaf: WorkspaceLeaf, viewType?: string) => DSTREditorView;
   createAndOpenFixedNote: () => Promise<void>;
+  createAndOpenBoard: () => Promise<void>;
   attachDSTRView: (
     state: Partial<DSTRViewState>,
     preferredLeaf?: WorkspaceLeaf,
