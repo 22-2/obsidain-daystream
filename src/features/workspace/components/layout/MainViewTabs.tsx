@@ -1,4 +1,5 @@
 import type React from "react";
+import { Fragment } from "react";
 import { ObsidianIcon } from "src/core/ui/components/common/ObsidianIcon";
 import { cn } from "src/core/ui/components/primitives/utils";
 import { MAIN_VIEW } from "src/features/workspace/config/constants";
@@ -45,38 +46,39 @@ export const MainViewTabs: React.FC<{
       {tabs.map((tab) => {
         const selected = !isBoard && value === tab.value;
         return (
-          <button
-            key={tab.value}
-            type="button"
-            role="tab"
-            aria-selected={selected}
-            className={cn("dstr-main-view-tabs__tab", selected && "is-active")}
-            onClick={() => onChange(tab.value)}
-          >
-            <ObsidianIcon name={tab.icon} size="16px" className="pointer-events-none size-4 p-0" />
-            <span>{tab.label}</span>
-          </button>
+          <Fragment key={tab.value}>
+            {tab.value === MAIN_VIEW.INSIGHTS && onSelectBoards && (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isBoard}
+                className={cn("dstr-main-view-tabs__tab", isBoard && "is-active")}
+                onClick={() => {
+                  if (!isBoard) onSelectBoards();
+                }}
+                onContextMenu={onBoardsContextMenu}
+              >
+                <ObsidianIcon
+                  name="sticky-note"
+                  size="16px"
+                  className="pointer-events-none size-4 p-0"
+                />
+                <span>ボード</span>
+              </button>
+            )}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              className={cn("dstr-main-view-tabs__tab", selected && "is-active")}
+              onClick={() => onChange(tab.value)}
+            >
+              <ObsidianIcon name={tab.icon} size="16px" className="pointer-events-none size-4 p-0" />
+              <span>{tab.label}</span>
+            </button>
+          </Fragment>
         );
       })}
-      {showAllTabs && onSelectBoards && (
-        <button
-          type="button"
-          role="tab"
-          aria-selected={isBoard}
-          className={cn("dstr-main-view-tabs__tab", isBoard && "is-active")}
-          onClick={() => {
-            if (!isBoard) onSelectBoards();
-          }}
-          onContextMenu={onBoardsContextMenu}
-        >
-          <ObsidianIcon
-            name="sticky-note"
-            size="16px"
-            className="pointer-events-none size-4 p-0"
-          />
-          <span>ボード</span>
-        </button>
-      )}
     </nav>
   );
 };

@@ -22,8 +22,8 @@ describe("MainViewTabs", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "タイムライン",
       "日付",
-      "インサイト",
       "ボード",
+      "インサイト",
     ]);
     expect(screen.queryByRole("tab", { name: "検索" })).toBeNull();
     expect(screen.getByRole("tab", { name: "日付" }).getAttribute("aria-selected")).toBe("true");
